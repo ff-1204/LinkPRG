@@ -326,3 +326,18 @@ test('태세: 맞받아치기는 힘으로, 피하기는 민첩으로, 모으기
   assert.ok(f.skills.focus.uses > 0);
   assert.ok(enemyView(f));
 });
+
+test('주점과 주막에서는 낮에도 낮잠을 잔다. 피로가 30 풀린다. 다른 곳의 낮은 잠깐 쉬기다', async () => {
+  const { createGame, dispatch, slotsNow } = await import('../src/core/game.js');
+  const { rollDice } = await import('../src/data/origins.js');
+  const s = createGame({ name: '잠', origin: 'bard', rolled: rollDice('same'), seed: 'nap' });
+  s.place = 'tavern'; s.phase = 1; s.tired = 50;
+  const slot = slotsNow(s).find((x) => x.action?.id === 'rest');
+  assert.equal(slot.label, '낮잠자기');
+  dispatch(s, { type: 'act', id: 'rest' });
+  assert.equal(s.tired, 20);
+  s.place = 'plaza'; s.phase = 0;
+  assert.equal(slotsNow(s).find((x) => x.action?.id === 'rest').label, '잠깐 쉬기');
+  s.place = 'tavern'; s.phase = 2;
+  assert.equal(slotsNow(s).find((x) => x.action?.id === 'rest').label, '잠자기');
+});

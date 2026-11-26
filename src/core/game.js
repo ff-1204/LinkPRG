@@ -184,10 +184,10 @@ export const OFFER_FEE = 10;
 export function townRooms(state) {
   const here = placeById(state.place);
   if (here.wild) return [];
-  return TOWNS[here.town].order.filter((id) => id !== here.id).map((id) => {
+  return TOWNS[here.town].order.map((id) => { // 지금 있는 곳도 제자리에 둔다. 화면이 꺼 둔다
     const p = PLACES[id];
     const stranger = !!p.needFaction && standingOf(state, p.needFaction[0]) < p.needFaction[1];
-    return { id, name: p.name, part: p.part || '', closed: (!!p.nightOnly && state.phase !== 2) || stranger, why: stranger ? '낯이 익어야 들어간다' : p.nightOnly ? '밤에만 열린다' : '' };
+    return { id, here: id === here.id, name: p.name, part: p.part || '', closed: (!!p.nightOnly && state.phase !== 2) || stranger, why: stranger ? '낯이 익어야 들어간다' : p.nightOnly ? '밤에만 열린다' : '' };
   });
 }
 
@@ -239,9 +239,10 @@ export function slotsNow(state) {
     if (v.canLeave) inside.push({ label: '밖으로 나간다', action: { type: 'dungeon', op: 'leave' } });
     return inside.slice(0, 5);
   }
-  const list = placeById(state.place).actions.filter((id) => id !== 'talk' || peopleHere(state).length > 0).map((id) => (ACTIONS[id].open ? { label: ACTIONS[id].label, open: ACTIONS[id].open } : { label: ACTIONS[id].label, action: { type: 'act', id } }));
+  // 말 걸기는 왼쪽 방 목록의 사람 이름을 누른다
+  const list = placeById(state.place).actions.filter((id) => id !== 'talk').map((id) => (ACTIONS[id].open ? { label: ACTIONS[id].label, open: ACTIONS[id].open } : { label: ACTIONS[id].label, action: { type: 'act', id } }));
   for (const x of list) {
-    if (x.action?.type === 'act' && x.action.id === 'rest') x.label = state.phase === 2 ? (placeById(state.place).wild ? '야영' : '잠자기') : '잠깐 쉬기';
+    if (x.action?.type === 'act' && x.action.id === 'rest') x.label = state.phase === 2 ? (placeById(state.place).wild ? '야영' : '잠자기') : canNap(state) ? '낮잠자기' : '잠깐 쉬기';
     if (x.action?.type === 'act' && x.action.id === 'bread' && state.flags.breadDay === state.day) { x.disabled = true; x.why = '오늘은 이미 받았다'; }
     if (x.action?.type === 'act' && x.action.id === 'room') { x.label = `방 빌리기 (은화 ${INN_FEE})`; if (state.silver < INN_FEE) { x.disabled = true; x.why = '은화가 모자란다'; } }
     if (x.action?.type === 'act' && ACTIONS[x.action.id]?.teach && !knowsWork(state, x.action.id)) x.label = `구경하기 (${ACTIONS[x.action.id].label})`;
@@ -941,7 +942,12 @@ function strike(state, events, count) {
 }
 
 const NAP_TICKS = 10; // 잠깐 쉬기: 한 시간 반쯤
+const NAP_LINES = ['구석 자리에 엎드려 눈을 붙였다. 잔 부딪는 소리가 멀어진다.', '벽에 기대어 졸았다. 누가 어깨에 겉옷을 덮어 준 것 같다.', '탁자에 팔을 베고 잠깐 잤다. 꿈도 꾸지 않았다.'];
 const INN_FEE = 10; // 방 빌리는 값
+// 낮잠 (Z33): 방을 빌리는 곳(주점, 나루 주막)의 구석 자리에서는 낮에도 눈을 붙인다. 피로가 조금 풀린다. 방을 빌리는 것보다는 덜하다
+export const NAP_TIRED = 30; // 낮잠 한 번에 풀리는 피로
+const NAP_LONG = 20; // 낮잠: 세 시간쯤
+const canNap = (state) => state.phase !== 2 && placeById(state.place).actions.includes('room');
 
 /** 들판에서 쉬거나 자는 사이 덮치는가. 덮치면 싸움이 시작된다. */
 function ambushedAtRest(state, events, weight) {
@@ -975,6 +981,22 @@ function rentRoom(state, events) {
 }
 
 function rest(state, events) {
+  if (canNap(state)) {
+    pushLine(state, events, { k: 'me', text: pick(state, NAP_LINES) });
+    state.lastAction = null;
+    const max = valueOf(state, 'maxHp');
+    const beforeHp = state.hp;
+    const beforeTired = state.tired || 0;
+    state.tired = Math.max(0, beforeTired - NAP_TIRED);
+    state.hp = Math.min(max, state.hp + Math.round(max * (state.full > 0 ? 0.2 : 0.05)));
+    state.mp = Math.min(valueOf(state, 'maxMp'), state.mp + Math.round(valueOf(state, 'maxMp') * 0.4));
+    const parts = [];
+    if (beforeTired > state.tired) parts.push(`피로 −${beforeTired - state.tired}`);
+    if (state.hp > beforeHp) parts.push(`생명력 +${state.hp - beforeHp}`);
+    pushLine(state, events, { k: 'sys', text: parts.length ? `낮잠을 잤다. ${parts.join(', ')}.` : '낮잠을 잤다.' });
+    advance(state, events, NAP_LONG, true);
+    return;
+  }
   if (state.phase !== 2) {
     // 낮에는 잠깐 숨만 돌린다. 생명력이 조금 돌아오지만 피로는 풀리지 않는다
     pushLine(state, events, { k: 'me', text: pick(state, REST_LINES) });

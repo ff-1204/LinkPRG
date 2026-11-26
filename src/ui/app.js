@@ -374,7 +374,7 @@ export function start(root, storage = globalThis.localStorage) {
       place.wild ? null : h('small', {}, place.town),
       townRooms(game).map((r, i, all) => [
         r.part && (i === 0 || all[i - 1].part !== r.part) ? h('small', { class: 'part' }, r.part) : null,
-        h('button', { class: 'ch', type: 'button', disabled: busy || r.closed, title: r.closed ? r.why : null, onclick: () => run({ type: 'move', to: r.id }) }, h('span', {}, r.name), r.closed ? h('small', { class: 'muted' }, ` ${r.why}`) : null)]),
+        h('button', { class: 'ch', type: 'button', disabled: busy || r.closed || r.here, 'aria-current': r.here ? 'location' : null, title: r.here ? '지금 여기 있다' : r.closed ? r.why : null, onclick: () => run({ type: 'move', to: r.id }) }, h('span', {}, r.name), r.closed ? h('small', { class: 'muted' }, ` ${r.why}`) : null)]),
       peopleHere(game).length ? h('small', {}, '여기 있는 사람') : null,
       peopleHere(game).map((p) => {
         const n = offersOf(game, p.id).length;
