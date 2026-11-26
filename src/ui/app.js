@@ -45,6 +45,7 @@ import { placeById, PLACES, TOWN_ORDER, PHASES, ACTIONS } from '../data/places.j
 import { SKILL_NAMES, gradeLabel, progress } from '../core/skills.js';
 import { hiddenSlots, foundCount, hiddenTotal, hiddenById } from '../core/hidden.js';
 import { rebirthCarry, rebirthLoss } from '../core/rebirth.js';
+import { createCloud } from './cloud.js';
 import { shadowView, BLESSERS } from '../core/fall.js';
 import { ringView, afterText } from '../core/ending.js';
 import { derived, formula, valueOf } from '../core/derived.js';
@@ -77,6 +78,14 @@ export function start(root, storage = globalThis.localStorage) {
   const guard = createPressGuard();
   const wins = createWindows(document.body);
   const refs = {};
+  // 구글 드라이브 (Z44): 로그인했으면 저장이 드라이브에도 남는다
+  let settingsRerender = null;
+  let titleSyncedAt = 0;
+  const safeSession = (() => { try { return globalThis.sessionStorage; } catch { return { getItem: () => null, setItem() {}, removeItem() {} }; } })();
+  const cloud = createCloud({ storage, session: safeSession, onChange: () => {
+    settingsRerender?.();
+    if (!game && root.querySelector('main.title') && !wins.isOpen()) showTitle();
+  } });
 
   const fail = (error, where) => { recordError(storage, error, where); console.error(error); };
   globalThis.addEventListener?.('error', (e) => recordError(storage, e.error || e.message, 'window'));
@@ -85,6 +94,7 @@ export function start(root, storage = globalThis.localStorage) {
   // ── 처음 화면 ──────────────────────────────────────────
   function showTitle() {
     game = null;
+    if (cloud.status === 'on' && Date.now() - titleSyncedAt > 15000) { titleSyncedAt = Date.now(); cloud.refresh(); }
     const slots = listSlots(storage);
     const used = slots.filter((s) => !s.empty && !s.broken).sort((a, b) => b.savedAt - a.savedAt);
     const firstEmpty = slots.find((s) => s.empty);
@@ -104,6 +114,14 @@ export function start(root, storage = globalThis.localStorage) {
   }
 
   function slotRow(s, latest) {
+    const offer = s.empty ? cloud.offerOf(s.slot) : null;
+    if (offer) {
+      return h('div', { class: 'slot' },
+        h('span', {}, h('b', {}, offer.name), `, 레벨 ${offer.level}`, h('br'), h('span', { class: 'muted', style: 'font-size:.88rem' }, `드라이브에만 있음. ${offer.when}`)),
+        h('div', { class: 'row-btns' },
+          h('button', { class: 'btn go', type: 'button', onclick: () => { cloud.take(s.slot); showTitle(); } }, '드라이브에서 받기'),
+          h('button', { class: 'btn', type: 'button', onclick: () => showCreate(s.slot) }, '새로 시작')));
+    }
     if (s.empty) {
       return h('div', { class: 'slot empty' },
         h('span', { class: 'muted' }, `${s.slot + 1}번 칸. 비어 있음`),
@@ -119,7 +137,7 @@ export function start(root, storage = globalThis.localStorage) {
           h('button', { class: 'btn', type: 'button', onclick: () => confirmClear(s) }, '이 칸 지우기')));
     }
     return h('div', { class: `slot ${latest ? 'main' : ''}` },
-      h('span', {}, h('b', {}, s.name), `, ${s.job}, 레벨 ${s.level}`, h('br'), h('span', { class: 'muted', style: 'font-size:.88rem' }, `${s.when}, ${PLACES[s.place]?.name || ''}. ${ago(s.savedAt)}`)),
+      h('span', {}, h('b', {}, s.name), `, ${s.job}, 레벨 ${s.level}`, cloud.has(s.slot) ? h('span', { class: 'cloudtag' }, '드라이브에도 있음') : null, h('br'), h('span', { class: 'muted', style: 'font-size:.88rem' }, `${s.when}, ${PLACES[s.place]?.name || ''}. ${ago(s.savedAt)}`)),
       h('div', { class: 'row-btns' },
         h('button', { class: `btn ${latest ? 'go' : ''}`, type: 'button', 'data-autofocus': latest || null, onclick: () => resume(s.slot) }, '이어 하기'),
         h('button', { class: 'btn', type: 'button', onclick: () => exportSlot(s.slot, s.name) }, '파일로 내보내기'),
@@ -141,7 +159,7 @@ export function start(root, storage = globalThis.localStorage) {
           h('p', {}, s.broken ? `${s.slot + 1}번 칸의 저장을 지웁니다.` : `${s.name} (레벨 ${s.level}, ${s.when})의 저장을 지웁니다. 되돌릴 수 없습니다.`),
           h('div', { class: 'row-btns' },
             h('button', { class: 'btn', type: 'button', 'data-autofocus': true, onclick: close }, '취소'),
-            h('button', { class: 'btn go', type: 'button', onclick: () => { clearSlot(storage, s.slot); close(); showTitle(); } }, '삭제')));
+            h('button', { class: 'btn go', type: 'button', onclick: () => { clearSlot(storage, s.slot); cloud.removed(s.slot); close(); showTitle(); } }, '삭제')));
       },
     });
   }
@@ -290,7 +308,7 @@ export function start(root, storage = globalThis.localStorage) {
     refs.pg = h('div', { class: 'pg', role: 'tabpanel' });
     refs.game = h('div', { class: 'game' },
       refs.nav,
-      h('main', { class: 'room' }, h('div', { class: 'mbar' }, refs.mNav, refs.mBook), refs.hd, refs.body, h('div', { class: 'logwrap' }, refs.strip, refs.log), refs.suggest, refs.fight, refs.assist, refs.slots, refs.sr),
+      h('main', { class: 'room' }, h('div', { class: 'mbar' }, refs.mNav, h('button', { class: 'btn', type: 'button', onclick: () => openBag('all') }, '가방'), refs.mBook), refs.hd, refs.body, h('div', { class: 'logwrap' }, refs.strip, refs.log), refs.suggest, refs.fight, refs.assist, refs.slots, refs.sr),
       h('aside', { class: 'book', 'aria-label': '모험 일지' }, refs.menu, refs.tabs, refs.pg),
       refs.shade);
     fill(root, refs.game);
@@ -368,6 +386,7 @@ export function start(root, storage = globalThis.localStorage) {
       h('small', {}, '현재 위치'),
       h('button', { class: 'ch here', type: 'button', 'aria-current': 'page' }, place.name),
       h('span', { class: 'note' }, `위험도 ${danger}`),
+      game.battle ? h('span', { class: 'note warnnote', role: 'status' }, '싸우는 중에는 다른 곳으로 갈 수 없다. 이기거나 달아나야 한다.') : null,
       place.wild ? h('span', { class: 'note' }, `권장 레벨 ${place.levels}${isNight(game) ? '. 밤에는 위험도가 한 단계 오른다' : ''}`) : null,
       place.wild ? null : h('small', {}, place.town),
       townRooms(game).map((r, i, all) => [
@@ -636,6 +655,7 @@ export function start(root, storage = globalThis.localStorage) {
     try {
       saveRev = saveTo(storage, slot, game, Date.now(), saveRev);
       saveFailed = false;
+      cloud.queue(slot);
     } catch (e) {
       if (e instanceof SaveConflict) {
         // 다른 창이 이 칸을 먼저 고쳤다. 옛 상태로 덮어쓰면 되감기가 되므로 여기서 멈춘다.
@@ -1512,7 +1532,7 @@ export function start(root, storage = globalThis.localStorage) {
             h('span', { class: 'h' }, '기여도가 쌓이는 일'),
             h('p', { class: 'muted', style: 'font-size:.9rem' }, '싸움에서 이김 1(이름난 개체 10), 만든 것 2(등급마다 +2), 강화 성공은 그 강화 수, 의뢰 끝냄 5, 대화와 선물 1. 길드의 성격에 맞는 일은 두 배.'),
             h('div', { class: 'row-btns' },
-              h('button', { class: 'btn go', type: 'button', 'data-press': true, disabled: game.silver < DONATE.silver, onclick: () => act({ type: 'guild', op: 'donate' }) }, `헌납 (은화 ${DONATE.silver}, 기여 ${DONATE.contrib})`),
+              h('button', { class: 'btn go', type: 'button', 'data-press': true, disabled: game.silver < DONATE.silver, onclick: () => act({ type: 'guild', op: 'donate' }) }, `헌납 (은화 ${DONATE.silver}, 기여 ${DONATE.contrib})`, game.silver < DONATE.silver ? h('small', {}, ' 은화가 모자란다') : null),
               h('button', { class: 'btn', type: 'button', onclick: () => act({ type: 'guild', op: 'leave' }) }, '탈퇴 (기여도를 잃는다)'))),
           board));
       },
@@ -1944,7 +1964,8 @@ export function start(root, storage = globalThis.localStorage) {
 
   function openSettings() {
     wins.open({
-      title: '저장과 설정', size: 'mid', render(body, { rerender, close }) {
+      title: '저장과 설정', size: 'mid', onClose: () => { settingsRerender = null; if (!game && root.querySelector('main.title')) showTitle(); }, render(body, { rerender, close }) {
+        settingsRerender = rerender;
         if (game) {
           add(body,
             h('span', { class: 'h', style: 'margin-top:0' }, '저장 (이 기기 안에 남는다)'),
@@ -1954,8 +1975,25 @@ export function start(root, storage = globalThis.localStorage) {
               h('button', { class: 'btn', type: 'button', onclick: () => { autosave(); close(); showTitle(); } }, '처음 화면으로')),
             h('p', { class: 'muted', style: 'font-size:.85rem' }, '무엇이든 한 번 할 때마다 저절로 저장된다. 되돌려 다시 하는 저장은 없다.'));
         }
+        // 구글 드라이브 (Z44)
+        const cs = cloud.status;
+        const busy = cs === 'busy';
+        const tryIn = () => cloud.signIn().catch((e) => notice('구글 로그인', e.message));
+        add(body,
+          h('span', { class: 'h', style: game ? '' : 'margin-top:0' }, '구글 드라이브'),
+          cs === 'off'
+            ? [h('p', { class: 'muted', style: 'font-size:.85rem' }, '로그인하면 저장이 드라이브에도 남아 다른 기기에서 이어 할 수 있다. 게임이 쓰는 숨은 폴더에만 넣고, 다른 파일은 보지 못한다. ', h('a', { href: 'privacy.html', target: '_blank', rel: 'noopener' }, '개인정보처리방침')),
+              h('div', { class: 'row-btns' }, h('button', { class: 'btn go', type: 'button', onclick: tryIn }, '구글로 로그인'))]
+            : [h('div', { class: 'setrow' }, h('span', {}, '연결'), h('span', { class: `cloudtag ${cs === 'on' ? '' : 'warn'}`, role: 'status' }, { on: '연결됨', busy: cloud.message || '맞추는 중', expired: '로그인이 풀림', error: '오류' }[cs])),
+              cloud.lastUp ? h('div', { class: 'setrow' }, h('span', {}, '마지막으로 올림'), h('span', {}, ago(cloud.lastUp).replace('방금 저장됨', '방금 전'))) : null,
+              cs === 'error' || cs === 'expired' ? h('p', { class: 'muted', style: 'font-size:.85rem' }, cloud.message) : null,
+              h('div', { class: 'row-btns' },
+                cs === 'expired' || cs === 'error' ? h('button', { class: 'btn go', type: 'button', onclick: tryIn }, '다시 연결') : null,
+                game ? h('button', { class: 'btn', type: 'button', disabled: busy || cs !== 'on', onclick: () => { autosave(); cloud.upNow(slot); } }, '지금 올리기') : null,
+                h('button', { class: 'btn', type: 'button', disabled: busy, onclick: () => cloud.signOut() }, '로그아웃')),
+              h('p', { class: 'muted', style: 'font-size:.85rem' }, '무엇이든 한 번 할 때마다 이 기기에 저장되고, 몇 초 뒤 드라이브에도 올라간다. 드라이브에도 칸마다 가장 나중 것 하나만 둔다.')]);
         for (const group of SETTING_GROUPS) {
-          add(body,h('span', { class: 'h', style: game || group !== SETTING_GROUPS[0] ? '' : 'margin-top:0' }, group.title));
+          add(body,h('span', { class: 'h' }, group.title));
           for (const row of group.rows) {
             add(body,h('div', { class: 'setrow', role: 'group', 'aria-label': row.label }, h('span', {}, row.label),
               h('div', { class: 'row-btns' }, row.options.map(([value, label]) =>

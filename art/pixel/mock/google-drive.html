@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>구글 드라이브 저장 시안</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  :root { --cream: #FBF5E6; --paper: #FFFDF6; --sand: #F3E9D2; --line: #E6D9BD; --line2: #CDBE9E; --ink: #3A2A1E; --muted: #6B5443; --deep: #1E140D; --cinnamon: #8A4F2B; --mint: #BFE3D0; --mint-ink: #1F4A3A; --mint-line: #2F7A5E; --honey: #F2B63C; --serif: 'Gowun Batang', serif; --sans: 'Gowun Dodum', sans-serif; }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--cream); color: var(--ink); font: 16px/1.65 var(--sans); padding: 24px 16px 60px; }
+  .wrap { max-width: 920px; margin: 0 auto; }
+  h1 { font: 700 27px/1.3 var(--serif); margin-bottom: 6px; }
+  h2 { font: 700 20px/1.3 var(--serif); margin: 36px 0 8px; padding-top: 10px; border-top: 2px solid var(--deep); }
+  .note { color: var(--muted); max-width: 52rem; margin-bottom: 10px; }
+  .warn { background: #FBE3C2; border-left: 4px solid var(--cinnamon); padding: 10px 14px; max-width: 52rem; margin: 10px 0; }
+  .row { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+  .cap { font-size: .85rem; color: var(--muted); margin-top: 6px; }
+  .win { width: min(440px, 100%); border: 3px solid var(--deep); border-radius: 6px; background: var(--cream); box-shadow: 8px 8px 0 rgba(30,20,13,.25); }
+  .wt { padding: 9px 14px; background: var(--sand); border-bottom: 3px solid var(--deep); display: flex; justify-content: space-between; font-weight: 700; font-size: .95rem; }
+  .wt span:last-child { font-weight: 400; }
+  .wb { padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .h { font: 700 .85rem var(--sans); color: var(--muted); margin-top: 6px; }
+  .rowx { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px dashed var(--line2); padding: 5px 0; font-size: .95rem; }
+  .btns { display: flex; gap: 6px; flex-wrap: wrap; }
+  .btn { min-height: 40px; border: 1.5px solid var(--line2); border-radius: 8px; background: var(--paper); font: .95rem var(--sans); padding: 0 12px; }
+  .btn.go { background: var(--cinnamon); color: #fff; border-color: var(--cinnamon); }
+  .ok { display: inline-block; padding: 1px 9px; border-radius: 999px; background: var(--mint); color: var(--mint-ink); font-size: .82rem; font-weight: 700; }
+  .slot { border: 1.5px solid var(--line2); border-radius: 10px; background: var(--paper); padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .slot small { display: block; color: var(--muted); font-size: .8rem; }
+  .cloud { font-size: .78rem; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--mint-line); color: var(--mint-ink); background: var(--mint); white-space: nowrap; }
+  .muted { color: var(--muted); font-size: .85rem; }
+  table { border-collapse: collapse; width: 100%; background: var(--paper); font-size: .94rem; }
+  th, td { border-bottom: 1px dashed var(--line2); padding: 7px 9px; text-align: left; vertical-align: top; }
+  th { border-bottom: 2px solid var(--deep); }
+  .opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+  .opt { background: var(--paper); border: 1px solid var(--line2); border-radius: 10px; padding: 12px 14px; }
+  .opt.rec { border: 2px solid var(--cinnamon); }
+  .opt b.t { font: 700 16px var(--serif); display: block; margin-bottom: 4px; }
+  .tag { display: inline-block; font-size: 12px; padding: 0 8px; border-radius: 999px; background: var(--cinnamon); color: #fff; margin-left: 6px; vertical-align: 2px; }
+  ol { padding-left: 1.3rem; }
+</style></head>
+<body><div class="wrap">
+<h1>구글 드라이브 저장 시안</h1>
+<p class="note">구글로 로그인하면 저장 칸 셋이 내 구글 드라이브에도 남습니다. 다른 컴퓨터나 휴대폰에서 같은 구글 계정으로 로그인하면 이어서 할 수 있습니다. 로그인하지 않아도 지금처럼 이 기기 안에서 그대로 됩니다.</p>
+
+<h2>1. 저장과 설정 창</h2>
+<div class="row">
+  <div>
+    <div class="win">
+      <div class="wt"><span>저장과 설정</span><span>닫기</span></div>
+      <div class="wb">
+        <span class="h">구글 드라이브</span>
+        <p class="muted">로그인하면 저장이 드라이브에도 남아 다른 기기에서 이어 할 수 있다. 게임이 쓰는 숨은 폴더에만 넣고, 다른 파일은 보지 못한다.</p>
+        <div class="btns"><button class="btn go">구글로 로그인</button></div>
+      </div>
+    </div>
+    <p class="cap">로그인 전</p>
+  </div>
+  <div>
+    <div class="win">
+      <div class="wt"><span>저장과 설정</span><span>닫기</span></div>
+      <div class="wb">
+        <span class="h">구글 드라이브</span>
+        <div class="rowx"><span>연결</span><span class="ok">연결됨</span></div>
+        <div class="rowx"><span>마지막으로 올림</span><span>방금 전</span></div>
+        <div class="btns"><button class="btn">지금 올리기</button><button class="btn">로그아웃</button></div>
+        <p class="muted">무엇이든 한 번 할 때마다 이 기기에 저장되고, 몇 초 뒤 드라이브에도 올라간다.</p>
+      </div>
+    </div>
+    <p class="cap">로그인 뒤</p>
+  </div>
+</div>
+
+<h2>2. 첫 화면의 저장 칸</h2>
+<div class="row">
+  <div style="width:min(440px,100%);display:flex;flex-direction:column;gap:8px">
+    <div class="slot"><span><b>도리미, 무직, 레벨 6</b><small>3일째 낮, 훈련소. 방금 저장됨</small></span><span class="cloud">드라이브에도 있음</span></div>
+    <div class="slot"><span><b>서진, 기사, 레벨 20</b><small>드라이브에만 있음. 5일째 낮, 폐허 입구</small></span><span class="cloud">드라이브에서 받기</span></div>
+    <div class="slot"><span><b>3번 칸</b><small>비어 있음</small></span></div>
+  </div>
+</div>
+<p class="note" style="margin-top:8px">다른 기기에서 로그인하면, 드라이브에만 있는 칸은 "드라이브에서 받기"로 가져온다. 양쪽에 다 있으면 더 나중 것을 쓴다.</p>
+
+<h2>3. 언제 올리나</h2>
+<div class="opts">
+  <div class="opt rec"><b class="t">저절로 올린다<span class="tag">추천</span></b>이 기기에 저장될 때마다 몇 초 모아서 드라이브에도 올린다. 잊어버릴 일이 없다.</div>
+  <div class="opt"><b class="t">손으로 올린다</b>"지금 올리기"를 누를 때만. 드라이브와 이 기기가 어긋나기 쉽다.</div>
+</div>
+
+<div class="warn"><b>되감는 저장은 만들지 않습니다(지키는 것 3번).</b> 드라이브에도 칸마다 가장 나중 상태 하나만 둡니다. 옛 판을 골라 받는 길은 없습니다. 이 기기와 드라이브 가운데 저장 횟수(판 번호)가 더 큰 쪽을 씁니다. 그래서 "죽기 전 판을 드라이브에서 다시 받기" 같은 길은 열리지 않습니다.</div>
+
+<h2>4. 만드는 방식</h2>
+<table>
+  <thead><tr><th>무엇</th><th>어떻게</th></tr></thead>
+  <tbody>
+    <tr><td>로그인</td><td>구글이 주는 로그인 창(Google Identity Services). 서버 없이 브라우저에서만 된다</td></tr>
+    <tr><td>드라이브에서 쓰는 곳</td><td>앱 전용 숨은 폴더(appDataFolder). 사용자의 다른 파일은 보지도 건드리지도 못한다</td></tr>
+    <tr><td>필요한 값</td><td>OAuth 클라이언트 ID 하나(공개해도 되는 값). 비밀값은 쓰지 않는다</td></tr>
+    <tr><td>비용</td><td>없음</td></tr>
+    <tr><td>로그인 정보</td><td>접근 토큰은 브라우저 안에만, 한 시간쯤 쓰고 버린다. 저장소에 넣지 않는다</td></tr>
+    <tr><td>바깥 코드</td><td>구글 로그인 스크립트 하나를 불러온다(accounts.google.com). 로그인을 누를 때만 불러온다. 지금까지 지킨 "의존성을 넣지 않는다"의 예외가 된다</td></tr>
+  </tbody>
+</table>
+
+<h2>5. 사용자가 구글 콘솔에서 할 일 (한 단계씩 같이 갑니다)</h2>
+<ol>
+  <li>구글 클라우드 콘솔에서 프로젝트 하나 만들기</li>
+  <li>Google Drive API 켜기</li>
+  <li>OAuth 동의 화면 만들기(외부, 테스트 상태로 두고 내 계정을 테스트 사용자로)</li>
+  <li>OAuth 클라이언트 ID 만들기(웹 애플리케이션, 허용 주소: https://ff-1204.github.io 와 http://localhost:5180)</li>
+  <li>클라이언트 ID만 복사해서 알려 주기(JSON 내려받기나 시크릿은 필요 없음)</li>
+</ol>
+<p class="note">테스트 상태에서는 테스트 사용자로 넣은 계정만 로그인됩니다. 다른 사람도 쓰게 하려면 동의 화면을 "프로덕션"으로 게시해야 하는데, 이건 공개 결정이라 직접 하셔야 합니다.</p>
+
+<h2>6. 정해 주실 것</h2>
+<ol>
+  <li>화면(1·2번)이 이대로 괜찮은지</li>
+  <li>언제 올리나: 저절로 / 손으로</li>
+  <li>구글 로그인 스크립트를 불러오는 것(의존성 규칙의 예외)이 괜찮은지</li>
+</ol>
+</div>
+</body></html>

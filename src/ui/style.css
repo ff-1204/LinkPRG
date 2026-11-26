@@ -374,3 +374,25 @@ html.calm .cool i { animation: none !important; }
 /* 단축 칸 아래 한 줄 설명 (방 빌리기의 잠 버프, Z41) */
 .sl small.slsub { font-weight: 400; font-size: .72rem; color: var(--muted); line-height: 1.3; }
 .sl.go small.slsub { color: var(--cream); }
+
+/* 구글 드라이브 (Z44) */
+.cloudtag { display: inline-block; margin-left: 8px; padding: 0 8px; border-radius: 999px; border: 1px solid var(--mint-line); background: var(--mint); color: var(--mint-ink); font-size: .78rem; font-weight: 700; vertical-align: 1px; }
+.cloudtag.warn { border-color: var(--cinnamon); background: #FBE3C2; color: #4A1E0C; }
+
+/* 휴대폰: 위 단추 줄과 아래 행동 칸은 화면에 붙박고, 그 사이 대화방만 스크롤한다 (사용자 피드백) */
+@media (max-width: 760px) {
+  .game { height: 100vh; height: 100dvh; overflow: hidden; }
+  .room { height: 100vh; height: 100dvh; min-height: 0; }
+  .room > * { flex: none; }
+  .room > .logwrap { flex: 1 1 auto; min-height: 0; }
+  .room .log { max-height: none; overscroll-behavior: contain; }
+  .mbar .btn { padding: 0 6px; }
+}
+
+/* 누를 수 없는 단추는 누를 수 없어 보이게 (사용자 피드백: 헌납·방 빌리기가 꺼졌는데 켜진 것처럼 보였다) */
+.btn:disabled { background: var(--sand); border-color: var(--line2); border-style: dashed; color: var(--muted); cursor: not-allowed; }
+.btn.go:disabled { background: var(--sand); border-color: var(--line2); color: var(--muted); }
+.sl:disabled, .sl.go:disabled { background: transparent; border-color: var(--line2); border-style: dashed; color: var(--muted); cursor: not-allowed; }
+.sl:disabled span, .sl:disabled small, .sl.go:disabled span, .sl.go:disabled small { color: var(--muted); }
+.ch:disabled { color: var(--muted); opacity: .55; cursor: not-allowed; }
+.note.warnnote { color: var(--cinnamon); font-weight: 700; }

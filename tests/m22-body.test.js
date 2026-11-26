@@ -161,3 +161,12 @@ test('신전의 축복받기: 그림자가 있으면 걷고, 없으면 두 때 �
   s.silver = 3;
   assert.equal(slot().disabled, true);
 });
+
+test('싸우는 중에는 다른 곳으로 갈 수 없다', () => {
+  const s = make('nomove');
+  s.place = 'training';
+  s.battle = { mon: 'rat', hp: 20, turn: 1, intent: null, stun: 0, weak: null, burn: 0, ward: null, streak: 0, phase: 0 };
+  assert.throws(() => dispatch(s, { type: 'move', to: 'plaza' }), /싸우는 중/);
+  assert.throws(() => dispatch(s, { type: 'travel', to: 'forest' }), /싸우는 중/);
+  assert.equal(s.place, 'training');
+});
