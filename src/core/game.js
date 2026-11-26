@@ -38,7 +38,7 @@ import { bondOf as bondOfNpc } from './social.js';
 import { drink } from './social.js';
 import { makeItem, equip as equipItem, unequip as unequipItem, discard as discardItem, totalWeight, countOf } from './inventory.js';
 import { xpToNext } from './level.js';
-import { tickFall, recoverRelic, bless, prayShadow } from './fall.js';
+import { tickFall, recoverRelic, bless, prayShadow, fall } from './fall.js';
 import { applyCarry } from './rebirth.js';
 import { startBattle, battleAct, fleeChance, intentOf, eat, weighted, STANCES, stanceOf, foeDef } from './battle.js';
 import { repair, enhance } from './gear.js';
@@ -368,6 +368,17 @@ function hunger(state, events, ticks) {
   state.hungerTick -= drop * per;
   const before = state.full;
   state.full = Math.max(0, before - drop);
+  // 굶주림 (Z38): 포만감이 0인데 배가 더 고파지면 그만큼 몸이 상한다
+  const empty = Math.max(0, drop - before);
+  if (empty > 0) {
+    const max = valueOf(state, 'maxHp');
+    const hpBefore = state.hp;
+    state.hp = Math.max(0, state.hp - empty * Math.max(1, Math.round(max * STARVE_RATE)));
+    pushLine(state, events, { k: 'sys', text: `굶주림에 몸이 상한다. 생명력 −${hpBefore - state.hp}.`, tone: 'warn' });
+    if (hpBefore > max * 0.5 && state.hp <= max * 0.5 && state.hp > 0) pushLine(state, events, { k: 'sys', text: '생명력이 절반 아래다. 이대로면 굶어 쓰러진다.', tone: 'warn' });
+    if (hpBefore > max * 0.2 && state.hp <= max * 0.2 && state.hp > 0) pushLine(state, events, { k: 'sys', text: '눈앞이 하얗다. 다리가 제 것 같지 않다.', tone: 'warn' });
+    if (state.hp <= 0) state.flags.starved = true;
+  }
   if (before >= 20 && state.full < 20) pushLine(state, events, { k: 'sys', text: '배가 고프다. 힘이 잘 들어가지 않는다.', tone: 'warn' });
   if (before > 0 && state.full === 0) pushLine(state, events, { k: 'sys', text: '배가 등에 붙었다. 무엇이든 먹어야 한다.', tone: 'warn' });
   // 허기 (Z35): 포만감이 5 아래로 1 줄 때마다 쓰러질 수 있다. 0에 붙은 뒤에도 줄 때마다 굴린다
@@ -378,6 +389,7 @@ function hunger(state, events, ticks) {
 }
 
 export const FAINT_AT = 5;
+export const STARVE_RATE = 0.02; // 포만감 0에서 배가 더 고파질 때마다 최대 생명력의 이만큼
 /** 포만감 v가 되는 순간 쓰러질 확률: 5에 4%, 1 줄 때마다 4%씩 (0에 24%). */
 export function faintChance(v) {
   return v <= FAINT_AT ? (FAINT_AT + 1 - v) * 0.04 : 0;
@@ -522,6 +534,7 @@ function foundJournal(state, id) {
 export function dispatch(state, action, options = {}) {
   const events = [];
   const t = action.type;
+  if (state.flags?.mustRebirth) throw new Error('숨이 끊어졌습니다. 다시 태어나야 합니다');
   if (state.battle && !['battle', 'use', 'equip', 'quick'].includes(t) && !(t === 'party' && action.op === 'plan')) throw new Error('싸우는 중입니다');
   if (state.craft && !['hammer', 'reheat', 'craftQuit', 'spend', 'evolve'].includes(t) && !(t === 'choose' && state.choice)) throw new Error('만들던 것을 끝내거나 그만두어야 합니다');
   if (state.sculpt && !['cut', 'sculptQuit', 'spend', 'evolve'].includes(t) && !(t === 'choose' && state.choice)) throw new Error('깎던 것을 끝내거나 그만두어야 합니다');
@@ -745,6 +758,27 @@ export function dispatch(state, action, options = {}) {
     const fit = (t === 'act' && !ACTIONS[action.id]?.rest && !ACTIONS[action.id]?.open) || ['hammer', 'cut', 'buy', 'sell', 'cook', 'offer', 'enhance', 'repair'].includes(t);
     if (t === 'move' || t === 'travel') workedHere(state, events, 'enter');
     else if (fit) workedHere(state, events, 'fit');
+  }
+  // 허겁지겁 (Z40): 배가 바닥나거나 허기에 쓰러지려 할 때 가방에 먹을 것이 있으면 저도 모르게 먹는다. 가장 배를 덜 채우는 것부터
+  if ((state.full <= 0 || state.flags.faint) && !state.battle && !state.choice && !state.craft && !state.sculpt && !events.some((e) => e.type === 'fall')) {
+    const foods = state.bag.map((it, i) => ({ i, def: itemDef(it.id) })).filter((x) => x.def.eat?.full > 0 && !x.def.throw);
+    if (foods.length) {
+      const pickFood = foods.reduce((a, b) => (b.def.eat.full < a.def.eat.full ? b : a));
+      pushLine(state, events, { k: 'sys', text: `너무 배가 고파서 가방 속 ${eulReul(pickFood.def.name)} 허겁지겁 먹었다.`, tone: 'warn' });
+      eat(state, events, pickFood.i);
+      if (state.full > FAINT_AT) delete state.flags.faint;
+    }
+  }
+  // 굶어 쓰러진다 (Z38): 싸움 중이면 싸움이 끝난 뒤에. 그사이 생명력이 돌아왔으면 없던 일
+  if (state.flags.starved && state.hp > 0) delete state.flags.starved;
+  if (state.flags.starved && !state.battle && !state.choice && !state.craft && !state.sculpt && !events.some((e) => e.type === 'fall')) {
+    delete state.flags.starved;
+    delete state.flags.faint;
+    state.dungeon = null;
+    const info = fall(state, events, '굶주림을 이기지 못했다.');
+    info.starved = true;
+    state.full = Math.max(state.full, 20);
+    if (info.fate === 'temple') pushLine(state, events, { k: 'npc', who: '신전지기', text: '굶어서 쓰러졌더군. 묽은 죽이라도 먹고 가게.' });
   }
   if (state.flags.doze && (state.tired || 0) < DOZE_AT) delete state.flags.doze; // 그사이 쉬었다
   if (state.flags.faint && (state.full > FAINT_AT || !(toiled || t === 'move' || t === 'travel'))) delete state.flags.faint; // 그사이 먹었거나, 누워 쉬던 참이다

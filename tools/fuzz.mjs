@@ -13,6 +13,7 @@ import { GUILDS } from '../src/core/guild.js';
 import { STANCES } from '../src/core/battle.js';
 import { PEOPLE } from '../src/data/people.js';
 import { derived } from '../src/core/derived.js';
+import { rebirthCarry } from '../src/core/rebirth.js';
 
 const RUNS = Number(process.argv[2] || 40), STEPS = Number(process.argv[3] || 1500);
 let seed = 12345;
@@ -62,9 +63,9 @@ function check(s, run, step, action) {
 }
 
 let steps = 0, refused = 0, done = 0;
-const seen = { places: new Set(), elites: 0, enhance: 0, guild: 0, days: 0, works: 0, falls: 0, skills: new Set(), hidden: new Set(), dungeon: 0 };
+const seen = { places: new Set(), elites: 0, enhance: 0, guild: 0, days: 0, works: 0, falls: 0, skills: new Set(), hidden: new Set(), dungeon: 0, reborn: 0 };
 for (let run = 1; run <= RUNS; run++) {
-  const s = createGame({ name: `검증${run}`, origin: pick(ORIGINS).id, rolled: rollDice(`fuzz|${run}`), seed: `fuzz-${run}` });
+  let s = createGame({ name: `검증${run}`, origin: pick(ORIGINS).id, rolled: rollDice(`fuzz|${run}`), seed: `fuzz-${run}` });
   s.silver = 300; // 가게·강화·방 빌리기까지 닿게
   if (run % 2 === 0) {
     // 짝수 판은 멀리 간 사람: 길이 다 열려 있고, 직업과 길드와 장비가 있다. 뒤쪽 시스템까지 닿게
@@ -76,6 +77,11 @@ for (let run = 1; run <= RUNS; run++) {
     for (const m of ['rat', 'wolf', 'boar']) s.dex.mon[m] = { seen: 60, won: 60, lost: 0 };
   }
   for (let step = 1; step <= STEPS; step++) {
+    // 운이 다시 태어나라 하면 다시 태어난다 (Z32)
+    if (s.flags.mustRebirth) {
+      s = createGame({ name: `환생${run}`, origin: pick(ORIGINS).id, rolled: rollDice(`fuzz|${run}|${step}`), seed: `fuzz-${run}-${step}`, carry: rebirthCarry(s) });
+      seen.reborn++;
+    }
     const slots = slotsNow(s).filter((x) => x && x.action && !x.disabled);
     const action = slots.length && rnd() < 0.7 ? pick(slots).action : wild(s);
     steps++;
@@ -96,7 +102,7 @@ for (let run = 1; run <= RUNS; run++) {
   for (const k of Object.keys(s.skills)) seen.skills.add(k);
   for (const [k, v] of Object.entries(s.hidden)) if (v.value > 0) seen.hidden.add(k);
 }
-console.log(`닿은 곳 ${seen.places.size} / ${Object.keys(PLACES).length}, 던전 안 걸음 ${seen.dungeon}, 이름난 개체 ${seen.elites}, 강화 시도 ${seen.enhance}, 길드 기여 ${seen.guild}, 지난 날 ${seen.days}, 작품 ${seen.works}, 쓰러짐 ${seen.falls}, 오른 숙련도 ${seen.skills.size}가지, 얻은 히든 ${[...seen.hidden].join(',') || '없음'}`);
+console.log(`닿은 곳 ${seen.places.size} / ${Object.keys(PLACES).length}, 던전 안 걸음 ${seen.dungeon}, 이름난 개체 ${seen.elites}, 강화 시도 ${seen.enhance}, 길드 기여 ${seen.guild}, 지난 날 ${seen.days}, 작품 ${seen.works}, 쓰러짐 ${seen.falls}, 다시 태어남 ${seen.reborn}, 오른 숙련도 ${seen.skills.size}가지, 얻은 히든 ${[...seen.hidden].join(',') || '없음'}`);
 console.log(`걸음 ${steps}, 된 것 ${done}, 규칙이 거절한 것 ${refused}`);
 console.log(bad.length ? `문제 ${bad.length}건\n` + bad.join('\n') : '문제 없음');
 if (bad.length) process.exitCode = 1;

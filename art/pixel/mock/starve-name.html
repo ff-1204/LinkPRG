@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>굶주림과 이름 시안</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  :root { --cream: #FBF5E6; --paper: #FFFDF6; --sand: #F3E9D2; --line: #E6D9BD; --line2: #CDBE9E; --ink: #3A2A1E; --muted: #6B5443; --deep: #1E140D; --cinnamon: #8A4F2B; --mint: #BFE3D0; --honey: #F2B63C; --serif: 'Gowun Batang', serif; --sans: 'Gowun Dodum', sans-serif; }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--cream); color: var(--ink); font: 16px/1.65 var(--sans); padding: 24px 16px 60px; }
+  .wrap { max-width: 940px; margin: 0 auto; }
+  h1 { font: 700 27px/1.3 var(--serif); margin-bottom: 6px; }
+  h2 { font: 700 21px/1.3 var(--serif); margin: 40px 0 8px; padding-top: 10px; border-top: 3px solid var(--deep); }
+  h3 { font: 700 17px/1.3 var(--serif); margin: 22px 0 6px; }
+  .note { color: var(--muted); max-width: 52rem; margin-bottom: 10px; }
+  .row { display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start; }
+  .chat { width: min(420px, 100%); background: var(--paper); border: 2px solid var(--deep); padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .me { align-self: flex-end; background: var(--sand); border-radius: 14px 4px 14px 14px; padding: 6px 12px; font-family: var(--serif); }
+  .room { align-self: center; color: var(--muted); font: .88rem var(--serif); text-align: center; }
+  .sys { align-self: flex-start; background: var(--sand); border-radius: 4px 14px 14px 14px; padding: 6px 12px; }
+  .warn { background: #FBE3C2; }
+  .who { font-size: .75rem; color: var(--muted); margin-bottom: -5px; }
+  .npc { align-self: flex-start; background: var(--paper); border: 1px solid var(--line); border-radius: 4px 14px 14px 14px; padding: 6px 12px; font-family: var(--serif); }
+  .npc b { color: var(--cinnamon); }
+  .win { width: min(400px, 100%); border: 3px solid var(--deep); background: var(--deep); color: var(--cream); }
+  .win .hd { padding: 9px 14px; border-bottom: 2px solid #6B5446; font-weight: 700; }
+  .win .bd { padding: 14px; display: flex; flex-direction: column; gap: 6px; }
+  .win .big { font: 700 22px var(--serif); }
+  .rowx { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px dashed #6B5446; padding: 5px 0; font-size: .92rem; }
+  .btn { min-height: 42px; border-radius: 6px; border: 0; font: 700 .95rem var(--sans); text-align: left; padding: 6px 12px; }
+  .btn.go { background: var(--honey); color: var(--deep); }
+  .btn.alt { background: #4A372B; color: var(--cream); }
+  table { border-collapse: collapse; width: 100%; background: var(--paper); font-size: .93rem; }
+  th, td { border-bottom: 1px dashed var(--line2); padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { border-bottom: 2px solid var(--deep); }
+  td.n { text-align: right; font-variant-numeric: tabular-nums; }
+  .lab { display: flex; flex-wrap: wrap; gap: 14px; align-items: end; margin: 10px 0; }
+  .lab label { display: flex; flex-direction: column; font-size: .85rem; color: var(--muted); gap: 3px; }
+  .lab input { width: 90px; min-height: 36px; border: 1px solid var(--line2); border-radius: 6px; padding: 0 8px; font: inherit; background: var(--paper); }
+  .out { font-size: 1.05rem; }
+  .out b { font-size: 1.3rem; color: var(--cinnamon); }
+  .tag { display: inline-block; font-size: 12px; padding: 0 8px; border-radius: 999px; background: var(--cinnamon); color: #fff; margin-left: 6px; vertical-align: 2px; }
+  ol { padding-left: 1.3rem; }
+  .scroll { overflow-x: auto; }
+</style></head>
+<body><div class="wrap">
+<h1>굶주림과 이름 시안</h1>
+<p class="note">두 가지입니다. 1부는 굶으면 몸이 상하게 하는 것, 2부는 사람들이 내 이름을 부르게 하는 것입니다.</p>
+
+<h2>1부. 굶으면 몸이 상한다</h2>
+<p class="note">지금은 포만감 0으로 열흘을 일해도 생명력이 그대로입니다(허기로 쓰러져 하루씩 잃기만 함). 포만감이 0인 동안 배가 더 고파질 때마다 생명력이 깎이고, 0이 되면 굶어 쓰러집니다.</p>
+
+<h3>규칙 (추천값)</h3>
+<table>
+  <thead><tr><th>무엇</th><th class="n">값</th><th>까닭</th></tr></thead>
+  <tbody>
+    <tr><td>포만감 0에서 배가 더 고파질 때마다</td><td class="n">최대 생명력의 2%</td><td>일하는 하루에 여덟 번쯤, 자는 밤에 다섯 번쯤 고파진다</td></tr>
+    <tr><td>굶은 채 자면</td><td class="n">생명력 +10% (지금처럼)</td><td>깎이는 쪽이 더 크다. 자도 나아지지 않는다</td></tr>
+    <tr><td>생명력 절반·5분의 1 아래로</td><td class="n">경고 한 줄</td><td>죽기 전에 알 수 있게</td></tr>
+    <tr><td>생명력 0</td><td class="n">굶어 쓰러짐</td><td>싸움에 진 것과 같다: 신전에서 눈을 뜨거나 환생. 그림자 +1</td></tr>
+    <tr><td>먹으면</td><td class="n">바로 멈춘다</td><td>포만감이 1이라도 있으면 깎이지 않는다</td></tr>
+  </tbody>
+</table>
+
+<h3>며칠 버티나</h3>
+<div class="lab">
+  <label>한 번에 깎이는 몫 (%)<input type="number" id="rate" value="2" min="1" max="10"></label>
+  <label>하루에 고파지는 횟수 (깨어서)<input type="number" id="awake" value="8"></label>
+  <label>밤에 고파지는 횟수 (자면서)<input type="number" id="sleep" value="5"></label>
+</div>
+<p class="out" id="days"></p>
+
+<h3>대화방과 쓰러진 창</h3>
+<div class="row">
+  <div class="chat">
+    <div class="sys warn">배가 등에 붙었다. 무엇이든 먹어야 한다.</div>
+    <div class="me">허수아비를 쳤다. 팔에 힘이 하나도 없다.</div>
+    <div class="sys warn">굶주림에 몸이 상한다. 생명력 −2.</div>
+    <div class="room">(며칠 뒤)</div>
+    <div class="sys warn">생명력이 절반 아래다. 이대로면 굶어 쓰러진다.</div>
+    <div class="sys warn">눈앞이 하얗다. 다리가 제 것 같지 않다. (5분의 1 아래)</div>
+  </div>
+  <div class="win">
+    <div class="hd">쓰러졌다</div>
+    <div class="bd">
+      <span class="big">숨이 끊어질 듯하다</span>
+      <div class="rowx"><span>까닭</span><span>굶주림</span></div>
+      <div class="rowx"><span>두고 온 것</span><span>은화 8</span></div>
+      <div class="rowx"><span>죽음의 그림자</span><span>0겹 → 1겹 (공격·방어 −5%)</span></div>
+      <button class="btn go">신전에서 눈을 뜬다</button>
+      <button class="btn alt">환생한다</button>
+    </div>
+  </div>
+</div>
+<p class="note" style="margin-top:10px">신전에서 눈을 뜨면 신전지기가 묽은 죽을 먹여 포만감 20으로 깹니다(바로 또 굶어 쓰러지지 않게).</p>
+
+<h2>2부. 사람들이 내 이름을 부른다</h2>
+<p class="note">지금은 사람들의 말에 내 이름이 들어가는 곳이 없습니다. 낯익은 사이가 되면 사람마다 제 말투로 이름을 부르고, 가까워질수록 자주 부릅니다.</p>
+
+<h3>언제 부르나 <span class="tag">추천</span></h3>
+<table>
+  <thead><tr><th>사이</th><th>이름을</th><th>예 (교관, 이름 '도리미')</th></tr></thead>
+  <tbody>
+    <tr><td>남</td><td>모른다. 부르지 않는다</td><td>뭐냐.</td></tr>
+    <tr><td>낯익은 사이</td><td>첫마디에 부른다</td><td><b>도리미.</b> 또 왔나.</td></tr>
+    <tr><td>단골</td><td>첫마디, 그리고 이야기 셋에 하나쯤</td><td><b>도리미.</b> 왔나. 허수아비는 저기 있다.</td></tr>
+    <tr><td>벗 · 가족 같은 사이</td><td>첫마디와 이야기 둘에 하나쯤. 부르는 꼴이 정다워진다</td><td><b>도리미야,</b> 네가 오면 훈련소가 조용해져서 좋다.</td></tr>
+  </tbody>
+</table>
+<p class="note" style="margin-top:8px">메인 이야기에서 얻는 별명이 있으면: 남·낯익은 사이는 별명으로, 단골부터는 이름으로 부릅니다(가까운 사람은 이름을 부른다).</p>
+
+<h3>사람마다 부르는 꼴</h3>
+<p class="note">받침에 따라 "야/아", "이/가"를 맞춥니다. 이름을 넣어 보세요.</p>
+<div class="lab"><label>내 이름<input type="text" id="nm" value="도리미" style="width:140px"></label></div>
+<div class="scroll"><table id="calls"><thead><tr><th>사람</th><th>낯익은 사이 · 단골</th><th>벗 · 가족 같은 사이</th></tr></thead><tbody></tbody></table></div>
+
+<h3>대화방에서는</h3>
+<div class="row">
+  <div class="chat" id="demo"></div>
+</div>
+
+<h2>정해 주실 것</h2>
+<ol>
+  <li>1부: 깎이는 몫 2%(일주일쯤 버팀) 그대로 / 다르게</li>
+  <li>1부: 굶어 쓰러지면 싸움에 진 것과 같게(그림자, 환생 갈래) 하는 것이 괜찮은지</li>
+  <li>2부: 언제 부르나(표) 그대로 / 다르게</li>
+  <li>2부: 사람마다 부르는 꼴이 어색한 사람이 있는지</li>
+</ol>
+</div>
+<script>
+const $ = (id) => document.getElementById(id);
+function days() {
+  const r = (+$('rate').value || 0) / 100, a = +$('awake').value || 0, n = +$('sleep').value || 0;
+  const perDay = r * (a + n) - 0.10;
+  $('days').innerHTML = perDay <= 0 ? '굶어도 줄지 않습니다.' : `하루에 생명력 <b>${Math.round(perDay * 100)}%</b>씩 줄어, 가득 찬 몸으로 <b>${Math.ceil(1 / perDay)}일</b>쯤 버팁니다.`;
+}
+for (const id of ['rate', 'awake', 'sleep']) $(id).oninput = days;
+days();
+
+const jong = (w) => { const c = w.charCodeAt(w.length - 1) - 0xAC00; return c >= 0 && c <= 11171 ? c % 28 : 0; };
+const ya = (w) => w + (jong(w) ? '아' : '야');
+const ssi = (w) => w + ' 씨';
+const nim = (w) => w + ' 님';
+const ga = (w) => w + (jong(w) ? '이' : '가');
+// [사람, 첫 꼴, 정다운 꼴]
+const CALLS = [
+  ['교관', (w) => `${w}.`, (w) => `${ya(w)},`],
+  ['대장간 주인', (w) => `${w},`, (w) => `${ya(w)},`],
+  ['잡화점 할머니', (w) => `${w},`, (w) => `우리 ${w},`],
+  ['주점 주인', (w) => `${w},`, (w) => `${w} 자네,`],
+  ['견습 사제 미루', (w) => `${ssi(w)},`, (w) => `${ssi(w)}!`],
+  ['신전지기', (w) => `${w},`, (w) => `${w} 자네,`],
+  ['조합장', (w) => `${w},`, (w) => `우리 ${w},`],
+  ['늙은 뱃사공', (w) => `${w},`, (w) => `${ya(w)},`],
+  ['어시장 아주머니', (w) => `${w},`, (w) => `우리 ${w},`],
+  ['상단 대리인', (w) => `${nim(w)},`, (w) => `${nim(w)},`],
+  ['배 목수', (w) => `${w},`, (w) => `${ya(w)},`],
+  ['주막 주인', (w) => `${w},`, (w) => `${w} 자네,`],
+  ['사당지기', (w) => `${w} 양반,`, (w) => `${w} 양반,`],
+  ['다리 밑의 눈', (w) => `${w}.`, (w) => `${ya(w)}.`],
+  ['큰 시장 상인', (w) => `${w} 양반,`, (w) => `${w} 양반,`],
+  ['장인 우두머리', (w) => `${w},`, (w) => `${w} 자네,`],
+  ['회관 접수원', (w) => `${nim(w)},`, (w) => `${ssi(w)}!`],
+  ['서고지기', (w) => `${nim(w)},`, (w) => `${nim(w)},`],
+  ['대사제', (w) => `${w},`, (w) => `${w} 자네,`],
+  ['종루지기 여울', (w) => `${ssi(w)},`, (w) => `${ssi(w)}!`],
+  ['여인숙 주인', (w) => `${w},`, (w) => `${ya(w)},`],
+  ['뒷골목 어른', (w) => `${w}.`, (w) => `${ya(w)}.`],
+];
+function calls() {
+  const w = ($('nm').value || '도리미').trim();
+  $('calls').querySelector('tbody').innerHTML = CALLS.map(([who, a, b]) => `<tr><td>${who}</td><td>${a(w)}</td><td>${b(w)}</td></tr>`).join('');
+  $('demo').innerHTML = `
+    <div class="room">(교관과 낯익은 사이)</div>
+    <div class="who">교관</div><div class="npc"><b>${w}.</b> 또 왔나.</div>
+    <div class="room">(잡화점 할머니와 벗)</div>
+    <div class="who">잡화점 할머니</div><div class="npc"><b>우리 ${w},</b> 밥은 먹었니.</div>
+    <div class="who">잡화점 할머니</div><div class="npc"><b>${ga(w)}</b> 오면 가게가 환해져.</div>
+    <div class="room">(상단 대리인과 단골)</div>
+    <div class="who">상단 대리인</div><div class="npc"><b>${nim(w)},</b> 오셨습니까. 차를 내오지요.</div>`;
+}
+$('nm').oninput = calls;
+calls();
+</script>
+</body></html>

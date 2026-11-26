@@ -126,7 +126,7 @@ test('포만감은 움직일수록 줄고, 낮으면 벌이 붙고, 먹으면 �
 
 test('굶은 채 일하며 하루를 넘겨야 굶은 날이 쌓인다. 쉬기만 해서는 쌓이지 않는다', () => {
   const s = fresh();
-  s.full = 0;
+  s.full = 0; s.bag = []; // 먹을 것이 없다
   for (let i = 0; i < 3; i++) passPhase(s);
   assert.equal(s.day, 2);
   assert.equal(s.counters.hungryDays, 0, '누워서 굶기만 한 날');
@@ -246,7 +246,7 @@ test('다섯 레벨 넘게 높으면 괴물이 달아난다 (R2-3)', () => {
   s.place = 'river';
   s.level = 8;
   for (let i = 0; i < 200; i++) {
-    s.choice = null;
+    s.choice = null; s.full = 80; // 굶어 쓰러지지 않게
     dispatch(s, { type: 'act', id: 'explore' });
     assert.equal(s.battle, null);
     if (s.choice) assert.equal(s.choice.kind, 'incident');

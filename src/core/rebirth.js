@@ -1,7 +1,22 @@
 // 환생 (Z32). 쓰러진 뒤 신전에서 눈을 뜨는 대신 다시 태어날 수 있다.
-// 몸은 처음부터 다시지만, 종이 기억한 것(히든 스탯, 다시 일어선 몸으로 오른 스탯, 칭호, 도감)과 은화의 10%(종잣돈)는 가지고 간다.
+// 몸은 처음부터 다시지만, 종이 기억한 것(히든 스탯, 다시 일어선 몸으로 오른 스탯, 칭호, 도감)과 은화의 10%(종잣돈), 숙련도의 5%는 가지고 간다.
 
 import { HIDDEN } from './hidden.js';
+import { xpNeeded, MAX_GRADE } from './skills.js';
+
+export const SKILL_KEEP = 0.05; // 숙련도의 이만큼을 가지고 간다
+/** 숙련도에 쌓인 경험치 전부. */
+export function skillTotal(sk) {
+  let t = sk.xp || 0;
+  for (let g = 0; g < (sk.grade || 0); g++) t += xpNeeded(g);
+  return t;
+}
+/** 쌓인 경험치를 등급과 남은 경험치로 되돌린다. */
+function fromTotal(total) {
+  let grade = 0, xp = Math.floor(total);
+  while (grade < MAX_GRADE && xp >= xpNeeded(grade)) { xp -= xpNeeded(grade); grade++; }
+  return { grade, xp };
+}
 import { JOBS, HIDDEN_JOBS } from '../data/jobs.js';
 const jobName = (id) => (id ? (JOBS[id] || HIDDEN_JOBS[id])?.name || id : null);
 
@@ -24,6 +39,7 @@ export function rebirthCarry(state) {
   return {
     lives: (state.lives || 1) + 1,
     seedSilver: Math.floor((state.silver || 0) * SEED_RATE),
+    skills: Object.fromEntries(Object.entries(state.skills || {}).map(([id, sk]) => [id, Math.floor(skillTotal(sk) * SKILL_KEEP)]).filter(([, n]) => n > 0)),
     pastLives: [...(state.pastLives || []), { name: state.name, job: jobName(state.job), level: state.level, day: state.day }],
     pastHidden,
     hidden,
@@ -55,6 +71,11 @@ export function rebirthLoss(state) {
 export function applyCarry(state, carry) {
   state.lives = carry.lives;
   state.silver += carry.seedSilver || 0; // 종잣돈
+  // 숙련도의 5%: 새 출신이 처음부터 가진 숙련도 위에 더한다
+  for (const [id, n] of Object.entries(carry.skills || {})) {
+    const sk = state.skills[id] || { grade: 0, xp: 0, uses: 0 };
+    state.skills[id] = { ...sk, ...fromTotal(skillTotal(sk) + n) };
+  }
   state.pastLives = carry.pastLives.map((x) => ({ ...x }));
   state.pastHidden = { ...carry.pastHidden };
   state.hidden = Object.fromEntries(Object.entries(carry.hidden).map(([id, s]) => [id, { ...s }]));

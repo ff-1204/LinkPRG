@@ -358,7 +358,7 @@ test('포만감 5부터는 1 줄 때마다 허기에 쓰러질 수 있다. 4%에
   let fainted = 0;
   for (let k = 0; k < 30; k++) {
     const s = createGame({ name: '허', origin: 'bard', rolled: rollDice('same'), seed: `faint${k}` });
-    s.place = 'training'; s.full = 6; s.tired = 0; s.phase = 0;
+    s.place = 'training'; s.full = 6; s.tired = 0; s.phase = 0; s.bag = []; // 먹을 것이 없어야 허기에 쓰러진다
     for (let i = 0; i < 200; i++) {
       s.tired = 0;
       dispatch(s, { type: 'act', id: 'strike' });

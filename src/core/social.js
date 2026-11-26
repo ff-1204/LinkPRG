@@ -2,7 +2,7 @@
 
 import { next, pick, roll01 } from './rng.js';
 import { pushLine, ding } from './log.js';
-import { PEOPLE, PEOPLE_ORDER, BONDS, GIFT, TALK_POINT, FAME, TITLES, personById, REGULAR } from '../data/people.js';
+import { PEOPLE, PEOPLE_ORDER, BONDS, GIFT, TALK_POINT, FAME, TITLES, personById, REGULAR, CALLS } from '../data/people.js';
 import { itemDef } from '../data/items.js';
 import { removeAt } from './inventory.js';
 import { placeById, ACTIONS } from '../data/places.js';
@@ -68,8 +68,43 @@ export function helloOf(state, id) {
   const called = state.main?.called;
   let text = p.hello[b];
   if (b === 0 && fame.hello) text = `${fame.hello} ${text}`;
-  if (called && b >= 1) text = `${called}, ${text}`;
+  // 이름을 부른다 (Z39): 낯익은 사이는 별명이 있으면 별명으로, 단골부터는 이름으로
+  if (b === 1 && called) text = `${called}, ${text}`;
+  else if (b >= 1) text = withName(state, id, text);
   return text;
+}
+
+/** 이름 끝 받침이 있는가. 한글이 아니면 null. */
+function nameJong(name) {
+  const code = name.codePointAt(name.length - 1);
+  return code >= 0xac00 && code <= 0xd7a3 ? (code - 0xac00) % 28 > 0 : null;
+}
+
+/** 이 사람이 내 이름을 부르는 말. 사이가 벗부터면 정다운 꼴이다. 남이면 null. */
+export function callName(state, id) {
+  const b = bondOf(state, id);
+  const forms = CALLS[id];
+  if (b < 1 || !forms) return null;
+  const n = state.name;
+  const j = nameJong(n);
+  const ya = j === null ? `${n},` : `${n}${j ? '아' : '야'},`;
+  const yadot = j === null ? `${n}.` : `${n}${j ? '아' : '야'}.`;
+  const form = forms[b >= 3 ? 1 : 0];
+  return { dot: `${n}.`, comma: `${n},`, ya, yadot, ssi: `${n} 씨,`, 'ssi!': `${n} 씨!`, nim: `${n} 님,`, yangban: `${n} 양반,`, jane: `${n} 자네,`, uri: `우리 ${n},` }[form];
+}
+
+/** 말 앞에 이름을 붙인다. */
+export function withName(state, id, text) {
+  const call = callName(state, id);
+  return call ? `${call} ${text}` : text;
+}
+
+/** 이야기 중에 이름을 부르는가: 단골은 셋에 하나, 벗부터는 둘에 하나쯤. */
+export function callsInTalk(state, id) {
+  const b = bondOf(state, id);
+  if (b < 2) return false;
+  const r = roll01(`${state.seed}|call|${id}|${state.day}|${state.people[id]?.talked || 0}|${state.tick}`);
+  return r < (b >= 3 ? 0.5 : 1 / 3);
 }
 
 /** 말을 건다. 첫마디를 듣는다. 만난 사람으로 적힌다(매력의 재료). */
@@ -205,7 +240,7 @@ export function talk(state, events, id) {
   if (smithMemory(state, events, id)) { events.push({ type: 'social' }); return; } // 옛 인연: 정을 돌려드렸다
   pushLine(state, events, { k: 'me', text: `${p.name}의 이야기를 들었다.` });
   const line = talkLine(state, id);
-  pushLine(state, events, { k: 'npc', who: p.name, text: line.text, tone: line.kind === 'hint' || line.kind === 'close' ? 'mint' : undefined });
+  pushLine(state, events, { k: 'npc', who: p.name, text: callsInTalk(state, id) ? withName(state, id, line.text) : line.text, tone: line.kind === 'hint' || line.kind === 'close' ? 'mint' : undefined });
   if (r.talked !== state.day) {
     r.talked = state.day;
     addPoints(state, events, id, TALK_POINT + (state.title === 'neighbor' ? 1 : 0));

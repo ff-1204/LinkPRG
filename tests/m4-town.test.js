@@ -397,7 +397,10 @@ test('메인 1장은 사귀는 길·벌이의 길·만드는 길·싸우는 길 
   ended(a, 'friend', '이웃');
   assert.ok(ev.some((e) => e.type === 'ding' && e.ding.kind === 'main' && e.ding.level === 4));
   assert.ok(a.titles.some((t) => t.id === 'neighbor'));
+  a.people.smith.pts = 10; // 낯익은 사이는 별명으로 부른다
   assert.ok(helloOf(a, 'smith').startsWith('이웃,'), '끝낸 길이 부르는 말을 바꾼다');
+  a.people.smith.pts = 30; // 단골부터는 이름으로 (Z39)
+  assert.ok(helloOf(a, 'smith').startsWith(a.name + ','));
   // 벌이의 길
   const b = fresh('mB');
   b.jobsDone = 9;

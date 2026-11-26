@@ -156,6 +156,15 @@ export const PEOPLE = {
   },
 };
 
+/** 사람마다 내 이름을 부르는 꼴 (Z39): [낯익은 사이·단골, 벗·가족 같은 사이]. 뜻은 core/social.js의 callName을 본다. */
+export const CALLS = {
+  instructor: ['dot', 'ya'], smith: ['comma', 'ya'], granny: ['comma', 'uri'], keeper: ['comma', 'jane'], miru: ['ssi', 'ssi!'],
+  priest: ['comma', 'jane'], foreman: ['comma', 'uri'], ferryman: ['comma', 'ya'], fishwife: ['comma', 'uri'], agent: ['nim', 'nim'],
+  shipwright: ['comma', 'ya'], innkeeper: ['comma', 'jane'], shrinekeeper: ['yangban', 'yangban'], eye: ['dot', 'yadot'], trader: ['yangban', 'yangban'],
+  master: ['comma', 'jane'], clerk: ['nim', 'ssi!'], librarian: ['nim', 'nim'], highpriest: ['comma', 'jane'], heir: ['ssi', 'ssi!'],
+  hostess: ['comma', 'ya'], elder: ['dot', 'yadot'],
+};
+
 export const PEOPLE_ORDER = ['instructor', 'smith', 'granny', 'keeper', 'miru', 'priest', 'foreman', 'trapped', 'ferryman', 'fishwife', 'agent', 'shipwright', 'innkeeper', 'shrinekeeper', 'eye', 'trader', 'master', 'clerk', 'librarian', 'highpriest', 'heir', 'hostess', 'elder'];
 
 export function personById(id) {

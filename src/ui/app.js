@@ -176,14 +176,14 @@ export function start(root, storage = globalThis.localStorage) {
     try {
       const loaded = loadFrom(storage, n);
       if (!loaded) return showTitle();
-      game = loaded; slot = n; saveRev = revOf(storage, n); showGame();
+      game = loaded; slot = n; saveRev = revOf(storage, n);
+      if (game.flags?.mustRebirth) showCreate(n, rebirthCarry(game)); else showGame();
       openSince();
     } catch (e) { fail(e, 'load'); game = null; showTitle(); notice('이어 할 수 없습니다', e.message); }
   }
 
   // ── 캐릭터 만들기 (T1~T3) ───────────────────────────────
   function showCreate(n, carry = null) {
-    const before = carry ? game : null; // 환생을 그만두면 돌아갈 삶
     // 출신은 엎어진 패 다섯 장 가운데 한 장을 뒤집어 정한다 (Z25). 뒤집기 전에는 무엇인지, 어떤 등급인지 알 수 없다
     const salt = Date.now();
     const hand = dealOrigins(`${salt}|deal`); // 이 화면에서 깔린 패. 다시 깔지 않는다
@@ -228,7 +228,7 @@ export function start(root, storage = globalThis.localStorage) {
           h('p', { class: 'err', role: 'alert' }, error),
           h('div', { class: 'namebox' },
             h('label', {}, '이름', h('input', { type: 'text', maxlength: 12, value: name, autocomplete: 'off', oninput: (e) => { name = e.target.value; } })),
-            h('button', { class: 'btn', type: 'button', onclick: before ? () => { game = before; showGame(); } : showTitle }, carry ? '환생을 그만둔다' : '돌아가기'),
+            h('button', { class: 'btn', type: 'button', onclick: showTitle }, '돌아가기'),
             h('button', { class: 'btn go', type: 'button', style: 'min-height:3.1rem;padding:0 2rem;font-size:1.05rem', onclick: () => {
               try { if (!origin) throw new Error('패를 뒤집어 한 장을 골라 주세요'); if (pool > 0) throw new Error(`남은 점수 ${pool}점을 스탯에 넣어 주세요`); game = createGame({ name, origin, rolled, carry }); slot = n; saveRev = saveTo(storage, slot, game); showGame(); }
               catch (e) { error = e.message; draw(); root.querySelector('.namebox input')?.focus(); }
@@ -264,6 +264,7 @@ export function start(root, storage = globalThis.localStorage) {
       carry.titles.length ? h('div', { class: 'rowx' }, h('span', {}, '칭호'), h('span', {}, carry.titles.map((t) => TITLES[t.id]?.name || t.id).join(', '))) : null,
       h('div', { class: 'rowx' }, h('span', {}, '도감'), h('span', {}, '그대로 남는다')),
       carry.seedSilver ? h('div', { class: 'rowx' }, h('span', {}, '종잣돈'), h('b', {}, `은화 ${carry.seedSilver} (출신이 가진 것에 더해진다)`)) : null,
+      Object.keys(carry.skills || {}).length ? h('div', { class: 'rowx' }, h('span', {}, '숙련도'), h('span', {}, `${Object.keys(carry.skills).map((id) => SKILL_NAMES[id] || id).join(', ')}: 쌓은 것의 5%`)) : null,
       carry.pastLives.map((p) => h('div', { class: 'rowx' }, h('span', {}, '지난 삶'), h('span', {}, `'${p.name}' — ${p.job || '무직'}, 레벨 ${p.level}, ${p.day}일째에 쓰러졌다`))));
   }
 
@@ -698,8 +699,18 @@ export function start(root, storage = globalThis.localStorage) {
       render(body, { close }) {
         const lost = [info.silver ? `은화 ${info.silver}` : null, ...info.items.map((x) => `${x.name} ${x.n}`)].filter(Boolean);
         const sh = info.shadow;
+        if (info.fate === 'rebirth') {
+          add(body,
+            h('span', { class: 'big' }, '숨이 끊어졌다'),
+            info.starved ? h('div', { class: 'rowx' }, h('span', {}, '까닭'), h('span', {}, '굶주림')) : null,
+            h('p', { class: 'serif', style: 'font-size:1.05rem;line-height:1.8' }, '이번에는 신전에서 눈을 뜨지 못했다. 몸은 흙으로 돌아간다. 종은 네가 끝까지 해낸 것들을 기억한다. 그것만 안고 다시 태어난다.'),
+            rebirthRows(),
+            h('button', { class: 'btn go', type: 'button', 'data-autofocus': true, style: 'min-height:3rem;font-size:1rem', onclick: () => { const carry = rebirthCarry(game); wins.closeAll(); showCreate(slot, carry); } }, '다시 태어난다'));
+          return;
+        }
         add(body,
-          h('span', { class: 'big' }, '숨이 끊어질 듯하다'),
+          h('span', { class: 'big' }, '신전에서 눈을 떴다'),
+          info.starved ? h('div', { class: 'rowx' }, h('span', {}, '까닭'), h('span', {}, '굶주림')) : null,
           h('div', { class: 'rowx' }, h('span', {}, '두고 온 것'), h('span', {}, lost.length ? lost.join(', ') : '없음')),
           info.lostOld ? h('p', { class: 'warn' }, '먼저 두고 온 것은 이제 찾을 수 없다.') : null,
           info.keptOld ? h('p', {}, `먼저 ${PLACES[info.keptOld].name}에 두고 온 것은 아직 그 자리에 있다.`) : null,
@@ -710,31 +721,30 @@ export function start(root, storage = globalThis.localStorage) {
             h('div', { class: 'rowx toughrow' }, h('span', {}, '다시 일어선 몸'), h('b', {}, Object.entries(info.tough.gained).map(([k, v]) => `${STAT_NAMES[k]} +${v.toFixed(2)}`).join(', '))),
             h('div', { class: 'rowx' }, h('span', {}, '쌓인 것'), h('span', {}, Object.entries(info.tough.acc).map(([k, v]) => `${STAT_NAMES[k]} ${v.toFixed(2)}`).join(' · '))),
             info.tough.raised.length ? h('p', {}, `쌓인 것이 차서 ${info.tough.raised.map((k) => `${STAT_NAMES[k]} +1`).join(', ')}.`) : null] : null,
-          h('div', { class: 'col-btns' },
-            h('button', { class: 'btn go', type: 'button', 'data-autofocus': true, style: 'min-height:3rem;font-size:1rem', onclick: close }, '신전에서 눈을 뜬다', h('small', {}, ' 지금의 삶을 이어 간다. 그림자는 신전에서 축복을 받거나 기도를 해서 걷어 낸다.')),
-            h('button', { class: 'btn', type: 'button', style: 'min-height:3rem;font-size:1rem', onclick: openRebirth }, '환생한다', h('small', {}, ' 몸은 처음부터 다시. 종이 기억한 것만 가지고 간다. 한 번 더 묻는다.'))));
+          h('p', { class: 'muted', style: 'font-size:.88rem' }, '그림자는 신전에서 축복을 받거나 기도를 해서 걷어 낸다.'),
+          h('button', { class: 'btn go', type: 'button', 'data-autofocus': true, style: 'min-height:3rem;font-size:1rem', onclick: close }, '일어나기'));
       },
-      onClose: () => refs.slots?.querySelector('button:not([disabled])')?.focus(),
+      onClose: () => { if (game?.flags?.mustRebirth) return; refs.slots?.querySelector('button:not([disabled])')?.focus(); },
+      noClose: info.fate === 'rebirth',
     });
   }
 
-  // ── 환생 확인 창 (Z32) ──
-  function openRebirth() {
+  // ── 환생: 가지고 가는 것과 내려놓는 것 (Z32) ──
+  function rebirthRows() {
     const carry = rebirthCarry(game);
     const loss = rebirthLoss(game);
-    wins.open({
-      title: '환생', dark: true, over: true,
-      render(body, { close }) {
+    {
+      {
         const found = Object.entries(carry.hidden).map(([id, x]) => `${hiddenById(id)?.name} ${x.value}`);
         const raised = Object.entries(carry.toughGained).filter(([, v]) => v > 0).map(([k, v]) => `${STAT_NAMES[k]} +${v}`);
-        add(body,
-          h('p', { class: 'serif', style: 'font-size:1.05rem;line-height:1.8' }, '몸은 흙으로 돌아간다. 종은 네가 끝까지 해낸 것들을 기억한다. 그것만 안고 다시 태어난다.'),
+        return [
           h('span', { class: 'h' }, '가지고 가는 것'),
           found.length ? h('div', { class: 'rowx' }, h('span', {}, '히든 스탯'), h('span', {}, `${found.join(', ')} (지금 값 그대로)`)) : null,
           h('div', { class: 'rowx' }, h('span', {}, '다시 일어선 몸으로 오른 스탯'), h('span', {}, raised.length ? raised.join(', ') : '없음')),
           h('div', { class: 'rowx' }, h('span', {}, '칭호'), h('span', {}, carry.titles.length ? `${carry.titles.length}개 모두` : '없음')),
           h('div', { class: 'rowx' }, h('span', {}, '도감'), h('span', {}, '본 괴물·물건·곳·짐승·요리')),
           carry.seedSilver ? h('div', { class: 'rowx' }, h('span', {}, '종잣돈'), h('span', {}, `은화 ${carry.seedSilver} (가진 은화의 10%)`)) : null,
+          Object.keys(carry.skills || {}).length ? h('div', { class: 'rowx' }, h('span', {}, '숙련도'), h('span', {}, `${Object.keys(carry.skills).length}가지, 쌓은 것의 5%`)) : null,
           h('div', { class: 'rowx' }, h('span', {}, '환생한 횟수'), h('span', {}, `${carry.lives}번째 삶`)),
           h('span', { class: 'h' }, '내려놓는 것'),
           h('div', { class: 'rowx' }, h('span', {}, '레벨과 숙련도'), h('span', {}, `레벨 ${loss.level}, 숙련도 ${loss.skills}가지`)),
@@ -742,13 +752,9 @@ export function start(root, storage = globalThis.localStorage) {
           h('div', { class: 'rowx' }, h('span', {}, '가진 것'), h('span', {}, `물건, 장비, 은화 ${loss.silver}, 보관함`)),
           h('div', { class: 'rowx' }, h('span', {}, '사람'), h('span', {}, loss.guild ? '사람들과의 사이, 길드' : '사람들과의 사이')),
           h('div', { class: 'rowx' }, h('span', {}, '메인 이야기'), h('span', {}, `${loss.chapter}장까지의 진행`)),
-          h('div', { class: 'rowx' }, h('span', {}, '죽음의 그림자'), h('span', {}, '걷힌다')),
-          h('p', { class: 'warn' }, '되돌릴 수 없습니다. 새 삶을 시작하면 이 저장 칸에 덮어씌워집니다.'),
-          h('div', { class: 'row-btns' },
-            h('button', { class: 'btn go', type: 'button', 'data-autofocus': true, onclick: close }, '그만둔다'),
-            h('button', { class: 'btn', type: 'button', onclick: () => { wins.closeAll(); showCreate(slot, carry); } }, '다 내려놓고 환생한다')));
-      },
-    });
+          h('div', { class: 'rowx' }, h('span', {}, '죽음의 그림자'), h('span', {}, '걷힌다'))];
+      }
+    }
   }
 
   // ── 기척·사건 창 (E3) ──

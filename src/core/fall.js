@@ -6,6 +6,10 @@ import { pushLine, ding } from './log.js';
 import { itemDef } from '../data/items.js';
 import { addItem } from './inventory.js';
 import { derived } from './derived.js';
+import { roll01 } from './rng.js';
+
+/** 쓰러지면 운이 정한다 (Z32): 넷에 하나 꼴이 아니라 다섯에 하나 꼴로 다시 태어난다. 나머지는 신전에서 눈을 뜬다. */
+export const REBIRTH_FATE = 0.20;
 
 export const TEMPLE = 'temple';
 
@@ -131,7 +135,11 @@ export function fall(state, events, cause = '', fight = null) {
     text: cause ? `욕심을 냈다. ${cause} 눈을 뜨니 신전이었다.` : '욕심을 냈다. 눈을 뜨니 신전이었다.',
     note: first ? '처음 쓰러진 날' : null,
   });
+  // 운명: 신전에서 눈을 뜨는가, 다시 태어나는가. 다시 태어나야 하면 저장을 다시 불러와도 피할 수 없다
+  const fate = roll01(`${state.seed}|fate|${state.falls}|${state.day}|${state.phase}|${state.tick}`) < REBIRTH_FATE ? 'rebirth' : 'temple';
+  if (fate === 'rebirth') state.flags.mustRebirth = true;
   const info = {
+    fate,
     silver, items: items.map((x) => ({ name: itemDef(x.id).name, n: x.n })),
     relicPlace: fresh ? where : null, lostOld, keptOld: !fresh && old ? old.place : null, nearDeath: state.counters.nearDeath, half: !!state.flags.halfDrop, tough,
     shadow: { from: shadowFrom, to: state.shadow, cut: Math.round(state.shadow * SHADOW_RATE * 100), max: SHADOW_MAX },

@@ -25,7 +25,7 @@ export function createWindows(root) {
   // 초점이 창 밖으로 떨어져도 Esc와 Tab이 듣도록 문서에서 듣는다.
   document.addEventListener('keydown', (e) => {
     if (!current) return;
-    if (e.key === 'Escape') { e.preventDefault(); close(); return; }
+    if (e.key === 'Escape') { e.preventDefault(); if (!current.noClose) close(); return; }
     if (!veil.contains(document.activeElement)) {
       if (e.key === 'Tab') e.preventDefault();
       grab();

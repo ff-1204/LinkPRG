@@ -82,6 +82,7 @@ test('하람: 욕심내다 쓰러지고, 신전에서 깨어 유품을 찾으러
     if (s.level > 3) s.hp = Math.min(s.hp, 20); // 너무 세지면 끝나지 않으니 지친 것으로 친다
   }
   assert.ok(fell, '결국 쓰러진다');
+  delete s.flags.mustRebirth; // 이 여정은 신전에서 눈을 뜬 쪽으로 친다 (운명은 m20에서 따로 본다)
   assert.equal(s.place, 'temple');
   assert.ok(s.shadow >= 1, '죽음의 그림자가 쌓였다');
   assert.equal(fell.info.relicPlace, 'forest');

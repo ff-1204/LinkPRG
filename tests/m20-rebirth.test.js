@@ -30,6 +30,7 @@ test('축복: 겹 × 레벨 × 은화 5를 내면 모두 걷힌다. 신전지기
   const s = make();
   s.level = 4;
   fall(s, [], ''); fall(s, [], '');
+  delete s.flags.mustRebirth;
   assert.equal(shadowView(s).fee, 2 * 4 * 5);
   s.silver = 39;
   assert.throws(() => dispatch(s, { type: 'bless', npc: 'priest' }), /모자랍니다/);
@@ -44,12 +45,14 @@ test('축복: 겹 × 레벨 × 은화 5를 내면 모두 걷힌다. 신전지기
 test('기도 30번에 한 겹이 걷힌다. 묘지기는 20번', () => {
   const s = make();
   fall(s, [], ''); fall(s, [], '');
+  delete s.flags.mustRebirth; // 신전에서 눈을 뜬 쪽으로 친다
   for (let i = 0; i < 29; i++) { s.tired = 0; dispatch(s, { type: 'act', id: 'pray' }); }
   assert.equal(s.shadow, 2);
   s.tired = 0; dispatch(s, { type: 'act', id: 'pray' });
   assert.equal(s.shadow, 1);
   const g = make('gravekeeper', 'gk');
   fall(g, [], '');
+  delete g.flags.mustRebirth;
   for (let i = 0; i < 20; i++) { g.tired = 0; dispatch(g, { type: 'act', id: 'pray' }); }
   assert.equal(g.shadow, 0);
 });
@@ -116,4 +119,23 @@ test('옛 저장의 하루 쇠약은 그림자 한 겹이 된다', () => {
   assert.equal(up.lives, 1);
   const old2 = JSON.parse(JSON.stringify(old)); old2.weak = null; delete old2.shadow;
   assert.equal(parseSave(JSON.stringify({ v: SAVE_VERSION, rev: 1, savedAt: 1, state: old2 })).state.shadow, 0);
+});
+
+test('쓰러지면 운이 정한다: 다섯에 하나 꼴로 다시 태어나야 한다. 그러면 아무것도 할 수 없고, 저장해도 남는다', () => {
+  let reborn = 0;
+  for (let k = 0; k < 200; k++) {
+    const s = make('bard', 'fate' + k);
+    const info = fall(s, [], '');
+    assert.ok(['temple', 'rebirth'].includes(info.fate));
+    if (info.fate === 'rebirth') {
+      reborn++;
+      assert.equal(s.flags.mustRebirth, true);
+      assert.throws(() => dispatch(s, { type: 'act', id: 'pray' }), /다시 태어나야/);
+      const back = parseSave(JSON.stringify({ v: SAVE_VERSION, rev: 1, savedAt: 1, state: s })).state;
+      assert.equal(back.flags.mustRebirth, true, '다시 불러와도 피할 수 없다');
+      const n = createGame({ name: '새', origin: 'bard', rolled: rollDice('same'), seed: 'n' + k, carry: rebirthCarry(s) });
+      assert.ok(!n.flags.mustRebirth, '새 삶은 묶이지 않는다');
+    } else assert.ok(!s.flags.mustRebirth);
+  }
+  assert.ok(reborn >= 25 && reborn <= 55, `200번 가운데 ${reborn}번`);
 });
