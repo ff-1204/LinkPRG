@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>공용주방 시안</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  :root { --cream: #FBF5E6; --paper: #FFFDF6; --sand: #F3E9D2; --line2: #CDBE9E; --ink: #3A2A1E; --muted: #6B5443; --deep: #1E140D; --cinnamon: #8A4F2B; --mint-line: #2F7A5E; --mint: #CFE8DC; --honey: #F2B63C; --serif: 'Gowun Batang', serif; --sans: 'Gowun Dodum', sans-serif; }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--cream); color: var(--ink); font: 16px/1.65 var(--sans); padding: 24px 16px 60px; word-break: keep-all; }
+  .wrap { max-width: 980px; margin: 0 auto; }
+  h1 { font: 700 27px/1.3 var(--serif); margin-bottom: 6px; }
+  h2 { font: 700 20px/1.3 var(--serif); margin: 34px 0 8px; padding-top: 10px; border-top: 2px solid var(--deep); }
+  .note { color: var(--muted); max-width: 56rem; margin-bottom: 10px; }
+  .cap { font-size: .85rem; color: var(--muted); margin-top: 6px; max-width: 620px; }
+  .muted { color: var(--muted); font-size: .9rem; }
+  .new { outline: 2px dashed var(--honey); outline-offset: 3px; border-radius: 6px; }
+  .game { display: grid; grid-template-columns: 200px minmax(0,1fr); border: 3px solid var(--deep); background: var(--cream); max-width: 900px; }
+  .nav { background: var(--sand); padding: 12px; border-right: 2px solid var(--line2); display: flex; flex-direction: column; gap: 6px; }
+  .nav small { color: var(--muted); }
+  .ch { font: 700 15px var(--sans); text-align: left; border: 1.5px solid var(--line2); background: var(--paper); border-radius: 8px; padding: 6px 10px; color: var(--ink); }
+  .ch.here { border: 2px solid var(--cinnamon); }
+  .main { padding: 14px 18px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .main h3 { font: 700 24px var(--serif); }
+  .room { background: var(--paper); border: 1px solid var(--line2); border-radius: 10px; padding: 10px 14px; }
+  .slots { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 8px; }
+  .slot { border: 2px solid var(--deep); border-radius: 8px; padding: 6px 8px; background: var(--paper); font-weight: 700; min-height: 56px; }
+  .slot small { display: block; color: var(--muted); font-weight: 400; font-size: .75rem; }
+  .slot.go { background: var(--cinnamon); color: #fff; } .slot.go small { color: #F3E9D2; }
+  .slot.empty { border-style: dashed; border-color: var(--line2); color: var(--muted); font-weight: 400; }
+  .win { width: min(560px, 100%); border: 3px solid var(--deep); border-radius: 6px; background: var(--cream); box-shadow: 8px 8px 0 rgba(30,20,13,.25); }
+  .wt { padding: 9px 14px; background: var(--sand); border-bottom: 3px solid var(--deep); display: flex; justify-content: space-between; font-weight: 700; }
+  .wt span:last-child { font-weight: 400; }
+  .wb { padding: 14px 18px; display: flex; flex-direction: column; gap: 8px; }
+  .pot { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pot span { border: 2px dashed var(--line2); border-radius: 8px; padding: 6px 12px; min-width: 84px; text-align: center; }
+  .pot span.in { border: 2px solid var(--mint-line); background: var(--mint); }
+  .ing { display: flex; gap: 6px; flex-wrap: wrap; }
+  .btn { font: 700 14px var(--sans); border: 2px solid var(--deep); background: var(--honey); color: var(--deep); border-radius: 6px; padding: 4px 12px; }
+  .btn.sub { background: var(--paper); }
+  .chat { width: min(460px, 100%); background: var(--paper); border: 2px solid var(--deep); padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .npc { align-self: flex-start; background: #fff; border: 1px solid var(--line2); border-radius: 4px 14px 14px 14px; padding: 6px 12px; }
+  .npc b { display: block; font-size: .8rem; color: var(--muted); }
+  .me { align-self: flex-end; background: var(--mint); border-radius: 14px 4px 14px 14px; padding: 6px 12px; }
+  .sys { align-self: flex-start; background: var(--sand); border-radius: 4px 14px 14px 14px; padding: 6px 12px; }
+  .row { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+  table { border-collapse: collapse; width: 100%; background: var(--paper); font-size: .94rem; }
+  th, td { border-bottom: 1px dashed var(--line2); padding: 7px 9px; text-align: left; vertical-align: top; }
+  th { border-bottom: 2px solid var(--deep); }
+  .tw { overflow-x: auto; }
+  .opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; margin-top: 12px; }
+  .opt { background: var(--paper); border: 1px solid var(--line2); border-radius: 10px; padding: 12px 14px; }
+  .opt.rec { border: 2px solid var(--cinnamon); }
+  .opt b.t { font: 700 16px var(--serif); display: block; margin-bottom: 4px; }
+  .tag { display: inline-block; font-size: 12px; padding: 0 8px; border-radius: 999px; background: var(--cinnamon); color: #fff; margin-left: 6px; vertical-align: 2px; }
+  @media (max-width: 700px) { .game { grid-template-columns: 1fr; } .nav { border-right: 0; border-bottom: 2px solid var(--line2); } .slots { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+</style></head>
+<body><div class="wrap">
+<h1>공용주방 시안</h1>
+<p class="note">지금 요리는 강가 모닥불에서만 하고, 만들자마자 그 자리에서 먹습니다. 시작 마을에 누구나 쓰는 <b>공용주방</b>을 엽니다. 여기서 만든 음식은 <b>가방에 담아 두었다가</b> 싸우기 전이나 길에서 먹을 수 있습니다. 신전의 빵도 이 주방에서 굽습니다. 노란 점선이 새로 생기는 것입니다.</p>
+
+<h2>1. 시작 마을에 생기는 방</h2>
+<div class="game">
+  <div class="nav">
+    <small>현재 위치</small>
+    <button class="ch here" type="button">공용주방</button>
+    <small style="margin-top:6px">시작 마을</small>
+    <button class="ch" type="button">광장</button>
+    <button class="ch" type="button">훈련소</button>
+    <button class="ch" type="button">대장간</button>
+    <button class="ch" type="button">의류점</button>
+    <button class="ch" type="button">예술협회</button>
+    <button class="ch new" type="button">공용주방</button>
+    <button class="ch" type="button">주점</button>
+    <button class="ch" type="button">신전</button>
+    <small style="margin-top:6px">여기 있는 사람</small>
+    <button class="ch new" type="button">주방장</button>
+  </div>
+  <div class="main">
+    <h3>공용주방</h3>
+    <div class="room new">긴 아궁이 셋에 솥이 걸려 있다. 아무나 와서 쓰고 가는 곳이라 냄비마다 손잡이가 닳았다. 구석에서는 신전에 보낼 빵 반죽이 부풀고 있다.</div>
+    <div class="slots">
+      <div class="slot go new">1<br>요리<small>가방에 담는다</small></div>
+      <div class="slot new">2<br>재료 다듬기<small>일거리</small></div>
+      <div class="slot new">3<br>상점</div>
+      <div class="slot empty">4<br>비어 있음</div>
+      <div class="slot empty">5<br>비어 있음</div>
+    </div>
+  </div>
+</div>
+
+<h2>2. 요리 창 (주방)</h2>
+<div class="row">
+  <div class="win new">
+    <div class="wt"><span>요리 · 공용주방</span><span>닫기</span></div>
+    <div class="wb">
+      <span class="muted">재료를 셋까지 솥에 넣는다. 맞는 조합이면 음식이 되어 가방에 담긴다.</span>
+      <div class="pot"><span class="in">붕어</span><span class="in">소금</span><span>빈 자리</span></div>
+      <div class="ing"><button class="btn sub" type="button">붕어 2</button><button class="btn sub" type="button">소금 4</button><button class="btn sub" type="button">하급 약초 3</button><button class="btn sub" type="button">산열매 5</button></div>
+      <div><button class="btn" type="button">솥에 올린다</button></div>
+      <div class="muted">찾은 요리: 소금 붕어 구이 (붕어, 소금) · 포만감 +45 · 든든한 속: 최대 생명력 +15</div>
+    </div>
+  </div>
+  <div class="chat">
+    <div class="me">붕어, 소금. 솥에 올렸다. 냄새가 번진다.</div>
+    <div class="sys">소금 붕어 구이를 그릇에 담아 가방에 넣었다.</div>
+    <div class="npc"><b>주방장</b>식기 전에 먹어. 아니, 식어도 맛있게 했어.</div>
+  </div>
+</div>
+<p class="cap">강가 모닥불은 지금처럼 바로 먹습니다. 틀린 조합은 주방에서도 "먹을 수는 있는 것"이 되어 그 자리에서 먹습니다. 가방에 든 음식은 다른 먹을 것처럼 "먹기"로 먹고, 먹으면 그 음식의 힘이 붙습니다.</p>
+
+<h2>3. 옮기는 것과 새로 생기는 것</h2>
+<div class="tw"><table>
+  <tr><th>무엇</th><th>지금</th><th>공용주방이 생기면</th></tr>
+  <tr><td>요리</td><td>강가 모닥불, 바로 먹는다</td><td>강가는 그대로. 주방에서도 하고, 음식을 가방에 담는다</td></tr>
+  <tr><td>음식 넷</td><td>먹으면 사라지는 버프</td><td>그릇에 담긴 물건(소금 붕어 구이, 멧돼지 약초 찜, 산열매 주먹밥, 약초 붕어 탕)이 된다. 팔 수도 있다</td></tr>
+  <tr><td>요리 숙련도</td><td>효과가 없다</td><td>오를수록 음식의 힘이 오래 간다(효과만 보인다)</td></tr>
+  <tr><td>일거리</td><td>없음</td><td><b>재료 다듬기</b>: 구경해서 배운다. 요리 숙련도가 오르고 드물게(1%) 체력이 오른다</td></tr>
+  <tr><td>상점</td><td>없음</td><td><b>소금 · 하급 약초 · 산열매 · 주먹밥 · 멧돼지 고기</b>. 붕어와 장어는 낚아 와야 한다</td></tr>
+  <tr><td>사람</td><td>없음</td><td><b>주방장</b>: 말 걸기·친밀도·선물. 요리 귀띔을 들려준다</td></tr>
+  <tr><td>신전의 빵</td><td>신전에서 받는다</td><td>그대로 신전에서 받는다. 주방장이 굽는다는 이야기만 붙는다</td></tr>
+</table></div>
+
+<h2>4. 정할 것</h2>
+<div class="opts">
+  <div class="opt rec"><b class="t">가-1 새 방 공용주방<span class="tag">추천</span></b>시작 마을에 방을 하나 연다(위 그림).</div>
+  <div class="opt"><b class="t">가-2 주점 안의 주방</b>새 방 없이 주점에 요리 칸을 단다.</div>
+</div>
+<div class="opts">
+  <div class="opt rec"><b class="t">나-1 주방 음식은 가방에<span class="tag">추천</span></b>들고 다니다 먹는다. 강가는 그대로 바로 먹는다.</div>
+  <div class="opt"><b class="t">나-2 주방도 바로 먹는다</b>지금 강가와 똑같이 한다.</div>
+</div>
+<div class="opts">
+  <div class="opt rec"><b class="t">다-1 요리 숙련도에 효과<span class="tag">추천</span></b>오를수록 음식의 힘이 오래 간다.</div>
+  <div class="opt"><b class="t">다-2 그대로</b>요리 숙련도는 지금처럼 효과 없이 둔다.</div>
+</div>
+<div class="opts">
+  <div class="opt rec"><b class="t">라-1 재료 다듬기 + 주방장<span class="tag">추천</span></b>위 표대로 일거리와 새 사람을 둔다.</div>
+  <div class="opt"><b class="t">라-2 요리와 상점만</b>일거리와 사람은 넣지 않는다.</div>
+</div>
+<div class="opts">
+  <div class="opt rec"><b class="t">마-1 띠 그림은 나중에<span class="tag">추천</span></b>처음엔 주점 그림을 같이 쓴다.</div>
+  <div class="opt"><b class="t">마-2 이번에 같이 그림</b>공용주방 띠 그림을 낮·밤 둘 그린다.</div>
+</div>
+</div></body></html>

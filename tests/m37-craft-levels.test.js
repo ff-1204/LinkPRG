@@ -44,7 +44,7 @@ test('처음엔 레벨 1. 철검은 잠겨 있다. 만들수록 레벨이 오르
 });
 
 test('예술협회: 조각·세공·경매장. 광장에는 없다. 세공으로 반지를 만든다', () => {
-  assert.deepEqual(placeById('artguild').actions, ['sculpt', 'jewel', 'auction', 'talk']);
+  assert.deepEqual(placeById('artguild').actions, ['sculpt', 'jewel', 'auction', 'shop', 'sort', 'talk']);
   assert.ok(placeById('artguild').auction && !placeById('plaza').auction);
   assert.ok(!placeById('plaza').actions.includes('sculpt'));
   assert.ok(TOWNS['시작 마을'].order.includes('artguild'));
@@ -61,6 +61,15 @@ test('예술협회: 조각·세공·경매장. 광장에는 없다. 세공으로
   dispatch(s, { type: 'move', to: 'forge' });
   addItem(s, 'copperore', 2);
   assert.throws(() => dispatch(s, { type: 'craft', recipe: 'copperring' }), /예술협회/);
+});
+
+test('설계도에 드는 재료는 그 일터의 상점에서 다 판다 (Z81)', async () => {
+  const { SHOPS } = await import('../src/data/shops.js');
+  const where = { smith: 'forge', sew: 'tailor', jewel: 'artguild' };
+  for (const [b, place] of Object.entries(where)) {
+    for (const id of ORDER_OF[b]) for (const n of RECIPES[id].needs) assert.ok(SHOPS[place].sells.includes(n.id), `${place}에서 ${n.id}`);
+  }
+  assert.ok(SHOPS.artguild.sells.includes('oakbranch') && SHOPS.artguild.sells.includes('chisel'), '조각 재료와 조각칼');
 });
 
 test('지난 저장은 이미 만든 만큼 처음 레벨을 쳐 준다', () => {

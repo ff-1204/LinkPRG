@@ -1,28 +1,28 @@
 // 탐색과 랜덤 인카운터, 기척 (E1~E4, R2-3).
 // 탐색 한 번마다 전투·발견·사건·만남·희귀 가운데 하나. 싸울지는 되도록 내가 고른다.
 
-import { next, pick, chance, roll01 } from './rng.js?v=fb24485';
-import { addFame } from './social.js?v=fb24485';
-import { pushLine } from './log.js?v=fb24485';
-import { weighted, startBattle } from './battle.js?v=fb24485';
-import { addItem, countOf, takeById } from './inventory.js?v=fb24485';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=fb24485';
-import { ding } from './log.js?v=fb24485';
-import { monsterDef } from '../data/monsters.js?v=fb24485';
-import { itemDef } from '../data/items.js?v=fb24485';
-import { USERS } from '../data/lines.js?v=fb24485';
-import { WILDS, INCIDENTS, DANGER, DANGER_UP, OTHER_WEIGHTS, TENSION_STEP, TENSION_MAX, SCENT_TRIES, SCENT_PHASES } from '../data/wild.js?v=fb24485';
-import { placeById } from '../data/places.js?v=fb24485';
-import { iGa, eulReul, eunNeun } from './ko.js?v=fb24485';
-import { branchOf } from './evolve.js?v=fb24485';
-import { answerHidden } from './quests.js?v=fb24485';
-import { jobXp, hiddenJobView, answerHiddenJob } from './jobs.js?v=fb24485';
-import { HIDDENS } from '../data/quests.js?v=fb24485';
-import { dungeonChoiceView, dungeonChoose } from './dungeon.js?v=fb24485';
-import { endingChoiceView, applyEnding } from './ending.js?v=fb24485';
-import { memoryChoiceView, chooseMemory } from './memories.js?v=fb24485';
+import { next, pick, chance, roll01 } from './rng.js?v=bde8e2e';
+import { addFame } from './social.js?v=bde8e2e';
+import { pushLine } from './log.js?v=bde8e2e';
+import { weighted, startBattle } from './battle.js?v=bde8e2e';
+import { addItem, countOf, takeById } from './inventory.js?v=bde8e2e';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=bde8e2e';
+import { ding } from './log.js?v=bde8e2e';
+import { monsterDef } from '../data/monsters.js?v=bde8e2e';
+import { itemDef } from '../data/items.js?v=bde8e2e';
+import { USERS } from '../data/lines.js?v=bde8e2e';
+import { WILDS, INCIDENTS, DANGER, DANGER_UP, OTHER_WEIGHTS, TENSION_STEP, TENSION_MAX, SCENT_TRIES, SCENT_PHASES } from '../data/wild.js?v=bde8e2e';
+import { placeById } from '../data/places.js?v=bde8e2e';
+import { iGa, eulReul, eunNeun } from './ko.js?v=bde8e2e';
+import { branchOf } from './evolve.js?v=bde8e2e';
+import { answerHidden } from './quests.js?v=bde8e2e';
+import { jobXp, hiddenJobView, answerHiddenJob } from './jobs.js?v=bde8e2e';
+import { HIDDENS } from '../data/quests.js?v=bde8e2e';
+import { dungeonChoiceView, dungeonChoose } from './dungeon.js?v=bde8e2e';
+import { endingChoiceView, applyEnding } from './ending.js?v=bde8e2e';
+import { memoryChoiceView, chooseMemory } from './memories.js?v=bde8e2e';
 
-const WORK = { smith: { name: '대장장이', who: '대장간 주인', skill: 'smithing' }, tailor: { name: '재봉사', who: '재봉사', skill: 'leather' } };
+const WORK = { smith: { name: '대장장이', who: '대장간 주인', skill: 'smithing' }, tailor: { name: '재봉사', who: '재봉사', skill: 'leather' }, chef: { name: '요리사', who: '주방장', skill: 'cooking' } };
 
 const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
 
@@ -352,7 +352,7 @@ export function choose(state, events, id) {
     }
     if (id === 'later') {
       state.choice = null;
-      if (c.job === 'tailor') state.flags.tailorAsk = (state.counters.sewn || 0) + 3; else state.workAsk = state.made + 3;
+      if (c.job === 'tailor') state.flags.tailorAsk = (state.counters.sewn || 0) + 3; else if (c.job === 'chef') state.flags.chefAsk = (state.counters.dishes || 0) + 3; else state.workAsk = state.made + 3;
       pushLine(state, events, { k: 'me', text: '아직은 아니라고 했다. 주인은 어깨를 으쓱한다.' });
       return;
     }

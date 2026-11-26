@@ -1,17 +1,17 @@
 // 저장의 판(버전)과, 옛 저장을 지금 꼴로 올리는 길.
 // 저장 형식을 바꾸면 SAVE_VERSION을 올리고 여기에 한 단계를 더한다.
 
-import { makeItem } from './inventory.js?v=fb24485';
-import { valueOf } from './derived.js?v=fb24485';
-import { worldFields } from './world.js?v=fb24485';
-import { auctionFields } from './auction.js?v=fb24485';
+import { makeItem } from './inventory.js?v=bde8e2e';
+import { valueOf } from './derived.js?v=bde8e2e';
+import { worldFields } from './world.js?v=bde8e2e';
+import { auctionFields } from './auction.js?v=bde8e2e';
 
-import { endingFields } from './ending.js?v=fb24485';
-import { MAIN } from '../data/quests.js?v=fb24485';
-import { ITEMS } from '../data/items.js?v=fb24485';
-import { ADVANCED } from '../data/jobs.js?v=fb24485';
-import { nativeWork } from './work.js?v=fb24485';
-import { deliverMail } from './mail.js?v=fb24485';
+import { endingFields } from './ending.js?v=bde8e2e';
+import { MAIN } from '../data/quests.js?v=bde8e2e';
+import { ITEMS } from '../data/items.js?v=bde8e2e';
+import { ADVANCED } from '../data/jobs.js?v=bde8e2e';
+import { nativeWork } from './work.js?v=bde8e2e';
+import { deliverMail } from './mail.js?v=bde8e2e';
 const ORIGIN_NATIVE = new Proxy({}, { get: (_, id) => nativeWork(id) });
 
 export { worldFields, auctionFields, endingFields };
@@ -120,6 +120,8 @@ const STEPS = {
 /** 옛 상태를 지금 판으로 올린다. 이미 지금 판이면 그대로다. */
 /** 판이 같아도 어긋날 수 있는 것을 바로잡는다. 여러 번 돌려도 같다. */
 function mend(state) {
+  // 잡화점은 예술협회로 옮겨 갔다 (Z82)
+  if (state.place === 'store') state.place = 'artguild';
   // 제작 레벨 (Z79): 없던 저장은 지금까지 만든 수로 처음 레벨을 정한다. 철검을 만들던 사람이 못 만들게 되지 않게 대장은 하나라도 만들었으면 3부터
   if (!state.craftLv) {
     const lvOf = (xp) => { let lv = 1; while (xp >= lv * 10) { xp -= lv * 10; lv += 1; } return { lv, xp }; };

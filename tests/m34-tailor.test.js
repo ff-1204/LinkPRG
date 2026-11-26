@@ -22,7 +22,7 @@ test('시작 마을 대장간 옆에 의류점. 칸은 바느질·실 잣기·�
   assert.equal(order[order.indexOf('forge') + 1], 'tailor');
   assert.deepEqual(placeById('tailor').actions, ['sew', 'spin', 'shop', 'talk']);
   assert.ok(!placeById('forge').actions.includes('sew'));
-  assert.deepEqual(SHOPS.tailor.sells, ['trainwear', 'sandals', 'boarhide']);
+  for (const id of ['trainwear', 'sandals', 'boarhide', 'sailcloth', 'waterpouch']) assert.ok(SHOPS.tailor.sells.includes(id), id);
   assert.equal(PEOPLE.tailor.place, 'tailor');
   const s = make();
   dispatch(s, { type: 'move', to: 'tailor' });

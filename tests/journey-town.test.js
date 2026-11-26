@@ -39,15 +39,15 @@ test('덕수 4·5·6: 생선을 선물해 낯익은 사이가 되고, 의뢰를 
   while (countOf(s, 'crucian') < 2 && n++ < 60) { if (s.battle) fight(s); else if (s.choice) dispatch(s, { type: 'choose', id: slotsNow(s).at(-1).action.id }); else dispatch(s, { type: 'act', id: 'fish' }); feed(s); }
   assert.ok(countOf(s, 'crucian') >= 2);
   travel(s, 'plaza');
-  go(s, 'store');
+  go(s, 'artguild');
   s.silver = 60;
-  const full = buyPrice(s, 'redpotion').now;
+  const full = buyPrice(s, 'chisel').now; // 예술협회의 할머니 가게 (Z84)
   dispatch(s, { type: 'greet', npc: 'granny' });
   dispatch(s, { type: 'gift', npc: 'granny', index: s.bag.findIndex((x) => x.id === 'crucian') });
   assert.equal(bondName(s, 'granny'), '낯익은 사이');
-  const cut = buyPrice(s, 'redpotion');
+  const cut = buyPrice(s, 'chisel');
   assert.ok(cut.now < full && cut.base === full, '값에 줄이 그어지고 깎인다');
-  dispatch(s, { type: 'buy', id: 'redpotion' });
+  dispatch(s, { type: 'buy', id: 'chisel' });
   assert.equal(s.silver, 60 - cut.now);
 
   // 5단계: 게시판에서 "멧돼지 가죽 3장"을 받아 끝낸다
@@ -76,7 +76,7 @@ test('덕수 4·5·6: 생선을 선물해 낯익은 사이가 되고, 의뢰를 
   assert.ok(s.xp !== before.xp || s.level > before.level);
 
   // 6단계: 할머니가 "할머니의 낚싯대"를 준다. 갈림 셋을 미리 보고 돌려준다. 칭호를 단다
-  go(s, 'store');
+  go(s, 'artguild');
   assert.deepEqual(offersOf(s, 'granny'), ['rod']);
   dispatch(s, { type: 'quest', op: 'accept', id: 'rod' });
   assert.equal(subView(s, 'rod').ends.length, 3);
@@ -85,7 +85,7 @@ test('덕수 4·5·6: 생선을 선물해 낯익은 사이가 되고, 의뢰를 
   while (countOf(s, 'oldrod') < 1 && n++ < 400) { if (s.battle) fight(s); else if (s.choice) dispatch(s, { type: 'choose', id: slotsNow(s).at(-1).action.id }); else dispatch(s, { type: 'act', id: 'fish' }); feed(s); if (s.phase === 0) { s.phase = 1; } }
   assert.equal(countOf(s, 'oldrod'), 1);
   travel(s, 'plaza');
-  go(s, 'store');
+  go(s, 'artguild');
   const p0 = buyPrice(s, 'redpotion').now;
   dispatch(s, { type: 'quest', op: 'choose', id: 'rod', choice: 'return' });
   assert.equal(titleView(s).find((t) => t.got).name, '마을의 단골');
@@ -164,7 +164,7 @@ test('소은 1·2: 사귀는 길로 1장을 끝내고, 낚싯대를 세 번째 �
   assert.equal(v.paths.length, 5);
   // 사람 셋과 단골: 날마다 이야기를 듣고, 좋아하는 것을 건넨다(선물은 주운 것이라고 친다)
   const gifts = { granny: 'crucian', keeper: 'boarmeat', smith: 'copperore' };
-  const places = { granny: 'store', keeper: 'tavern', smith: 'forge' };
+  const places = { granny: 'artguild', keeper: 'tavern', smith: 'forge' };
   let day = 0;
   while (s.main.chapter === 1 && day++ < 30) {
     for (const id of Object.keys(gifts)) {
@@ -185,7 +185,7 @@ test('소은 1·2: 사귀는 길로 1장을 끝내고, 낚싯대를 세 번째 �
   assert.equal(s.main.called, '이웃');
   assert.ok(!mapView(s).find((r) => r.id === 'ruins').locked, '지도에 새 길이 난다');
   // 2단계: 낚싯대를 고쳐서 돌려주고, 아침 강에 선다
-  go(s, 'store');
+  go(s, 'artguild');
   dispatch(s, { type: 'quest', op: 'accept', id: 'rod' });
   go(s, 'training');
   s.level = 6; s.stats.str += 8; s.stats.con += 8; s.hp = valueOf(s, 'maxHp'); // 강가를 다닐 만큼 큰 뒤
@@ -195,7 +195,7 @@ test('소은 1·2: 사귀는 길로 1장을 끝내고, 낚싯대를 세 번째 �
   assert.ok((s.skills.fishing?.grade || 0) >= 4, '낚시가 초급 5가 될 때까지 던졌다');
   addItem(s, 'oakbranch', 2);
   travel(s, 'plaza');
-  go(s, 'store');
+  go(s, 'artguild');
   dispatch(s, { type: 'quest', op: 'choose', id: 'rod', choice: 'mend' });
   travel(s, 'river');
   n = 0;

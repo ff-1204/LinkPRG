@@ -277,14 +277,14 @@ test('대장간에서 세 자루를 만들면 주인이 일을 권한다. 받으
 test('상점: 사면 은화가 줄고, 판 값은 등급에 따라 다르다 (E24, E28)', () => {
   const s = createGame({ name: '가', origin: 'fallen', spent: {}, seed: 'shop' });
   assert.throws(() => dispatch(s, { type: 'buy', id: 'redpotion' }), /팔지 않는/);
-  dispatch(s, { type: 'move', to: 'store' });
+  dispatch(s, { type: 'move', to: 'artguild' });
   const v = shopView(s);
-  assert.deepEqual(v.goods.map((g) => g.id), SHOPS.store.sells);
-  dispatch(s, { type: 'buy', id: 'redpotion' });
-  assert.equal(s.silver, 80);
-  assert.equal(countOf(s, 'redpotion'), 1);
+  assert.deepEqual(v.goods.map((g) => g.id), SHOPS.artguild.sells);
+  dispatch(s, { type: 'buy', id: 'chisel' });
+  assert.equal(s.silver, 70);
+  assert.equal(countOf(s, 'chisel'), 1);
   s.silver = 3;
-  assert.throws(() => dispatch(s, { type: 'buy', id: 'redpotion' }), /은화가 모자랍니다/);
+  assert.throws(() => dispatch(s, { type: 'buy', id: 'chisel' }), /은화가 모자랍니다/);
   s.bag = [];
   addItem(s, 'ironsword', 1, { grade: 0 });
   addItem(s, 'ironsword', 1, { grade: 4 });
@@ -367,7 +367,7 @@ test('맡긴 것이 있는 날만 은화 2. 쓰러져도 맡긴 것은 남는다
 test('2판 저장을 읽으면 3판으로 올라온다', () => {
   const s = createGame({ name: '가', origin: 'farmer', spent: {}, seed: 'v2' });
   const old = JSON.parse(JSON.stringify(s));
-  for (const k of ['craft', 'made', 'evolve', 'evolveSeen', 'work', 'workAsk', 'store', 'storeDebt']) delete old[k];
+  for (const k of ['craft', 'made', 'evolve', 'evolveSeen', 'work', 'workAsk', 'artguild', 'storeDebt']) delete old[k];
   old.v = 2;
   const up = parseSave(JSON.stringify({ v: 2, rev: 1, savedAt: 1, state: old })).state;
   assert.equal(up.v, SAVE_VERSION);

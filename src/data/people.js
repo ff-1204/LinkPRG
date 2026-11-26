@@ -27,6 +27,12 @@ export const PEOPLE = {
     hello: ['쇠 살 거면 저쪽.', '또 왔나. 화덕은 비었다.', '왔나. 오늘 쇠가 좋아.', '어서 와. 자네 망치는 저기 걸어 놨네.', '왔냐. 밥은 먹었고?'],
     talk: ['쇠는 식기 전에 쳐야 한다. 사람도 그렇고.', '구리는 무르지만 거짓말을 안 한다.', '폐허에서 밤마다 쇳소리가 난다는데, 누가 두드리는 건지.', '좋은 검은 열두 번째 망치질에서 정해진다.'],
   },
+  chef: {
+    id: 'chef', name: '주방장', place: 'kitchen', stats: { eye: 13, guts: 13, will: 11 },
+    likes: ['eel', 'salt'], dislikes: ['batwing'],
+    hello: ['배고파?', '또 왔네. 솥 하나 비었어.', '왔어. 오늘은 뭘 끓여 볼까.', '어서 와. 자네 몫 국 한 그릇 떠 놨어.', '왔구나. 앉아, 간 좀 봐 줘.'],
+    talk: ['소금은 마지막에. 처음부터 넣으면 고기가 질겨져.', '신전 빵은 새벽마다 내가 구워. 반죽은 밤새 재우고.', '같은 재료라도 누가 솥을 젓느냐에 따라 맛이 달라.', '나루 장어는 비싸도 값을 해.'],
+  },
   artmaster: {
     id: 'artmaster', name: '협회장', place: 'artguild', stats: { eye: 17, guts: 9, will: 14 },
     likes: ['oakbranch', 'wolffang'], dislikes: ['boarmeat'],
@@ -40,7 +46,7 @@ export const PEOPLE = {
     talk: ['옷은 몸을 따라 늘어나고 줄어들어. 꿰맨 자리만 보면 누가 지었는지 알지.', '멧돼지 가죽은 억세도 오래가.', '바늘은 서두르면 손가락을 찔러.', '폐허에서 나온 천 조각을 본 적 있어. 지금은 아무도 그렇게 못 짜.'],
   },
   granny: {
-    id: 'granny', name: '잡화점 할머니', place: 'store', stats: { eye: 16, guts: 9, will: 13 },
+    id: 'granny', name: '잡화점 할머니', place: 'artguild', stats: { eye: 16, guts: 9, will: 13 },
     likes: ['crucian', 'herb'], dislikes: ['batwing'],
     hello: ['필요한 건 선반에 다 있어요.', '아이고, 또 왔네.', '왔어? 오늘은 뭐가 필요할까.', '어서 와. 차 한잔 하고 가.', '우리 강아지 왔구나. 밥은 먹었니.'],
     talk: ['영감이 살았을 땐 아침마다 강에 나갔지. 붕어를 그렇게 좋아했어.', '약초는 바위틈 것이 제일이야.', '박쥐 날개는 가져오지 마. 보기만 해도 소름이 돋아.', '새벽 강에는 사람 말고 다른 것도 낚시를 한다더라.'],
@@ -170,14 +176,14 @@ export const PEOPLE = {
 
 /** 사람마다 내 이름을 부르는 꼴 (Z39): [낯익은 사이·단골, 벗·가족 같은 사이]. 뜻은 core/social.js의 callName을 본다. */
 export const CALLS = {
-  instructor: ['dot', 'ya'], smith: ['comma', 'ya'], tailor: ['comma', 'jane'], artmaster: ['comma', 'jane'], granny: ['comma', 'uri'], keeper: ['comma', 'jane'], miru: ['ssi', 'ssi!'],
+  instructor: ['dot', 'ya'], smith: ['comma', 'ya'], tailor: ['comma', 'jane'], artmaster: ['comma', 'jane'], chef: ['comma', 'ya'], granny: ['comma', 'uri'], keeper: ['comma', 'jane'], miru: ['ssi', 'ssi!'],
   priest: ['comma', 'jane'], foreman: ['comma', 'uri'], ferryman: ['comma', 'ya'], fishwife: ['comma', 'uri'], agent: ['nim', 'nim'],
   shipwright: ['comma', 'ya'], innkeeper: ['comma', 'jane'], shrinekeeper: ['yangban', 'yangban'], eye: ['dot', 'yadot'], trader: ['yangban', 'yangban'],
   master: ['comma', 'jane'], clerk: ['nim', 'ssi!'], librarian: ['nim', 'nim'], highpriest: ['comma', 'jane'], heir: ['ssi', 'ssi!'],
   hostess: ['comma', 'ya'], elder: ['dot', 'yadot'],
 };
 
-export const PEOPLE_ORDER = ['instructor', 'smith', 'tailor', 'artmaster', 'granny', 'keeper', 'miru', 'priest', 'foreman', 'trapped', 'ferryman', 'fishwife', 'agent', 'shipwright', 'innkeeper', 'shrinekeeper', 'eye', 'trader', 'master', 'clerk', 'librarian', 'highpriest', 'heir', 'hostess', 'elder'];
+export const PEOPLE_ORDER = ['instructor', 'smith', 'tailor', 'artmaster', 'chef', 'granny', 'keeper', 'miru', 'priest', 'foreman', 'trapped', 'ferryman', 'fishwife', 'agent', 'shipwright', 'innkeeper', 'shrinekeeper', 'eye', 'trader', 'master', 'clerk', 'librarian', 'highpriest', 'heir', 'hostess', 'elder'];
 
 export function personById(id) {
   const p = PEOPLE[id];

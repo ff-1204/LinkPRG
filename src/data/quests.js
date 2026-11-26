@@ -40,7 +40,7 @@ export const SUBS = {
     more: true,
     steps: [
       { id: 'find', text: '강가 낚시터에서 낚시를 하다 보면 걸려 올라올지도 모른다.', goal: { item: 'oldrod' } },
-      { id: 'end', at: 'store', text: '건져 올린 낚싯대를 들고 잡화점 할머니에게 간다.', choices: [
+      { id: 'end', at: 'artguild', text: '건져 올린 낚싯대를 들고 예술협회의 잡화점 할머니에게 간다.', choices: [
         { id: 'return', label: '돌려준다', end: '돌려주었다',
           say: '할머니는 낚싯대를 한참 쓰다듬었다. "이 마디, 영감이 감은 거야." 그러고는 물약 값을 받지 않았다.',
           ok: { take: [['oldrod', 1]], bond: [['granny', 25]], fame: 5, give: [['redpotion', 1]], title: ['regular', '할머니의 낚싯대를 돌려주었습니다'] } },

@@ -19,8 +19,9 @@ export const BRANCHES = {
   smith: { id: 'smith', name: '대장', act: 'craft', work: 'smith', where: '대장간' },
   sew: { id: 'sew', name: '재봉', act: 'sew', work: 'tailor', where: '의류점' },
   jewel: { id: 'jewel', name: '세공', act: 'jewel', work: null, where: '예술협회' },
+  cook: { id: 'cook', name: '요리', act: 'cook', work: 'chef', where: '공용주방' }, // 요리 레벨 (Z83): 설계도 대신 요리 조합
 };
-export const BRANCH_ORDER = ['smith', 'sew', 'jewel'];
+export const BRANCH_ORDER = ['smith', 'sew', 'jewel', 'cook'];
 /** 다음 레벨까지 드는 제작 경험: 지금 레벨 × 10. 하나 다 만들면 설계도 레벨 × (1 + 등급). */
 export const CRAFT_LV = { per: 10, workXp: 1.5 };
 

@@ -26,6 +26,7 @@ export const SKILL_EFFECTS = {
   smithing: '만든 것의 등급이 오르기 쉽고, 강화가 잘 된다',
   leather: '만든 것의 등급이 오르기 쉽다',
   sculpting: '작품이 더 잘 나온다',
+  cooking: '음식의 힘이 오래 간다',
   lockpick: '자물쇠를 더 잘 연다',
   appraise: '물건을 더 비싸게 판다. 솜씨가 깊어지면 낯선 물건도 알아본다',
 };

@@ -92,7 +92,7 @@ test('어시장: 같은 소금 값이 날마다 다르고, 시작 마을에 없�
   assert.ok(eel.size >= 3);
   assert.ok(shopView(s).daily);
   const here = new Set(SHOPS.fishmarket.sells);
-  const up = new Set([...SHOPS.store.sells, ...SHOPS.forge.sells]);
+  const up = new Set([...SHOPS.artguild.sells, ...SHOPS.forge.sells]);
   assert.ok([...here].filter((x) => !up.has(x)).length >= 3, '나루에서만 파는 것');
   for (const id of here) assert.ok(ITEMS[id].price > 0);
   s.silver = 500;

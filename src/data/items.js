@@ -64,6 +64,13 @@ export const ITEMS = {
   bread: { name: '신전의 빵', kind: 'eat', weight: 1, icon: 'item-rice', price: 0, nosell: true, eat: { full: 20 }, desc: '신전에서 날마다 하나씩 나눠 주는 딱딱한 빵. 포만감 +20, 생명력 +10. 팔 수는 없다.' },
   riceball: { name: '주먹밥', kind: 'eat', weight: 1, icon: 'item-rice', price: 5, eat: { full: 30 }, desc: '소금만 친 주먹밥. 포만감 +30, 생명력 +15.' },
   holywater: { name: '성수', kind: 'eat', weight: 1, icon: 'item-water', price: 60, perLevel: 6, eat: { grace: true }, desc: '신전에서 축복한 물. 마시면 신의 가호(공격력·방어력 +5%)가 두 때 동안 붙는다. 값은 레벨 × 6.' },
+  // 공용주방에서 만든 음식 (Z83): 가방에 담겼다가 먹으면 그 음식의 힘이 붙는다
+  dish_saltfish: { name: '소금 붕어 구이', kind: 'eat', weight: 1, icon: 'item-fish', price: 12, eat: { full: 45, dish: 'saltfish' }, desc: '그릇에 담아 온 구이. 먹으면 든든한 속(최대 생명력 +15).' },
+  dish_berryrice: { name: '산열매 주먹밥', kind: 'eat', weight: 1, icon: 'item-rice', price: 10, eat: { full: 50, dish: 'berryrice' }, desc: '열매를 박은 주먹밥. 먹으면 가벼운 발(방어력 +2).' },
+  dish_boarstew: { name: '멧돼지 약초 찜', kind: 'eat', weight: 2, icon: 'item-meat', price: 22, eat: { full: 70, dish: 'boarstew' }, desc: '뚜껑 덮은 찜. 먹으면 뜨거운 피(공격력 +4).' },
+  dish_herbfish: { name: '약초 붕어 탕', kind: 'eat', weight: 1, icon: 'item-fish', price: 16, eat: { full: 40, dish: 'herbfish' }, desc: '맑은 탕. 먹으면 맑은 정신(숙련도 오름 +5%).' },
+  dish_eelsoup: { name: '장어 소금 국', kind: 'eat', weight: 1, icon: 'item-fish', price: 30, eat: { full: 60, dish: 'eelsoup' }, desc: '진한 국. 먹으면 깊은 숨(최대 생명력 +25).' },
+  dish_boarskewer: { name: '멧돼지 산열매 꼬치', kind: 'eat', weight: 1, icon: 'item-meat', price: 26, eat: { full: 55, dish: 'boarskewer' }, desc: '단내 나는 꼬치. 먹으면 사나운 입맛(공격력 +3, 방어력 +1).' },
   redpotion: { name: '붉은 물약', kind: 'eat', grade: 1, weight: 1, icon: 'item-potion', price: 20, eat: { hpPct: 40 }, desc: '최대 생명력의 40%를 채운다.' },
   forgetwater: { name: '잊는 물', kind: 'etc', grade: 3, weight: 1, icon: 'item-water', price: 400, desc: '마시면 손에 익은 갈래 하나를 잊는다. 다시 고를 수 있게 된다. 아주 귀하다.' },
   oldrod: { name: '진흙투성이 낚싯대', kind: 'quest', weight: 1, icon: 'item-branch', desc: '강바닥에서 건져 올렸다. 손잡이 마디에 실이 곱게 감겨 있다.' },

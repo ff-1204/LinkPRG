@@ -22,9 +22,9 @@ const befriend = (s, id, stage) => { s.people[id] = { pts: BONDS[stage].at, talk
 
 test('선물: 좋아하는 것을 주면 낯익은 사이가 되고, 말투와 값이 바뀐다 (E26, E27)', () => {
   const s = fresh();
-  go(s, 'store');
+  go(s, 'artguild');
   s.silver = 100;
-  const before = buyPrice(s, 'redpotion');
+  const before = buyPrice(s, 'chisel');
   assert.equal(before.now, before.base);
   dispatch(s, { type: 'greet', npc: 'granny' });
   const hello0 = helloOf(s, 'granny');
@@ -35,26 +35,26 @@ test('선물: 좋아하는 것을 주면 낯익은 사이가 되고, 말투와 �
   assert.ok(ev.some((e) => e.type === 'ding' && e.ding.kind === 'bond'));
   assert.notEqual(helloOf(s, 'granny'), hello0);
   assert.deepEqual(peopleDex(s)[0].likes, ['붕어']);
-  const after = buyPrice(s, 'redpotion');
-  assert.equal(after.base, 20);
-  assert.equal(after.now, 19, '5% 깎인다');
+  const after = buyPrice(s, 'chisel');
+  assert.equal(after.base, 30);
+  assert.equal(after.now, 28, '5% 깎인다');
   assert.ok(after.why.includes('낯익은 사이'));
-  const row = shopView(s).goods.find((g) => g.id === 'redpotion');
+  const row = shopView(s).goods.find((g) => g.id === 'chisel');
   assert.ok(row.now < row.base, '원래 값과 깎인 값이 함께 나온다');
-  dispatch(s, { type: 'buy', id: 'redpotion' });
-  assert.equal(s.silver, 81);
+  dispatch(s, { type: 'buy', id: 'chisel' });
+  assert.equal(s.silver, 72);
 });
 
 test('싫어하는 것을 주면 사이가 내려가고, 그것도 도감에 적힌다. 없는 사람에게는 못 준다', () => {
   const s = fresh();
-  go(s, 'store');
+  go(s, 'artguild');
   befriend(s, 'granny', 1);
   addItem(s, 'batwing', 1);
   dispatch(s, { type: 'gift', npc: 'granny', index: s.bag.findIndex((x) => x.id === 'batwing') });
   assert.equal(bondOf(s, 'granny'), 0);
   assert.deepEqual(peopleDex(s)[0].dislikes, ['박쥐 날개']);
   assert.throws(() => dispatch(s, { type: 'talk', npc: 'smith' }), /여기에 없습니다/);
-  assert.deepEqual(peopleHere(s).map((p) => p.id), ['granny']);
+  assert.deepEqual(peopleHere(s).map((p) => p.id).sort(), ['artmaster', 'granny'], '예술협회에는 협회장과 할머니 (Z82)');
 });
 
 test('이야기 듣기는 하루에 한 번만 사이를 올리고, 만난 사람 수가 쌓인다', () => {
@@ -83,7 +83,7 @@ test('게시판: 날마다 달라지고 같은 날에는 같다. 날마다 다�
 
 test('의뢰: 세 개까지 받고, 조건이 모자라면 까닭이 보이고, 끝내면 은화·경험치·명성이 들어온다 (E20, E21)', () => {
   const s = fresh('job');
-  go(s, 'store');
+  go(s, 'artguild');
   assert.throws(() => dispatch(s, { type: 'job', op: 'accept', id: 'herb5' }), /광장/);
   go(s, 'plaza');
   // 조건이 모자란 카드가 붙는 날을 찾는다
@@ -135,7 +135,7 @@ test('잡는 의뢰는 이긴 만큼 세고, 기한이 지나면 쪽지가 돌�
 
 test('명성이 오르면 값이 싸지고 첫마디가 바뀐다 (M4-8)', () => {
   const s = fresh('fame');
-  go(s, 'store');
+  go(s, 'artguild');
   const hello0 = helloOf(s, 'granny');
   s.fame['시작 마을'] = 10;
   assert.equal(fameRank(s), 1);
@@ -146,7 +146,7 @@ test('명성이 오르면 값이 싸지고 첫마디가 바뀐다 (M4-8)', () =>
 
 test('서브 퀘스트는 조건을 채워야 나타난다. 이름 옆 숫자가 그것을 알린다 (Q1, Q3-6)', () => {
   const s = fresh('sub');
-  go(s, 'store');
+  go(s, 'artguild');
   assert.deepEqual(offersOf(s, 'granny'), []);
   assert.throws(() => dispatch(s, { type: 'quest', op: 'accept', id: 'rod' }), /아직 받을 수 없/);
   befriend(s, 'granny', 1);
@@ -163,14 +163,14 @@ test('서브 퀘스트는 조건을 채워야 나타난다. 이름 옆 숫자가
 const withRod = (seed, origin = 'farmer') => {
   const s = fresh(seed, origin);
   befriend(s, 'granny', 1);
-  go(s, 'store');
+  go(s, 'artguild');
   dispatch(s, { type: 'quest', op: 'accept', id: 'rod' });
   s.place = 'river'; s.phase = 1;
   let n = 0;
   while (countOf(s, 'oldrod') < 1 && n++ < 300) { s.phase = 1; s.tick = 0; s.full = 80; dispatch(s, { type: 'act', id: 'fish' }); }
   assert.equal(countOf(s, 'oldrod'), 1, '낚시하다 낚싯대가 걸려 올라온다');
   assert.equal(subView(s, 'rod').step.id, 'end');
-  s.place = 'store';
+  s.place = 'artguild';
   return s;
 };
 
@@ -178,8 +178,8 @@ test('할머니의 낚싯대: 세 갈림이 서로 다른 결말로 간다 (M4-3
   // 돌려준다 → 칭호 '마을의 단골'
   const a = withRod('rodA');
   a.place = 'plaza';
-  assert.throws(() => dispatch(a, { type: 'quest', op: 'choose', id: 'rod', choice: 'return' }), /잡화점에서/);
-  a.place = 'store';
+  assert.throws(() => dispatch(a, { type: 'quest', op: 'choose', id: 'rod', choice: 'return' }), /예술협회에서/);
+  a.place = 'artguild';
   dispatch(a, { type: 'quest', op: 'choose', id: 'rod', choice: 'return' });
   assert.equal(a.quests.rod.ending, '돌려주었다');
   assert.equal(countOf(a, 'oldrod'), 0);
@@ -485,7 +485,7 @@ test('칭호: 하나만 달고 마을에서만 바꾼다. 못 얻은 것은 ???�
   assert.equal(buyPrice(s, 'redpotion').now, before, '효과는 얻을 때부터 붙어 있다. 다는 것은 보이는 것뿐 (Z51)');
   s.place = 'forest';
   assert.throws(() => dispatch(s, { type: 'title', id: null }), /마을에서만/);
-  s.place = 'store';
+  s.place = 'artguild';
   dispatch(s, { type: 'title', id: null });
   assert.equal(s.title, null);
   for (const t of Object.values(TITLES)) assert.ok(t.name && t.effect && t.hint);
@@ -508,7 +508,7 @@ test('3판 저장을 읽으면 4판으로 올라온다', () => {
   const up = parseSave(JSON.stringify({ v: 3, rev: 1, savedAt: 1, state: old })).state;
   assert.equal(up.v, SAVE_VERSION);
   assert.equal(up.main.chapter, 1);
-  go(up, 'store');
+  go(up, 'artguild');
   talkTo(up, 'granny');
   assert.equal(up.people.granny.pts, 1);
 });
@@ -516,14 +516,15 @@ test('3판 저장을 읽으면 4판으로 올라온다', () => {
 // ── 검토에서 나온 것들 ──
 test('선물은 한 사람에게 하루에 한 번이다', () => {
   const s = fresh('g1', 'fallen');
-  go(s, 'store');
+  go(s, 'kitchen'); // 산열매는 공용주방에서 판다 (Z84)
   for (let i = 0; i < 5; i++) dispatch(s, { type: 'buy', id: 'berry' });
+  go(s, 'artguild');
   dispatch(s, { type: 'gift', npc: 'granny', index: s.bag.findIndex((x) => x.id === 'berry') });
   assert.throws(() => dispatch(s, { type: 'gift', npc: 'granny', index: s.bag.findIndex((x) => x.id === 'berry') }), /하루에 한 번/);
   assert.equal(countOf(s, 'berry'), 4, '거절되면 물건은 그대로다');
   go(s, 'tavern');
   for (let i = 0; i < 3; i++) passPhase(s);
-  go(s, 'store');
+  go(s, 'artguild');
   dispatch(s, { type: 'gift', npc: 'granny', index: s.bag.findIndex((x) => x.id === 'berry') });
   assert.equal(s.people.granny.pts, 4);
 });
@@ -546,7 +547,7 @@ test('퀘스트 물건은 맡길 수 없고, 내놓을 것이 없으면 선택�
   const s = withRod('qi');
   go(s, 'tavern');
   assert.throws(() => dispatch(s, { type: 'deposit', index: s.bag.findIndex((x) => x.id === 'oldrod') }), /맡길 수 없습니다/);
-  go(s, 'store');
+  go(s, 'artguild');
   s.bag = s.bag.filter((x) => x.id !== 'oldrod'); // 어떻게든 손에서 사라졌다고 치면
   const log = s.log.length, rng = s.rng;
   assert.throws(() => dispatch(s, { type: 'quest', op: 'choose', id: 'rod', choice: 'keep' }), /있어야 합니다/);

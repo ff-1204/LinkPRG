@@ -85,7 +85,7 @@ test('가을 2~8: 나무를 주워 토끼를 깎고, 걸작을 세우고, 붕어
   assert.ok(fameOf(s) >= fame + 8);
 
   // 6단계: 강가 모닥불에서 붕어와 소금을 굽는다
-  go(s, 'store');
+  go(s, 'kitchen'); // 소금은 공용주방에서 판다 (Z84)
   s.silver = Math.max(s.silver, 10);
   dispatch(s, { type: 'buy', id: 'salt' });
   travel(s, 'river');

@@ -25,7 +25,7 @@ test('마을의 곳마다 손으로 거듭할 일이 하나씩 있다. 칸은 �
     if (!work.length) none.push(p.name);
   }
   // 주점·주막·여인숙은 칸이 이미 다섯이라 없다
-  assert.deepEqual(none.sort(), ['뱃사람 주막', '여인숙 골목', '예술협회', '주점'].sort());
+  assert.deepEqual(none.sort(), ['뱃사람 주막', '여인숙 골목', '주점'].sort());
   for (const a of chores) {
     assert.ok(SKILL_NAMES[a.skill], `${a.label}: 숙련도 이름`);
     assert.ok(ACTION_LINES[a.id].length >= 3, `${a.label}: 글이 셋 이상`);
@@ -67,7 +67,7 @@ test('새 숙련도 셋은 몸에 돌아온다: 기도는 마나, 나르기는 �
 
 test('가게에 일이 생겨도 주인은 전처럼 들어서면 먼저 말을 건다', () => {
   const s = fresh('shop');
-  dispatch(s, { type: 'move', to: 'store' });
+  dispatch(s, { type: 'move', to: 'artguild' });
   assert.equal(spokeToday(s, 'granny'), true);
 });
 

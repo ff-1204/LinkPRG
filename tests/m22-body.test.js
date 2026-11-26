@@ -49,7 +49,7 @@ test('사람들은 낯익은 사이부터 제 말투로 내 이름을 부른다.
   assert.ok(helloOf(t, 'smith').startsWith('서진아, '));
   // 단골부터는 이야기 중에도 이따금 부른다
   t.people.granny = { pts: 30, talked: 0, likes: [], dislikes: [], stats: [], met: true };
-  t.place = 'store';
+  t.place = 'artguild';
   let named = 0;
   for (let i = 0; i < 30; i++) {
     t.flags.spoke = { granny: t.day }; t.tick = i;
@@ -224,7 +224,7 @@ test('신전의 치료: 하루 한 번 공짜로 생명력이 다 차고 상태�
 test('칭호의 효과는 얻은 것 모두 늘 붙는다. 달지 않아도 (Z51)', async () => {
   const { grantTitle } = await import('../src/core/social.js');
   const { buyPrice } = await import('../src/core/trade.js');
-  const s = make('titles'); s.place = 'store';
+  const s = make('titles'); s.place = 'artguild';
   const p0 = buyPrice(s, 'redpotion').now;
   grantTitle(s, [], 'regular', 'x');
   assert.equal(s.title, null, '달지 않았다');

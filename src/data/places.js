@@ -45,11 +45,11 @@ export const PLACES = {
   // 예술협회 (Z80): 조각, 세공(반지), 경매장. 광장에서 옮겨 왔다. 작품은 그대로 광장 받침대에 세운다
   artguild: {
     id: 'artguild', name: '예술협회', town: '시작 마을', danger: '안전', auction: true,
-    room: '천장이 높은 돌집. 벽마다 조각과 그림이 걸려 있고, 안쪽 탁자에서는 누군가 작은 반지를 다듬고 있다. 경매 게시판 앞에 사람들이 모여 있다.',
+    room: '천장이 높은 돌집. 벽마다 조각과 그림이 걸려 있고, 안쪽 탁자에서는 누군가 작은 반지를 다듬고 있다. 경매 게시판 앞에 사람들이 모여 있고, 문 옆에는 잡화점 할머니가 저울과 선반을 옮겨 놓고 앉아 있다.',
     strip: { day: 'strip-plaza-empty', night: 'strip-plaza-empty' },
     stripAlt: '예술협회. 집 둘, 나무, 분수',
     users: [6, 9, 2],
-    actions: ['sculpt', 'jewel', 'auction', 'talk'],
+    actions: ['sculpt', 'jewel', 'auction', 'shop', 'sort', 'talk'], // 잡화점의 상점·물건 살피기·할머니가 옮겨 왔다 (Z82)
   },
   // 의류점 (Z74): 가죽과 천을 다룬다. 바느질, 몸·발 장비 손질, 실 잣기
   tailor: {
@@ -60,13 +60,14 @@ export const PLACES = {
     users: [3, 5, 1],
     actions: ['sew', 'spin', 'shop', 'talk'],
   },
-  store: {
-    id: 'store', name: '잡화점', town: '시작 마을', danger: '안전',
-    room: '선반마다 물건이 빼곡하다. 저울 옆에서 주인이 장부를 넘긴다.',
-    strip: { day: 'strip-store-day', night: 'strip-store-night' },
-    stripAlt: '잡화점. 민트색 지붕의 가게와 나무 상자들',
-    users: [5, 7, 1],
-    actions: ['shop', 'sort', 'talk'],
+  // 공용주방 (Z83): 누구나 쓰는 주방. 요리한 음식은 가방에 담긴다. 신전의 빵도 여기서 굽는다
+  kitchen: {
+    id: 'kitchen', name: '공용주방', town: '시작 마을', danger: '안전', kitchen: true,
+    room: '긴 아궁이 셋에 솥이 걸려 있다. 아무나 와서 쓰고 가는 곳이라 냄비마다 손잡이가 닳았다. 구석에서는 신전에 보낼 빵 반죽이 부풀고 있다.',
+    strip: { day: 'strip-tavern-day', night: 'strip-tavern-night' },
+    stripAlt: '공용주방. 간판이 걸린 집과 통 둘',
+    users: [4, 7, 2],
+    actions: ['cook', 'trim', 'shop', 'talk'],
   },
   tavern: {
     id: 'tavern', name: '주점', town: '시작 마을', danger: '안전', storage: true, merc: true,
@@ -219,7 +220,7 @@ export const PLACES = {
 
 /** 마을들. gate: 마을로 들어올 때 닿는 곳. order: 방 목록의 차례. */
 export const TOWNS = {
-  '시작 마을': { gate: 'plaza', order: ['plaza', 'training', 'forge', 'tailor', 'artguild', 'store', 'tavern', 'temple'] },
+  '시작 마을': { gate: 'plaza', order: ['plaza', 'training', 'forge', 'tailor', 'artguild', 'kitchen', 'tavern', 'temple'] },
   나루: { gate: 'dock', order: ['dock', 'fishmarket', 'branch', 'shipyard', 'inn', 'shrine', 'underbridge'] },
   소리재: { gate: 'bigmarket', order: ['bigmarket', 'craftrow', 'guild', 'archive', 'grandtemple', 'belltower', 'innrow', 'backalley'] },
 };
@@ -245,6 +246,7 @@ export const ACTIONS = {
   // 곳마다 하는 일 (Z23): 훈련소의 치기처럼, 한 번 누르면 한 번 하고 그 숙련도가 오른다. 어려움은 그곳(level)이 정한다
   bellows: { id: 'bellows', label: '풀무질', skill: 'smithing', ticks: 1, chore: true, teach: true },
   spin: { id: 'spin', label: '실 잣기', skill: 'leather', ticks: 1, chore: true, teach: true },
+  trim: { id: 'trim', label: '재료 다듬기', skill: 'cooking', ticks: 1, chore: true, teach: true },
   sort: { id: 'sort', label: '물건 살피기', skill: 'appraise', ticks: 1, chore: true },
   pray: { id: 'pray', label: '기도', skill: 'pray', ticks: 1, chore: true },
   rowing: { id: 'rowing', label: '노 젓기', skill: 'stamina', ticks: 1, chore: true, teach: true },

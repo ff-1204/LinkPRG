@@ -162,7 +162,7 @@ test('그곳에 맞는 일을 할수록 사람이 먼저 말을 걸 확률이 �
 test('일할 거리가 없는 가게에서는 들어서면 주인이 먼저 말을 건다', async () => {
   const { spokeToday } = await import('../src/core/social.js');
   const s = fresh('shopkeeper');
-  dispatch(s, { type: 'move', to: 'store' });
+  dispatch(s, { type: 'move', to: 'artguild' });
   assert.equal(spokeToday(s, 'granny'), true);
   dispatch(s, { type: 'talk', npc: 'granny' });
 });

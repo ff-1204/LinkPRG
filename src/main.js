@@ -1,4 +1,4 @@
-import { start } from './ui/app.js?v=fb24485';
+import { start } from './ui/app.js?v=bde8e2e';
 
 const app = start(document.getElementById('app'));
 // 눈으로 확인하고 고칠 때 쓴다. 게임 규칙은 이 값에 기대지 않는다.

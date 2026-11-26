@@ -63,7 +63,7 @@ test('작품 하나에 칼질 마흔 번. 그림은 10·22·34번째에 바뀌�
   assert.equal(countOf(s, 'oakbranch'), 1);
   assert.equal(modeOf(s), 'sculpt');
   assert.deepEqual(slotsNow(s).map((x) => x.label), ['칼질 0 / 40', '그만둔다']);
-  assert.throws(() => dispatch(s, { type: 'move', to: 'store' }), /끝내거나 그만두어야/);
+  assert.throws(() => dispatch(s, { type: 'move', to: 'artguild' }), /끝내거나 그만두어야/);
   const stages = [];
   for (let i = 1; i < CUTS; i++) {
     dispatch(s, { type: 'cut', times: 40 });
@@ -141,7 +141,7 @@ test('감상하면 하루 동안 버프가 붙고 "지금 걸린 것"에 남은 
 test('걸작을 광장에 세우면 다음 날 명성이 오르고, 띠와 "이 방" 글에 내 조각이 선다 (M6-5, X3-3)', () => {
   const s = fresh('stat');
   s.works.push({ no: 1, subject: 'rabbit', grade: 3, day: 1, where: 'bag', maker: '가을' });
-  s.place = 'store';
+  s.place = 'artguild';
   assert.throws(() => dispatch(s, { type: 'work', op: 'place', no: 1 }), /광장/);
   s.place = 'plaza';
   dispatch(s, { type: 'work', op: 'place', no: 1 });
@@ -152,7 +152,7 @@ test('걸작을 광장에 세우면 다음 날 명성이 오르고, 띠와 "이 
   assert.equal(fameOf(s), 8);
   for (let i = 0; i < 3; i++) passPhase(s);
   assert.equal(fameOf(s), 8, '한 번만 오른다');
-  dispatch(s, { type: 'move', to: 'store' });
+  dispatch(s, { type: 'move', to: 'artguild' });
   const ev = dispatch(s, { type: 'move', to: 'plaza' });
   assert.ok(ev.some((e) => e.type === 'line' && e.line.k === 'room' && e.line.text.includes('걸작 토끼상')));
   // 다른 것을 세우면 먼저 것은 가방으로 돌아온다
@@ -165,7 +165,7 @@ test('걸작을 광장에 세우면 다음 날 명성이 오르고, 띠와 "이 
 test('작품은 팔고 선물할 수 있다. 그 사람을 깎은 것이면 더 기뻐한다 (N2-2)', () => {
   const s = fresh('wk', 'bard'); // 땅의 사람은 마을 사람들과 조금 가깝게 시작하므로 다른 뿌리로 잰다
   s.works.push({ no: 1, subject: 'rabbit', grade: 2, day: 1, where: 'bag', maker: '가을' }, { no: 2, subject: 'granny', grade: 2, day: 1, where: 'bag', maker: '가을' }, { no: 3, subject: 'rabbit', grade: 2, day: 1, where: 'bag', maker: '가을' });
-  s.place = 'store';
+  s.place = 'artguild';
   dispatch(s, { type: 'work', op: 'sell', no: 1 });
   assert.equal(s.silver, Math.floor(45 * 0.4));
   assert.throws(() => dispatch(s, { type: 'work', op: 'sell', no: 1 }), /가방에 있는/);

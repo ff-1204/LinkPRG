@@ -133,7 +133,7 @@ test('경매장: 올리면 입찰이 붙고, 끝나면 수수료를 뺀 은화�
   const s = fresh('auc');
   s.bag = [];
   addItem(s, 'ironsword', 1, { grade: 2, maker: '태윤' });
-  s.place = 'store';
+  s.place = 'training';
   assert.throws(() => dispatch(s, { type: 'auction', op: 'list', index: 0, start: 20, days: 1 }), /예술협회/);
   s.place = 'artguild';
   assert.throws(() => dispatch(s, { type: 'auction', op: 'list', index: 0, start: 0, days: 1 }), /시작가/);

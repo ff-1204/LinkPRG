@@ -97,7 +97,7 @@ test('대화의 길드 기여도는 한 사람에 하루 한 번이다', () => {
   const s = fresh('guild-talk');
   s.level = 3;
   dispatch(s, { type: 'guild', op: 'join', id: 'lantern' });
-  dispatch(s, { type: 'move', to: 'store' });
+  dispatch(s, { type: 'move', to: 'artguild' });
   for (let i = 0; i < 20; i++) dispatch(s, { type: 'talk', npc: 'granny' });
   assert.equal(s.guild.contrib, 2, '등불 모임이라 두 배지만 한 번만');
 });
