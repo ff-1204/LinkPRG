@@ -1,26 +1,26 @@
 // 탐색과 랜덤 인카운터, 기척 (E1~E4, R2-3).
 // 탐색 한 번마다 전투·발견·사건·만남·희귀 가운데 하나. 싸울지는 되도록 내가 고른다.
 
-import { next, pick, chance, roll01 } from './rng.js';
-import { addFame } from './social.js';
-import { pushLine } from './log.js';
-import { weighted, startBattle } from './battle.js';
-import { addItem, countOf, takeById } from './inventory.js';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js';
-import { ding } from './log.js';
-import { monsterDef } from '../data/monsters.js';
-import { itemDef } from '../data/items.js';
-import { USERS } from '../data/lines.js';
-import { WILDS, INCIDENTS, DANGER, DANGER_UP, OTHER_WEIGHTS, TENSION_STEP, TENSION_MAX } from '../data/wild.js';
-import { placeById } from '../data/places.js';
-import { iGa, eulReul, eunNeun } from './ko.js';
-import { branchOf } from './evolve.js';
-import { answerHidden } from './quests.js';
-import { jobXp, hiddenJobView, answerHiddenJob } from './jobs.js';
-import { HIDDENS } from '../data/quests.js';
-import { dungeonChoiceView, dungeonChoose } from './dungeon.js';
-import { endingChoiceView, applyEnding } from './ending.js';
-import { memoryChoiceView, chooseMemory } from './memories.js';
+import { next, pick, chance, roll01 } from './rng.js?v=200257c';
+import { addFame } from './social.js?v=200257c';
+import { pushLine } from './log.js?v=200257c';
+import { weighted, startBattle } from './battle.js?v=200257c';
+import { addItem, countOf, takeById } from './inventory.js?v=200257c';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=200257c';
+import { ding } from './log.js?v=200257c';
+import { monsterDef } from '../data/monsters.js?v=200257c';
+import { itemDef } from '../data/items.js?v=200257c';
+import { USERS } from '../data/lines.js?v=200257c';
+import { WILDS, INCIDENTS, DANGER, DANGER_UP, OTHER_WEIGHTS, TENSION_STEP, TENSION_MAX } from '../data/wild.js?v=200257c';
+import { placeById } from '../data/places.js?v=200257c';
+import { iGa, eulReul, eunNeun } from './ko.js?v=200257c';
+import { branchOf } from './evolve.js?v=200257c';
+import { answerHidden } from './quests.js?v=200257c';
+import { jobXp, hiddenJobView, answerHiddenJob } from './jobs.js?v=200257c';
+import { HIDDENS } from '../data/quests.js?v=200257c';
+import { dungeonChoiceView, dungeonChoose } from './dungeon.js?v=200257c';
+import { endingChoiceView, applyEnding } from './ending.js?v=200257c';
+import { memoryChoiceView, chooseMemory } from './memories.js?v=200257c';
 
 const WORK = { smith: { name: '대장장이', who: '대장간 주인', skill: 'smithing' } };
 

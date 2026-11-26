@@ -16,6 +16,8 @@ cp "$KEEP" README.md
 touch .nojekyll
 sed -i 's/"name": "ttiring"/"name": "linkprg"/; s/"description": "띠링 (가제) — /"description": "LinkPRG — /' package.json
 node --test tests/ 2>&1 | grep -E "^ℹ (pass|fail)"
+# 파일 주소에 판 번호를 붙인다(F5만으로 새 파일을 받게). 시험은 붙이기 전에 돌렸다
+node "$SRC/tools/bust.mjs" "$PUB" "$(cd "$SRC" && git rev-parse --short HEAD)"
 git add -A
 git -c user.name="ff-1204" -c user.email="ff-1204@users.noreply.github.com" commit -q -m "$MSG"
 git log --format='%an <%ae> %s' -1

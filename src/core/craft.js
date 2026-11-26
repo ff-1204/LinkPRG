@@ -2,17 +2,17 @@
 // 쇠는 식는다. 얼마나 늦었는지는 화면이 재서 알려 주고(late), 규칙은 그 값만 본다.
 // 그래서 같은 씨앗과 같은 입력이면 늘 같은 결과가 나온다.
 
-import { next } from './rng.js';
-import { rollOptions } from './gear.js';
-import { pushLine, ding } from './log.js';
-import { countOf, takeById, addItem } from './inventory.js';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js';
-import { itemDef, GRADES } from '../data/items.js';
-import { RECIPES, RECIPE_ORDER, GRADE_BASE, PUSH, HAMMER_LINES, HAMMER_MARKS, recipeById } from '../data/recipes.js';
-import { branchOf } from './evolve.js';
-import { iGa, eulReul } from './ko.js';
-import { jobXp } from './jobs.js';
-import { jobDef } from '../data/jobs.js';
+import { next } from './rng.js?v=200257c';
+import { rollOptions } from './gear.js?v=200257c';
+import { pushLine, ding } from './log.js?v=200257c';
+import { countOf, takeById, addItem } from './inventory.js?v=200257c';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=200257c';
+import { itemDef, GRADES } from '../data/items.js?v=200257c';
+import { RECIPES, RECIPE_ORDER, GRADE_BASE, PUSH, HAMMER_LINES, HAMMER_MARKS, recipeById } from '../data/recipes.js?v=200257c';
+import { branchOf } from './evolve.js?v=200257c';
+import { iGa, eulReul } from './ko.js?v=200257c';
+import { jobXp } from './jobs.js?v=200257c';
+import { jobDef } from '../data/jobs.js?v=200257c';
 
 export const WORK_XP = 1.5; // 일하는 직업이 맞으면 그 숙련도가 빨리 오른다 (T7)
 
