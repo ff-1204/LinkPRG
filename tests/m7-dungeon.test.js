@@ -157,7 +157,8 @@ test('쉼터는 한 번만 쉴 수 있다 (T19)', () => {
   s.hp = 10;
   assert.equal(slotsNow(s)[0].label, '쉬기');
   dispatch(s, { type: 'dungeon', op: 'rest' });
-  assert.equal(s.hp, 10 + Math.round(valueOf(s, 'maxHp') * 0.5));
+  const healed = 10 + Math.round(valueOf(s, 'maxHp') * 0.5);
+  assert.ok(s.hp >= healed && s.hp <= healed + Math.ceil(valueOf(s, 'maxHp') * 0.1), '쉼터 50%에 쉬는 동안의 자연 회복이 조금 더해진다 (Z49)');
   assert.throws(() => dispatch(s, { type: 'dungeon', op: 'rest' }), /이미 쉬었습니다/);
   assert.ok(slotsNow(s)[0].disabled);
 });

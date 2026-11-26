@@ -1,64 +1,64 @@
 // 게임 규칙의 본체. 화면을 모른다. 상태(state)는 그대로 저장되는 순수한 값이다.
 // dispatch(state, action, options)가 상태를 고치고, 그 사이 일어난 일(events)을 돌려준다.
 
-import { seedFrom, pick, chance, int, roll01 } from './rng.js?v=69728af';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=69728af';
-import { emptyCounters, checkHidden, hiddenById } from './hidden.js?v=69728af';
-import { iGa, eulReul, ro, eunNeun } from './ko.js?v=69728af';
-import { pushLine, ding } from './log.js?v=69728af';
-import { SAVE_VERSION, bodyFields, makerFields, townFields, jobFields, artFields, dungeonFields } from './migrate.js?v=69728af';
-import { enterDungeon, leaveDungeon, moveRoom, restInRoom, roomView, dungeonMap, dungeonHook } from './dungeon.js?v=69728af';
-import { finishMain } from './quests.js?v=69728af';
-import { worldFields, auctionFields, endingFields } from './migrate.js?v=69728af';
-import { standBeforeBell, applyEnding, ringFor } from './ending.js?v=69728af';
-import { worldDay, trackDay, claim, readRumors } from './world.js?v=69728af';
-import { listItem, bid, auctionDay } from './auction.js?v=69728af';
-import { grantTitle } from './social.js?v=69728af';
-import { startSculpt, cut, quitSculpt, sculptView, admire, placeWork, sellWork, giftWork, statueOf, statueDay } from './sculpt.js?v=69728af';
-import { cook } from './cook.js?v=69728af';
-import { askToJoin, hireMerc, giveLife, dismiss, setPlan, setRow, partyDay, partyRest } from './party.js?v=69728af';
-import { chooseJob, skipJob, skillsNow, jobXp, jobName, canChooseJob, chooseAdvance, adv } from './jobs.js?v=69728af';
-import { standingOf } from './factions.js?v=69728af';
-import { SEARCH_LINES, SEARCH_MARKS, SEARCH_NEED, FAINT_CHATTER } from '../data/lines.js?v=69728af';
-import { foundCount } from './hidden.js?v=69728af';
-import { tellChance, statChance } from './dungeon.js?v=69728af';
-import { greet, talk, gift, wearTitle, peopleHere, workedHere } from './social.js?v=69728af';
-import { acceptJob, finishJob, dropJob, acceptSub, chooseSub, questHook, offersOf } from './quests.js?v=69728af';
-import { startCraft, hammer, reheat, quitCraft, craftView } from './craft.js?v=69728af';
-import { chooseBranch, forgetBranch, pendingEvolves, branchOf } from './evolve.js?v=69728af';
-import { buy, sell, deposit, withdraw, depositSilver, withdrawSilver, storeDay } from './trade.js?v=69728af';
-import { valueOf, isHungry, isTired, TIRED_AT, TIRED_MAX } from './derived.js?v=69728af';
-import { chiselOf } from './sculpt.js?v=69728af';
-import { START_SCENES } from '../data/scenes.js?v=69728af';
-import { PEOPLE } from '../data/people.js?v=69728af';
-import { ORIGIN_GRADES } from '../data/origins.js?v=69728af';
-import { memoryHook, chooseMemory } from './memories.js?v=69728af';
-import { knowsWork, watchWork, askToLearn, nativeWork } from './work.js?v=69728af';
-import { bondOf as bondOfNpc } from './social.js?v=69728af';
-import { drink } from './social.js?v=69728af';
-import { makeItem, equip as equipItem, unequip as unequipItem, discard as discardItem, totalWeight, countOf } from './inventory.js?v=69728af';
-import { xpToNext } from './level.js?v=69728af';
-import { tickFall, recoverRelic, bless, prayShadow, fall, blessingHere, blessFee, graceFee } from './fall.js?v=69728af';
-import { applyCarry } from './rebirth.js?v=69728af';
-import { restBuff, giveRoomBuff, ROOM_BUFFS, giveGrace, GRACE } from './buffs.js?v=69728af';
-import { startBattle, battleAct, fleeChance, intentOf, eat, weighted, STANCES, stanceOf, foeDef } from './battle.js?v=69728af';
-import { repair, enhance } from './gear.js?v=69728af';
-import { joinGuild, leaveGuild, donate, guildHook } from './guild.js?v=69728af';
-import { explore, gather, choose, choiceView, dangerNow, senseBars } from './explore.js?v=69728af';
-import { monsterDef, STATUS } from '../data/monsters.js?v=69728af';
-import { itemDef } from '../data/items.js?v=69728af';
-import { WILDS, DANGER, TRAVEL_TICKS } from '../data/wild.js?v=69728af';
-import { buildStats, originById } from '../data/origins.js?v=69728af';
-import { ACTIONS, PLACES, PHASES, PHASE_TICKS, MOVE_TICKS, WILD_ORDER, TOWNS, TOWN_NAMES, isGate, placeById } from '../data/places.js?v=69728af';
-import { DUNGEONS } from '../data/dungeon.js?v=69728af';
-import { takeById, addItem } from './inventory.js?v=69728af';
+import { seedFrom, pick, chance, int, roll01 } from './rng.js?v=6b46da7';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=6b46da7';
+import { emptyCounters, checkHidden, hiddenById } from './hidden.js?v=6b46da7';
+import { iGa, eulReul, ro, eunNeun } from './ko.js?v=6b46da7';
+import { pushLine, ding } from './log.js?v=6b46da7';
+import { SAVE_VERSION, bodyFields, makerFields, townFields, jobFields, artFields, dungeonFields } from './migrate.js?v=6b46da7';
+import { enterDungeon, leaveDungeon, moveRoom, restInRoom, roomView, dungeonMap, dungeonHook } from './dungeon.js?v=6b46da7';
+import { finishMain } from './quests.js?v=6b46da7';
+import { worldFields, auctionFields, endingFields } from './migrate.js?v=6b46da7';
+import { standBeforeBell, applyEnding, ringFor } from './ending.js?v=6b46da7';
+import { worldDay, trackDay, claim, readRumors } from './world.js?v=6b46da7';
+import { listItem, bid, auctionDay } from './auction.js?v=6b46da7';
+import { grantTitle } from './social.js?v=6b46da7';
+import { startSculpt, cut, quitSculpt, sculptView, admire, placeWork, sellWork, giftWork, statueOf, statueDay } from './sculpt.js?v=6b46da7';
+import { cook } from './cook.js?v=6b46da7';
+import { askToJoin, hireMerc, giveLife, dismiss, setPlan, setRow, partyDay, partyRest } from './party.js?v=6b46da7';
+import { chooseJob, skipJob, skillsNow, jobXp, jobName, canChooseJob, chooseAdvance, adv } from './jobs.js?v=6b46da7';
+import { standingOf } from './factions.js?v=6b46da7';
+import { SEARCH_LINES, SEARCH_MARKS, SEARCH_NEED, FAINT_CHATTER } from '../data/lines.js?v=6b46da7';
+import { foundCount } from './hidden.js?v=6b46da7';
+import { tellChance, statChance } from './dungeon.js?v=6b46da7';
+import { greet, talk, gift, wearTitle, peopleHere, workedHere } from './social.js?v=6b46da7';
+import { acceptJob, finishJob, dropJob, acceptSub, chooseSub, questHook, offersOf } from './quests.js?v=6b46da7';
+import { startCraft, hammer, reheat, quitCraft, craftView } from './craft.js?v=6b46da7';
+import { chooseBranch, forgetBranch, pendingEvolves, branchOf } from './evolve.js?v=6b46da7';
+import { buy, sell, deposit, withdraw, depositSilver, withdrawSilver, storeDay } from './trade.js?v=6b46da7';
+import { valueOf, isHungry, isTired, TIRED_AT, TIRED_MAX } from './derived.js?v=6b46da7';
+import { chiselOf } from './sculpt.js?v=6b46da7';
+import { START_SCENES } from '../data/scenes.js?v=6b46da7';
+import { PEOPLE } from '../data/people.js?v=6b46da7';
+import { ORIGIN_GRADES } from '../data/origins.js?v=6b46da7';
+import { memoryHook, chooseMemory } from './memories.js?v=6b46da7';
+import { knowsWork, watchWork, askToLearn, nativeWork } from './work.js?v=6b46da7';
+import { bondOf as bondOfNpc } from './social.js?v=6b46da7';
+import { drink } from './social.js?v=6b46da7';
+import { makeItem, equip as equipItem, unequip as unequipItem, discard as discardItem, totalWeight, countOf } from './inventory.js?v=6b46da7';
+import { xpToNext } from './level.js?v=6b46da7';
+import { tickFall, recoverRelic, bless, prayShadow, fall, blessingHere, blessFee, graceFee } from './fall.js?v=6b46da7';
+import { applyCarry } from './rebirth.js?v=6b46da7';
+import { restBuff, giveRoomBuff, ROOM_BUFFS, giveGrace, GRACE } from './buffs.js?v=6b46da7';
+import { startBattle, battleAct, fleeChance, intentOf, eat, weighted, STANCES, stanceOf, foeDef } from './battle.js?v=6b46da7';
+import { repair, enhance } from './gear.js?v=6b46da7';
+import { joinGuild, leaveGuild, donate, guildHook } from './guild.js?v=6b46da7';
+import { explore, gather, choose, choiceView, dangerNow, senseBars } from './explore.js?v=6b46da7';
+import { monsterDef, STATUS } from '../data/monsters.js?v=6b46da7';
+import { itemDef } from '../data/items.js?v=6b46da7';
+import { WILDS, DANGER, TRAVEL_TICKS } from '../data/wild.js?v=6b46da7';
+import { buildStats, originById } from '../data/origins.js?v=6b46da7';
+import { ACTIONS, PLACES, PHASES, PHASE_TICKS, MOVE_TICKS, WILD_ORDER, TOWNS, TOWN_NAMES, isGate, placeById } from '../data/places.js?v=6b46da7';
+import { DUNGEONS } from '../data/dungeon.js?v=6b46da7';
+import { takeById, addItem } from './inventory.js?v=6b46da7';
 import {
   ACTION_LINES, COUNT_WORDS, PHASE_LINES, INSTRUCTOR, SCARECROW_LINES, USERS,
   STRIKE_CHATTER, AFTER_ENDURE_CHATTER, AMBIENT_CHATTER, START_JOURNAL, BATTLE_CHATTER,
-} from '../data/lines.js?v=69728af';
+} from '../data/lines.js?v=6b46da7';
 
 export { SAVE_VERSION };
-export { LOG_KEEP } from './log.js?v=69728af';
+export { LOG_KEEP } from './log.js?v=6b46da7';
 
 /** 띠링의 귀한 정도 다섯 (G4-6). */
 export const DING_LEVELS = ['', '흔함', '귀함', '아주 귀함', '가장 귀함', '세계 최초'];
@@ -463,8 +463,29 @@ export function idle(state, ticks) {
   return events;
 }
 
+/**
+ * 자연 회복 (Z49): 싸우지 않는 동안 시간이 흐르면 생명력이 조금씩 찬다. 민첩이 높을수록 빨리 찬다(몸이 가볍게 숨을 고른다).
+ * 행동 한 번(1틱)에 최대 생명력의 0.1% + 민첩 × 0.02%. 배가 고프면 절반, 굶었으면(포만 0) 차지 않는다.
+ */
+export const REGEN_BASE = 0.001, REGEN_AGI = 0.0002;
+export function regenRate(state) {
+  if (state.battle || (state.full || 0) <= 0) return 0;
+  const r = REGEN_BASE + (state.stats.agi || 0) * REGEN_AGI;
+  return isHungry(state) ? r / 2 : r;
+}
+function regen(state, ticks) {
+  const rate = regenRate(state);
+  if (!rate) return;
+  const max = valueOf(state, 'maxHp');
+  if (state.hp >= max) { state.regen = 0; return; }
+  state.regen = (state.regen || 0) + max * rate * ticks;
+  const whole = Math.floor(state.regen);
+  if (whole > 0) { state.hp = Math.min(max, state.hp + whole); state.regen -= whole; }
+}
+
 function advance(state, events, ticks, quiet = false) {
   hunger(state, events, ticks);
+  regen(state, ticks);
   if (!quiet) tire(state, events, ticks);
   state.tick += ticks;
   while (state.tick >= PHASE_TICKS) {

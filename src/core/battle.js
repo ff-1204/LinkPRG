@@ -1,24 +1,24 @@
 // 전투 (E5~E9, R2-2). 한 턴에 행동 하나. 적의 다음 행동은 늘 미리 보인다.
 // 방어하면 피해가 절반이고, 돌진류는 막고 되받아친다.
 
-import { next, chance } from './rng.js?v=69728af';
-import { pushLine, ding } from './log.js?v=69728af';
-import { monsterDef, STATUS } from '../data/monsters.js?v=69728af';
-import { itemDef, ITEMS, gradeName } from '../data/items.js?v=69728af';
-import { roll01 } from './rng.js?v=69728af';
-import { guildPerk } from './guild.js?v=69728af';
-import { rollOptions, gearName } from './gear.js?v=69728af';
-import { derived, skillBonus } from './derived.js?v=69728af';
-import { addItem, removeAt, usable, totalWeight, equip, slotFor, equipPower } from './inventory.js?v=69728af';
-import { grantXp } from './reward.js?v=69728af';
-import { useSkill, emptySkill, gradeLabel, SKILL_NAMES } from './skills.js?v=69728af';
-import { fall } from './fall.js?v=69728af';
-import { iGa, eulReul, ro } from './ko.js?v=69728af';
-import { branchOf } from './evolve.js?v=69728af';
-import { skillsNow, jobXp, adv } from './jobs.js?v=69728af';
-import { guardFor, hitCompanion, companionsAct, afterBattle, roleBonus, cross } from './party.js?v=69728af';
-import { jobDef } from '../data/jobs.js?v=69728af';
-import { BEATS, WEAK_MULT, RESIST_MULT } from '../data/dungeon.js?v=69728af';
+import { next, chance } from './rng.js?v=6b46da7';
+import { pushLine, ding } from './log.js?v=6b46da7';
+import { monsterDef, STATUS } from '../data/monsters.js?v=6b46da7';
+import { itemDef, ITEMS, gradeName } from '../data/items.js?v=6b46da7';
+import { roll01 } from './rng.js?v=6b46da7';
+import { guildPerk } from './guild.js?v=6b46da7';
+import { rollOptions, gearName } from './gear.js?v=6b46da7';
+import { derived, skillBonus } from './derived.js?v=6b46da7';
+import { addItem, removeAt, usable, totalWeight, equip, slotFor, equipPower } from './inventory.js?v=6b46da7';
+import { grantXp } from './reward.js?v=6b46da7';
+import { useSkill, emptySkill, gradeLabel, SKILL_NAMES } from './skills.js?v=6b46da7';
+import { fall } from './fall.js?v=6b46da7';
+import { iGa, eulReul, ro } from './ko.js?v=6b46da7';
+import { branchOf } from './evolve.js?v=6b46da7';
+import { skillsNow, jobXp, adv } from './jobs.js?v=6b46da7';
+import { guardFor, hitCompanion, companionsAct, afterBattle, roleBonus, cross } from './party.js?v=6b46da7';
+import { jobDef } from '../data/jobs.js?v=6b46da7';
+import { BEATS, WEAK_MULT, RESIST_MULT } from '../data/dungeon.js?v=6b46da7';
 
 /** 지금 국면이 반영된 괴물 (T22). */
 export const ELITE = { hp: 2.5, attack: 1.3, defense: 2, level: 2, xp: 3, per: 0.005, cap: 0.25 };

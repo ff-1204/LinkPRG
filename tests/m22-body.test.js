@@ -181,3 +181,23 @@ test('신전·사당에서 기도하다 지쳐 잠들면 피로가 다 풀린다
   for (let i = 0; i < 5 && t.phase !== 0 || i === 0; i++) dispatch(t, { type: 'act', id: 'strike' });
   assert.equal(t.tired, 30);
 });
+
+test('자연 회복: 싸우지 않는 동안 민첩이 높을수록 생명력이 빨리 찬다. 배고프면 절반, 굶으면 멈춘다 (Z49)', async () => {
+  const { regenRate } = await import('../src/core/game.js');
+  const { derived } = await import('../src/core/derived.js');
+  const run = (agi, full = 80) => {
+    const s = make('regen' + agi); s.place = 'training'; s.stats.agi = agi; s.full = full;
+    const max = derived(s).find((d) => d.id === 'maxHp').value;
+    s.hp = 1;
+    for (let i = 0; i < 20; i++) { s.tired = 0; s.full = full; dispatch(s, { type: 'act', id: 'strike' }); }
+    return (s.hp - 1) / max;
+  };
+  const slow = run(5), fast = run(30);
+  assert.ok(fast > slow * 2, `민첩 30 ${fast.toFixed(3)} > 민첩 5 ${slow.toFixed(3)}의 두 배`);
+  assert.ok(Math.abs(run(10) - 20 * 0.003) < 0.02, '민첩 10이면 1틱에 0.3%쯤');
+  assert.ok(run(10, 10) < run(10) * 0.75, '배고프면 느리다');
+  const s = make('regen0'); s.stats.agi = 20; s.full = 0;
+  assert.equal(regenRate(s), 0, '굶으면 멈춘다');
+  s.full = 50; s.battle = { mon: 'rat' };
+  assert.equal(regenRate(s), 0, '싸우는 중에는 멈춘다');
+});

@@ -521,3 +521,16 @@ html.calm .cool i { animation: none !important; }
 /* 던전의 갈 곳은 한 줄을 다 쓴다 */
 .nav > .ch.exit { grid-column: 1 / -1; justify-content: flex-start; gap: 6px; flex-wrap: wrap; padding: 6px 10px; }
 .nav > .ch.exit small { width: 100%; }
+
+/* 대화방의 말풍선이 눌려 글이 풍선 밖으로 넘치던 것 (사용자 제보): 줄들은 줄어들지 않고, 대화방이 스크롤된다 */
+.log > * { flex: none; }
+.msg { overflow-wrap: anywhere; }
+/* 스크롤되는 세로 줄(창 몸통, 일지 쪽, 장소 판)의 아이들도 눌리지 않는다. 넘치면 그 줄이 스크롤된다 */
+.wb > *, .pg > *, .nav > * { flex-shrink: 0; }
+.items > * { flex-shrink: 0; }
+@media (max-width: 1000px) { .traderow { flex-wrap: wrap; } .traderow .grow { flex: 1 1 60%; min-width: 0; } }
+@media (max-width: 1000px) { .win .items { max-height: none !important; overflow: visible; } }
+/* 한글은 낱말 가운데서 줄을 바꾸지 않는다. 아주 긴 낱말만 어쩔 수 없이 끊는다 */
+body { word-break: keep-all; overflow-wrap: break-word; }
+.card5 .pick { white-space: nowrap; }
+@media (max-width: 1000px) { .create h1 { font-size: 1.55rem; } }

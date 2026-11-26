@@ -1,18 +1,18 @@
 // 경매장 (N6-1 ~ N6-3). 가상 유저가 입찰하고 한마디씩 남긴다.
 // 입찰은 씨앗과 날짜로 셈한다. 같은 씨앗이면 같은 값에 팔린다.
 
-import { seedFrom } from './rng.js?v=69728af';
-import { gearName } from './gear.js?v=69728af';
-import { pushLine } from './log.js?v=69728af';
-import { itemDef, gradeName } from '../data/items.js?v=69728af';
-import { addItem, removeAt } from './inventory.js?v=69728af';
-import { worth } from './trade.js?v=69728af';
-import { placeById } from '../data/places.js?v=69728af';
-import { standingOf } from './factions.js?v=69728af';
-import { FACTION_REGULAR } from '../data/factions.js?v=69728af';
-import { userBase } from './world.js?v=69728af';
-import { AUCTION_FEE, AUCTION_DAYS, LOT_POOL, LOTS_PER_DAY, BID_SAYS, USER_COUNT } from '../data/world.js?v=69728af';
-import { eulReul, iGa, eunNeun } from './ko.js?v=69728af';
+import { seedFrom } from './rng.js?v=6b46da7';
+import { gearName } from './gear.js?v=6b46da7';
+import { pushLine } from './log.js?v=6b46da7';
+import { itemDef, gradeName } from '../data/items.js?v=6b46da7';
+import { addItem, removeAt } from './inventory.js?v=6b46da7';
+import { worth } from './trade.js?v=6b46da7';
+import { placeById } from '../data/places.js?v=6b46da7';
+import { standingOf } from './factions.js?v=6b46da7';
+import { FACTION_REGULAR } from '../data/factions.js?v=6b46da7';
+import { userBase } from './world.js?v=6b46da7';
+import { AUCTION_FEE, AUCTION_DAYS, LOT_POOL, LOTS_PER_DAY, BID_SAYS, USER_COUNT } from '../data/world.js?v=6b46da7';
+import { eulReul, iGa, eunNeun } from './ko.js?v=6b46da7';
 
 const hash = (...parts) => seedFrom(parts.join('|'));
 const unit = (...parts) => hash(...parts) / 4294967296;
