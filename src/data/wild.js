@@ -90,12 +90,17 @@ export const WILDS = {
  * 사건 (선택지가 있는 일). 선택의 결과는 effect로 적는다.
  * effect: { counter?, item?:{id,n}, hp?, full?, silver?, say }
  */
+/** 먹잇감 냄새 (Z64): 돕지 않고 지나친 짐승을 노리는 포식자. 탐색 SCENT_TRIES번 안에 반드시 오고, 한 번 싸우거나 하루(세 때)가 지나면 사라진다. */
+export const SCENT_TRIES = 3;
+export const SCENT_PHASES = 3;
+export const HUNGRY = { hp: 1.5, attack: 1.5, xp: 2 };
+
 export const INCIDENTS = {
   forest: [
     { id: 'fox', text: '덫에 걸린 여우가 낑낑댄다. 이쪽을 보고 몸을 웅크린다.', options: [
       { id: 'free', label: '덫을 풀어 준다', effect: { counter: 'kind', say: '덫을 풀어 주었다. 여우가 한참 돌아보다 사라진다.' } },
       { id: 'feed', label: '먹을 것을 놓아 두고 풀어 준다', need: { item: 'berry' }, effect: { counter: 'kind', counterN: 2, take: 'berry', say: '산열매를 놓아 두고 덫을 풀었다. 여우가 열매를 물고 달아난다.' } },
-      { id: 'leave', label: '그냥 지나간다', effect: { say: '모른 척 지나갔다. 낑낑대는 소리가 한참 따라온다.' } },
+      { id: 'leave', label: '그냥 지나간다', effect: { scent: 'wolf', say: '모른 척 지나갔다. 낑낑대는 소리가 한참 따라온다.' } },
     ] },
     { id: 'tree', text: '쓰러진 고목 밑에 무언가 깔려 반짝인다.', options: [
       { id: 'reach', label: '손을 넣어 꺼낸다', effect: { silver: 6, hp: -4, say: '가시에 긁히며 은화 6닢을 꺼냈다.' } },
@@ -109,7 +114,7 @@ export const INCIDENTS = {
     ] },
     { id: 'batlings', text: '바닥에 떨어진 새끼 박쥐가 버둥거린다.', options: [
       { id: 'lift', label: '천장 틈에 올려 준다', effect: { counter: 'kind', say: '손바닥에 올려 틈에 넣어 주었다. 어미가 내려와 물고 간다.' } },
-      { id: 'leave', label: '지나간다', effect: { say: '내 일이 아니다. 지나갔다.' } },
+      { id: 'leave', label: '지나간다', effect: { scent: 'spider', say: '내 일이 아니다. 지나갔다.' } },
     ] },
   ],
   ruins: [
@@ -127,14 +132,14 @@ export const INCIDENTS = {
   reeds: [
     { id: 'nest', text: '갈대 사이에 물새 둥지가 있다. 알이 셋. 어미는 보이지 않는다.', options: [
       { id: 'cover', label: '갈대를 덮어 가려 준다', effect: { counter: 'kind', say: '갈대를 꺾어 둥지를 가렸다. 멀리서 어미 새가 운다.' } },
-      { id: 'take', label: '알을 가져간다', effect: { item: { id: 'berry', n: 3 }, say: '알 대신 둥지 곁의 열매만 챙겼다. 알은 차마 못 집었다.' } },
-      { id: 'leave', label: '지나간다', effect: { say: '모른 척 지나갔다.' } },
+      { id: 'take', label: '알을 가져간다', effect: { item: { id: 'berry', n: 3 }, scent: 'reedsnake', say: '알 대신 둥지 곁의 열매만 챙겼다. 알은 차마 못 집었다.' } },
+      { id: 'leave', label: '지나간다', effect: { scent: 'reedsnake', say: '모른 척 지나갔다.' } },
     ] },
   ],
   river: [
     { id: 'net', text: '낡은 그물에 물새 한 마리가 엉켜 있다.', options: [
       { id: 'cut', label: '그물을 끊어 준다', effect: { counter: 'kind', say: '그물을 끊었다. 물새가 물을 차고 날아오른다.' } },
-      { id: 'leave', label: '지나간다', effect: { say: '그물 주인의 것이다. 지나갔다.' } },
+      { id: 'leave', label: '지나간다', effect: { scent: 'reedsnake', say: '그물 주인의 것이다. 지나갔다.' } },
     ] },
   ],
 };

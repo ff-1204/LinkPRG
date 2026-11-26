@@ -1,26 +1,26 @@
 // 탐색과 랜덤 인카운터, 기척 (E1~E4, R2-3).
 // 탐색 한 번마다 전투·발견·사건·만남·희귀 가운데 하나. 싸울지는 되도록 내가 고른다.
 
-import { next, pick, chance, roll01 } from './rng.js?v=4071dc9';
-import { addFame } from './social.js?v=4071dc9';
-import { pushLine } from './log.js?v=4071dc9';
-import { weighted, startBattle } from './battle.js?v=4071dc9';
-import { addItem, countOf, takeById } from './inventory.js?v=4071dc9';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=4071dc9';
-import { ding } from './log.js?v=4071dc9';
-import { monsterDef } from '../data/monsters.js?v=4071dc9';
-import { itemDef } from '../data/items.js?v=4071dc9';
-import { USERS } from '../data/lines.js?v=4071dc9';
-import { WILDS, INCIDENTS, DANGER, DANGER_UP, OTHER_WEIGHTS, TENSION_STEP, TENSION_MAX } from '../data/wild.js?v=4071dc9';
-import { placeById } from '../data/places.js?v=4071dc9';
-import { iGa, eulReul, eunNeun } from './ko.js?v=4071dc9';
-import { branchOf } from './evolve.js?v=4071dc9';
-import { answerHidden } from './quests.js?v=4071dc9';
-import { jobXp, hiddenJobView, answerHiddenJob } from './jobs.js?v=4071dc9';
-import { HIDDENS } from '../data/quests.js?v=4071dc9';
-import { dungeonChoiceView, dungeonChoose } from './dungeon.js?v=4071dc9';
-import { endingChoiceView, applyEnding } from './ending.js?v=4071dc9';
-import { memoryChoiceView, chooseMemory } from './memories.js?v=4071dc9';
+import { next, pick, chance, roll01 } from './rng.js?v=30ec326';
+import { addFame } from './social.js?v=30ec326';
+import { pushLine } from './log.js?v=30ec326';
+import { weighted, startBattle } from './battle.js?v=30ec326';
+import { addItem, countOf, takeById } from './inventory.js?v=30ec326';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=30ec326';
+import { ding } from './log.js?v=30ec326';
+import { monsterDef } from '../data/monsters.js?v=30ec326';
+import { itemDef } from '../data/items.js?v=30ec326';
+import { USERS } from '../data/lines.js?v=30ec326';
+import { WILDS, INCIDENTS, DANGER, DANGER_UP, OTHER_WEIGHTS, TENSION_STEP, TENSION_MAX, SCENT_TRIES, SCENT_PHASES } from '../data/wild.js?v=30ec326';
+import { placeById } from '../data/places.js?v=30ec326';
+import { iGa, eulReul, eunNeun } from './ko.js?v=30ec326';
+import { branchOf } from './evolve.js?v=30ec326';
+import { answerHidden } from './quests.js?v=30ec326';
+import { jobXp, hiddenJobView, answerHiddenJob } from './jobs.js?v=30ec326';
+import { HIDDENS } from '../data/quests.js?v=30ec326';
+import { dungeonChoiceView, dungeonChoose } from './dungeon.js?v=30ec326';
+import { endingChoiceView, applyEnding } from './ending.js?v=30ec326';
+import { memoryChoiceView, chooseMemory } from './memories.js?v=30ec326';
 
 const WORK = { smith: { name: '대장장이', who: '대장간 주인', skill: 'smithing' } };
 
@@ -72,6 +72,7 @@ export function explore(state, events) {
   if (!wild) throw new Error('여기서는 탐색할 것이 없습니다');
   const place = placeById(state.place);
   pushLine(state, events, { k: 'me', text: `${eulReul(place.name)} 탐색했다.` });
+  if (smellCheck(state, events)) return;
   const outcome = rollOutcome(state);
   if (state.calm > 0) state.calm -= 1; // 굴린 뒤에 깎아야 두 번이 절반이다
   if (outcome !== 'battle') state.tension[state.place] = Math.min(TENSION_MAX, (state.tension[state.place] || 0) + 1);
@@ -89,6 +90,37 @@ export function explore(state, events) {
   pushLine(state, events, { k: 'room', who: '사건', text: inc.text });
   state.choice = { kind: 'incident', id: inc.id, place: state.place };
   events.push({ type: 'choice' });
+}
+
+/** 먹잇감 냄새 (Z64) */
+export const nowPhase = (state) => state.day * 3 + state.phase;
+export function leaveScent(state, place, mon) {
+  if (!state.scent) state.scent = {};
+  state.scent[place] = { mon, at: nowPhase(state), left: SCENT_TRIES };
+}
+/** 하루(세 때)가 지난 냄새를 걷는다. */
+export function fadeScent(state) {
+  for (const [p, sc] of Object.entries(state.scent || {})) if (nowPhase(state) - sc.at >= SCENT_PHASES) delete state.scent[p];
+}
+/** 포식자가 온다. 냄새는 한 번 싸우면 사라진다. */
+export function predatorComes(state, events, line) {
+  const sc = state.scent?.[state.place];
+  if (!sc) return false;
+  delete state.scent[state.place];
+  pushLine(state, events, { k: 'sys', tone: 'warn', text: line });
+  const seen = state.dex.mon[sc.mon] || (state.dex.mon[sc.mon] = { seen: 0, won: 0, lost: 0 });
+  seen.seen = (seen.seen || 0) + 1;
+  startBattle(state, events, sc.mon, { hungry: true });
+  return true;
+}
+/** 탐색할 때: 남은 번 수 안에 고르게 한 번 온다(마지막 번에는 반드시). */
+function smellCheck(state, events) {
+  const sc = state.scent?.[state.place];
+  if (!sc) return false;
+  const p = 1 / sc.left;
+  sc.left -= 1;
+  if (roll01(`${state.seed}|scent|${state.place}|${sc.at}|${sc.left}`) >= p) return false;
+  return predatorComes(state, events, '무언가 피 냄새를 맡고 이쪽으로 온다.');
 }
 
 function find(state, events, f, label = '발견') {
@@ -328,6 +360,7 @@ export function choose(state, events, id) {
   if (e.flag) state.flags[e.flag] = true;
   state.choice = null;
   pushLine(state, events, { k: 'me', text: e.say });
+  if (e.scent) leaveScent(state, c.place, e.scent); // 지나친 짐승을 노리는 것이 온다 (Z64)
 }
 
 /** 모으기 한 번 (채집·채광·낚시). 한 번 누르면 한 번. */

@@ -2,9 +2,9 @@
 // 로그인은 구글의 Google Identity Services(토큰 방식). 서버도 비밀값도 없다. 클라이언트 ID는 공개해도 되는 값이다.
 // 접근 토큰은 이 창의 sessionStorage에만 한 시간쯤 둔다. 지나면 "다시 연결"을 눌러야 한다.
 
-import { createDrive } from './drive.js?v=4071dc9';
-import { syncPlan } from '../core/sync.js?v=4071dc9';
-import { revOf, exportText, importText, parseSave, SLOT_COUNT } from '../core/save.js?v=4071dc9';
+import { createDrive } from './drive.js?v=30ec326';
+import { syncPlan } from '../core/sync.js?v=30ec326';
+import { revOf, exportText, importText, parseSave, SLOT_COUNT } from '../core/save.js?v=30ec326';
 
 export const CLIENT_ID = '782176240387-mi4cvftsmbefiddvd25rul2mvtf09adp.apps.googleusercontent.com';
 const SCOPE = 'https://www.googleapis.com/auth/drive.appdata';

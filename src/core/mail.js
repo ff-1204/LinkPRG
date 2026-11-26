@@ -1,8 +1,8 @@
 // 우편함 (Z59): 편지가 오고, 읽고, 붙은 것을 받는다.
-import { MAILS, mailById } from '../data/mail.js?v=4071dc9';
-import { pushLine } from './log.js?v=4071dc9';
-import { addItem } from './inventory.js?v=4071dc9';
-import { itemDef } from '../data/items.js?v=4071dc9';
+import { MAILS, mailById } from '../data/mail.js?v=30ec326';
+import { pushLine } from './log.js?v=30ec326';
+import { addItem } from './inventory.js?v=30ec326';
+import { itemDef } from '../data/items.js?v=30ec326';
 
 export function mailFields() {
   return { mail: { got: [] } };

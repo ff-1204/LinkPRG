@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>숙련도 효과 시안</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  :root { --cream: #FBF5E6; --paper: #FFFDF6; --sand: #F3E9D2; --line2: #CDBE9E; --ink: #3A2A1E; --muted: #6B5443; --deep: #1E140D; --cinnamon: #8A4F2B; --mint-line: #2F7A5E; --honey: #F2B63C; --serif: 'Gowun Batang', serif; --sans: 'Gowun Dodum', sans-serif; }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--cream); color: var(--ink); font: 16px/1.65 var(--sans); padding: 24px 16px 60px; word-break: keep-all; }
+  .wrap { max-width: 960px; margin: 0 auto; }
+  h1 { font: 700 27px/1.3 var(--serif); margin-bottom: 6px; }
+  h2 { font: 700 20px/1.3 var(--serif); margin: 34px 0 8px; padding-top: 10px; border-top: 2px solid var(--deep); }
+  .note { color: var(--muted); max-width: 54rem; margin-bottom: 10px; }
+  .cap { font-size: .85rem; color: var(--muted); margin-top: 6px; max-width: 560px; }
+  .win { width: min(640px, 100%); border: 3px solid var(--deep); border-radius: 6px; background: var(--cream); box-shadow: 8px 8px 0 rgba(30,20,13,.25); }
+  .wt { padding: 9px 14px; background: var(--sand); border-bottom: 3px solid var(--deep); display: flex; justify-content: space-between; font-weight: 700; }
+  .wt span:last-child { font-weight: 400; }
+  .wb { padding: 14px 18px; }
+  .h { color: var(--muted); font-size: .9rem; display: block; margin-bottom: 4px; }
+  .sk { display: grid; grid-template-columns: 70px minmax(0,1fr) 70px; gap: 4px 12px; align-items: center; padding: 8px 0; border-bottom: 1px dashed var(--line2); }
+  .sk b { font-weight: 700; }
+  .bar { height: 10px; background: #EADBBE; }
+  .bar i { display: block; height: 100%; background: var(--mint-line); }
+  .eff { grid-column: 2 / 4; font-size: .86rem; color: var(--ink); }
+  .eff .nx { color: var(--muted); }
+  .new { outline: 2px dashed var(--honey); outline-offset: 2px; border-radius: 2px; }
+  .opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+  .opt { background: var(--paper); border: 1px solid var(--line2); border-radius: 10px; padding: 12px 14px; }
+  .opt.rec { border: 2px solid var(--cinnamon); }
+  .opt b.t { font: 700 16px var(--serif); display: block; margin-bottom: 4px; }
+  .tag { display: inline-block; font-size: 12px; padding: 0 8px; border-radius: 999px; background: var(--cinnamon); color: #fff; margin-left: 6px; vertical-align: 2px; }
+  .chat { width: min(460px, 100%); background: var(--paper); border: 2px solid var(--deep); padding: 12px; display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+  .sys { align-self: flex-start; background: var(--sand); border-radius: 4px 14px 14px 14px; padding: 6px 12px; }
+  .row { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+  table { border-collapse: collapse; width: 100%; background: var(--paper); font-size: .94rem; }
+  th, td { border-bottom: 1px dashed var(--line2); padding: 7px 9px; text-align: left; vertical-align: top; }
+  th { border-bottom: 2px solid var(--deep); }
+  ol { padding-left: 1.3rem; }
+  @media (max-width: 520px) { .sk { grid-template-columns: 56px minmax(0,1fr) 60px; } }
+</style></head>
+<body><div class="wrap">
+<h1>숙련도 효과 시안</h1>
+<p class="note">스킬창 숙련도 줄마다 그 숙련도가 지금 주는 효과를 한 줄 붙입니다. 감정은 지금 효과가 없어서 새로 만듭니다(노란 점선).</p>
+
+<h2>1. 스킬창</h2>
+<div class="win">
+  <div class="wt"><span>스킬창</span><span>닫기</span></div>
+  <div class="wb">
+    <span class="h">숙련도</span>
+    <div class="sk"><b>치기</b><div class="bar"><i style="width:53%"></i></div><span>초급 8</span>
+      <span class="eff">공격력 +3 <span class="nx">· 초급 9에 +4</span></span></div>
+    <div class="sk"><b>감정</b><div class="bar"><i style="width:9%"></i></div><span>초급 4</span>
+      <span class="eff new">파는 값 +3% <span class="nx">· 중급 1에 이름 모를 물건을 알아본다</span></span></div>
+    <div class="sk"><b>기도</b><div class="bar"><i style="width:7%"></i></div><span>초급 4</span>
+      <span class="eff">최대 마나 +1 <span class="nx">· 초급 5에 +2</span></span></div>
+    <div class="sk"><b>대장</b><div class="bar"><i style="width:9%"></i></div><span>초급 3</span>
+      <span class="eff">강화 성공 +1% · 만든 것 등급 +6%</span></div>
+    <div class="sk"><b>막기</b><div class="bar"><i style="width:0"></i></div><span>초급 3</span>
+      <span class="eff">막기 성공 52% · 되받아치기 +1</span></div>
+    <div class="sk" style="border-bottom:0"><span style="color:var(--muted)">???</span><div class="bar"></div><span style="color:var(--muted)">안 해 본 일</span></div>
+  </div>
+</div>
+<p class="cap">"초급 9에 +4"처럼 다음에 바뀌는 곳을 흐린 글씨로 붙입니다(오르는 값이 등급 두 칸마다 바뀌는 숙련도만). 중급 1의 스킬 진화는 지금처럼 따로 알립니다. 휴대폰에서도 같은 꼴로 줄 아래에 붙습니다.</p>
+
+<h2>2. 숙련도마다 보이는 효과</h2>
+<table>
+  <thead><tr><th>숙련도</th><th>효과 줄 (지금 있는 규칙 그대로)</th></tr></thead>
+  <tbody>
+    <tr><td>치기</td><td>공격력 +n (등급 두 칸마다 1)</td></tr>
+    <tr><td>막기</td><td>막기 성공 n% (50%에 등급마다 +1%, 80%까지) · 되받아치기 +n</td></tr>
+    <tr><td>강타 · 회피 · 집중</td><td>그 스킬 피해 +n</td></tr>
+    <tr><td>기도</td><td>최대 마나 +n</td></tr>
+    <tr><td>나르기</td><td>무게 한도 +n</td></tr>
+    <tr><td>지구력</td><td>최대 생명력 +n</td></tr>
+    <tr><td>대장 · 요리 · 조각</td><td>만든 것 등급 +n% (대장은 강화 성공 +n%도)</td></tr>
+    <tr><td>채광 · 낚시 · 채집</td><td>지금 규칙에 있는 효과를 그대로 적는다(만들 때 코드에서 찾아 맞춤)</td></tr>
+    <tr><td><b>감정</b></td><td><b>새로 만듦</b>. 아래 3번</td></tr>
+  </tbody>
+</table>
+
+<h2>3. 감정에 줄 효과</h2>
+<div class="opts">
+  <div class="opt rec"><b class="t">가. 값 + 알아보기<span class="tag">추천</span></b>등급마다 파는 값 +1% (상한 없음). 중급 1이 되면 가방의 "이름 모를" 물건의 정체를 알아본다. 지금 그런 물건은 들판에서 드물게 나오는 "이름 모를 조각칼" 하나. 물건 설명에 이미 "무엇인지 알려면 감정이 필요하다"가 적혀 있다.</div>
+  <div class="opt"><b class="t">나. 파는 값만</b>등급마다 파는 값 +1%. 이름 모를 물건은 그대로 둔다.</div>
+  <div class="opt"><b class="t">다. 사는 값도</b>등급마다 파는 값 +1%, 사는 값 −0.5%. 대신 알아보기는 없다.</div>
+</div>
+<div class="row">
+  <div>
+    <div class="chat">
+      <div class="sys">감정 숙련도가 중급 1이 되었다. 가방의 이름 모를 조각칼을 다시 들여다본다.</div>
+      <div class="sys">날의 글씨가 읽힌다. "깎는 이의 칼". 오래전 이름난 조각가의 것이다.</div>
+    </div>
+    <p class="cap">가를 고르면: 알아본 물건은 이름과 설명이 바뀝니다(쓰임은 그대로: 닳지 않는 조각칼). 감정 중급 1 전에는 지금처럼 "이름 모를"로 남습니다.</p>
+  </div>
+</div>
+
+<h2>4. 정해 주실 것</h2>
+<ol>
+  <li>스킬창 꼴(1번)이 괜찮은지. "다음에 바뀌는 곳" 흐린 글씨를 붙일지</li>
+  <li>감정 효과: 가 / 나 / 다</li>
+  <li>가라면 알아본 이름 "깎는 이의 칼"이 괜찮은지</li>
+</ol>
+</div></body></html>

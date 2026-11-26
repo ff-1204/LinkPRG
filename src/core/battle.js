@@ -1,24 +1,25 @@
 // 전투 (E5~E9, R2-2). 한 턴에 행동 하나. 적의 다음 행동은 늘 미리 보인다.
 // 방어하면 피해가 절반이고, 돌진류는 막고 되받아친다.
 
-import { next, chance } from './rng.js?v=4071dc9';
-import { pushLine, ding } from './log.js?v=4071dc9';
-import { monsterDef, STATUS } from '../data/monsters.js?v=4071dc9';
-import { itemDef, ITEMS, gradeName } from '../data/items.js?v=4071dc9';
-import { roll01 } from './rng.js?v=4071dc9';
-import { guildPerk } from './guild.js?v=4071dc9';
-import { rollOptions, gearName } from './gear.js?v=4071dc9';
-import { derived, skillBonus } from './derived.js?v=4071dc9';
-import { addItem, removeAt, usable, totalWeight, equip, slotFor, equipPower } from './inventory.js?v=4071dc9';
-import { grantXp } from './reward.js?v=4071dc9';
-import { useSkill, emptySkill, gradeLabel, SKILL_NAMES } from './skills.js?v=4071dc9';
-import { fall } from './fall.js?v=4071dc9';
-import { iGa, eulReul, ro } from './ko.js?v=4071dc9';
-import { branchOf } from './evolve.js?v=4071dc9';
-import { skillsNow, jobXp, adv } from './jobs.js?v=4071dc9';
-import { guardFor, hitCompanion, companionsAct, afterBattle, roleBonus, cross } from './party.js?v=4071dc9';
-import { jobDef } from '../data/jobs.js?v=4071dc9';
-import { BEATS, WEAK_MULT, RESIST_MULT } from '../data/dungeon.js?v=4071dc9';
+import { next, chance } from './rng.js?v=30ec326';
+import { pushLine, ding } from './log.js?v=30ec326';
+import { monsterDef, STATUS } from '../data/monsters.js?v=30ec326';
+import { itemDef, ITEMS, gradeName } from '../data/items.js?v=30ec326';
+import { roll01 } from './rng.js?v=30ec326';
+import { guildPerk } from './guild.js?v=30ec326';
+import { rollOptions, gearName } from './gear.js?v=30ec326';
+import { derived, skillBonus } from './derived.js?v=30ec326';
+import { addItem, removeAt, usable, totalWeight, equip, slotFor, equipPower } from './inventory.js?v=30ec326';
+import { grantXp } from './reward.js?v=30ec326';
+import { useSkill, emptySkill, gradeLabel, SKILL_NAMES } from './skills.js?v=30ec326';
+import { fall } from './fall.js?v=30ec326';
+import { iGa, eulReul, ro } from './ko.js?v=30ec326';
+import { branchOf } from './evolve.js?v=30ec326';
+import { skillsNow, jobXp, adv } from './jobs.js?v=30ec326';
+import { guardFor, hitCompanion, companionsAct, afterBattle, roleBonus, cross } from './party.js?v=30ec326';
+import { jobDef } from '../data/jobs.js?v=30ec326';
+import { BEATS, WEAK_MULT, RESIST_MULT } from '../data/dungeon.js?v=30ec326';
+import { HUNGRY } from '../data/wild.js?v=30ec326';
 
 /** 사나움 (Z60): 세계의 날마다 괴물의 생명·공격과 경험치·떨굼 확률이 조금씩 오른다. 끝이 없다. 우두머리·던전도 같다. */
 export const FIERCE_PER = 0.0005;
@@ -32,6 +33,7 @@ function mdef(b) {
   if (m.phases && b.phase) m = { ...m, ...m.phases[b.phase - 1] };
   // 이름난 개체: 많이 잡은 사냥감 가운데 드물게 나온다. 훨씬 세고, 잡으면 장비를 떨어뜨린다
   if (b.elite) m = { ...m, name: `이름난 ${m.name}`, hp: Math.round(m.hp * ELITE.hp), attack: Math.round(m.attack * ELITE.attack), defense: m.defense + ELITE.defense, level: m.level + ELITE.level, xp: m.xp * ELITE.xp };
+  if (b.hungry) m = { ...m, name: `굶주린 ${m.name}`, hp: Math.round(m.hp * HUNGRY.hp), attack: Math.round(m.attack * HUNGRY.attack), xp: m.xp * HUNGRY.xp }; // 먹잇감 냄새를 맡고 온 놈 (Z64)
   const f = b.fierce || 1; // 싸움이 시작된 날의 사나움
   if (f !== 1) m = { ...m, hp: Math.round(m.hp * f), attack: Math.round(m.attack * f), xp: Math.round(m.xp * f), drops: (m.drops || []).map((d) => ({ ...d, p: Math.min(1, d.p * f) })) };
   return m;
@@ -99,20 +101,21 @@ function damage(state, attack, power, defense) {
   return Math.max(1, Math.round(base * (0.9 + next(state) * 0.2)));
 }
 
-export function startBattle(state, events, monId, { ambush = false, pounce = false, caught = false } = {}) {
+export function startBattle(state, events, monId, { ambush = false, pounce = false, caught = false, hungry = false } = {}) {
   const m = monsterDef(monId);
   const seenN = (state.counters.fights = (state.counters.fights || 0) + 1);
-  const elite = roll01(`${state.seed}|elite|${monId}|${seenN}`) < eliteChance(state, monId);
+  const elite = !hungry && roll01(`${state.seed}|elite|${monId}|${seenN}`) < eliteChance(state, monId);
   // stun·weak·burn: 내 스킬이 적에게 건 것. ward: 내 몸을 감싼 것. streak: 같은 공격을 이어 한 횟수.
   state.battle = { mon: monId, hp: 0, turn: 1, intent: null, stun: 0, weak: null, burn: 0, ward: null, streak: 0, phase: 0 };
   if (elite) state.battle.elite = true;
+  if (hungry) state.battle.hungry = true;
   const f = fierceOf(state.day);
   if (f !== 1) state.battle.fierce = f;
   state.battle.hp = mdef(state.battle).hp;
   state.status = [];
   state.choice = null;
   state.lastAction = null;
-  pushLine(state, events, { k: 'room', who: '전투', text: m.intro });
+  pushLine(state, events, { k: 'room', who: '전투', text: hungry ? `${iGa(`굶주린 ${m.name}`)} 이빨을 드러낸다. 입가가 붉다.` : m.intro });
   if (elite) pushLine(state, events, { k: 'sys', text: `여느 놈이 아니다. 몸집이 크고 눈빛이 다르다. 이름난 ${m.name}다.`, tone: 'warn' });
   events.push({ type: 'battle', phase: 'start', mon: monId });
   if (pounce) {

@@ -1,19 +1,20 @@
 // 상점과 보관함 (E24, E25, E28, H1-5, H1-6, R2-4).
 // 돈은 은화 한 가지. 팔 때는 값의 40%. 등급이 높으면 값도 높다.
 
-import { pushLine } from './log.js?v=4071dc9';
-import { itemDef, GRADE_MULT, gradeName } from '../data/items.js?v=4071dc9';
-import { addItem, removeAt, itemWeight } from './inventory.js?v=4071dc9';
-import { SHOPS, DAILY_SWING } from '../data/shops.js?v=4071dc9';
-import { seedFrom } from './rng.js?v=4071dc9';
-import { discountOf as socialDiscount } from './social.js?v=4071dc9';
-import { placeById } from '../data/places.js?v=4071dc9';
-import { guildPerk } from './guild.js?v=4071dc9';
-import { gearName } from './gear.js?v=4071dc9';
-import { eulReul, iGa } from './ko.js?v=4071dc9';
-import { hasTitle } from './titles.js?v=4071dc9';
+import { pushLine } from './log.js?v=30ec326';
+import { itemDef, GRADE_MULT, gradeName } from '../data/items.js?v=30ec326';
+import { addItem, removeAt, itemWeight } from './inventory.js?v=30ec326';
+import { SHOPS, DAILY_SWING } from '../data/shops.js?v=30ec326';
+import { seedFrom } from './rng.js?v=30ec326';
+import { discountOf as socialDiscount } from './social.js?v=30ec326';
+import { placeById } from '../data/places.js?v=30ec326';
+import { guildPerk } from './guild.js?v=30ec326';
+import { gearName } from './gear.js?v=30ec326';
+import { eulReul, iGa } from './ko.js?v=30ec326';
+import { hasTitle } from './titles.js?v=30ec326';
 
 export const SELL_RATE = 0.4;
+export const APPRAISE_SELL = 0.01;
 export const STORE_CAP = 200;
 export const STORE_FEE = 2;
 export const STORE_RATE = 0.01; // 맡긴 은화의 하루 이자 (Z42)
@@ -51,7 +52,8 @@ export function sellPrice(item, state = null) {
   // '이름을 새긴 이'는 제 손으로 만든 것을 더 받고 판다
   const mine = state && hasTitle(state, 'maker') && item.maker === state.name ? 1.1 : 1;
   const hide = state && state.flags.hideSeller && /hide/.test(item.id) ? 1.3 : 1; // 무두장이는 가죽 값을 더 받는다
-  return Math.max(1, Math.floor(worth(item) * SELL_RATE * mine * hide));
+  const eye = state ? 1 + (state.skills?.appraise?.grade || 0) * APPRAISE_SELL : 1; // 감정 (Z62): 등급마다 파는 값이 오른다. 상한 없음
+  return Math.max(1, Math.floor(worth(item) * SELL_RATE * mine * hide * eye));
 }
 
 export function shopHere(state) {

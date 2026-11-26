@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>먹잇감 냄새 시안</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  :root { --cream: #FBF5E6; --paper: #FFFDF6; --sand: #F3E9D2; --line2: #CDBE9E; --ink: #3A2A1E; --muted: #6B5443; --deep: #1E140D; --cinnamon: #8A4F2B; --honey: #F2B63C; --serif: 'Gowun Batang', serif; --sans: 'Gowun Dodum', sans-serif; }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--cream); color: var(--ink); font: 16px/1.65 var(--sans); padding: 24px 16px 60px; word-break: keep-all; }
+  .wrap { max-width: 960px; margin: 0 auto; }
+  h1 { font: 700 27px/1.3 var(--serif); margin-bottom: 6px; }
+  h2 { font: 700 20px/1.3 var(--serif); margin: 34px 0 8px; padding-top: 10px; border-top: 2px solid var(--deep); }
+  h3 { font: 700 17px var(--serif); margin: 16px 0 6px; }
+  .note { color: var(--muted); max-width: 54rem; margin-bottom: 10px; }
+  .warn { background: #FBE3C2; border-left: 4px solid var(--cinnamon); padding: 10px 14px; max-width: 54rem; margin: 10px 0; }
+  .row { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+  .cap { font-size: .85rem; color: var(--muted); margin-top: 6px; max-width: 440px; }
+  .chat { width: min(440px, 100%); background: var(--paper); border: 2px solid var(--deep); padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .room { align-self: flex-start; background: #fff; border: 1px solid var(--line2); border-radius: 4px 14px 14px 14px; padding: 6px 12px; }
+  .room small { display: block; color: var(--muted); font-size: .75rem; }
+  .me { align-self: flex-end; background: #E7D3B8; border-radius: 14px 4px 14px 14px; padding: 6px 12px; }
+  .sys { align-self: flex-start; background: var(--sand); border-radius: 4px 14px 14px 14px; padding: 6px 12px; }
+  .sys.w { background: #FBE3C2; }
+  .place { width: min(320px, 100%); border: 2px solid var(--deep); border-radius: 6px; background: var(--paper); padding: 10px 12px; font-size: .92rem; }
+  .place .rowx { display: flex; justify-content: space-between; border-bottom: 1px dashed var(--line2); padding: 4px 0; }
+  .scent { display: inline-block; padding: 0 8px; border-radius: 999px; background: var(--honey); font-size: .78rem; font-weight: 700; }
+  .opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+  .opt { background: var(--paper); border: 1px solid var(--line2); border-radius: 10px; padding: 12px 14px; }
+  .opt.rec { border: 2px solid var(--cinnamon); }
+  .opt b.t { font: 700 16px var(--serif); display: block; margin-bottom: 4px; }
+  .tag { display: inline-block; font-size: 12px; padding: 0 8px; border-radius: 999px; background: var(--cinnamon); color: #fff; margin-left: 6px; vertical-align: 2px; }
+  table { border-collapse: collapse; width: 100%; background: var(--paper); font-size: .94rem; }
+  th, td { border-bottom: 1px dashed var(--line2); padding: 7px 9px; text-align: left; vertical-align: top; }
+  th { border-bottom: 2px solid var(--deep); }
+  ol { padding-left: 1.3rem; }
+</style></head>
+<body><div class="wrap">
+<h1>먹잇감 냄새 시안</h1>
+<p class="note">덫에 걸리거나 떨어진 짐승을 돕지 않고 "지나간다"를 고르면, 그 짐승을 노리는 더 위험한 짐승이 냄새를 맡고 옵니다. 돕는 것(지금처럼 마음씨가 쌓임)과 지나가는 것 사이에 값이 생깁니다.</p>
+
+<h2>1. 어떤 사건이 해당되나</h2>
+<table>
+  <thead><tr><th>곳</th><th>사건</th><th>지나가면 오는 것</th><th>보통 나오는 것과 견주면</th></tr></thead>
+  <tbody>
+    <tr><td>숲</td><td>덫에 걸린 여우</td><td>굶주린 숲 늑대</td><td>숲 늑대(수준 4)보다 세다</td></tr>
+    <tr><td>광산</td><td>떨어진 새끼 박쥐</td><td>굶주린 돌거미</td><td>광산엔 원래 없는 놈(폐허의 수준 7)</td></tr>
+    <tr><td>갈대밭</td><td>물새 둥지(가려 주지 않음)</td><td>굶주린 갈대 뱀</td><td>갈대 뱀(수준 10)보다 세다</td></tr>
+    <tr><td>강</td><td>그물에 엉킨 물새</td><td>굶주린 갈대 뱀</td><td>강엔 게(수준 3)뿐. 크게 위험하다</td></tr>
+  </tbody>
+</table>
+<p class="cap">"굶주린"은 이름난 개체처럼 붙는 모습입니다. 생명·공격이 오르고 경험치도 더 줍니다(고생한 만큼 더 얻는다). 둥지의 "알을 가져간다"도 지나가는 것으로 칩니다.</p>
+
+<h2>2. 흐름</h2>
+<div class="row">
+  <div>
+    <div class="chat">
+      <div class="room"><small>사건</small>덫에 걸린 여우가 낑낑댄다. 이쪽을 보고 몸을 웅크린다.</div>
+      <div class="me">그냥 지나간다</div>
+      <div class="sys">모른 척 지나갔다. 낑낑대는 소리가 한참 따라온다.</div>
+      <div class="me">탐색</div>
+      <div class="sys w">낑낑대던 소리가 뚝 끊겼다. 무언가 피 냄새를 맡고 이쪽으로 온다.</div>
+      <div class="room"><small>전투</small>굶주린 숲 늑대가 이빨을 드러낸다. 입가가 붉다.</div>
+    </div>
+    <p class="cap">지나간 뒤 그곳에서 탐색하면, 몇 번 안에 반드시 포식자와 마주칩니다(보통 전투보다 먼저). 한 번 싸우면(이기든 달아나든) 냄새는 사라집니다.</p>
+  </div>
+  <div>
+    <div class="place">
+      <div class="rowx"><span>곳</span><b>숲</b></div>
+      <div class="rowx"><span>위험</span><b>보통</b></div>
+      <div class="rowx"><span>냄새</span><span class="scent">피 냄새가 남아 있다</span></div>
+    </div>
+    <p class="cap">장소 칸에 "피 냄새가 남아 있다"가 보입니다. 다른 곳으로 떠났다 와도 남아 있습니다.</p>
+  </div>
+</div>
+
+<h2>3. 정해 주실 것</h2>
+<h3>가. 포식자가 얼마나 센가</h3>
+<div class="opts">
+  <div class="opt rec"><b class="t">가-1. 굶주린 모습<span class="tag">추천</span></b>생명·공격 1.5배, 경험치 2배. 이름난 개체(생명 2.5배)보다는 약하다.</div>
+  <div class="opt"><b class="t">가-2. 이름난 개체만큼</b>생명 2.5배, 공격 1.3배, 경험치 3배. 꽤 무섭다.</div>
+</div>
+<h3>나. 언제 오나</h3>
+<div class="opts">
+  <div class="opt rec"><b class="t">나-1. 그곳 탐색 세 번 안에 반드시<span class="tag">추천</span></b>바로 다음일 수도 있다. 냄새가 남은 동안 그곳에서 쉬거나 자면 덮쳐 온다.</div>
+  <div class="opt"><b class="t">나-2. 그 때(아침·낮·밤)가 끝날 때까지 전투 확률만 크게</b>오지 않을 수도 있다.</div>
+</div>
+<h3>다. 냄새가 언제 사라지나</h3>
+<div class="opts">
+  <div class="opt rec"><b class="t">다-1. 포식자와 한 번 싸우면<span class="tag">추천</span></b>피하려면 그곳을 하루 동안 떠나 있으면 된다(하루 지나면 사라짐).</div>
+  <div class="opt"><b class="t">다-2. 싸워야만</b>안 가면 계속 남는다.</div>
+</div>
+
+<div class="warn"><b>걸리는 점:</b> 강은 지금 가장 안전한 들판인데, 그물의 물새를 지나치면 수준 10짜리 뱀이 옵니다. 낮은 레벨에겐 아주 위험합니다. 대신 돕는 길(그물 끊기)은 늘 열려 있고 거저입니다.</div>
+
+<h2>4. 한 줄로</h2>
+<ol>
+  <li>추천대로: 가-1 · 나-1 · 다-1</li>
+  <li>다르게: 고른 것을 말씀해 주세요</li>
+</ol>
+</div></body></html>

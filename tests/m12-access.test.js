@@ -161,3 +161,13 @@ test('검토: 다른 게시판에서 끝내려 하면 물건이 그대로 남는
   assert.throws(() => dispatch(s, { type: 'job', op: 'finish', id }), /받은 게시판/);
   assert.equal(countOf(s, JOBS[id].item), before);
 });
+
+test('싸우는 중에는 누르기 돕기가 돌지 않는다 (Z63)', () => {
+  const sl = { label: '치기', action: { type: 'battle', id: 'attack' } };
+  assert.equal(assistable(sl), true);
+  assert.equal(assistable(sl, { battle: true }), false);
+  const a = createAssist('toggle');
+  a.down(0, 'x', 0);
+  assert.equal(a.tick(ASSIST_MS, { what: 'x', blocked: true }).fire, false, '싸움이 시작되면(막히면) 멈춘다');
+  assert.equal(a.running, false);
+});

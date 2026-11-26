@@ -67,6 +67,7 @@ export function createAssist(mode = 'off') {
 }
 
 /** 그 칸에 놓인 것이 이어 누를 만한 행동인가: 창을 여는 칸, 꺼진 칸, 확인이 필요한 칸은 돕지 않는다. */
-export function assistable(slot) {
+export function assistable(slot, { battle = false } = {}) {
+  if (battle) return false; // 싸우는 중에는 돕지 않는다 (사용자 요청, Z63): 한 수씩 손으로 둔다
   return !!slot && !!slot.action && !slot.disabled && !slot.open && !slot.confirm;
 }

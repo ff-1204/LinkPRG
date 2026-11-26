@@ -10,6 +10,26 @@ export const SKILL_NAMES = {
   smithing: '대장', sculpting: '조각', cooking: '요리', appraise: '감정', lockpick: '자물쇠',
 };
 
+/** 숙련도가 주는 것 (Z62). 수치는 숨기고 효과만 적는다. 숙련도가 오를수록 커진다. */
+export const SKILL_EFFECTS = {
+  strike: '공격력이 오른다',
+  guard: '막기가 더 잘 되고, 되받아치는 한 방이 세진다',
+  smash: '강타가 더 잘 들어가고 더 아프다',
+  evade: '더 잘 피하고, 피한 뒤 치는 한 방이 세진다',
+  focus: '모아 친 한 방이 세진다',
+  pray: '최대 마나가 오른다',
+  haul: '더 많이 들 수 있다',
+  stamina: '최대 생명력이 오른다',
+  mining: '허탕이 줄어든다',
+  fishing: '허탕이 줄어든다',
+  gathering: '허탕이 줄어든다',
+  smithing: '만든 것의 등급이 오르기 쉽고, 강화가 잘 된다',
+  sculpting: '작품이 더 잘 나온다',
+  lockpick: '자물쇠를 더 잘 연다',
+  appraise: '물건을 더 비싸게 판다. 솜씨가 깊어지면 낯선 물건도 알아본다',
+};
+export const skillEffect = (id) => SKILL_EFFECTS[id] || '';
+
 export function emptySkill() {
   return { grade: 0, xp: 0, uses: 0 };
 }

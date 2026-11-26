@@ -62,7 +62,8 @@ export const ITEMS = {
   oldrod: { name: '진흙투성이 낚싯대', kind: 'quest', weight: 1, icon: 'item-branch', desc: '강바닥에서 건져 올렸다. 손잡이 마디에 실이 곱게 감겨 있다.' },
   grannyrod: { name: '영감님의 낚싯대', kind: 'etc', grade: 1, weight: 1, icon: 'item-branch', price: 30, desc: '오래 쓴 대나무 낚싯대. 가방에 있으면 낚시의 허탕이 10%p 줄어든다.' },
   mistrod: { name: '물안개 낚싯대', kind: 'etc', grade: 3, weight: 1, icon: 'item-branch', price: 300, desc: '물속의 누군가가 건네준 낚싯대. 가방에 있으면 낚시의 허탕이 20%p 줄어든다. 세상에 하나뿐이다.' },
-  oddknife: { name: '이름 모를 조각칼', kind: 'etc', weight: 1, icon: 'item-unknown', unknown: true, desc: '날에 무언가 새겨져 있는데 읽을 수 없다. 나무는 잘 깎인다. 아무리 써도 닳지 않는다.' },
+  oddknife: { name: '이름 모를 조각칼', kind: 'etc', weight: 1, icon: 'item-unknown', unknown: true, knownAs: 'carverknife', desc: '날에 무언가 새겨져 있는데 읽을 수 없다. 나무는 잘 깎인다. 아무리 써도 닳지 않는다.' },
+  carverknife: { name: '깎는 이의 칼', kind: 'etc', weight: 1, icon: 'item-unknown', desc: '날에 "깎는 이의 칼"이라 새겨져 있다. 오래전 이름난 조각가가 쓰던 칼이다. 나무가 잘 깎이고, 아무리 써도 닳지 않는다.' },
 };
 
 export function itemDef(id) {

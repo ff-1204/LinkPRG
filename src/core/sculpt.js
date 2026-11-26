@@ -1,21 +1,21 @@
 // 조각과 작품 (N2, X1, X3-3). 칼질 마흔 번을 손으로. 본 것만 깎는다.
 // 등급은 마지막 칼질에서 갈린다. 그 전에는 그림으로도 글로도 알 수 없다.
 
-import { next } from './rng.js?v=4071dc9';
-import { pushLine, ding } from './log.js?v=4071dc9';
-import { countOf, takeById } from './inventory.js?v=4071dc9';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=4071dc9';
-import { itemDef } from '../data/items.js?v=4071dc9';
-import { bondOf, bondBy, addFame } from './social.js?v=4071dc9';
-import { jobXp } from './jobs.js?v=4071dc9';
-import { REGULAR, PEOPLE } from '../data/people.js?v=4071dc9';
-import { placeById } from '../data/places.js?v=4071dc9';
+import { next } from './rng.js?v=30ec326';
+import { pushLine, ding } from './log.js?v=30ec326';
+import { countOf, takeById } from './inventory.js?v=30ec326';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=30ec326';
+import { itemDef } from '../data/items.js?v=30ec326';
+import { bondOf, bondBy, addFame } from './social.js?v=30ec326';
+import { jobXp } from './jobs.js?v=30ec326';
+import { REGULAR, PEOPLE } from '../data/people.js?v=30ec326';
+import { placeById } from '../data/places.js?v=30ec326';
 import {
   CUTS, WORK_GRADES, WORK_BASE, WORK_PUSH, WORK_NEEDS, SCULPT_DIFFICULTY, CUT_MARKS, CUT_LINES,
   SUBJECTS, SUBJECT_ORDER, ADMIRE, WORK_PRICE, WORK_FAME,
-} from '../data/works.js?v=4071dc9';
-import { iGa, eulReul } from './ko.js?v=4071dc9';
-import { buffOf, xpBoost } from './buffs.js?v=4071dc9';
+} from '../data/works.js?v=30ec326';
+import { iGa, eulReul } from './ko.js?v=30ec326';
+import { buffOf, xpBoost } from './buffs.js?v=30ec326';
 
 export { buffOf };
 
@@ -37,7 +37,7 @@ export function workOdds(state) {
 
 /** 가방에서 쓸 수 있는 조각칼(닳지 않은 것). 없으면 null. */
 export function chiselOf(state) {
-  return state.bag.find((x) => x.id === 'oddknife') || state.bag.find((x) => x.id === 'chisel' && x.dur > 0) || null;
+  return state.bag.find((x) => x.id === 'carverknife' || x.id === 'oddknife') || state.bag.find((x) => x.id === 'chisel' && x.dur > 0) || null;
 }
 
 /** 조각 창이 그릴 것. 못 본 것은 주제에 나오지 않는다. */
@@ -79,7 +79,7 @@ export function cut(state, events) {
   if (!c) throw new Error('깎고 있는 것이 없습니다');
   const knife = chiselOf(state);
   if (!knife) throw new Error('조각칼이 없습니다. 대장간에서 사거나 만들 수 있습니다');
-  if (knife.id === 'chisel') knife.dur -= 1; // 이름 모를 조각칼은 닳지 않는다
+  if (knife.id === 'chisel') knife.dur -= 1; // 이름 모를 조각칼(깎는 이의 칼)은 닳지 않는다
   if (knife.id === 'chisel' && knife.dur <= 0) {
     state.bag.splice(state.bag.indexOf(knife), 1);
     pushLine(state, events, { k: 'sys', text: '조각칼의 날이 다 닳아 부러졌다.', tone: 'warn' });

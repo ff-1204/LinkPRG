@@ -559,3 +559,6 @@ html.assist-on .assistline, html.assist-on .assistline:empty { display: block; m
 
 /* 사나움 (Z60) */
 .fiercetag { display: inline-block; margin-left: 6px; padding: 0 8px; border-radius: 999px; background: var(--honey); color: #3A2A1E; font-size: .75rem; font-weight: 700; white-space: nowrap; }
+
+/* 숙련도 효과 (Z62) */
+.sk .eff { grid-column: 2 / -1; font-size: .86rem; color: var(--ink); }
