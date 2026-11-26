@@ -27,6 +27,18 @@ export const PEOPLE = {
     hello: ['쇠 살 거면 저쪽.', '또 왔나. 화덕은 비었다.', '왔나. 오늘 쇠가 좋아.', '어서 와. 자네 망치는 저기 걸어 놨네.', '왔냐. 밥은 먹었고?'],
     talk: ['쇠는 식기 전에 쳐야 한다. 사람도 그렇고.', '구리는 무르지만 거짓말을 안 한다.', '폐허에서 밤마다 쇳소리가 난다는데, 누가 두드리는 건지.', '좋은 검은 열두 번째 망치질에서 정해진다.'],
   },
+  artmaster: {
+    id: 'artmaster', name: '협회장', place: 'artguild', stats: { eye: 17, guts: 9, will: 14 },
+    likes: ['oakbranch', 'wolffang'], dislikes: ['boarmeat'],
+    hello: ['구경 왔나.', '또 왔군. 오늘은 무엇을 깎을 텐가.', '왔나. 벽에 새 작품이 하나 걸렸네.', '어서 오게. 자네 자리는 늘 비워 두지.', '왔군. 자네 손을 보면 오늘 무엇이 나올지 알겠어.'],
+    talk: ['작품은 깎은 사람보다 오래 남네.', '경매에서 붙는 값은 그 물건이 걸어온 길이야.', '반지는 작아서 거짓말을 못 하지. 흠 하나가 다 보여.', '광장 받침대에 세운 것은 마을 모두의 것이 되네.'],
+  },
+  tailor: {
+    id: 'tailor', name: '재봉사', place: 'tailor', stats: { eye: 15, guts: 10, will: 13 },
+    likes: ['boarhide', 'berry'], dislikes: ['batwing'],
+    hello: ['치수 재러 왔어?', '또 왔네. 실밥 터진 데는 없고?', '왔어. 오늘은 가죽이 잘 들어.', '어서 와. 자네 자리 비워 뒀어.', '왔구나. 앉아, 소매부터 봐 줄게.'],
+    talk: ['옷은 몸을 따라 늘어나고 줄어들어. 꿰맨 자리만 보면 누가 지었는지 알지.', '멧돼지 가죽은 억세도 오래가.', '바늘은 서두르면 손가락을 찔러.', '폐허에서 나온 천 조각을 본 적 있어. 지금은 아무도 그렇게 못 짜.'],
+  },
   granny: {
     id: 'granny', name: '잡화점 할머니', place: 'store', stats: { eye: 16, guts: 9, will: 13 },
     likes: ['crucian', 'herb'], dislikes: ['batwing'],
@@ -43,7 +55,7 @@ export const PEOPLE = {
     id: 'priest', name: '신전지기', place: 'temple', stats: { eye: 11, guts: 10, will: 17 },
     likes: ['herb', 'redpotion'], dislikes: ['wolffang'],
     hello: ['조용히.', '또 다쳤나.', '왔군. 오늘은 걸어서 왔네.', '어서 오게. 초 하나 켜 두었네.', '자네가 오면 종소리가 맑아지는 것 같네.'],
-    talk: ['쓰러진 자리에 둔 것은 하루를 기다려 주네. 그 이상은 아니야.', '종소리가 어디서 나는지 묻는 사람은 드물지.', '쉬는 것도 일일세.', '약초는 늘 모자라네. 다치는 사람은 늘 넘치고.'],
+    talk: ['쓰러진 자리에 둔 것은 하루를 기다려 주네. 그 이상은 아니야.', '종소리가 어디서 나는지 묻는 사람은 드물지.', '쉬는 것도 일일세.', '약초는 늘 모자라네. 다치는 사람은 늘 넘치고.', '경매장 수수료가 들어온 날은 빵을 넉넉히 굽지.'],
   },
   foreman: {
     id: 'foreman', name: '조합장', place: 'mine', stats: { eye: 13, guts: 17, will: 16 },
@@ -158,14 +170,14 @@ export const PEOPLE = {
 
 /** 사람마다 내 이름을 부르는 꼴 (Z39): [낯익은 사이·단골, 벗·가족 같은 사이]. 뜻은 core/social.js의 callName을 본다. */
 export const CALLS = {
-  instructor: ['dot', 'ya'], smith: ['comma', 'ya'], granny: ['comma', 'uri'], keeper: ['comma', 'jane'], miru: ['ssi', 'ssi!'],
+  instructor: ['dot', 'ya'], smith: ['comma', 'ya'], tailor: ['comma', 'jane'], artmaster: ['comma', 'jane'], granny: ['comma', 'uri'], keeper: ['comma', 'jane'], miru: ['ssi', 'ssi!'],
   priest: ['comma', 'jane'], foreman: ['comma', 'uri'], ferryman: ['comma', 'ya'], fishwife: ['comma', 'uri'], agent: ['nim', 'nim'],
   shipwright: ['comma', 'ya'], innkeeper: ['comma', 'jane'], shrinekeeper: ['yangban', 'yangban'], eye: ['dot', 'yadot'], trader: ['yangban', 'yangban'],
   master: ['comma', 'jane'], clerk: ['nim', 'ssi!'], librarian: ['nim', 'nim'], highpriest: ['comma', 'jane'], heir: ['ssi', 'ssi!'],
   hostess: ['comma', 'ya'], elder: ['dot', 'yadot'],
 };
 
-export const PEOPLE_ORDER = ['instructor', 'smith', 'granny', 'keeper', 'miru', 'priest', 'foreman', 'trapped', 'ferryman', 'fishwife', 'agent', 'shipwright', 'innkeeper', 'shrinekeeper', 'eye', 'trader', 'master', 'clerk', 'librarian', 'highpriest', 'heir', 'hostess', 'elder'];
+export const PEOPLE_ORDER = ['instructor', 'smith', 'tailor', 'artmaster', 'granny', 'keeper', 'miru', 'priest', 'foreman', 'trapped', 'ferryman', 'fishwife', 'agent', 'shipwright', 'innkeeper', 'shrinekeeper', 'eye', 'trader', 'master', 'clerk', 'librarian', 'highpriest', 'heir', 'hostess', 'elder'];
 
 export function personById(id) {
   const p = PEOPLE[id];

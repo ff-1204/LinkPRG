@@ -73,5 +73,6 @@ export function buffRows(state) {
   for (const [kind, b] of [['감상', buffOf(state)], ['음식', foodBuff(state)], ['잠', restBuff(state)], ['축복', graceBuff(state)], ['디버프', murderBuff(state)]]) {
     if (b) out.push({ kind, name: b.name, text: b.text, until: b.until });
   }
+  if ((state.tired || 0) >= 80) out.push({ kind: '피로', name: '버티는 손', text: '피로 80 이상에서 일하면 숙련도가 1.5배로 오른다', until: null });
   return out;
 }

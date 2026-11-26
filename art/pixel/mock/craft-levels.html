@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>제작 레벨과 예술협회 시안</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  :root { --cream: #FBF5E6; --paper: #FFFDF6; --sand: #F3E9D2; --line2: #CDBE9E; --ink: #3A2A1E; --muted: #6B5443; --deep: #1E140D; --cinnamon: #8A4F2B; --mint-line: #2F7A5E; --mint: #CFE8DC; --honey: #F2B63C; --serif: 'Gowun Batang', serif; --sans: 'Gowun Dodum', sans-serif; }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--cream); color: var(--ink); font: 16px/1.65 var(--sans); padding: 24px 16px 60px; word-break: keep-all; }
+  .wrap { max-width: 980px; margin: 0 auto; }
+  h1 { font: 700 27px/1.3 var(--serif); margin-bottom: 6px; }
+  h2 { font: 700 20px/1.3 var(--serif); margin: 34px 0 8px; padding-top: 10px; border-top: 2px solid var(--deep); }
+  .note { color: var(--muted); max-width: 56rem; margin-bottom: 10px; }
+  .cap { font-size: .85rem; color: var(--muted); margin-top: 6px; max-width: 620px; }
+  .muted { color: var(--muted); font-size: .9rem; }
+  .new { outline: 2px dashed var(--honey); outline-offset: 3px; border-radius: 6px; }
+  .win { width: min(600px, 100%); border: 3px solid var(--deep); border-radius: 6px; background: var(--cream); box-shadow: 8px 8px 0 rgba(30,20,13,.25); }
+  .wt { padding: 9px 14px; background: var(--sand); border-bottom: 3px solid var(--deep); display: flex; justify-content: space-between; font-weight: 700; }
+  .wt span:last-child { font-weight: 400; }
+  .wb { padding: 14px 18px; display: flex; flex-direction: column; gap: 8px; }
+  .lv { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .lv b { font: 700 18px var(--serif); }
+  .bar { flex: 1 1 140px; height: 10px; background: #EADBBE; border: 1px solid var(--line2); }
+  .bar i { display: block; height: 100%; background: var(--mint-line); }
+  .grp { font-weight: 700; color: var(--cinnamon); margin-top: 6px; border-bottom: 1px solid var(--line2); }
+  .rc { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 5px 0; border-bottom: 1px dashed var(--line2); }
+  .rc.lock { color: var(--muted); }
+  .rc small { display: block; color: var(--muted); font-size: .82rem; }
+  .btn { font: 700 14px var(--sans); border: 2px solid var(--deep); background: var(--honey); color: var(--deep); border-radius: 6px; padding: 4px 12px; white-space: nowrap; }
+  .btn[disabled] { background: var(--sand); color: var(--muted); border-color: var(--line2); }
+  .row { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+  .chat { width: min(420px, 100%); background: var(--paper); border: 2px solid var(--deep); padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .sys { align-self: flex-start; background: var(--sand); border-radius: 4px 14px 14px 14px; padding: 6px 12px; }
+  .ding { align-self: flex-start; background: #FCEFC7; border: 1px solid var(--honey); border-radius: 4px 14px 14px 14px; padding: 6px 12px; font-weight: 700; }
+  table { border-collapse: collapse; width: 100%; background: var(--paper); font-size: .92rem; }
+  th, td { border-bottom: 1px dashed var(--line2); padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { border-bottom: 2px solid var(--deep); }
+  td.n { text-align: center; font-weight: 700; }
+  .tw { overflow-x: auto; }
+  .add { background: #FFF6DA; }
+  .opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; margin-top: 12px; }
+  .opt { background: var(--paper); border: 1px solid var(--line2); border-radius: 10px; padding: 12px 14px; }
+  .opt.rec { border: 2px solid var(--cinnamon); }
+  .opt b.t { font: 700 16px var(--serif); display: block; margin-bottom: 4px; }
+  .tag { display: inline-block; font-size: 12px; padding: 0 8px; border-radius: 999px; background: var(--cinnamon); color: #fff; margin-left: 6px; vertical-align: 2px; }
+</style></head>
+<body><div class="wrap">
+<h1>제작 레벨과 예술협회 시안</h1>
+<p class="note">생산 갈래마다 <b>제작 레벨</b>이 생깁니다. 대장간의 <b>대장</b>, 의류점의 <b>재봉</b>, 새로 여는 예술협회의 <b>세공</b> 셋입니다. 무언가를 끝까지 만들 때마다 오르고, 레벨이 오르면 새 설계도가 열립니다. 지금 게임에 있는 장비 14가지를 모두 만들 수 있게 하고, 예술협회에서 만드는 장신구 셋을 새로 넣습니다. 노란 칸이 새로 만들 수 있게 되는 장비입니다.</p>
+
+<h2>1. 만들기 창 (대장간)</h2>
+<div class="row">
+  <div class="win new">
+    <div class="wt"><span>만들기 · 대장</span><span>닫기</span></div>
+    <div class="wb">
+      <div class="lv"><b>대장 레벨 2</b><div class="bar" role="img" aria-label="다음 레벨까지 7 / 20"><i style="width:35%"></i></div><span class="muted">다음 레벨까지 7 / 20</span></div>
+      <div class="grp">레벨 1</div>
+      <div class="rc"><span>낡은 목검<small>참나무 가지 3 · 망치질 8번</small></span><button class="btn" type="button">제작</button></div>
+      <div class="rc"><span>구리 검<small>구리 광석 4, 참나무 가지 1 · 12번</small></span><button class="btn" type="button">제작</button></div>
+      <div class="rc"><span>조각칼<small>철광석 2, 참나무 가지 1 · 8번</small></span><button class="btn" type="button">제작</button></div>
+      <div class="grp">레벨 2</div>
+      <div class="rc"><span>물푸레 지팡이<small>참나무 가지 3, 구리 광석 2 · 10번 · 마법사가 쓴다</small></span><button class="btn" type="button">제작</button></div>
+      <div class="rc"><span>얇은 칼<small>철광석 3, 참나무 가지 1 · 10번 · 도적이 쓴다</small></span><button class="btn" type="button">제작</button></div>
+      <div class="grp">레벨 3</div>
+      <div class="rc lock"><span>철검<small>철광석 6, 참나무 가지 1 · 12번</small></span><button class="btn" type="button" disabled>대장 레벨 3</button></div>
+      <div class="rc lock"><span>짧은 활<small>참나무 가지 3, 박쥐 날개 2 · 10번 · 궁수가 쓴다</small></span><button class="btn" type="button" disabled>대장 레벨 3</button></div>
+      <div class="grp">레벨 4</div>
+      <div class="rc lock" style="border:0"><span>낡은 방패<small>참나무 가지 4, 철광석 2 · 12번 · 전사가 쓴다</small></span><button class="btn" type="button" disabled>대장 레벨 4</button></div>
+    </div>
+  </div>
+  <div class="chat">
+    <div class="sys">물에 담그자 김이 오른다. 구리 검을 건져 올렸다.</div>
+    <div class="ding">띠링! 대장 레벨 3이 되었습니다. 새 설계도: 철검, 짧은 활</div>
+  </div>
+</div>
+<p class="cap">직업이 정해진 장비(지팡이, 칼, 활, 방패)도 누구나 만들 수 있습니다. 차는 것은 그 직업만 할 수 있고, 팔거나 경매에 올릴 수 있습니다.</p>
+
+<h2>2. 레벨이 오르는 셈</h2>
+<div class="tw"><table>
+  <tr><th>무엇</th><th>셈</th></tr>
+  <tr><td>하나 다 만들면</td><td>제작 경험 = 그 설계도 레벨 × (1 + 나온 등급). 일반 0, 고급 1, 희귀 2, 영웅 3, 전설 4. 그만두면 없음</td></tr>
+  <tr><td>다음 레벨까지</td><td>지금 레벨 × 10 (1→2에 10, 2→3에 20, 3→4에 30 …). 끝이 없다</td></tr>
+  <tr><td>대장장이·재봉사(일하는 직업)</td><td>제작 경험 1.5배</td></tr>
+  <tr><td>숙련도와의 사이</td><td>숙련도(대장·가죽)는 지금처럼 망치질·한 땀마다 오르고 등급 확률을 움직인다. 제작 레벨은 무엇을 만들 수 있는지만 정한다</td></tr>
+</table></div>
+
+<h2>3. 모든 장비와 열리는 레벨</h2>
+<div class="tw"><table>
+  <tr><th>장비</th><th>부위·쓰는 직업</th><th>갈래</th><th>레벨</th><th>재료</th><th>횟수</th></tr>
+  <tr class="add"><td>낡은 목검</td><td>무기</td><td>대장</td><td class="n">1</td><td>참나무 가지 3</td><td>8</td></tr>
+  <tr><td>구리 검</td><td>무기</td><td>대장</td><td class="n">1</td><td>구리 광석 4, 참나무 가지 1</td><td>12</td></tr>
+  <tr><td>조각칼</td><td>도구</td><td>대장</td><td class="n">1</td><td>철광석 2, 참나무 가지 1</td><td>8</td></tr>
+  <tr class="add"><td>물푸레 지팡이</td><td>무기 · 마법사</td><td>대장</td><td class="n">2</td><td>참나무 가지 3, 구리 광석 2</td><td>10</td></tr>
+  <tr class="add"><td>얇은 칼</td><td>무기 · 도적</td><td>대장</td><td class="n">2</td><td>철광석 3, 참나무 가지 1</td><td>10</td></tr>
+  <tr><td>철검</td><td>무기</td><td>대장</td><td class="n">3</td><td>철광석 6, 참나무 가지 1</td><td>12</td></tr>
+  <tr class="add"><td>짧은 활</td><td>무기 · 궁수</td><td>대장</td><td class="n">3</td><td>참나무 가지 3, 박쥐 날개 2</td><td>10</td></tr>
+  <tr class="add"><td>낡은 방패</td><td>보조 · 전사</td><td>대장</td><td class="n">4</td><td>참나무 가지 4, 철광석 2</td><td>12</td></tr>
+  <tr class="add"><td>짚신</td><td>발</td><td>재봉</td><td class="n">1</td><td>하급 약초 3 (풀을 꼬아 삼는다)</td><td>6</td></tr>
+  <tr class="add"><td>훈련복</td><td>몸</td><td>재봉</td><td class="n">1</td><td>돛천 1</td><td>8</td></tr>
+  <tr><td>가죽 장화</td><td>발</td><td>재봉</td><td class="n">2</td><td>멧돼지 가죽 2</td><td>10</td></tr>
+  <tr><td>가죽 조끼</td><td>몸</td><td>재봉</td><td class="n">3</td><td>멧돼지 가죽 3</td><td>12</td></tr>
+  <tr><td>가죽 갑옷</td><td>몸</td><td>재봉</td><td class="n">4</td><td>멧돼지 가죽 5, 철광석 2</td><td>16</td></tr>
+  <tr class="add"><td>구리 반지 <b>새것</b></td><td>반지 (방어 1)</td><td>세공</td><td class="n">1</td><td>구리 광석 2</td><td>8</td></tr>
+  <tr class="add"><td>기도 구슬</td><td>반지 · 사제</td><td>세공</td><td class="n">1</td><td>참나무 가지 2, 구리 광석 1</td><td>8</td></tr>
+  <tr class="add"><td>송곳니 반지 <b>새것</b></td><td>반지 (공격 2)</td><td>세공</td><td class="n">2</td><td>늑대 송곳니 2, 구리 광석 1</td><td>10</td></tr>
+  <tr class="add"><td>철 반지 <b>새것</b></td><td>반지 (공격 1, 방어 2)</td><td>세공</td><td class="n">3</td><td>철광석 3, 늑대 송곳니 1</td><td>12</td></tr>
+</table></div>
+<p class="cap">재봉과 세공도 대장처럼 레벨별로 나뉘어 보입니다. 스킬창 숙련도 아래에 "제작 레벨: 대장 2, 재봉 1, 세공 1"이 한 줄 붙습니다. 반지는 두 개까지 낍니다.</p>
+
+<h2>4. 예술협회 (시작 마을)</h2>
+<div class="row">
+  <div class="win new" style="width:min(520px,100%)">
+    <div class="wt"><span>예술협회</span><span>시작 마을</span></div>
+    <div class="wb">
+      <p>천장이 높은 돌집. 벽마다 조각과 그림이 걸려 있고, 안쪽 탁자에서는 누군가 작은 반지를 다듬고 있다. 경매 게시판 앞에 사람들이 모여 있다.</p>
+      <div class="lv" style="gap:8px">
+        <button class="btn" type="button">1 조각</button>
+        <button class="btn" type="button">2 세공</button>
+        <button class="btn" type="button">3 경매장</button>
+      </div>
+      <p class="muted">여기 있는 사람: 협회장</p>
+    </div>
+  </div>
+  <div style="max-width:420px">
+    <p><b>옮기는 것</b>: 경매장과 조각을 광장에서 예술협회로. 광장은 둘러보기·게시판·잠자기만 남습니다. 다 깎은 작품을 받침대에 세우는 것은 그대로 광장 분수 옆입니다. 소리재 큰 시장의 경매장은 그대로입니다.</p>
+    <p style="margin-top:6px"><b>새로</b>: 세공(반지 만들기, 위 표). 세공을 하면 조각 숙련도가 오릅니다. 주인은 새 사람 협회장(말 걸기·친밀도·선물)입니다.</p>
+  </div>
+</div>
+
+<h2>5. 정할 것</h2>
+<div class="opts">
+  <div class="opt rec"><b class="t">가-1 새 제작 레벨<span class="tag">추천</span></b>만든 것으로만 오르는 레벨을 따로 둔다(위 셈). 숙련도는 그대로.</div>
+  <div class="opt"><b class="t">가-2 숙련도 등급을 레벨로</b>새 수치 없이, 대장·가죽 숙련도 등급(초급 1, 초급 2 …)이 곧 레벨이다.</div>
+</div>
+<div class="opts">
+  <div class="opt rec"><b class="t">나-1 이미 만든 만큼 쳐 준다<span class="tag">추천</span></b>지난 저장은 지금까지 만든 것 수로 처음 레벨을 정한다. 철검을 만들던 사람이 못 만들게 되지 않는다.</div>
+  <div class="opt"><b class="t">나-2 모두 레벨 1부터</b>지난 저장도 레벨 1에서 다시 시작한다.</div>
+</div>
+<div class="opts">
+  <div class="opt rec"><b class="t">다-1 잠긴 설계도도 보인다<span class="tag">추천</span></b>이름, 재료, 열리는 레벨이 흐리게 보인다(위 그림).</div>
+  <div class="opt"><b class="t">다-2 열릴 때까지 숨긴다</b>레벨이 오르면 띠링과 함께 처음 나타난다.</div>
+</div>
+<div class="opts">
+  <div class="opt rec"><b class="t">라-1 표의 재료와 레벨대로<span class="tag">추천</span></b>짚신은 약초, 훈련복은 돛천, 활은 박쥐 날개.</div>
+  <div class="opt"><b class="t">라-2 고칠 곳이 있다</b>바꿀 재료나 레벨을 말씀해 주세요.</div>
+</div>
+<div class="opts">
+  <div class="opt rec"><b class="t">마-1 세공은 조각 숙련도로<span class="tag">추천</span></b>깎고 다듬는 손은 같다. 새 숙련도를 만들지 않는다.</div>
+  <div class="opt"><b class="t">마-2 새 숙련도 세공</b>세공만의 숙련도를 따로 둔다.</div>
+</div>
+<div class="opts">
+  <div class="opt rec"><b class="t">바-1 띠 그림은 나중에<span class="tag">추천</span></b>처음엔 광장 그림을 같이 쓴다.</div>
+  <div class="opt"><b class="t">바-2 이번에 같이 그림</b>예술협회 띠 그림을 낮·밤 둘 그린다.</div>
+</div>
+</div></body></html>

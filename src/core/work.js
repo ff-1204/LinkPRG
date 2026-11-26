@@ -2,14 +2,14 @@
 // 일터의 주인과 낯익은 사이가 되어 거들게 해 달라고 청하거나, 곁에서 오래 구경하면 주인이 먼저 가르쳐 준다.
 // 출신에 따라 처음부터 할 줄 아는 일이 있다.
 
-import { pushLine, ding } from './log.js?v=d58cb06';
-import { PEOPLE } from '../data/people.js?v=d58cb06';
-import { ACTIONS, placeById } from '../data/places.js?v=d58cb06';
-import { originById } from '../data/origins.js?v=d58cb06';
-import { iGa, eulReul } from './ko.js?v=d58cb06';
+import { pushLine, ding } from './log.js?v=fb24485';
+import { PEOPLE } from '../data/people.js?v=fb24485';
+import { ACTIONS, placeById } from '../data/places.js?v=fb24485';
+import { originById } from '../data/origins.js?v=fb24485';
+import { iGa, eulReul } from './ko.js?v=fb24485';
 
 /** 곳 → 가르쳐 줄 사람 */
-export const TEACHERS = { forge: 'smith', craftrow: 'master', shipyard: 'shipwright', fishmarket: 'fishwife', dock: 'ferryman', branch: 'agent', backalley: 'elder', guild: 'clerk' };
+export const TEACHERS = { forge: 'smith', tailor: 'tailor', craftrow: 'master', shipyard: 'shipwright', fishmarket: 'fishwife', dock: 'ferryman', branch: 'agent', backalley: 'elder', guild: 'clerk' };
 export const WATCH_TO_LEARN = 20; // 이만큼 구경하면 주인이 먼저 가르쳐 준다
 const KNOWN_BOND = 1; // 청하려면 '낯익은 사이'부터
 
@@ -30,6 +30,7 @@ export const knowsWork = (state, id) => !needsTeach(id) || (state.learned || [])
 /** 주인이 가르쳐 주며 하는 말 */
 const TEACH_LINES = {
   smith: '풀무 밟는 건 쉬워 보여도 박자가 있어. 내가 밟는 걸 봐. …그래, 그거다.',
+  tailor: '물레는 발로 돌리고 실은 손으로 뽑는 거야. 너무 당기면 끊어져. …그렇지, 그 굵기.',
   master: '이 거리 풀무는 윗마을 것보다 무겁네. 허리로 밟게. 됐네, 해 보게.',
   shipwright: '대패는 미는 게 아니라 나무가 밀려나게 두는 거야. 결 봐. 그렇지.',
   fishwife: '배는 꼬리 쪽부터 가르는 거야. 손 베지 말고. 옳지, 잘하네.',

@@ -15,7 +15,7 @@ test('수리: 대장간에서 닳은 만큼 값을 내고 고친다. 다른 곳�
   const s = fresh(); s.silver = 100;
   const sword = addItem(s, 'ironsword'); sword.dur = 0;
   const index = s.bag.indexOf(sword);
-  assert.throws(() => dispatch(s, { type: 'repair', index }), /화덕/);
+  assert.throws(() => dispatch(s, { type: 'repair', index }), /대장간에서만/);
   dispatch(s, { type: 'move', to: 'forge' });
   const cost = repairCost(s, sword);
   assert.ok(cost > 0);

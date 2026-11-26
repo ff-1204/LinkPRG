@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>의류점 시안</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  :root { --cream: #FBF5E6; --paper: #FFFDF6; --sand: #F3E9D2; --line2: #CDBE9E; --ink: #3A2A1E; --muted: #6B5443; --deep: #1E140D; --cinnamon: #8A4F2B; --mint-line: #2F7A5E; --mint: #CFE8DC; --honey: #F2B63C; --serif: 'Gowun Batang', serif; --sans: 'Gowun Dodum', sans-serif; }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--cream); color: var(--ink); font: 16px/1.65 var(--sans); padding: 24px 16px 60px; word-break: keep-all; }
+  .wrap { max-width: 980px; margin: 0 auto; }
+  h1 { font: 700 27px/1.3 var(--serif); margin-bottom: 6px; }
+  h2 { font: 700 20px/1.3 var(--serif); margin: 34px 0 8px; padding-top: 10px; border-top: 2px solid var(--deep); }
+  .note { color: var(--muted); max-width: 56rem; margin-bottom: 10px; }
+  .cap { font-size: .85rem; color: var(--muted); margin-top: 6px; max-width: 600px; }
+  .muted { color: var(--muted); font-size: .9rem; }
+  .new { outline: 2px dashed var(--honey); outline-offset: 3px; border-radius: 6px; }
+  .game { display: grid; grid-template-columns: 220px minmax(0,1fr); border: 3px solid var(--deep); background: var(--cream); max-width: 900px; }
+  .nav { background: var(--sand); padding: 12px; border-right: 2px solid var(--line2); display: flex; flex-direction: column; gap: 6px; }
+  .nav small { color: var(--muted); }
+  .ch { font: 700 15px var(--sans); text-align: left; border: 1.5px solid var(--line2); background: var(--paper); border-radius: 8px; padding: 6px 10px; color: var(--ink); }
+  .ch.here { border: 2px solid var(--cinnamon); }
+  .main { padding: 14px 18px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .main h3 { font: 700 24px var(--serif); }
+  .room { background: var(--paper); border: 1px solid var(--line2); border-radius: 10px; padding: 10px 14px; }
+  .slots { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 8px; }
+  .slot { border: 2px solid var(--deep); border-radius: 8px; padding: 6px 8px; background: var(--paper); font-weight: 700; min-height: 56px; }
+  .slot small { display: block; color: var(--muted); font-weight: 400; font-size: .75rem; }
+  .slot.go { background: var(--cinnamon); color: #fff; } .slot.go small { color: #F3E9D2; }
+  .slot.empty { border-style: dashed; border-color: var(--line2); color: var(--muted); font-weight: 400; }
+  .win { width: min(560px, 100%); border: 3px solid var(--deep); border-radius: 6px; background: var(--cream); box-shadow: 8px 8px 0 rgba(30,20,13,.25); }
+  .wt { padding: 9px 14px; background: var(--sand); border-bottom: 3px solid var(--deep); display: flex; justify-content: space-between; font-weight: 700; }
+  .wt span:last-child { font-weight: 400; }
+  .wb { padding: 14px 18px; display: flex; flex-direction: column; gap: 8px; }
+  .it { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px dashed var(--line2); padding: 5px 0; }
+  .btn { font: 700 14px var(--sans); border: 2px solid var(--deep); background: var(--honey); color: var(--deep); border-radius: 6px; padding: 4px 12px; }
+  .chat { width: min(480px, 100%); background: var(--paper); border: 2px solid var(--deep); padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .npc { align-self: flex-start; background: #fff; border: 1px solid var(--line2); border-radius: 4px 14px 14px 14px; padding: 6px 12px; }
+  .npc b { display: block; font-size: .8rem; color: var(--muted); }
+  .me { align-self: flex-end; background: var(--mint); border-radius: 14px 4px 14px 14px; padding: 6px 12px; }
+  .row { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+  table { border-collapse: collapse; width: 100%; background: var(--paper); font-size: .94rem; }
+  th, td { border-bottom: 1px dashed var(--line2); padding: 7px 9px; text-align: left; vertical-align: top; }
+  th { border-bottom: 2px solid var(--deep); }
+  .tw { overflow-x: auto; }
+  .opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; margin-top: 12px; }
+  .opt { background: var(--paper); border: 1px solid var(--line2); border-radius: 10px; padding: 12px 14px; }
+  .opt.rec { border: 2px solid var(--cinnamon); }
+  .opt b.t { font: 700 16px var(--serif); display: block; margin-bottom: 4px; }
+  .tag { display: inline-block; font-size: 12px; padding: 0 8px; border-radius: 999px; background: var(--cinnamon); color: #fff; margin-left: 6px; vertical-align: 2px; }
+  @media (max-width: 700px) { .game { grid-template-columns: 1fr; } .nav { border-right: 0; border-bottom: 2px solid var(--line2); } .slots { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+</style></head>
+<body><div class="wrap">
+<h1>의류점 시안</h1>
+<p class="note">시작 마을에 <b>의류점</b>을 엽니다. 대장간이 쇠를 다룬다면, 의류점은 가죽과 천을 다룹니다. 지금 대장간에 섞여 있는 가죽 바느질과 옷·신 손질을 이리로 옮기고, 대장간처럼 일거리, 상점, 주인을 둡니다. 노란 점선이 새로 생기는 것입니다.</p>
+
+<h2>1. 시작 마을에 생기는 방</h2>
+<div class="game">
+  <div class="nav">
+    <small>현재 위치</small>
+    <button class="ch here" type="button">의류점</button>
+    <small style="margin-top:6px">시작 마을</small>
+    <button class="ch" type="button">광장</button>
+    <button class="ch" type="button">훈련소</button>
+    <button class="ch" type="button">대장간</button>
+    <button class="ch new" type="button">의류점</button>
+    <button class="ch" type="button">잡화점</button>
+    <button class="ch" type="button">주점</button>
+    <button class="ch" type="button">신전</button>
+    <small style="margin-top:6px">여기 있는 사람</small>
+    <button class="ch new" type="button">재봉사</button>
+  </div>
+  <div class="main">
+    <h3>의류점</h3>
+    <div class="room new">무두질한 가죽 냄새와 밀랍 냄새가 섞여 있다. 벽에 장화와 조끼가 걸려 있고, 재봉사는 바늘을 입에 문 채 이쪽을 본다.</div>
+    <div class="slots">
+      <div class="slot go new">1<br>바느질<small>가죽 장비 만들기</small></div>
+      <div class="slot new">2<br>실 잣기<small>일거리</small></div>
+      <div class="slot new">3<br>상점</div>
+      <div class="slot empty">4<br>비어 있음</div>
+      <div class="slot empty">5<br>비어 있음</div>
+    </div>
+  </div>
+</div>
+<p class="cap">대장간 칸은 다시 "만들기 · 풀무질 · 상점" 셋이 됩니다(바느질이 빠짐). 위 그림의 띠 그림은 처음에는 잡화점 그림을 같이 쓰고, 정할 것 라에서 고릅니다.</p>
+
+<h2>2. 옮기는 것과 새로 생기는 것</h2>
+<div class="tw"><table>
+  <tr><th>기능</th><th>지금</th><th>의류점이 생기면</th></tr>
+  <tr><td>가죽 바느질 (장화·조끼·갑옷)</td><td>대장간</td><td><b>의류점</b>으로 옮김</td></tr>
+  <tr><td>옷·신 고치기·강화 (몸·발 부위)</td><td>대장간</td><td><b>의류점</b>으로 옮김. 강화 재료는 그대로 멧돼지 가죽</td></tr>
+  <tr><td>무기·방패·반지 고치기·강화</td><td>대장간</td><td>대장간 그대로</td></tr>
+  <tr><td>일거리</td><td>대장간: 풀무질(체력)</td><td><b>의류점: 실 잣기</b>. 구경해서 배운다. 가죽 숙련도가 오르고, 드물게(1%) 민첩이 오른다</td></tr>
+  <tr><td>일하는 직업</td><td>대장장이(대장 숙련도 1.5배)</td><td><b>재봉사</b>: 가죽 몇 벌을 지으면 권한다. 가죽 숙련도 1.5배, 여기 물건이 조금 싸진다</td></tr>
+  <tr><td>상점</td><td>대장간: 광석·가지·조각칼</td><td><b>의류점: 훈련복 · 짚신 · 멧돼지 가죽</b>. 무엇이든 사 준다</td></tr>
+</table></div>
+
+<h2>3. 장비창의 손질 (의류점에서)</h2>
+<div class="row">
+  <div class="win">
+    <div class="wt"><span>장비</span><span>닫기</span></div>
+    <div class="wb">
+      <div class="it"><span><b>몸</b> 가죽 조끼 +1 · 내구도 41 / 70</span><span><button class="btn" type="button">고치기 7</button> <button class="btn" type="button">강화</button></span></div>
+      <div class="it"><span><b>발</b> 가죽 장화 · 내구도 60 / 60</span><span><button class="btn" type="button">강화</button></span></div>
+      <div class="it"><span><b>무기</b> 철검 +2</span><span class="muted">대장간에서 손본다</span></div>
+      <div class="it" style="border:0"><span><b>보조</b> 낡은 방패</span><span class="muted">대장간에서 손본다</span></div>
+    </div>
+  </div>
+  <div class="chat">
+    <div class="npc"><b>재봉사</b>옷은 몸을 따라 늘어나고 줄어들어. 꿰맨 자리만 보면 누가 지었는지 알지.</div>
+    <div class="me">실을 자았다. 손끝이 까칠하다.</div>
+    <div class="npc"><b>재봉사</b>손이 좋네. 우리 가게 일 좀 해 볼 텐가?</div>
+  </div>
+</div>
+<p class="cap">대장간에서 몸·발 장비를 고르면 "의류점에서 손본다"가 보입니다. 거꾸로 의류점에서는 무기·방패·반지가 그렇게 보입니다.</p>
+
+<h2>4. 정할 것</h2>
+<div class="opts">
+  <div class="opt rec"><b class="t">가-1 옷·신은 의류점으로 옮김<span class="tag">추천</span></b>몸·발 손질은 의류점에서만. 대장간은 쇠붙이만.</div>
+  <div class="opt"><b class="t">가-2 두 곳 다</b>몸·발 장비는 대장간과 의류점 어디서나 손본다.</div>
+  <div class="opt"><b class="t">가-3 대장간에 그대로</b>의류점에는 바느질만 옮긴다.</div>
+</div>
+<div class="opts">
+  <div class="opt rec"><b class="t">나-1 새 사람 재봉사<span class="tag">추천</span></b>대장간 주인처럼 말 걸기·친밀도·선물이 있다.</div>
+  <div class="opt"><b class="t">나-2 가게 주인만</b>상점 인사말만 있고 말 걸기는 없다.</div>
+</div>
+<div class="opts">
+  <div class="opt rec"><b class="t">다-1 실 잣기 + 재봉사 직업<span class="tag">추천</span></b>위 표대로 둘 다.</div>
+  <div class="opt"><b class="t">다-2 실 잣기만</b>일하는 직업은 넣지 않는다.</div>
+  <div class="opt"><b class="t">다-3 둘 다 없음</b>바느질·손질·상점만.</div>
+</div>
+<div class="opts">
+  <div class="opt rec"><b class="t">라-1 띠 그림은 나중에<span class="tag">추천</span></b>처음에는 잡화점 그림을 같이 쓰고, 의류점 그림은 따로 그린다.</div>
+  <div class="opt"><b class="t">라-2 이번에 같이 그림</b>장화와 조끼가 걸린 가게 띠 그림을 낮·밤 둘 그린다.</div>
+</div>
+</div></body></html>

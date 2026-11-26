@@ -10,13 +10,14 @@ import { SKILL_NAMES, skillEffect } from '../src/core/skills.js';
 
 const make = (origin = 'bard', seed = 'lt') => {
   const s = createGame({ name: '갖', origin, rolled: rollDice('same'), seed });
-  dispatch(s, { type: 'move', to: 'forge' });
+  s.craftLv.sew.lv = 4; // 가죽 옷은 재봉 레벨 2~4에 열린다 (Z79)
+  dispatch(s, { type: 'move', to: 'tailor' });
   return s;
 };
 const keep = (s) => { s.full = 100; s.tired = 0; s.hp = 999; };
 
 test('설계도 셋, 재료는 멧돼지 가죽(갑옷은 철광석도)', () => {
-  const list = recipeList(make(), SEW_ORDER);
+  const list = recipeList(make(), SEW_ORDER).filter((r) => r.id.startsWith('leather'));
   assert.deepEqual(list.map((r) => [r.id, r.hits, r.needs.map((n) => `${n.id}${n.n}`).join('+')]), [
     ['leatherboots', 10, 'boarhide2'], ['leathervest', 12, 'boarhide3'], ['leatherarmor', 16, 'boarhide5+ironore2'],
   ]);
@@ -50,7 +51,7 @@ test('무두장이는 가죽 숙련도가 조금 빨리 오른다', () => {
   assert.ok(xp(a) > xp(b));
 });
 
-test('대장간 밖에서는 못 한다. 가죽 숙련도에 효과 글이 있다', () => {
+test('의류점 밖에서는 못 한다. 가죽 숙련도에 효과 글이 있다', () => {
   const s = createGame({ name: '갖', origin: 'bard', rolled: rollDice('same'), seed: 'lo' });
   addItem(s, 'boarhide', 2);
   assert.throws(() => dispatch(s, { type: 'craft', recipe: 'leatherboots' }));

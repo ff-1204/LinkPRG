@@ -9,6 +9,15 @@ export const SHOPS = {
     keeper: '대장간 주인', keeperId: 'smith', hello: '쇠는 안 속인다. 두드린 만큼 나온다.',
     sells: ['ironore', 'copperore', 'oakbranch', 'chisel'],
   },
+  tailor: {
+    keeper: '재봉사', keeperId: 'tailor', hello: '치수부터 재고. 옷은 몸을 따라가는 거야.',
+    sells: ['trainwear', 'sandals', 'boarhide'],
+  },
+  // 신전 (Z77): 물약·약초·성수(가지고 다니는 축복)
+  temple: {
+    keeper: '신전지기', keeperId: 'priest', hello: '다친 데가 있으면 먼저 말하게. 약은 그다음이야.',
+    sells: ['redpotion', 'herb', 'holywater'],
+  },
   // 나루의 어시장: 값이 날마다 바뀐다 (H3-5)
   fishmarket: {
     keeper: '어시장 아주머니', keeperId: 'fishwife', hello: '오늘 물이 좋아. 값은 묻지 말고, 내일은 또 달라.', daily: true,

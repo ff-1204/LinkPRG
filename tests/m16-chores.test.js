@@ -25,7 +25,7 @@ test('마을의 곳마다 손으로 거듭할 일이 하나씩 있다. 칸은 �
     if (!work.length) none.push(p.name);
   }
   // 주점·주막·여인숙은 칸이 이미 다섯이라 없다
-  assert.deepEqual(none.sort(), ['뱃사람 주막', '여인숙 골목', '주점'].sort());
+  assert.deepEqual(none.sort(), ['뱃사람 주막', '여인숙 골목', '예술협회', '주점'].sort());
   for (const a of chores) {
     assert.ok(SKILL_NAMES[a.skill], `${a.label}: 숙련도 이름`);
     assert.ok(ACTION_LINES[a.id].length >= 3, `${a.label}: 글이 셋 이상`);

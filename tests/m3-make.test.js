@@ -19,6 +19,7 @@ import { parseSave } from '../src/core/save.js';
 
 const smith = (seed = 'm3') => {
   const s = createGame({ name: '태윤', origin: 'smithboy', spent: {}, seed });
+  s.craftLv.smith.lv = 3; // 철검은 대장 레벨 3에 열린다 (Z79)
   dispatch(s, { type: 'move', to: 'forge' });
   s.bag = [];
   addItem(s, 'ironore', 60);

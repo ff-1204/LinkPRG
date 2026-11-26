@@ -14,9 +14,9 @@ const make = (origin, seed = 'lore') => createGame({ name: '말', origin, rolled
 const ROOTS = ['smithboy', 'farmer', 'hunter', 'bard', 'fallen', 'orphan'];
 const listen = (s, id) => { s.flags.spoke = { ...(s.flags.spoke || {}), [id]: s.day }; return talkLine(s, id); };
 
-test('사람 스물둘의 말이 여섯 갈래로 다 있다. 히든의 이름은 말하지 않는다', () => {
+test('사람 스물넷의 말이 여섯 갈래로 다 있다. 히든의 이름은 말하지 않는다', () => {
   const ids = Object.keys(TALKS);
-  assert.equal(ids.length, 22);
+  assert.equal(ids.length, 24);
   for (const id of ids) {
     const t = TALKS[id];
     assert.ok(PEOPLE[id], id);

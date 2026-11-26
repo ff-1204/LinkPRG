@@ -13,8 +13,8 @@ import { parseSave } from '../src/core/save.js';
 import { USER_COUNT, FIRSTS, RANKS, RUMORS_HINT, RUMORS_ABOUT_ME } from '../src/data/world.js';
 import { HIDDEN } from '../src/core/hidden.js';
 
-const fresh = (seed = 'm8', origin = 'smithboy') => createGame({ name: '태윤', origin, spent: {}, seed });
-const nextDay = (s) => { if (s.place !== 'plaza') s.place = 'plaza'; const d = s.day; while (s.day === d) { passPhase(s); s.full = 80; } };
+const fresh = (seed = 'm8', origin = 'smithboy') => { const s = createGame({ name: '태윤', origin, spent: {}, seed }); s.craftLv.smith.lv = 3; return s; };
+const nextDay = (s) => { const back = s.place; if (s.place !== 'plaza') s.place = 'plaza'; const d = s.day; while (s.day === d) { passPhase(s); s.full = 80; } if (back === 'artguild') s.place = back; };
 
 test('가상 유저 삼백 명: 이름이 겹치지 않고, 날마다 자라기만 한다 (M8-1)', () => {
   const s = fresh();
@@ -134,8 +134,8 @@ test('경매장: 올리면 입찰이 붙고, 끝나면 수수료를 뺀 은화�
   s.bag = [];
   addItem(s, 'ironsword', 1, { grade: 2, maker: '태윤' });
   s.place = 'store';
-  assert.throws(() => dispatch(s, { type: 'auction', op: 'list', index: 0, start: 20, days: 1 }), /광장/);
-  s.place = 'plaza';
+  assert.throws(() => dispatch(s, { type: 'auction', op: 'list', index: 0, start: 20, days: 1 }), /예술협회/);
+  s.place = 'artguild';
   assert.throws(() => dispatch(s, { type: 'auction', op: 'list', index: 0, start: 0, days: 1 }), /시작가/);
   assert.throws(() => dispatch(s, { type: 'auction', op: 'list', index: 0, start: 20, days: 2 }), /하루 또는 사흘/);
   dispatch(s, { type: 'auction', op: 'list', index: 0, start: 40, days: 1 });
@@ -155,7 +155,7 @@ test('경매장: 올리면 입찰이 붙고, 끝나면 수수료를 뺀 은화�
   assert.ok(deal.text.includes('낙찰'));
   assert.ok(s.log.some((l) => l.who === '경매장'));
   // 너무 비싸게 올리면 아무도 사지 않고 돌아온다
-  addItem(s, 'ironsword', 1, { grade: 0 });
+  addItem(s, 'ironsword', 1, { grade: 0, maker: s.name });
   dispatch(s, { type: 'auction', op: 'list', index: s.bag.findIndex((x) => x.id === 'ironsword'), start: 5000, days: 1 });
   nextDay(s);
   assert.equal(s.auction.history.at(-1).kind, 'unsold');
@@ -176,7 +176,7 @@ test('경매장: 가상 유저의 물건에 입찰한다. 이기면 물건이, �
   let won = null, lost = null;
   for (let i = 0; i < 40 && !(won && lost); i++) {
     const s = fresh('bid' + i);
-    s.silver = 5000;
+    s.silver = 5000; s.place = 'artguild';
     const lots = lotsToday(s);
     assert.ok(lots.length >= 8 && lots.length <= 9, '하급 5, 중급 3, 상급 0~1');
     assert.deepEqual(lotsToday(s), lots, '같은 날에는 같은 물건이 나온다');
@@ -198,10 +198,10 @@ test('경매장: 가상 유저의 물건에 입찰한다. 이기면 물건이, �
 });
 
 test('지난번 이후: 그사이의 낙찰·소문·공지가 먼저 보이고, 보고 나면 다음에는 안 보인다 (M8-6)', () => {
-  const s = fresh('since');
+  const s = fresh('since'); s.place = 'artguild';
   assert.deepEqual([sinceLast(s).notices, sinceLast(s).deals, sinceLast(s).rumors], [[], [], []]);
   s.bag = [];
-  addItem(s, 'ironsword', 1, { grade: 2 });
+  addItem(s, 'ironsword', 1, { grade: 2, maker: s.name });
   dispatch(s, { type: 'auction', op: 'list', index: 0, start: 30, days: 1 });
   dispatch(s, { type: 'move', to: 'training' });
   for (let i = 0; i < 300; i++) { dispatch(s, { type: 'act', id: 'strike' }); s.full = 80; }
@@ -232,7 +232,7 @@ test('전설을 띄우면 세계 공지와 칭호 "전설을 두드린 자"를 �
   assert.ok(rumorsView(s).some((r) => r.id === 'legend'));
   // 남는 희귀 검을 경매장에 올리자 가상 유저들이 한마디씩 남기며 입찰한다
   if (s.choice) dispatch(s, { type: 'choose', id: 'later' });
-  s.place = 'plaza';
+  s.place = 'artguild';
   addItem(s, 'ironsword', 1, { grade: 2, maker: s.name });
   dispatch(s, { type: 'auction', op: 'list', index: s.bag.findIndex((x) => x.id === 'ironsword' && x.grade === 2), start: 30, days: 3 });
   nextDay(s);
@@ -273,31 +273,19 @@ test('7판 저장은 8판으로 올라온다', () => {
 });
 
 // ── 검토에서 나온 것들 ──
-test('가게에서 사서 경매에 올리는 것으로는 은화가 불어나지 않는다. 싸게 올려도 헐값에 팔리지 않는다', () => {
-  let spent = 0, back = 0;
-  for (let i = 0; i < 60; i++) {
-    const s = fresh('loop' + i);
-    s.bag = []; s.silver = 0;
-    addItem(s, 'redpotion', 10);
-    spent += 200;
-    dispatch(s, { type: 'auction', op: 'list', index: 0, start: 230, days: 3 });
-    for (let d = 0; d < 3; d++) nextDay(s);
-    back += s.silver + countOf(s, 'redpotion') * 20 * 0.4;
-  }
-  assert.ok(back < spent, `쓴 은화 ${spent}, 돌아온 은화 ${Math.round(back)}`);
-  const t = fresh('cheap');
-  t.bag = []; addItem(t, 'forgetwater', 1);
+test('경매장에는 내가 만든 것만 (Z76). 가게 물건·남이 만든 것은 못 올린다. 싸게 올려도 헐값에 팔리지 않는다', () => {
+  const s = fresh('loop'); s.place = 'artguild';
+  s.bag = [];
+  addItem(s, 'redpotion', 10);
+  addItem(s, 'ironsword', 1, { grade: 1, maker: '남' });
+  assert.throws(() => dispatch(s, { type: 'auction', op: 'list', index: 0, start: 230, days: 3 }), /내가 만든 물건만/);
+  assert.throws(() => dispatch(s, { type: 'auction', op: 'list', index: 1, start: 30, days: 3 }), /내가 만든 물건만/);
+  assert.equal(auctionView(s).sellable.length, 0);
+  const t = fresh('cheap'); t.place = 'artguild';
+  t.bag = []; addItem(t, 'ironsword', 1, { grade: 3, maker: t.name });
   dispatch(t, { type: 'auction', op: 'list', index: 0, start: 1, days: 3 });
   for (let d = 0; d < 3; d++) nextDay(t);
-  assert.ok(t.auction.history.at(-1).amount >= 100, `잊는 물이 은화 ${t.auction.history.at(-1).amount}에 팔렸다`);
-  // 유찰된 묶음은 가방의 같은 것과 다시 묶인다
-  const u = fresh('unsold');
-  u.bag = []; addItem(u, 'herb', 5);
-  dispatch(u, { type: 'auction', op: 'list', index: 0, start: 9000, days: 1 });
-  addItem(u, 'herb', 2);
-  nextDay(u);
-  assert.equal(u.bag.filter((x) => x.id === 'herb').length, 1);
-  assert.equal(countOf(u, 'herb'), 7);
+  assert.ok(t.auction.history.at(-1).amount >= 100, `영웅 철검이 은화 ${t.auction.history.at(-1).amount}에 팔렸다`);
 });
 
 test('날이 넘어가는 바로 그 행동으로 찾은 것은 내 것이다', () => {

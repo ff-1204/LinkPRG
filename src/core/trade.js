@@ -1,17 +1,17 @@
 // 상점과 보관함 (E24, E25, E28, H1-5, H1-6, R2-4).
 // 돈은 은화 한 가지. 팔 때는 값의 40%. 등급이 높으면 값도 높다.
 
-import { pushLine } from './log.js?v=d58cb06';
-import { itemDef, GRADE_MULT, gradeName } from '../data/items.js?v=d58cb06';
-import { addItem, removeAt, itemWeight } from './inventory.js?v=d58cb06';
-import { SHOPS, DAILY_SWING } from '../data/shops.js?v=d58cb06';
-import { seedFrom } from './rng.js?v=d58cb06';
-import { discountOf as socialDiscount } from './social.js?v=d58cb06';
-import { placeById } from '../data/places.js?v=d58cb06';
-import { guildPerk } from './guild.js?v=d58cb06';
-import { gearName } from './gear.js?v=d58cb06';
-import { eulReul, iGa } from './ko.js?v=d58cb06';
-import { hasTitle } from './titles.js?v=d58cb06';
+import { pushLine } from './log.js?v=fb24485';
+import { itemDef, GRADE_MULT, gradeName } from '../data/items.js?v=fb24485';
+import { addItem, removeAt, itemWeight } from './inventory.js?v=fb24485';
+import { SHOPS, DAILY_SWING } from '../data/shops.js?v=fb24485';
+import { seedFrom } from './rng.js?v=fb24485';
+import { discountOf as socialDiscount } from './social.js?v=fb24485';
+import { placeById } from '../data/places.js?v=fb24485';
+import { guildPerk } from './guild.js?v=fb24485';
+import { gearName } from './gear.js?v=fb24485';
+import { eulReul, iGa } from './ko.js?v=fb24485';
+import { hasTitle } from './titles.js?v=fb24485';
 
 export const SELL_RATE = 0.4;
 export const APPRAISE_SELL = 0.01;
@@ -34,6 +34,9 @@ export function worth(item) {
  * @returns {{base:number, now:number, why:string}}
  */
 export function buyPrice(state, id) {
+  // 레벨 따라 값이 오르는 것 (Z77 성수: 레벨 × 6). 신전 축복(레벨 × 5)보다 늘 조금 비싸게, 깎아 주지 않는다
+  const per = itemDef(id).perLevel;
+  if (per) { const v = Math.max(per, (state.level || 1) * per); return { base: v, now: v, why: '' }; }
   let base = worth({ id, grade: itemDef(id).grade || 0 });
   const shop = SHOPS[state.place];
   if (shop?.daily) base = Math.max(1, Math.round(base * (DAILY_SWING[0] + (seedFrom(`${state.seed}|price|${state.day}|${id}`) / 4294967296) * DAILY_SWING[1])));

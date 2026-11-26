@@ -71,16 +71,17 @@ test('조각은 조각칼이 있어야 한다. 대장간에서 사거나 만든�
   assert.ok(SHOPS.forge.sells.includes('chisel'));
   assert.equal(RECIPES.chisel.makes, 'chisel');
   const s = fresh();
+  s.place = 'artguild'; // 조각은 예술협회에서 (Z80)
   s.dex.animals.rabbit = true; addItem(s, 'oakbranch', 8);
   const slot = () => slotsNow(s).find((x) => x.label === '조각');
   assert.equal(slot().disabled, true);
   assert.equal(slot().why, '조각칼이 없다');
-  assert.throws(() => dispatch(s, { type: 'sculpt', subject: 'rabbit' }), /조각칼/);
+  if (s.place === 'plaza') s.place = 'artguild'; assert.throws(() => dispatch(s, { type: 'sculpt', subject: 'rabbit' }), /조각칼/);
   const knife = addItem(s, 'chisel');
   assert.ok(!slot().disabled);
   assert.throws(() => dispatch(s, { type: 'equip', index: s.bag.indexOf(knife) }), /도구/);
   const dur = knife.dur;
-  dispatch(s, { type: 'sculpt', subject: 'rabbit' });
+  if (s.place === 'plaza') s.place = 'artguild'; dispatch(s, { type: 'sculpt', subject: 'rabbit' });
   dispatch(s, { type: 'cut' });
   assert.equal(knife.dur, dur - 1);
   // 다 닳으면 부러지고, 새 칼이 있어야 이어 깎는다
@@ -166,12 +167,12 @@ test('일할 거리가 없는 가게에서는 들어서면 주인이 먼저 말�
   dispatch(s, { type: 'talk', npc: 'granny' });
 });
 
-test('지쳐도 숙련도는 깎이지 않는다. 지친 채 일하면 히든 스탯 집념이 생긴다', async () => {
+test('지쳐도 숙련도는 깎이지 않는다(80부터는 1.5배, Z75). 지친 채 일하면 히든 스탯 집념이 생긴다', async () => {
   const { jobXp } = await import('../src/core/jobs.js');
   const s = fresh('vigil');
   const base = jobXp(s, 'strike', false);
   s.tired = 90;
-  assert.equal(jobXp(s, 'strike', false), base);
+  assert.equal(jobXp(s, 'strike', false), base * 1.5);
   s.place = 'training';
   for (let i = 0; i < 100; i++) { s.tired = 80; s.phase = 0; s.tick = 0; s.full = 80; dispatch(s, { type: 'act', id: 'strike' }); }
   assert.equal(s.counters.tiredWork, 100);
@@ -240,9 +241,10 @@ test('검토: 주점에서 방을 빌리면 낮에도 잘 수 있다. 값을 내
 
 test('검토: 지친 채 한 망치질·칼질·싸움도 집념에 쌓인다. 만든 조각칼은 등급이 높을수록 오래 쓴다. 주운 조각칼은 닳지 않는다', async () => {
   const s = fresh('toil');
+  s.place = 'artguild';
   s.dex.animals.rabbit = true; addItem(s, 'oakbranch', 4); addItem(s, 'oddknife');
   assert.ok(!slotsNow(s).find((x) => x.label === '조각').disabled, '이름 모를 조각칼로도 깎는다');
-  dispatch(s, { type: 'sculpt', subject: 'rabbit' });
+  if (s.place === 'plaza') s.place = 'artguild'; dispatch(s, { type: 'sculpt', subject: 'rabbit' });
   s.tired = 80;
   for (let i = 0; i < 5; i++) dispatch(s, { type: 'cut' });
   assert.equal(s.counters.tiredWork, 5);

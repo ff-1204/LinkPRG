@@ -51,7 +51,7 @@ test('가을 2~8: 나무를 주워 토끼를 깎고, 걸작을 세우고, 붕어
     if (countOf(s, 'oakbranch') < 4) addItem(s, 'oakbranch', 40); // 나무는 더 주워 왔다고 친다
     if (!s.bag.some((x) => x.id === 'chisel' && x.dur > 40)) addItem(s, 'chisel'); // 조각칼은 대장간에서 사 왔다고 친다
     s.tired = 0; // 밤마다 잤다고 친다
-    dispatch(s, { type: 'sculpt', subject: 'rabbit' });
+    if (s.place === 'plaza') s.place = 'artguild'; dispatch(s, { type: 'sculpt', subject: 'rabbit' });
     let ev = [];
     while (s.sculpt) { ev = dispatch(s, { type: 'cut' }); presses++; feed(s); }
     return ev.find((e) => e.type === 'sculpt' && e.phase === 'done');
@@ -78,6 +78,7 @@ test('가을 2~8: 나무를 주워 토끼를 깎고, 걸작을 세우고, 붕어
 
   // 5단계: 광장의 빈 받침대에 세운다. 다음 날 명성이 오른다
   const fame = fameOf(s);
+  dispatch(s, { type: 'move', to: 'plaza' }); // 예술협회에서 깎고, 광장으로 나가 세운다 (Z80)
   dispatch(s, { type: 'work', op: 'place', no: master.no });
   assert.ok(statueOf(s).name.includes('토끼상'));
   for (let i = 0; i < 3; i++) { passPhase(s); feed(s); }

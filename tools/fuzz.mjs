@@ -148,6 +148,7 @@ if (bad.length) process.exitCode = 1;
   // 3. 조각을 끝까지 다섯 점
   {
     const s = createGame({ name: '조각', origin: 'farmer', rolled: rollDice('w'), seed: 'works' });
+    s.place = 'artguild'; // 조각은 예술협회에서 (Z80)
     s.dex.animals.rabbit = true; s.bag.push({ id: 'oakbranch', grade: 0, n: 100 }, { id: 'chisel', grade: 0, n: 1, dur: 120 }, { id: 'chisel', grade: 0, n: 1, dur: 120 });
     for (let w = 0; w < 5; w++) { if (!safe('조각 시작', s, { type: 'sculpt', subject: 'rabbit' })) break; for (let t = 0; t < 60 && s.sculpt; t++) { safe('칼질', s, { type: 'cut' }); s.tired = 0; s.full = 80; s.phase = 0; } }
     works = s.works.length;

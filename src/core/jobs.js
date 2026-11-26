@@ -1,14 +1,14 @@
 // 직업과 히든 직업 (T4~T9, N4-3, N4-4, N5).
 
-import { pushLine, ding } from './log.js?v=d58cb06';
-import { JOBS, JOB_ORDER, HIDDEN_JOBS, HIDDEN_JOB_ORDER, JOB_LEVEL, JOB_XP, SKILL_LEVELS, NAMELESS_LEVEL, jobDef, ADVANCED, ADVANCE_LEVEL } from '../data/jobs.js?v=d58cb06';
-import { placeById } from '../data/places.js?v=d58cb06';
-import { guildPerk } from './guild.js?v=d58cb06';
-import { SKILL_NAMES, gradeLabel } from './skills.js?v=d58cb06';
-import { itemDef } from '../data/items.js?v=d58cb06';
-import { addItem } from './inventory.js?v=d58cb06';
-import { eulReul, iGa } from './ko.js?v=d58cb06';
-import { xpBoost } from './buffs.js?v=d58cb06';
+import { pushLine, ding } from './log.js?v=fb24485';
+import { JOBS, JOB_ORDER, HIDDEN_JOBS, HIDDEN_JOB_ORDER, JOB_LEVEL, JOB_XP, SKILL_LEVELS, NAMELESS_LEVEL, jobDef, ADVANCED, ADVANCE_LEVEL } from '../data/jobs.js?v=fb24485';
+import { placeById } from '../data/places.js?v=fb24485';
+import { guildPerk } from './guild.js?v=fb24485';
+import { SKILL_NAMES, gradeLabel } from './skills.js?v=fb24485';
+import { itemDef } from '../data/items.js?v=fb24485';
+import { addItem } from './inventory.js?v=fb24485';
+import { eulReul, iGa } from './ko.js?v=fb24485';
+import { xpBoost } from './buffs.js?v=fb24485';
 
 /** 보이는 직업 이름. */
 export function jobName(state) {
@@ -48,6 +48,10 @@ export function skillsNow(state) {
   return def.skills.map((sk, i) => ({ ...sk, at: SKILL_LEVELS[i], open: state.level >= SKILL_LEVELS[i] }));
 }
 
+/** 피로 80 이상에서 일하면 숙련도가 1.5배로 오른다 (Z75, 사용자 요청). 싸우는 중은 일이 아니다. */
+export const TIRED_PUSH = { at: 80, xp: 1.5 };
+export const tiredPush = (state) => (state.tired || 0) >= TIRED_PUSH.at && !state.battle;
+
 /** 그 숙련도가 직업 덕에 얼마나 빨리 오르는지 (T5). */
 export function jobXp(state, skillId, repeated = false) {
   const def = jobDef(state.job);
@@ -56,6 +60,7 @@ export function jobXp(state, skillId, repeated = false) {
   if (state.flags?.allSkill5) m *= 1.05; // 종지기의 아이
   if (state.ending === 'free') m *= 1.1; // 푼 뒤: 재주는 다시 사람의 것. 모든 숙련도가 조금 빨리 오른다
   if (state.ending === 'mend') m *= 1 + (state.hidden?.echo?.value || 0) * 0.01;
+  if (tiredPush(state)) m *= TIRED_PUSH.xp; // 피로 80 이상에서 하는 일 (Z75): 숙련도 1.5배. 싸움은 빼고
   if (!def) return m;
   if (def.fast?.includes(skillId)) m *= JOB_XP;
   if (def.fastAll && (def.id !== 'oneway' || repeated)) m *= def.fastAll;

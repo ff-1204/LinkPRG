@@ -9,7 +9,7 @@ const make = (seed = 'ts') => createGame({ name: '단', origin: 'bard', rolled: 
 
 test('일마다 맞는 능력치만, 굴림대로 오른다', () => {
   assert.equal(TOIL_STAT_RATE, 0.01);
-  assert.deepEqual(Object.fromEntries(Object.entries(TOIL_STATS).map(([k, v]) => [k, v.stat])), { bellows: 'con', strike: 'str', pray: 'wis', sort: 'agi' });
+  assert.deepEqual(Object.fromEntries(Object.entries(TOIL_STATS).map(([k, v]) => [k, v.stat])), { bellows: 'con', strike: 'str', pray: 'wis', sort: 'agi', spin: 'agi' });
   const s = make();
   // 몇 번째에 오르는지 굴림으로 미리 센다: 그 수만큼만 오른다
   const n = 400;

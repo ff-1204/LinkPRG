@@ -1,18 +1,18 @@
 // 경매장 (N6-1 ~ N6-3). 가상 유저가 입찰하고 한마디씩 남긴다.
 // 입찰은 씨앗과 날짜로 셈한다. 같은 씨앗이면 같은 값에 팔린다.
 
-import { seedFrom } from './rng.js?v=d58cb06';
-import { gearName } from './gear.js?v=d58cb06';
-import { pushLine } from './log.js?v=d58cb06';
-import { ITEMS, itemDef, gradeName } from '../data/items.js?v=d58cb06';
-import { addItem, removeAt } from './inventory.js?v=d58cb06';
-import { worth } from './trade.js?v=d58cb06';
-import { placeById } from '../data/places.js?v=d58cb06';
-import { standingOf } from './factions.js?v=d58cb06';
-import { FACTION_REGULAR } from '../data/factions.js?v=d58cb06';
-import { userBase } from './world.js?v=d58cb06';
-import { AUCTION_FEE, AUCTION_DAYS, LOT_TIERS, LOT_SKIP, LOT_ASK, LOT_GEAR_MIN, BID_SAYS, USER_COUNT } from '../data/world.js?v=d58cb06';
-import { eulReul, iGa, eunNeun } from './ko.js?v=d58cb06';
+import { seedFrom } from './rng.js?v=fb24485';
+import { gearName } from './gear.js?v=fb24485';
+import { pushLine } from './log.js?v=fb24485';
+import { ITEMS, itemDef, gradeName } from '../data/items.js?v=fb24485';
+import { addItem, removeAt } from './inventory.js?v=fb24485';
+import { worth } from './trade.js?v=fb24485';
+import { placeById } from '../data/places.js?v=fb24485';
+import { standingOf } from './factions.js?v=fb24485';
+import { FACTION_REGULAR } from '../data/factions.js?v=fb24485';
+import { userBase } from './world.js?v=fb24485';
+import { AUCTION_FEE, AUCTION_DAYS, LOT_TIERS, LOT_SKIP, LOT_ASK, LOT_GEAR_MIN, BID_SAYS, USER_COUNT } from '../data/world.js?v=fb24485';
+import { eulReul, iGa, eunNeun } from './ko.js?v=fb24485';
 
 // 끝 글자만 다른 글들도 고르게 흩어지도록 한 번 더 섞는다(전에는 같은 날 물건들의 시작가가 거의 같았다)
 const mix = (h) => { h ^= h >>> 16; h = Math.imul(h, 0x85ebca6b) >>> 0; h ^= h >>> 13; h = Math.imul(h, 0xc2b2ae35) >>> 0; h ^= h >>> 16; return h >>> 0; };
@@ -22,7 +22,7 @@ const label = (item) => `${item.grade ? `${gradeName(item.grade)} 등급 ` : ''}
 const fairOf = (item) => worth(item) * item.n;
 
 function atAuction(state) {
-  if (!placeById(state.place).auction) throw new Error('경매장은 광장에 있습니다');
+  if (!placeById(state.place).auction) throw new Error('경매장은 예술협회에 있습니다');
 }
 
 /** 수수료: 5%. 상단과 '단골' 이상이면 절반 (N6-3). */
@@ -64,6 +64,9 @@ export function lotsToday(state, day = state.day) {
   return out;
 }
 
+/** 경매에 올릴 수 있는 것은 내가 만든 물건뿐이다 (Z76, 사용자 요청). 상점 물건·주운 것·떨굼은 안 된다. */
+export const madeByMe = (state, item) => !!item.maker && item.maker === state.name;
+
 /** 올린다. 시작가와 기간(하루, 사흘)을 정한다 (N6-3). */
 export function listItem(state, events, index, start, days) {
   atAuction(state);
@@ -72,6 +75,7 @@ export function listItem(state, events, index, start, days) {
   const def = itemDef(item.id);
   if (def.kind === 'quest') throw new Error('퀘스트 물건은 올릴 수 없습니다');
   if (def.nosell) throw new Error('팔 수 없는 물건입니다');
+  if (!madeByMe(state, item)) throw new Error('경매장에는 내가 만든 물건만 올릴 수 있습니다');
   if (!Number.isInteger(start) || start < 1 || start > 100000) throw new Error('시작가는 1 이상의 은화입니다');
   if (!AUCTION_DAYS.includes(days)) throw new Error('기간은 하루 또는 사흘입니다');
   const one = { ...item, n: def.kind === 'gear' ? 1 : item.n };
@@ -124,7 +128,7 @@ export function auctionDay(state, events) {
       const last = m.bids.at(-1);
       const fee = Math.ceil(last.amount * feeRate(state));
       state.silver += last.amount - fee;
-      const text = `${iGa(label(m.item))} '${last.who}'님에게 은화 ${last.amount}에 낙찰되었다. ${eulReul(`수수료 ${fee}`)} 떼고 ${iGa(`은화 ${last.amount - fee}`)} 들어왔다.`;
+      const text = `${iGa(label(m.item))} '${last.who}'님에게 은화 ${last.amount}에 낙찰되었다. ${eulReul(`수수료 ${fee}`)} 떼고 ${iGa(`은화 ${last.amount - fee}`)} 들어왔다. 수수료는 신전으로 가 아픈 이의 약과 빵이 된다.`;
       a.history.push({ day, kind: 'sold', text, amount: last.amount, fee });
       pushLine(state, events, { k: 'sys', who: '경매장', text });
     } else {
@@ -168,7 +172,7 @@ export function auctionView(state) {
     lots: lotsToday(state).map((l) => ({ key: l.key, tier: l.tier, name: l.name, seller: l.seller, ask: l.ask, mine: a.bids.find((b) => b.key === l.key)?.amount || 0, desc: itemDef(l.item.id).desc })),
     bids: a.bids.map((b) => ({ key: b.key, name: b.name, amount: b.amount, left: b.ends - state.day })),
     history: a.history.slice(-20).reverse().map((h) => ({ day: h.day, text: h.text })),
-    sellable: state.bag.map((item, index) => ({ index, item, name: label({ ...item, n: itemDef(item.id).kind === 'gear' ? 1 : item.n }), fair: fairOf({ ...item, n: itemDef(item.id).kind === 'gear' ? 1 : item.n }) })).filter((x) => itemDef(x.item.id).kind !== 'quest'),
+    sellable: state.bag.map((item, index) => ({ index, item, name: label({ ...item, n: itemDef(item.id).kind === 'gear' ? 1 : item.n }), fair: fairOf({ ...item, n: itemDef(item.id).kind === 'gear' ? 1 : item.n }) })).filter((x) => itemDef(x.item.id).kind !== 'quest' && !itemDef(x.item.id).nosell && madeByMe(state, x.item)),
   };
 }
 

@@ -1,12 +1,13 @@
 // 장비의 이름, 수리, 강화, 옵션 (Z17~Z19). 템은 두드리고 고치고 키운 만큼 세진다.
 
-import { roll01 } from './rng.js?v=d58cb06';
-import { pushLine, ding } from './log.js?v=d58cb06';
-import { itemDef } from '../data/items.js?v=d58cb06';
-import { countOf, takeById } from './inventory.js?v=d58cb06';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=d58cb06';
-import { placeById } from '../data/places.js?v=d58cb06';
-import { iGa, eulReul } from './ko.js?v=d58cb06';
+import { roll01 } from './rng.js?v=fb24485';
+import { pushLine, ding } from './log.js?v=fb24485';
+import { itemDef } from '../data/items.js?v=fb24485';
+import { countOf, takeById } from './inventory.js?v=fb24485';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=fb24485';
+import { placeById } from '../data/places.js?v=fb24485';
+import { iGa, eulReul } from './ko.js?v=fb24485';
+import { jobXp } from './jobs.js?v=fb24485';
 
 export const PLUS_MAX = 10;
 /** +0에서 +1로 갈 때부터의 성공 확률. 높을수록 어렵다. */
@@ -84,8 +85,18 @@ function pick(state, loc) {
   if (!isGear(item)) throw new Error('장비가 아닙니다');
   return item;
 }
-function atForge(state) {
-  if (!placeById(state.place).actions.includes('craft')) throw new Error('화덕이 있는 곳에서만 할 수 있습니다');
+/** 몸·발에 걸치는 것은 의류점에서, 나머지(쇠붙이)는 대장간에서 손본다 (Z74). */
+export const CLOTH_SLOTS = ['body', 'feet'];
+export const isCloth = (item) => CLOTH_SLOTS.includes(itemDef(item.id).slot);
+/** 이곳에서 이 장비를 손볼 수 있는가. 못 하면 어디서 하는지 알려 준다. */
+export function mendHere(state, item) {
+  const acts = placeById(state.place).actions;
+  if (isCloth(item)) return acts.includes('sew') ? { ok: true, at: '의류점' } : { ok: false, at: '의류점' };
+  return acts.includes('craft') ? { ok: true, at: '대장간' } : { ok: false, at: '대장간' };
+}
+function atForge(state, item) {
+  const m = mendHere(state, item);
+  if (!m.ok) throw new Error(`${m.at}에서만 손볼 수 있습니다`);
 }
 
 /** 고치는 값: 닳은 만큼. 대장장이는 제 손으로 하니 절반. */
@@ -93,12 +104,12 @@ export function repairCost(state, item) {
   const max = maxDur(item);
   if (!max || item.dur >= max) return 0;
   const base = (itemDef(item.id).price || 10) * (1 - item.dur / max) * 0.5;
-  return Math.max(1, Math.ceil(base * (state.work === 'smith' ? 0.5 : 1) * (state.flags.cheapRepair ? 0.5 : 1))); // 편자공의 조수는 절반
+  return Math.max(1, Math.ceil(base * (state.work === (isCloth(item) ? 'tailor' : 'smith') ? 0.5 : 1) * (state.flags.cheapRepair ? 0.5 : 1))); // 편자공의 조수는 절반
 }
 
 export function repair(state, events, loc) {
-  atForge(state);
   const item = pick(state, loc);
+  atForge(state, item);
   const cost = repairCost(state, item);
   if (!cost) throw new Error('고칠 데가 없습니다');
   if (state.silver < cost) throw new Error(`은화가 모자랍니다 (${state.silver} / ${cost})`);
@@ -116,7 +127,7 @@ export function enhanceView(state, item) {
   const ore = def.attack ? 'ironore' : 'boarhide';
   const need = { id: ore, name: itemDef(ore).name, n: plus + 1, have: countOf(state, ore) };
   const silver = 5 * (plus + 1);
-  const chance = Math.min(1, PLUS_ODDS[plus] + (state.skills.smithing?.grade || 0) * 0.005 + (state.hidden.craft?.value || 0) * 0.01);
+  const chance = Math.min(1, PLUS_ODDS[plus] + (state.skills[isCloth(item) ? 'leather' : 'smithing']?.grade || 0) * 0.005 + (state.hidden.craft?.value || 0) * 0.01);
   return { plus, max: false, need, silver, chance, can: need.have >= need.n && state.silver >= silver && item.dur > 0, dropOnFail: plus >= PLUS_DROP_AT };
 }
 
@@ -125,8 +136,8 @@ export function enhanceView(state, item) {
  * 주사위는 씨앗과 지금까지 강화한 횟수로 정해진다.
  */
 export function enhance(state, events, loc) {
-  atForge(state);
   const item = pick(state, loc);
+  atForge(state, item);
   if (itemDef(item.id).tool) throw new Error('도구는 강화할 수 없습니다');
   const v = enhanceView(state, item);
   if (v.max) throw new Error('더는 강화할 수 없습니다');
@@ -136,20 +147,21 @@ export function enhance(state, events, loc) {
   takeById(state, v.need.id, v.need.n);
   state.silver -= v.silver;
   const tries = (state.counters.act.enhance = (state.counters.act.enhance || 0) + 1);
-  const skill = state.skills.smithing || (state.skills.smithing = emptySkill());
-  const up = useSkill(skill, 2 + v.plus * 2, 1);
-  if (up.leveled) ding(state, events, { level: up.rankUp ? 2 : 1, title: `${SKILL_NAMES.smithing} 숙련도가 ${iGa(gradeLabel(up.grade))} 되었습니다` });
+  const sk = isCloth(item) ? 'leather' : 'smithing'; // 옷·신 강화는 가죽 숙련도가 오른다
+  const skill = state.skills[sk] || (state.skills[sk] = emptySkill());
+  const up = useSkill(skill, 2 + v.plus * 2, jobXp(state, sk));
+  if (up.leveled) ding(state, events, { level: up.rankUp ? 2 : 1, title: `${SKILL_NAMES[sk]} 숙련도가 ${iGa(gradeLabel(up.grade))} 되었습니다` });
   const roll = roll01(`${state.seed}|plus|${tries}`);
   if (roll < v.chance) {
     item.plus = v.plus + 1;
-    pushLine(state, events, { k: 'me', text: `쇠가 맑게 울렸다. ${gearName(item)}.` });
+    pushLine(state, events, { k: 'me', text: `${isCloth(item) ? '실밥이 단단히 여며졌다' : '쇠가 맑게 울렸다'}. ${gearName(item)}.` });
     if ([5, 7, 10].includes(item.plus)) ding(state, events, { level: item.plus === 10 ? 4 : item.plus === 7 ? 3 : 2, kind: item.plus === 10 ? 'masterwork' : undefined, title: `${eulReul(itemDef(item.id).name)} +${item.plus}까지 강화했습니다`, big: gearName(item), body: `공격과 방어가 ${item.plus * 10}% 오른 물건입니다.` });
     events.push({ type: 'enhance', ok: true, plus: item.plus });
   } else {
     const max = maxDur(item);
     item.dur = Math.max(0, item.dur - Math.ceil(max * 0.2));
     if (v.dropOnFail) item.plus = v.plus - 1;
-    pushLine(state, events, { k: 'me', text: `쇠가 탁하게 울렸다. 강화에 실패했다. 내구도 −${Math.ceil(max * 0.2)}.${v.dropOnFail ? ` 강화가 +${item.plus}로 내려갔다.` : ''}` });
+    pushLine(state, events, { k: 'me', text: `${isCloth(item) ? '실이 툭 끊어졌다' : '쇠가 탁하게 울렸다'}. 강화에 실패했다. 내구도 −${Math.ceil(max * 0.2)}.${v.dropOnFail ? ` 강화가 +${item.plus}로 내려갔다.` : ''}` });
     events.push({ type: 'enhance', ok: false, plus: item.plus || 0 });
   }
   events.push({ type: 'gear' }); events.push({ type: 'bag' });

@@ -1,17 +1,17 @@
 // 저장의 판(버전)과, 옛 저장을 지금 꼴로 올리는 길.
 // 저장 형식을 바꾸면 SAVE_VERSION을 올리고 여기에 한 단계를 더한다.
 
-import { makeItem } from './inventory.js?v=d58cb06';
-import { valueOf } from './derived.js?v=d58cb06';
-import { worldFields } from './world.js?v=d58cb06';
-import { auctionFields } from './auction.js?v=d58cb06';
+import { makeItem } from './inventory.js?v=fb24485';
+import { valueOf } from './derived.js?v=fb24485';
+import { worldFields } from './world.js?v=fb24485';
+import { auctionFields } from './auction.js?v=fb24485';
 
-import { endingFields } from './ending.js?v=d58cb06';
-import { MAIN } from '../data/quests.js?v=d58cb06';
-import { ITEMS } from '../data/items.js?v=d58cb06';
-import { ADVANCED } from '../data/jobs.js?v=d58cb06';
-import { nativeWork } from './work.js?v=d58cb06';
-import { deliverMail } from './mail.js?v=d58cb06';
+import { endingFields } from './ending.js?v=fb24485';
+import { MAIN } from '../data/quests.js?v=fb24485';
+import { ITEMS } from '../data/items.js?v=fb24485';
+import { ADVANCED } from '../data/jobs.js?v=fb24485';
+import { nativeWork } from './work.js?v=fb24485';
+import { deliverMail } from './mail.js?v=fb24485';
 const ORIGIN_NATIVE = new Proxy({}, { get: (_, id) => nativeWork(id) });
 
 export { worldFields, auctionFields, endingFields };
@@ -33,7 +33,7 @@ export function bodyFields() {
 
 /** M3에서 생긴 제작·진화·일하는 직업·보관함 칸. */
 export function makerFields() {
-  return { craft: null, made: 0, evolve: {}, evolveSeen: {}, work: null, workAsk: 3, store: {}, storeDebt: 0 };
+  return { craft: null, made: 0, craftLv: { smith: { lv: 1, xp: 0 }, sew: { lv: 1, xp: 0 }, jewel: { lv: 1, xp: 0 } }, evolve: {}, evolveSeen: {}, work: null, workAsk: 3, store: {}, storeDebt: 0 };
 }
 
 /** M4에서 생긴 사람·명성·칭호·퀘스트 칸. */
@@ -120,6 +120,13 @@ const STEPS = {
 /** 옛 상태를 지금 판으로 올린다. 이미 지금 판이면 그대로다. */
 /** 판이 같아도 어긋날 수 있는 것을 바로잡는다. 여러 번 돌려도 같다. */
 function mend(state) {
+  // 제작 레벨 (Z79): 없던 저장은 지금까지 만든 수로 처음 레벨을 정한다. 철검을 만들던 사람이 못 만들게 되지 않게 대장은 하나라도 만들었으면 3부터
+  if (!state.craftLv) {
+    const lvOf = (xp) => { let lv = 1; while (xp >= lv * 10) { xp -= lv * 10; lv += 1; } return { lv, xp }; };
+    const made = state.made || 0, sewn = state.counters?.sewn || 0;
+    const smith = lvOf(made * 2), sew = lvOf(sewn * 2);
+    state.craftLv = { smith: made > 0 && smith.lv < 3 ? { lv: 3, xp: 0 } : smith, sew: sewn > 0 && sew.lv < 2 ? { lv: 2, xp: 0 } : sew, jewel: { lv: 1, xp: 0 } };
+  }
   // 끝낸 장이 여는 길: 그 장을 끝낸 뒤에 길이 생긴 경우(2장 → 나루)가 있다
   if (state.main && Array.isArray(state.main.done) && Array.isArray(state.opened)) {
     for (const d of state.main.done) for (const id of (MAIN[d && d.chapter]?.opens || [])) if (!state.opened.includes(id)) state.opened.push(id);

@@ -466,6 +466,11 @@ html.calm .cool i { animation: none !important; }
   .game { grid-template-rows: auto minmax(0, 1fr); }
   .topbar { grid-column: 1 / -1; display: flex; align-items: center; gap: 14px; padding: 8px 16px; background: var(--sand); border-bottom: 2px solid var(--deep); min-width: 0; }
   .topbar .logo { font: 700 1.15rem var(--serif); flex: none; }
+  /* 로고 = 시작 마을로 가는 단추 (Z73). 못 갈 때도 로고 모양은 그대로 */
+  .topbar button.logo { background: none; border: 0; padding: .2rem .4rem; border-radius: 6px; color: var(--ink); cursor: pointer; }
+  .topbar button.logo:hover:not(:disabled) { background: var(--sand); }
+  .topbar button.logo:disabled { cursor: default; opacity: 1; color: var(--ink); }
+  .topbar button.logo:focus-visible { outline: 3px solid var(--honey); outline-offset: 2px; }
   .tbmenu { display: flex; gap: 5px; flex-wrap: wrap; min-width: 0; }
   .tbright { margin-left: auto; display: flex; gap: 6px; flex: none; }
   .tb { min-height: 34px; padding: 0 12px; border: 1.5px solid var(--line2); border-radius: 999px; background: var(--paper); font-size: .88rem; display: inline-flex; align-items: center; gap: 4px; }
@@ -581,3 +586,9 @@ html.assist-on .assistline, html.assist-on .assistline:empty { display: block; m
 .stitches { display: flex; gap: 4px; flex-wrap: wrap; margin: .3rem 0; }
 .stitches span { width: 1.1rem; height: .5rem; border-radius: 2px; background: var(--line2); }
 .stitches .even { background: var(--mint-line); }
+
+/* 제작 레벨 (Z79) */
+.lvrow { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+.lvrow > .meter, .lvrow > div:not(.grow) { flex: 1 1 8rem; }
+h3.benchlv { font: 700 1rem var(--sans); color: var(--cinnamon); margin: .6rem 0 .2rem; border-bottom: 1px solid var(--line2); }
+.recipe.locked { opacity: .62; }

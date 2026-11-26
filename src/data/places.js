@@ -11,8 +11,8 @@ export const PLACES = {
     strip: { day: 'strip-plaza-empty', night: 'strip-plaza-empty' },
     stripAlt: '광장. 집 둘, 나무, 분수, 그리고 빈 받침대',
     users: [9, 12, 3],
-    board: 'plaza', auction: true,
-    actions: ['look', 'board', 'sculpt', 'auction', 'rest'],
+    board: 'plaza',
+    actions: ['look', 'board', 'rest'],
     suggest: [
       { text: '훈련소에 가서 허수아비를 쳐 본다', go: 'training' },
       { text: '광장을 둘러본다', act: 'look' },
@@ -32,7 +32,7 @@ export const PLACES = {
     strip: { day: 'strip-temple-day', night: 'strip-temple-night' },
     stripAlt: '신전. 돌기둥과 높은 창, 작은 종탑',
     users: [3, 4, 1],
-    actions: ['pray', 'blessing', 'heal', 'bread', 'talk', 'rest'],
+    actions: ['pray', 'blessing', 'heal', 'bread', 'shop', 'talk', 'rest'],
   },
   forge: {
     id: 'forge', name: '대장간', town: '시작 마을', danger: '안전',
@@ -40,7 +40,25 @@ export const PLACES = {
     strip: { day: 'strip-forge-day', night: 'strip-forge-night' },
     stripAlt: '대장간. 굴뚝에서 불티가 오르는 집과 모루',
     users: [4, 6, 2],
-    actions: ['craft', 'sew', 'bellows', 'shop', 'talk'],
+    actions: ['craft', 'bellows', 'shop', 'talk'],
+  },
+  // 예술협회 (Z80): 조각, 세공(반지), 경매장. 광장에서 옮겨 왔다. 작품은 그대로 광장 받침대에 세운다
+  artguild: {
+    id: 'artguild', name: '예술협회', town: '시작 마을', danger: '안전', auction: true,
+    room: '천장이 높은 돌집. 벽마다 조각과 그림이 걸려 있고, 안쪽 탁자에서는 누군가 작은 반지를 다듬고 있다. 경매 게시판 앞에 사람들이 모여 있다.',
+    strip: { day: 'strip-plaza-empty', night: 'strip-plaza-empty' },
+    stripAlt: '예술협회. 집 둘, 나무, 분수',
+    users: [6, 9, 2],
+    actions: ['sculpt', 'jewel', 'auction', 'talk'],
+  },
+  // 의류점 (Z74): 가죽과 천을 다룬다. 바느질, 몸·발 장비 손질, 실 잣기
+  tailor: {
+    id: 'tailor', name: '의류점', town: '시작 마을', danger: '안전',
+    room: '무두질한 가죽 냄새와 밀랍 냄새가 섞여 있다. 벽에 장화와 조끼가 걸려 있고, 재봉사는 바늘을 입에 문 채 이쪽을 본다.',
+    strip: { day: 'strip-store-day', night: 'strip-store-night' },
+    stripAlt: '의류점. 민트색 지붕의 가게와 나무 상자들',
+    users: [3, 5, 1],
+    actions: ['sew', 'spin', 'shop', 'talk'],
   },
   store: {
     id: 'store', name: '잡화점', town: '시작 마을', danger: '안전',
@@ -201,7 +219,7 @@ export const PLACES = {
 
 /** 마을들. gate: 마을로 들어올 때 닿는 곳. order: 방 목록의 차례. */
 export const TOWNS = {
-  '시작 마을': { gate: 'plaza', order: ['plaza', 'training', 'forge', 'store', 'tavern', 'temple'] },
+  '시작 마을': { gate: 'plaza', order: ['plaza', 'training', 'forge', 'tailor', 'artguild', 'store', 'tavern', 'temple'] },
   나루: { gate: 'dock', order: ['dock', 'fishmarket', 'branch', 'shipyard', 'inn', 'shrine', 'underbridge'] },
   소리재: { gate: 'bigmarket', order: ['bigmarket', 'craftrow', 'guild', 'archive', 'grandtemple', 'belltower', 'innrow', 'backalley'] },
 };
@@ -226,6 +244,7 @@ export const ACTIONS = {
   advance: { id: 'advance', label: '2차 전직', ticks: 0, open: 'advance' },
   // 곳마다 하는 일 (Z23): 훈련소의 치기처럼, 한 번 누르면 한 번 하고 그 숙련도가 오른다. 어려움은 그곳(level)이 정한다
   bellows: { id: 'bellows', label: '풀무질', skill: 'smithing', ticks: 1, chore: true, teach: true },
+  spin: { id: 'spin', label: '실 잣기', skill: 'leather', ticks: 1, chore: true, teach: true },
   sort: { id: 'sort', label: '물건 살피기', skill: 'appraise', ticks: 1, chore: true },
   pray: { id: 'pray', label: '기도', skill: 'pray', ticks: 1, chore: true },
   rowing: { id: 'rowing', label: '노 젓기', skill: 'stamina', ticks: 1, chore: true, teach: true },
@@ -243,6 +262,7 @@ export const ACTIONS = {
   offer: { id: 'offer', label: '바친다', ticks: 0, open: 'offer' },
   craft: { id: 'craft', label: '만들기', ticks: 0, open: 'craft' },
   sew: { id: 'sew', label: '바느질', ticks: 0, open: 'sew' },
+  jewel: { id: 'jewel', label: '세공', ticks: 0, open: 'jewel' },
   shop: { id: 'shop', label: '상점', ticks: 0, open: 'shop' },
   storage: { id: 'storage', label: '보관함', ticks: 0, open: 'storage' },
   explore: { id: 'explore', label: '탐색', ticks: 3, wild: 'explore' },

@@ -22,12 +22,12 @@ import { BONDS } from '../src/data/people.js';
 
 const fresh = (seed = 'm6', origin = 'farmer') => createGame({ name: '가을', origin, spent: {}, seed });
 const carve = (s, subject = 'rabbit') => {
-  if (s.place !== 'plaza') s.place = 'plaza';
+  if (s.place !== 'artguild') s.place = 'artguild'; // 조각은 예술협회에서 (Z80)
   if (countOf(s, 'oakbranch') < 4) addItem(s, 'oakbranch', 4); addItem(s, 'chisel'); s.tired = 0;
   s.dex.animals.rabbit = true;
   if (!s.bag.some((x) => x.id === 'chisel' && x.dur > 40)) addItem(s, 'chisel');
   s.tired = 0; // 푹 자고 깎는다
-  dispatch(s, { type: 'sculpt', subject });
+  if (s.place === 'plaza') s.place = 'artguild'; dispatch(s, { type: 'sculpt', subject });
   let ev = [];
   while (s.sculpt) { ev = dispatch(s, { type: 'cut' }); s.full = 80; }
   return ev.find((e) => e.type === 'sculpt' && e.phase === 'done');
@@ -36,15 +36,16 @@ const foe = (s, mon = 'crab', intent = 'shell', hp = 9999) => { s.place = 'fores
 
 test('본 것만 깎는다. 만나 보지 않은 것은 주제에 나오지 않는다 (N2-4)', () => {
   const s = fresh();
+  s.place = 'artguild';
   addItem(s, 'oakbranch', 8); addItem(s, 'chisel'); s.tired = 0;
   assert.deepEqual(sculptMenu(s).subjects, []);
-  assert.throws(() => dispatch(s, { type: 'sculpt', subject: 'rabbit' }), /본 적 없는/);
+  if (s.place === 'plaza') s.place = 'artguild'; assert.throws(() => dispatch(s, { type: 'sculpt', subject: 'rabbit' }), /본 적 없는/);
   // 숲에서 토끼를 보면 깎을 수 있다
   s.place = 'forest';
   let n = 0;
   while (!s.dex.animals.rabbit && n++ < 400) { if (s.battle) dispatch(s, { type: 'battle', choice: 'flee' }); else if (s.choice) dispatch(s, { type: 'choose', id: slotsNow(s).at(-1).action.id }); else dispatch(s, { type: 'act', id: 'explore' }); s.hp = 100; s.full = 80; if (s.place !== 'forest') s.place = 'forest'; }
   assert.ok(s.dex.animals.rabbit, '탐색하다 보면 토끼를 본다');
-  s.battle = null; s.choice = null; s.place = 'plaza';
+  s.battle = null; s.choice = null; s.place = 'artguild';
   assert.ok(sculptMenu(s).subjects.some((x) => x.id === 'rabbit'));
   // 괴물은 마주친 것만, 사람은 단골 이상만
   assert.ok(!sculptMenu(s).subjects.some((x) => x.id === 'granny'));
@@ -58,7 +59,7 @@ test('작품 하나에 칼질 마흔 번. 그림은 10·22·34번째에 바뀌�
   const s = fresh();
   s.dex.animals.rabbit = true;
   addItem(s, 'oakbranch', 5); addItem(s, 'chisel'); s.tired = 0;
-  dispatch(s, { type: 'sculpt', subject: 'rabbit' });
+  if (s.place === 'plaza') s.place = 'artguild'; dispatch(s, { type: 'sculpt', subject: 'rabbit' });
   assert.equal(countOf(s, 'oakbranch'), 1);
   assert.equal(modeOf(s), 'sculpt');
   assert.deepEqual(slotsNow(s).map((x) => x.label), ['칼질 0 / 40', '그만둔다']);
@@ -85,7 +86,7 @@ test('그만두면 깎던 것은 버려진다', () => {
   const s = fresh();
   s.dex.animals.rabbit = true;
   addItem(s, 'oakbranch', 4); addItem(s, 'chisel'); s.tired = 0;
-  dispatch(s, { type: 'sculpt', subject: 'rabbit' });
+  if (s.place === 'plaza') s.place = 'artguild'; dispatch(s, { type: 'sculpt', subject: 'rabbit' });
   dispatch(s, { type: 'cut' });
   dispatch(s, { type: 'sculptQuit' });
   assert.equal(s.sculpt, null);
@@ -100,8 +101,8 @@ test('작품 등급: 처음 값은 20·45·25·9·1이고, 천 번 깎은 결과
   const N = 1000;
   for (let i = 0; i < N; i++) {
     s.skills.sculpting = { grade: 0, xp: 0, uses: 0 }; s.hidden = {}; s.counters.works = 0; s.works = []; s.log = []; s.dings = []; s.journal = []; s.day = 1; s.phase = 0; s.tick = 0;
-    s.dex.animals.rabbit = true; s.place = 'plaza'; s.bag = []; addItem(s, 'oakbranch', 4); addItem(s, 'chisel'); s.tired = 0;
-    dispatch(s, { type: 'sculpt', subject: 'rabbit' });
+    s.dex.animals.rabbit = true; s.place = 'artguild'; s.bag = []; addItem(s, 'oakbranch', 4); addItem(s, 'chisel'); s.tired = 0;
+    if (s.place === 'plaza') s.place = 'artguild'; dispatch(s, { type: 'sculpt', subject: 'rabbit' });
     for (let k = 0; k < CUTS - 1; k++) dispatch(s, { type: 'cut' });
     s.skills.sculpting = { grade: 0, xp: 0, uses: 0 }; s.full = 80;
     got[dispatch(s, { type: 'cut' }).find((e) => e.type === 'sculpt' && e.phase === 'done').grade] += 1;
@@ -346,7 +347,7 @@ test('깎는 중에는 히든 직업 제안이 끼어들지 않는다. 끝나면
   const s = fresh('stuck');
   s.hidden.endure = { value: 1, half: true }; s.counters.act.strike = 300;
   s.hq.favor = { status: 'done', step: 'back', count: 0, day: 1 };
-  s.dex.animals.rabbit = true; s.place = 'plaza'; addItem(s, 'oakbranch', 4); addItem(s, 'chisel'); s.tired = 0;
+  s.dex.animals.rabbit = true; s.place = 'artguild'; addItem(s, 'oakbranch', 4); addItem(s, 'chisel'); s.tired = 0;
   s.sculpt = { subject: 'rabbit', cuts: 0 }; s.bag = s.bag.filter((x) => x.id !== 'oakbranch');
   dispatch(s, { type: 'cut' });
   assert.equal(s.choice, null);

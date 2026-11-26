@@ -142,7 +142,8 @@ test('태윤: 넘치는 재료를 맡기고, 열두 번씩 두드려 대장장�
   assert.ok(!bodyView(s).over);
   assert.equal(storeView(s).items[0].n, 40);
 
-  // 5단계: 대장간에서 열두 번씩 손으로 두드린다
+  dispatch(s, { type: 'move', to: 'forge' });
+  s.craftLv.smith.lv = Math.max(s.craftLv.smith.lv, 3); // 구리 검으로 손을 푼 뒤라 친다: 철검은 대장 레벨 3 (Z79)
   dispatch(s, { type: 'move', to: 'forge' });
   let presses = 0, best = -1, legend = null, swords = 0;
   const makeOne = () => {
