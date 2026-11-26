@@ -258,3 +258,52 @@ test('지혜가 높으면 출혈·중독·화상·기절에 덜 걸리고, 지�
   assert.ok([...low.turns].includes(4));
   for (const n of high.turns) assert.ok(n <= 3, '지혜 20부터 1턴 짧게');
 });
+
+test('음식은 생명력도 조금 채운다: 포만감의 절반만큼 정해진 양 (주먹밥 +15) (Z54)', async () => {
+  const { derived } = await import('../src/core/derived.js');
+  const s = make('food'); s.bag = []; addItem(s, 'riceball', 1); s.full = 20;
+  const max = derived(s).find((d) => d.id === 'maxHp').value;
+  s.hp = 10;
+  dispatch(s, { type: 'use', index: 0 });
+  assert.equal(s.full, 50);
+  assert.equal(s.hp, 10 + 15, '정해진 양: 포만감 30의 절반');
+  assert.ok(s.log.at(-1).text.includes('생명력 +'));
+});
+
+test('약초를 쓰면 생명력이 15 찬다. 재료로도 그대로 남고, 소비 갈래에도 보인다', async () => {
+  const { bagView, tabCounts } = await import('../src/core/inventory.js');
+  const s = make('herb'); s.bag = []; addItem(s, 'herb', 3);
+  assert.equal(bagView(s, 'eat').length, 1);
+  assert.equal(tabCounts(s).eat, 1);
+  assert.equal(bagView(s, 'material').length, 1, '재료 갈래에도 있다');
+  s.hp = 10;
+  dispatch(s, { type: 'use', index: 0 });
+  assert.equal(s.hp, 25);
+  assert.equal(countOf(s, 'herb'), 2);
+  assert.ok(s.log.at(-1).text.includes('상처에 붙였다'));
+});
+
+test('싸움 밖에서 생명력이 5분의 1 아래면 가방의 회복 아이템을 아파하며 쓴다. 약초부터 (Z56)', async () => {
+  const s = make('hurt'); s.place = 'training'; s.bag = []; addItem(s, 'redpotion', 1); addItem(s, 'herb', 2);
+  s.hp = 5;
+  dispatch(s, { type: 'act', id: 'strike' });
+  assert.equal(countOf(s, 'herb'), 1, '덜 채우는 약초부터');
+  assert.equal(countOf(s, 'redpotion'), 1);
+  assert.ok(s.log.some((l) => l.text.includes('너무 아파서')));
+  // 싸우는 중에는 쓰지 않는다
+  const t = make('hurt2'); t.place = 'forest'; t.bag = []; addItem(t, 'herb', 2); t.stats.con = 60;
+  t.battle = { mon: 'rat', hp: 999, turn: 1, intent: null, stun: 0, weak: null, burn: 0, ward: null, streak: 0, phase: 0 };
+  t.hp = 5; dispatch(t, { type: 'battle', choice: 'defend' });
+  if (t.battle) assert.equal(countOf(t, 'herb'), 2);
+});
+
+test('붉은 물약은 최대 생명력의 40%를 채운다. 레벨이 올라도 같은 비율', async () => {
+  const { derived } = await import('../src/core/derived.js');
+  for (const con of [5, 40]) {
+    const s = make('pot' + con); s.bag = []; addItem(s, 'redpotion', 1); s.stats.con = con;
+    const max = derived(s).find((d) => d.id === 'maxHp').value;
+    s.hp = 1;
+    dispatch(s, { type: 'use', index: 0 });
+    assert.equal(s.hp, 1 + Math.round(max * 0.4), `체력 ${con}`);
+  }
+});

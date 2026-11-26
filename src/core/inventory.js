@@ -1,7 +1,7 @@
 // 가방과 장비 (G1, E14~E18, R2-4). 칸 수 제한은 없고 무게만 센다.
 
-import { ITEMS, itemDef, EQUIP_SLOTS, GRADE_MULT, gradeName } from '../data/items.js?v=b684693';
-import { jobDef } from '../data/jobs.js?v=b684693';
+import { ITEMS, itemDef, EQUIP_SLOTS, GRADE_MULT, gradeName } from '../data/items.js?v=1034cb5';
+import { jobDef } from '../data/jobs.js?v=1034cb5';
 
 /** 물건 하나(또는 한 묶음)를 만든다. 장비는 묶이지 않는다. */
 export function makeItem(id, { grade, maker, n = 1 } = {}) {
@@ -164,7 +164,8 @@ export function discard(state, index, n = 1) {
 /** 가방을 갈래와 늘어놓는 법에 맞춰 보여 준다 (G1-4, G1-5). 원래 자리(index)를 같이 돌려준다. */
 export function bagView(state, tab = 'all', sort = 'new') {
   let list = state.bag.map((item, index) => ({ item, index, def: itemDef(item.id) }));
-  if (tab !== 'all') list = list.filter((x) => x.def.kind === tab);
+  // 소비 갈래에는 먹거나 쓸 수 있는 재료(약초)도 함께 보인다
+  if (tab !== 'all') list = list.filter((x) => x.def.kind === tab || (tab === 'eat' && x.def.eat && !x.def.throw));
   const by = {
     new: (a, b) => b.index - a.index,
     grade: (a, b) => b.item.grade - a.item.grade || b.index - a.index,
@@ -177,7 +178,7 @@ export function bagView(state, tab = 'all', sort = 'new') {
 
 export function tabCounts(state) {
   const out = { all: state.bag.length, gear: 0, material: 0, eat: 0, quest: 0, etc: 0 };
-  for (const item of state.bag) out[itemDef(item.id).kind] += 1;
+  for (const item of state.bag) { const d = itemDef(item.id); out[d.kind] += 1; if (d.kind !== 'eat' && d.eat && !d.throw) out.eat += 1; }
   return out;
 }
 

@@ -31,6 +31,7 @@ export function applySettings(settings, root = document.documentElement) {
   root.classList.toggle('fs-3', settings.fs === 3);
   root.classList.toggle('contrast', !!settings.contrast);
   root.classList.toggle('calm', !!settings.calm);
+  root.classList.toggle('assist-on', !!settings.assist && settings.assist !== 'off'); // 누르기 돕기를 켜면 그 안내 줄의 자리를 늘 비워 둔다(깜빡임 없이)
 }
 
 export const SETTING_GROUPS = [

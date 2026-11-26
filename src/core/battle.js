@@ -1,24 +1,24 @@
 // 전투 (E5~E9, R2-2). 한 턴에 행동 하나. 적의 다음 행동은 늘 미리 보인다.
 // 방어하면 피해가 절반이고, 돌진류는 막고 되받아친다.
 
-import { next, chance } from './rng.js?v=b684693';
-import { pushLine, ding } from './log.js?v=b684693';
-import { monsterDef, STATUS } from '../data/monsters.js?v=b684693';
-import { itemDef, ITEMS, gradeName } from '../data/items.js?v=b684693';
-import { roll01 } from './rng.js?v=b684693';
-import { guildPerk } from './guild.js?v=b684693';
-import { rollOptions, gearName } from './gear.js?v=b684693';
-import { derived, skillBonus } from './derived.js?v=b684693';
-import { addItem, removeAt, usable, totalWeight, equip, slotFor, equipPower } from './inventory.js?v=b684693';
-import { grantXp } from './reward.js?v=b684693';
-import { useSkill, emptySkill, gradeLabel, SKILL_NAMES } from './skills.js?v=b684693';
-import { fall } from './fall.js?v=b684693';
-import { iGa, eulReul, ro } from './ko.js?v=b684693';
-import { branchOf } from './evolve.js?v=b684693';
-import { skillsNow, jobXp, adv } from './jobs.js?v=b684693';
-import { guardFor, hitCompanion, companionsAct, afterBattle, roleBonus, cross } from './party.js?v=b684693';
-import { jobDef } from '../data/jobs.js?v=b684693';
-import { BEATS, WEAK_MULT, RESIST_MULT } from '../data/dungeon.js?v=b684693';
+import { next, chance } from './rng.js?v=1034cb5';
+import { pushLine, ding } from './log.js?v=1034cb5';
+import { monsterDef, STATUS } from '../data/monsters.js?v=1034cb5';
+import { itemDef, ITEMS, gradeName } from '../data/items.js?v=1034cb5';
+import { roll01 } from './rng.js?v=1034cb5';
+import { guildPerk } from './guild.js?v=1034cb5';
+import { rollOptions, gearName } from './gear.js?v=1034cb5';
+import { derived, skillBonus } from './derived.js?v=1034cb5';
+import { addItem, removeAt, usable, totalWeight, equip, slotFor, equipPower } from './inventory.js?v=1034cb5';
+import { grantXp } from './reward.js?v=1034cb5';
+import { useSkill, emptySkill, gradeLabel, SKILL_NAMES } from './skills.js?v=1034cb5';
+import { fall } from './fall.js?v=1034cb5';
+import { iGa, eulReul, ro } from './ko.js?v=1034cb5';
+import { branchOf } from './evolve.js?v=1034cb5';
+import { skillsNow, jobXp, adv } from './jobs.js?v=1034cb5';
+import { guardFor, hitCompanion, companionsAct, afterBattle, roleBonus, cross } from './party.js?v=1034cb5';
+import { jobDef } from '../data/jobs.js?v=1034cb5';
+import { BEATS, WEAK_MULT, RESIST_MULT } from '../data/dungeon.js?v=1034cb5';
 
 /** 지금 국면이 반영된 괴물 (T22). */
 export const ELITE = { hp: 2.5, attack: 1.3, defense: 2, level: 2, xp: 3, per: 0.005, cap: 0.25 };
@@ -581,6 +581,17 @@ function useInBattle(state, events, index) {
   eat(state, events, index);
 }
 
+export const FOOD_HEAL = 0.5; // 음식의 포만감 1마다 생명력 0.5 (정해진 양, Z54)
+
+/** 먹거나 쓰면 차는 생명력. 물약은 최대 생명력의 비율(hpPct), 약초는 정해진 양(hp), 음식은 포만감의 절반만큼 정해진 양 */
+export function healOf(state, def, max) {
+  const more = state.flags?.foodPlus ? 1.2 : 1;
+  if (def.eat?.hpPct) return Math.round(max * def.eat.hpPct / 100 * more);
+  if (def.eat?.hp) return Math.round(def.eat.hp * more);
+  if (def.eat?.full) return Math.round(def.eat.full * FOOD_HEAL * more);
+  return 0;
+}
+
 /** 먹거나 마신다. 전투 밖에서도 쓴다. */
 export function eat(state, events, index) {
   const item = state.bag[index];
@@ -592,6 +603,7 @@ export function eat(state, events, index) {
   const parts = [];
   const more = state.flags.foodPlus ? 1.2 : 1;
   if (def.eat.full) { const got = Math.round(def.eat.full * more); state.full = Math.min(100, state.full + got); parts.push(`포만감 +${got}`); }
-  if (def.eat.hp) { const max = val(state, 'maxHp'); const before = state.hp; state.hp = Math.min(max, state.hp + Math.round(def.eat.hp * more)); parts.push(`생명력 +${state.hp - before}`); }
-  pushLine(state, events, { k: 'me', text: `${eulReul(def.name)} ${def.eat.hp ? '마셨다' : '먹었다'}. ${parts.join(', ')}.` });
+  // 생명력: 물약은 최대 생명력의 비율, 약초·음식은 정해진 양 (Z54)
+  { const max = val(state, 'maxHp'); const heal = healOf(state, def, max); if (heal) { const before = state.hp; state.hp = Math.min(max, state.hp + heal); if (state.hp > before || !def.eat.full) parts.push(`생명력 +${state.hp - before}`); } }
+  pushLine(state, events, { k: 'me', text: `${eulReul(def.name)} ${def.eat.full ? '먹었다' : def.kind === 'material' ? '씹어 상처에 붙였다' : '마셨다'}. ${parts.join(', ')}.` });
 }
