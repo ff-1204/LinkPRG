@@ -1,16 +1,16 @@
 // 저장의 판(버전)과, 옛 저장을 지금 꼴로 올리는 길.
 // 저장 형식을 바꾸면 SAVE_VERSION을 올리고 여기에 한 단계를 더한다.
 
-import { makeItem } from './inventory.js?v=294ac94';
-import { valueOf } from './derived.js?v=294ac94';
-import { worldFields } from './world.js?v=294ac94';
-import { auctionFields } from './auction.js?v=294ac94';
+import { makeItem } from './inventory.js?v=9b73294';
+import { valueOf } from './derived.js?v=9b73294';
+import { worldFields } from './world.js?v=9b73294';
+import { auctionFields } from './auction.js?v=9b73294';
 
-import { endingFields } from './ending.js?v=294ac94';
-import { MAIN } from '../data/quests.js?v=294ac94';
-import { ITEMS } from '../data/items.js?v=294ac94';
-import { ADVANCED } from '../data/jobs.js?v=294ac94';
-import { nativeWork } from './work.js?v=294ac94';
+import { endingFields } from './ending.js?v=9b73294';
+import { MAIN } from '../data/quests.js?v=9b73294';
+import { ITEMS } from '../data/items.js?v=9b73294';
+import { ADVANCED } from '../data/jobs.js?v=9b73294';
+import { nativeWork } from './work.js?v=9b73294';
 const ORIGIN_NATIVE = new Proxy({}, { get: (_, id) => nativeWork(id) });
 
 export { worldFields, auctionFields, endingFields };

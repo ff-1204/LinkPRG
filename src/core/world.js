@@ -1,15 +1,15 @@
 // 가상 유저의 세계: 명단, 날마다 자람, 세계 공지, 최초 발견, 랭킹, 소문 (N6-4 ~ N6-6, Q1-4, F08).
 // 가상 유저는 저장하지 않고 씨앗과 날짜로 셈한다. 같은 씨앗·같은 날이면 늘 같다.
 
-import { seedFrom } from './rng.js?v=294ac94';
-import { pushLine, ding } from './log.js?v=294ac94';
+import { seedFrom } from './rng.js?v=9b73294';
+import { pushLine, ding } from './log.js?v=9b73294';
 import {
   NAME_HEAD, NAME_TAIL, USER_COUNT, STYLES, STYLE_ORDER, RANKS, RANK_AROUND, FIRSTS, DAILY_NEWS,
   RUMORS_ABOUT_ME, RUMORS_HINT, RUMORS_WORLD,
-} from '../data/world.js?v=294ac94';
-import { fameTotal } from './social.js?v=294ac94';
-import { foundCount } from './hidden.js?v=294ac94';
-import { iGa } from './ko.js?v=294ac94';
+} from '../data/world.js?v=9b73294';
+import { fameTotal } from './social.js?v=9b73294';
+import { foundCount } from './hidden.js?v=9b73294';
+import { iGa } from './ko.js?v=9b73294';
 
 const hash = (...parts) => seedFrom(parts.join('|'));
 const unit = (...parts) => hash(...parts) / 4294967296;

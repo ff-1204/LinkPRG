@@ -1,26 +1,26 @@
 // 탐색과 랜덤 인카운터, 기척 (E1~E4, R2-3).
 // 탐색 한 번마다 전투·발견·사건·만남·희귀 가운데 하나. 싸울지는 되도록 내가 고른다.
 
-import { next, pick, chance, roll01 } from './rng.js?v=294ac94';
-import { addFame } from './social.js?v=294ac94';
-import { pushLine } from './log.js?v=294ac94';
-import { weighted, startBattle } from './battle.js?v=294ac94';
-import { addItem, countOf, takeById } from './inventory.js?v=294ac94';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=294ac94';
-import { ding } from './log.js?v=294ac94';
-import { monsterDef } from '../data/monsters.js?v=294ac94';
-import { itemDef } from '../data/items.js?v=294ac94';
-import { USERS } from '../data/lines.js?v=294ac94';
-import { WILDS, INCIDENTS, DANGER, DANGER_UP, OTHER_WEIGHTS, TENSION_STEP, TENSION_MAX } from '../data/wild.js?v=294ac94';
-import { placeById } from '../data/places.js?v=294ac94';
-import { iGa, eulReul, eunNeun } from './ko.js?v=294ac94';
-import { branchOf } from './evolve.js?v=294ac94';
-import { answerHidden } from './quests.js?v=294ac94';
-import { jobXp, hiddenJobView, answerHiddenJob } from './jobs.js?v=294ac94';
-import { HIDDENS } from '../data/quests.js?v=294ac94';
-import { dungeonChoiceView, dungeonChoose } from './dungeon.js?v=294ac94';
-import { endingChoiceView, applyEnding } from './ending.js?v=294ac94';
-import { memoryChoiceView, chooseMemory } from './memories.js?v=294ac94';
+import { next, pick, chance, roll01 } from './rng.js?v=9b73294';
+import { addFame } from './social.js?v=9b73294';
+import { pushLine } from './log.js?v=9b73294';
+import { weighted, startBattle } from './battle.js?v=9b73294';
+import { addItem, countOf, takeById } from './inventory.js?v=9b73294';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=9b73294';
+import { ding } from './log.js?v=9b73294';
+import { monsterDef } from '../data/monsters.js?v=9b73294';
+import { itemDef } from '../data/items.js?v=9b73294';
+import { USERS } from '../data/lines.js?v=9b73294';
+import { WILDS, INCIDENTS, DANGER, DANGER_UP, OTHER_WEIGHTS, TENSION_STEP, TENSION_MAX } from '../data/wild.js?v=9b73294';
+import { placeById } from '../data/places.js?v=9b73294';
+import { iGa, eulReul, eunNeun } from './ko.js?v=9b73294';
+import { branchOf } from './evolve.js?v=9b73294';
+import { answerHidden } from './quests.js?v=9b73294';
+import { jobXp, hiddenJobView, answerHiddenJob } from './jobs.js?v=9b73294';
+import { HIDDENS } from '../data/quests.js?v=9b73294';
+import { dungeonChoiceView, dungeonChoose } from './dungeon.js?v=9b73294';
+import { endingChoiceView, applyEnding } from './ending.js?v=9b73294';
+import { memoryChoiceView, chooseMemory } from './memories.js?v=9b73294';
 
 const WORK = { smith: { name: '대장장이', who: '대장간 주인', skill: 'smithing' } };
 
