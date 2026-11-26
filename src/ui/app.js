@@ -41,7 +41,7 @@ import { bagView, tabCounts, previewEquip, iconOf, itemPower, itemWeight, slotFo
 import { BAG_TABS, EQUIP_SLOTS, itemDef, gradeName } from '../data/items.js';
 import { monsterDef } from '../data/monsters.js';
 import { originById, dealOrigins, ROOTS, ORIGIN_GRADES, STAT_NAMES, STAT_USES, rollDice, DICE_TOTAL, DICE_MIN, DICE_FREE_AT } from '../data/origins.js';
-import { placeById, PLACES, TOWN_ORDER, PHASES } from '../data/places.js';
+import { placeById, PLACES, TOWN_ORDER, PHASES, ACTIONS } from '../data/places.js';
 import { SKILL_NAMES, gradeLabel, progress } from '../core/skills.js';
 import { hiddenSlots, foundCount, hiddenTotal } from '../core/hidden.js';
 import { ringView, afterText } from '../core/ending.js';
@@ -53,6 +53,7 @@ import { STANCES, stanceOf } from '../core/battle.js';
 import { gearName, optionLines, maxDur, repairCost, enhanceView } from '../core/gear.js';
 import { guildView, DONATE } from '../core/guild.js';
 import { DRINK_HOSTS } from '../core/social.js';
+import { TEACHERS, learnableHere, KNOWN_BOND } from '../core/work.js';
 import { rootOf } from '../data/origins.js';
 import { recordError, readErrors, clearErrors } from '../core/errors.js';
 import { ro, iGa, waGwa, eulReul } from '../core/ko.js';
@@ -1584,6 +1585,7 @@ export function start(root, storage = globalThis.localStorage) {
               h('button', { class: 'btn', type: 'button', onclick: () => { giving = true; rerender(); } }, '선물'),
               shopView(game) && shopView(game).keeper === p.name ? h('button', { class: 'btn', type: 'button', onclick: () => { close(); openShop(); } }, '상점') : null,
               who === 'miru' ? h('button', { class: 'btn', type: 'button', disabled: bondOf(game, 'miru') < REGULAR || game.party.length >= PARTY_MAX, title: bondOf(game, 'miru') < REGULAR ? `사이가 '${BONDS[REGULAR].name}' 이상이어야 한다` : null, onclick: () => act({ type: 'party', op: 'ask', npc: 'miru' }) }, bondOf(game, 'miru') < REGULAR ? `영입 ('${BONDS[REGULAR].name}'부터)` : '영입') : null,
+              TEACHERS[game.place] === who && learnableHere(game).length ? h('button', { class: 'btn', type: 'button', disabled: bondOf(game, who) < KNOWN_BOND, title: bondOf(game, who) < KNOWN_BOND ? '낯익은 사이부터 청할 수 있다' : null, onclick: () => act({ type: 'learn', npc: who }) }, bondOf(game, who) < KNOWN_BOND ? `${ACTIONS[learnableHere(game)[0]].label}을 거들고 싶다 (낯익은 사이부터)` : `${ACTIONS[learnableHere(game)[0]].label}을 거들게 해 달라고 청한다`) : null,
               rootOf(game.origin) === 'bard' && DRINK_HOSTS.includes(who) ? h('button', { class: 'btn', type: 'button', disabled: game.flags.drinkDay === game.day, title: game.flags.drinkDay === game.day ? '오늘은 이미 얻어 마셨다' : null, onclick: () => act({ type: 'drink', npc: who }) }, game.flags.drinkDay === game.day ? '오늘은 이미 한 잔' : '한 잔 얻어 마신다') : null,
               who === 'keeper' && !game.party.some((c) => c.id === 'gaon') ? h('button', { class: 'btn', type: 'button', disabled: game.silver < MERC_FEE || game.party.length >= PARTY_MAX, onclick: () => act({ type: 'party', op: 'hire' }) }, `용병 고용 (하루 은화 ${MERC_FEE})`) : null),
           spokeToday(game, who) ? null : h('p', { class: 'muted', style: 'font-size:.88rem' }, '아직 말을 걸어오지 않았다. 이곳에서 할 일을 하다 보면 먼저 말을 건다.'),

@@ -10,6 +10,8 @@ import { endingFields } from './ending.js';
 import { MAIN } from '../data/quests.js';
 import { ITEMS } from '../data/items.js';
 import { ADVANCED } from '../data/jobs.js';
+import { nativeWork } from './work.js';
+const ORIGIN_NATIVE = new Proxy({}, { get: (_, id) => nativeWork(id) });
 
 export { worldFields, auctionFields, endingFields };
 
@@ -125,6 +127,11 @@ function mend(state) {
   if (!['hold', 'clash', 'dodge', 'focus'].includes(state.stance)) state.stance = 'hold';
   if (state.guild === undefined) state.guild = null;
   if (!state.lore || !Array.isArray(state.lore.hints)) state.lore = { hints: [] };
+  if (!Array.isArray(state.learned)) {
+    // 배우는 규칙이 생기기 전에 이미 해 본 일은 아는 일로 친다
+    state.learned = ['bellows', 'gut', 'rowing', 'haul', 'plane', 'spar'].filter((id) => (state.counters?.act?.[id] || 0) > 0);
+    for (const id of ORIGIN_NATIVE[state.origin] || []) if (!state.learned.includes(id)) state.learned.push(id);
+  }
   if (state.guild && (!['fang', 'anvil', 'lantern'].includes(state.guild.id) || !Number.isFinite(state.guild.contrib))) state.guild = null;
   // 만들 때 내구도가 늘어난 옛 장비: 그 값이 최대치다
   const gear = [...(state.bag || []), ...Object.values(state.equip || {})];

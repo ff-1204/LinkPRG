@@ -33,6 +33,8 @@ import { START_SCENES } from '../data/scenes.js';
 import { PEOPLE } from '../data/people.js';
 import { ORIGIN_GRADES } from '../data/origins.js';
 import { memoryHook, chooseMemory } from './memories.js';
+import { knowsWork, watchWork, askToLearn, nativeWork } from './work.js';
+import { bondOf as bondOfNpc } from './social.js';
 import { drink } from './social.js';
 import { makeItem, equip as equipItem, unequip as unequipItem, discard as discardItem, totalWeight, countOf } from './inventory.js';
 import { xpToNext } from './level.js';
@@ -122,6 +124,7 @@ export function createGame({ name, origin, spent, seed, rolled }) {
   if (o.root === 'fallen') { start('agent', 10); start('trader', 10); }
   if (o.root === 'hunter') state.dex.mon.boar = { seen: 1, won: 0, lost: 0 };
   state.lore = { hints: [] };
+  state.learned = nativeWork(origin); // 출신이 처음부터 할 줄 아는 일
   // 첫 장면 (Z27)
   const scene = START_SCENES[origin];
   state.journal.push({ day: 1, phase: 0, place: 'plaza', text: scene ? scene.journal : START_JOURNAL[o.root || origin] });
@@ -233,6 +236,7 @@ export function slotsNow(state) {
     if (x.action?.type === 'act' && x.action.id === 'rest') x.label = state.phase === 2 ? (placeById(state.place).wild ? '야영' : '잠자기') : '잠깐 쉬기';
     if (x.action?.type === 'act' && x.action.id === 'bread' && state.flags.breadDay === state.day) { x.disabled = true; x.why = '오늘은 이미 받았다'; }
     if (x.action?.type === 'act' && x.action.id === 'room') { x.label = `방 빌리기 (은화 ${INN_FEE})`; if (state.silver < INN_FEE) { x.disabled = true; x.why = '은화가 모자란다'; } }
+    if (x.action?.type === 'act' && ACTIONS[x.action.id]?.teach && !knowsWork(state, x.action.id)) x.label = `구경하기 (${ACTIONS[x.action.id].label})`;
     if (x.open === 'sculpt' && !chiselOf(state)) { x.disabled = true; x.why = '조각칼이 없다'; }
   }
   if (state.relic && state.relic.place === state.place) list.push({ label: '유품 찾기', action: { type: 'relic' } });
@@ -494,6 +498,7 @@ export function dispatch(state, action, options = {}) {
     else throw new Error('모르는 길드 일입니다');
   }
   else if (t === 'drink') drink(state, events, action.npc);
+  else if (t === 'learn') askToLearn(state, events, action.npc, bondOfNpc);
   else if (t === 'stance') {
     if (!STANCES[action.id]) throw new Error('모르는 태세입니다');
     if (state.battle) throw new Error('싸우는 중에는 태세를 바꿀 수 없습니다');
@@ -861,6 +866,8 @@ function act(state, events, id, options) {
   if (def.rest) return rest(state, events);
   if (def.open) throw new Error('창에서 하는 일입니다');
   if (def.special === 'room') return rentRoom(state, events);
+  // 남의 일터의 일은 배워야 한다. 모르면 곁에서 구경한다 (Z29)
+  if (def.teach && !knowsWork(state, id)) { watchWork(state, events, id); state.lastAction = null; advance(state, events, def.ticks); return; }
   if (def.special === 'bread') {
     if (state.flags.breadDay === state.day) throw new Error('오늘은 이미 받았습니다. 빵은 하루에 하나입니다');
     state.flags.breadDay = state.day;
