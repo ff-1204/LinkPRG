@@ -263,7 +263,6 @@ export function start(root, storage = globalThis.localStorage) {
       raised.length ? h('div', { class: 'rowx' }, h('span', {}, '다시 일어선 몸'), h('b', {}, `${raised.join(', ')} (주사위 위에 더해진다)`)) : null,
       carry.titles.length ? h('div', { class: 'rowx' }, h('span', {}, '칭호'), h('span', {}, carry.titles.map((t) => TITLES[t.id]?.name || t.id).join(', '))) : null,
       h('div', { class: 'rowx' }, h('span', {}, '도감'), h('span', {}, '그대로 남는다')),
-      carry.seedSilver ? h('div', { class: 'rowx' }, h('span', {}, '종잣돈'), h('b', {}, `은화 ${carry.seedSilver} (출신이 가진 것에 더해진다)`)) : null,
       Object.keys(carry.bank || {}).length ? h('div', { class: 'rowx' }, h('span', {}, '보관함'), h('b', {}, `${Object.entries(carry.bank).map(([t, b]) => `${t} 은화 ${b.silver}${b.items.length ? `, 물건 ${b.items.length}가지` : ''}`).join(' / ')} (그 마을 보관함에서 찾는다)`)) : null,
       Object.keys(carry.skills || {}).length ? h('div', { class: 'rowx' }, h('span', {}, '숙련도'), h('span', {}, `${Object.keys(carry.skills).map((id) => SKILL_NAMES[id] || id).join(', ')}: 쌓은 것의 5%`)) : null,
       carry.pastLives.map((p) => h('div', { class: 'rowx' }, h('span', {}, '지난 삶'), h('span', {}, `'${p.name}' — ${p.job || '무직'}, 레벨 ${p.level}, ${p.day}일째에 쓰러졌다`))));
@@ -744,7 +743,6 @@ export function start(root, storage = globalThis.localStorage) {
           h('div', { class: 'rowx' }, h('span', {}, '다시 일어선 몸으로 오른 스탯'), h('span', {}, raised.length ? raised.join(', ') : '없음')),
           h('div', { class: 'rowx' }, h('span', {}, '칭호'), h('span', {}, carry.titles.length ? `${carry.titles.length}개 모두` : '없음')),
           h('div', { class: 'rowx' }, h('span', {}, '도감'), h('span', {}, '본 괴물·물건·곳·짐승·요리')),
-          carry.seedSilver ? h('div', { class: 'rowx' }, h('span', {}, '종잣돈'), h('span', {}, `은화 ${carry.seedSilver} (가진 은화의 10%)`)) : null,
           Object.keys(carry.skills || {}).length ? h('div', { class: 'rowx' }, h('span', {}, '숙련도'), h('span', {}, `${Object.keys(carry.skills).length}가지, 쌓은 것의 5%`)) : null,
           Object.keys(carry.bank || {}).length ? h('div', { class: 'rowx' }, h('span', {}, '보관함'), h('span', {}, Object.entries(carry.bank).map(([t, b]) => `${t} 은화 ${b.silver}${b.items.length ? `, 물건 ${b.items.length}가지` : ''}`).join(' / '))) : null,
           h('div', { class: 'rowx' }, h('span', {}, '환생한 횟수'), h('span', {}, `${carry.lives}번째 삶`)),

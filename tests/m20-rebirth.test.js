@@ -77,8 +77,7 @@ test('환생: 히든 스탯, 다시 일어선 몸으로 오른 스탯, 칭호 �
   assert.equal(n.pastLives[0].name, '환');
   assert.equal(n.pastLives[0].level, 9);
   assert.equal(n.level, 1);
-  assert.equal(carry.seedSilver, Math.floor(s.silver * 0.1), '쓰러진 뒤 가진 은화의 10%');
-  assert.equal(n.silver, plain.silver + carry.seedSilver, '종잣돈이 출신의 은화에 더해진다');
+  assert.equal(n.silver, plain.silver, '가진 은화는 가지고 가지 못한다 (보관함에 맡긴 것만 남는다)');
   assert.equal(n.shadow, 0, '그림자는 가지고 가지 않는다');
   assert.equal(n.stats.str, plain.stats.str + 2);
   assert.equal(n.stats.con, plain.stats.con + 1);

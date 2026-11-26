@@ -1,5 +1,5 @@
 // 환생 (Z32). 쓰러진 뒤 신전에서 눈을 뜨는 대신 다시 태어날 수 있다.
-// 몸은 처음부터 다시지만, 종이 기억한 것(히든 스탯, 다시 일어선 몸으로 오른 스탯, 칭호, 도감)과 은화의 10%(종잣돈), 숙련도의 5%는 가지고 간다.
+// 몸은 처음부터 다시지만, 종이 기억한 것(히든 스탯, 다시 일어선 몸으로 오른 스탯, 칭호, 도감), 숙련도의 5%, 보관함은 가지고 간다.
 
 import { HIDDEN } from './hidden.js';
 import { xpNeeded, MAX_GRADE } from './skills.js';
@@ -21,7 +21,6 @@ import { JOBS, HIDDEN_JOBS } from '../data/jobs.js';
 const jobName = (id) => (id ? (JOBS[id] || HIDDEN_JOBS[id])?.name || id : null);
 
 const STATS = ['str', 'agi', 'con', 'wis'];
-export const SEED_RATE = 0.10; // 가진 은화의 이만큼을 종잣돈으로 가지고 간다
 const dexEntries = (s) => Object.values(s.dex || {}).reduce((n, v) => n + (v && typeof v === 'object' ? Object.keys(v).length : 0), 0);
 
 /** 지금의 삶에서 가지고 갈 것. 상태는 고치지 않는다. */
@@ -38,7 +37,6 @@ export function rebirthCarry(state) {
   const toughGained = Object.fromEntries(STATS.map((k) => [k, state.toughGained?.[k] || 0]));
   return {
     lives: (state.lives || 1) + 1,
-    seedSilver: Math.floor((state.silver || 0) * SEED_RATE),
     // 보관함은 통째로 남는다 (Z42): 맡긴 은화와 물건
     bank: Object.fromEntries(Object.entries(state.store || {}).filter(([, box]) => (box.silver || 0) > 0 || (box.items || []).length).map(([town, box]) => [town, { silver: box.silver || 0, items: JSON.parse(JSON.stringify(box.items || [])) }])),
     skills: Object.fromEntries(Object.entries(state.skills || {}).map(([id, sk]) => [id, Math.floor(skillTotal(sk) * SKILL_KEEP)]).filter(([, n]) => n > 0)),
@@ -62,7 +60,7 @@ export function rebirthLoss(state) {
     level: state.level,
     skills: Object.keys(state.skills || {}).length,
     job: jobName(state.job),
-    silver: state.silver - Math.floor((state.silver || 0) * SEED_RATE),
+    silver: state.silver,
     chapter: state.main?.chapter || 1,
     people: Object.keys(state.people || {}).length,
     guild: !!state.guild,
@@ -72,7 +70,6 @@ export function rebirthLoss(state) {
 /** 새로 만든 상태에 지난 삶의 것을 얹는다 (createGame이 부른다). */
 export function applyCarry(state, carry) {
   state.lives = carry.lives;
-  state.silver += carry.seedSilver || 0; // 종잣돈
   // 맡긴 은화는 장부에 남아 있다 (Z42). 그 마을 보관함에 들르면 주인이 알아본다
   for (const [town, box] of Object.entries(carry.bank || {})) state.store[town] = { items: JSON.parse(JSON.stringify(box.items || [])), silver: box.silver || 0 };
   if (Object.keys(carry.bank || {}).length) state.flags.pastBank = Object.keys(carry.bank);
