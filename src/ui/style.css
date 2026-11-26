@@ -592,3 +592,8 @@ html.assist-on .assistline, html.assist-on .assistline:empty { display: block; m
 .lvrow > .meter, .lvrow > div:not(.grow) { flex: 1 1 8rem; }
 h3.benchlv { font: 700 1rem var(--sans); color: var(--cinnamon); margin: .6rem 0 .2rem; border-bottom: 1px solid var(--line2); }
 .recipe.locked { opacity: .62; }
+
+/* 상점 여러 개 고르기 (Z85) */
+.traderow input.pick { width: 1.15rem; height: 1.15rem; accent-color: var(--cinnamon); flex: none; }
+.traderow.picked { background: var(--sand); border-radius: 6px; }
+.pickbar { margin-bottom: 4px; }

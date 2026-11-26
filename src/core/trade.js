@@ -1,17 +1,17 @@
 // 상점과 보관함 (E24, E25, E28, H1-5, H1-6, R2-4).
 // 돈은 은화 한 가지. 팔 때는 값의 40%. 등급이 높으면 값도 높다.
 
-import { pushLine } from './log.js?v=bde8e2e';
-import { itemDef, GRADE_MULT, gradeName } from '../data/items.js?v=bde8e2e';
-import { addItem, removeAt, itemWeight } from './inventory.js?v=bde8e2e';
-import { SHOPS, DAILY_SWING } from '../data/shops.js?v=bde8e2e';
-import { seedFrom } from './rng.js?v=bde8e2e';
-import { discountOf as socialDiscount } from './social.js?v=bde8e2e';
-import { placeById } from '../data/places.js?v=bde8e2e';
-import { guildPerk } from './guild.js?v=bde8e2e';
-import { gearName } from './gear.js?v=bde8e2e';
-import { eulReul, iGa } from './ko.js?v=bde8e2e';
-import { hasTitle } from './titles.js?v=bde8e2e';
+import { pushLine } from './log.js?v=8782554';
+import { itemDef, GRADE_MULT, gradeName } from '../data/items.js?v=8782554';
+import { addItem, removeAt, itemWeight } from './inventory.js?v=8782554';
+import { SHOPS, DAILY_SWING } from '../data/shops.js?v=8782554';
+import { seedFrom } from './rng.js?v=8782554';
+import { discountOf as socialDiscount } from './social.js?v=8782554';
+import { placeById } from '../data/places.js?v=8782554';
+import { guildPerk } from './guild.js?v=8782554';
+import { gearName } from './gear.js?v=8782554';
+import { eulReul, iGa } from './ko.js?v=8782554';
+import { hasTitle } from './titles.js?v=8782554';
 
 export const SELL_RATE = 0.4;
 export const APPRAISE_SELL = 0.01;
@@ -102,6 +102,38 @@ export function sell(state, events, index, n = 1) {
   state.silver += each * n;
   pushLine(state, events, { k: 'me', text: `${grade}${name} ${n}개를 팔았다. 은화 +${each * n}.` });
   events.push({ type: 'trade' });
+}
+
+/**
+ * 고른 것을 한꺼번에 판다 (Z85, 사용자 요청). picks: [{ index, n }]. 하나라도 안 되면 아무것도 팔지 않는다.
+ * 가방의 자리가 바뀌지 않게 뒤쪽부터 뺀다.
+ */
+export function sellMany(state, events, picks) {
+  if (!shopHere(state)) throw new Error('여기에는 사 줄 사람이 없습니다');
+  if (!Array.isArray(picks) || !picks.length) throw new Error('고른 것이 없습니다');
+  const seen = new Set();
+  const rows = picks.map((p) => {
+    const item = state.bag[p.index];
+    if (!item || seen.has(p.index)) throw new Error('가방에 없는 물건입니다');
+    seen.add(p.index);
+    const n = p.n ?? item.n;
+    if (!Number.isInteger(n) || n < 1 || n > item.n) throw new Error('그만큼 가지고 있지 않습니다');
+    const each = sellPrice(item, state);
+    if (each <= 0) throw new Error(`${gearName(item)}${itemDef(item.id).kind === 'quest' ? '는 퀘스트 물건이라' : '는'} 팔 수 없습니다`);
+    return { index: p.index, item, n, each };
+  });
+  let total = 0;
+  const names = [];
+  for (const r of [...rows].sort((a, b) => b.index - a.index)) {
+    if (r.item.maker === state.name && r.item.grade >= 2) state.main.soldRare = true;
+    names.unshift(`${r.item.grade ? `${gradeName(r.item.grade)} 등급 ` : ''}${gearName(r.item)}${r.n > 1 ? ` ${r.n}개` : ''}`);
+    removeAt(state, r.index, r.n);
+    total += r.each * r.n;
+  }
+  state.silver += total;
+  pushLine(state, events, { k: 'me', text: `${names.join(', ')}. 한꺼번에 팔았다. 은화 +${total}.` });
+  events.push({ type: 'trade' });
+  return total;
 }
 
 // ── 보관함 ──────────────────────────────────────────────

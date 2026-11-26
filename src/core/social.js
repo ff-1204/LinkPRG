@@ -1,17 +1,17 @@
 // 사람들과의 사이, 명성, 칭호, 대화 판정 (E25~E28, G3-1, T10~T14).
 
-import { next, pick, roll01 } from './rng.js?v=bde8e2e';
-import { pushLine, ding } from './log.js?v=bde8e2e';
-import { PEOPLE, PEOPLE_ORDER, BONDS, GIFT, TALK_POINT, FAME, TITLES, personById, REGULAR, CALLS } from '../data/people.js?v=bde8e2e';
-import { itemDef } from '../data/items.js?v=bde8e2e';
-import { removeAt } from './inventory.js?v=bde8e2e';
-import { placeById, ACTIONS } from '../data/places.js?v=bde8e2e';
-import { COMPANIONS, ROLE_BONUS } from '../data/companions.js?v=bde8e2e';
-import { iGa, eulReul, ro, eunNeun } from './ko.js?v=bde8e2e';
-import { TALKS } from '../data/talks.js?v=bde8e2e';
-import { rootOf } from '../data/origins.js?v=bde8e2e';
-import { smithMemory } from './memories.js?v=bde8e2e';
-import { hasTitle } from './titles.js?v=bde8e2e';
+import { next, pick, roll01 } from './rng.js?v=8782554';
+import { pushLine, ding } from './log.js?v=8782554';
+import { PEOPLE, PEOPLE_ORDER, BONDS, GIFT, TALK_POINT, FAME, TITLES, personById, REGULAR, CALLS } from '../data/people.js?v=8782554';
+import { itemDef } from '../data/items.js?v=8782554';
+import { removeAt } from './inventory.js?v=8782554';
+import { placeById, ACTIONS } from '../data/places.js?v=8782554';
+import { COMPANIONS, ROLE_BONUS } from '../data/companions.js?v=8782554';
+import { iGa, eulReul, ro, eunNeun } from './ko.js?v=8782554';
+import { TALKS } from '../data/talks.js?v=8782554';
+import { rootOf } from '../data/origins.js?v=8782554';
+import { smithMemory } from './memories.js?v=8782554';
+import { hasTitle } from './titles.js?v=8782554';
 
 const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
 

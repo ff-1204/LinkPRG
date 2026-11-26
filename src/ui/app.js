@@ -1,68 +1,68 @@
 // 화면 본체. 규칙(core)을 불러 상태를 고치고, 상태를 그린다.
 // 시안 번호: 화면 틀 D1~D6, 캐릭터 만들기 T1~T3, 상태·스킬 창 G2, 저장·설정 G4, 도움말 H2, 그림 X1·X3.
 
-import { h, pixel, fill, add } from './dom.js?v=bde8e2e';
-import { createWindows } from './windows.js?v=bde8e2e';
-import { loadSettings, saveSettings, applySettings, SETTING_GROUPS } from './settings.js?v=bde8e2e';
-import { playDing } from './sound.js?v=bde8e2e';
-import { HELP } from './help.js?v=bde8e2e';
+import { h, pixel, fill, add } from './dom.js?v=8782554';
+import { createWindows } from './windows.js?v=8782554';
+import { loadSettings, saveSettings, applySettings, SETTING_GROUPS } from './settings.js?v=8782554';
+import { playDing } from './sound.js?v=8782554';
+import { HELP } from './help.js?v=8782554';
 import {
   createGame, dispatch, usersHere, whenLabel, isNight, scarecrowStage, DING_LEVELS,
   slotsNow, mapView, bodyView, clockOf, enemyView, choiceView, craftView,
-} from '../core/game.js?v=bde8e2e';
-import { recipeList, craftLvView } from '../core/craft.js?v=bde8e2e';
-import { ORDER_OF, BRANCHES, BRANCH_ORDER } from '../data/recipes.js?v=bde8e2e';
-import { jobDef as jobDefOf } from '../data/jobs.js?v=bde8e2e';
-import { evolveView, pendingEvolves, branchOf } from '../core/evolve.js?v=bde8e2e';
-import { shopView, storeView } from '../core/trade.js?v=bde8e2e';
-import { peopleHere, bondName, helloOf, spokeToday, titleView, peopleDex, fameOf, fameRank } from '../core/social.js?v=bde8e2e';
-import { offersOf, subView, boardView, jobsView, questBook, mainView, hiddenView } from '../core/quests.js?v=bde8e2e';
-import { SUBS } from '../data/quests.js?v=bde8e2e';
-import { jobChoices, jobName, skillsNow, canChooseJob, hiddenJobTraces, advanceView } from '../core/jobs.js?v=bde8e2e';
-import { factionView, leanName } from '../core/factions.js?v=bde8e2e';
-import { sculptMenu, sculptView, worksView, statueOf } from '../core/sculpt.js?v=bde8e2e';
-import { cookMenu } from '../core/cook.js?v=bde8e2e';
-import { buffRows } from '../core/buffs.js?v=bde8e2e';
-import { partyView } from '../core/party.js?v=bde8e2e';
-import { WORK_GRADES } from '../data/works.js?v=bde8e2e';
-import { REGULAR, BONDS } from '../data/people.js?v=bde8e2e';
-import { bondOf } from '../core/social.js?v=bde8e2e';
-import { MERC_FEE, PARTY_MAX } from '../data/companions.js?v=bde8e2e';
-import { roomView, dungeonMap } from '../core/dungeon.js?v=bde8e2e';
-import { noticesView, ranking, rumorsView, sinceLast, markSeen } from '../core/world.js?v=bde8e2e';
-import { auctionView } from '../core/auction.js?v=bde8e2e';
-import { RANKS } from '../data/world.js?v=bde8e2e';
-import { townRooms, BOAT_NEEDS, BOAT_FEE, OFFER_FEE, countOf, regenRate } from '../core/game.js?v=bde8e2e';
-import { townOf } from '../core/social.js?v=bde8e2e';
-import { DUNGEONS } from '../data/dungeon.js?v=bde8e2e';
-import { FAME, TITLES, PEOPLE } from '../data/people.js?v=bde8e2e';
-import { RECIPES } from '../data/recipes.js?v=bde8e2e';
-import { ITEMS } from '../data/items.js?v=bde8e2e';
-import { GRADES } from '../data/items.js?v=bde8e2e';
-import { bagView, tabCounts, previewEquip, iconOf, itemPower, itemWeight, slotFor, equipWeight } from '../core/inventory.js?v=bde8e2e';
-import { BAG_TABS, EQUIP_SLOTS, itemDef, gradeName } from '../data/items.js?v=bde8e2e';
-import { monsterDef } from '../data/monsters.js?v=bde8e2e';
-import { originById, dealOrigins, ROOTS, ORIGIN_GRADES, STAT_NAMES, STAT_USES, rollDice, DICE_TOTAL, DICE_MIN, DICE_FREE_AT } from '../data/origins.js?v=bde8e2e';
-import { placeById, PLACES, TOWN_ORDER, PHASES, ACTIONS, PHASE_TICKS } from '../data/places.js?v=bde8e2e';
-import { SKILL_NAMES, gradeLabel, progress, skillEffect } from '../core/skills.js?v=bde8e2e';
-import { hiddenSlots, foundCount, hiddenTotal, hiddenById } from '../core/hidden.js?v=bde8e2e';
-import { rebirthCarry, rebirthLoss } from '../core/rebirth.js?v=bde8e2e';
-import { createCloud } from './cloud.js?v=bde8e2e';
-import { mailView, unreadMail } from '../core/mail.js?v=bde8e2e';
-import { shadowView, BLESSERS } from '../core/fall.js?v=bde8e2e';
-import { ringView, afterText } from '../core/ending.js?v=bde8e2e';
-import { derived, formula, valueOf } from '../core/derived.js?v=bde8e2e';
-import { saveTo, loadFrom, listSlots, clearSlot, exportText, importText, shouldAutosave, revOf, SaveConflict } from '../core/save.js?v=bde8e2e';
-import { createPressGuard, keyDecision, slotIndex } from '../core/press.js?v=bde8e2e';
-import { createAssist, assistable } from '../core/assist.js?v=bde8e2e';
-import { STANCES, stanceOf, wisResist } from '../core/battle.js?v=bde8e2e';
-import { gearName, optionLines, maxDur, repairCost, enhanceView, mendHere } from '../core/gear.js?v=bde8e2e';
-import { guildView, DONATE } from '../core/guild.js?v=bde8e2e';
-import { DRINK_HOSTS } from '../core/social.js?v=bde8e2e';
-import { TEACHERS, learnableHere, KNOWN_BOND } from '../core/work.js?v=bde8e2e';
-import { rootOf } from '../data/origins.js?v=bde8e2e';
-import { recordError, readErrors, clearErrors } from '../core/errors.js?v=bde8e2e';
-import { ro, iGa, waGwa, eulReul, eunNeun } from '../core/ko.js?v=bde8e2e';
+} from '../core/game.js?v=8782554';
+import { recipeList, craftLvView } from '../core/craft.js?v=8782554';
+import { ORDER_OF, BRANCHES, BRANCH_ORDER } from '../data/recipes.js?v=8782554';
+import { jobDef as jobDefOf } from '../data/jobs.js?v=8782554';
+import { evolveView, pendingEvolves, branchOf } from '../core/evolve.js?v=8782554';
+import { shopView, storeView } from '../core/trade.js?v=8782554';
+import { peopleHere, bondName, helloOf, spokeToday, titleView, peopleDex, fameOf, fameRank } from '../core/social.js?v=8782554';
+import { offersOf, subView, boardView, jobsView, questBook, mainView, hiddenView } from '../core/quests.js?v=8782554';
+import { SUBS } from '../data/quests.js?v=8782554';
+import { jobChoices, jobName, skillsNow, canChooseJob, hiddenJobTraces, advanceView } from '../core/jobs.js?v=8782554';
+import { factionView, leanName } from '../core/factions.js?v=8782554';
+import { sculptMenu, sculptView, worksView, statueOf } from '../core/sculpt.js?v=8782554';
+import { cookMenu } from '../core/cook.js?v=8782554';
+import { buffRows } from '../core/buffs.js?v=8782554';
+import { partyView } from '../core/party.js?v=8782554';
+import { WORK_GRADES } from '../data/works.js?v=8782554';
+import { REGULAR, BONDS } from '../data/people.js?v=8782554';
+import { bondOf } from '../core/social.js?v=8782554';
+import { MERC_FEE, PARTY_MAX } from '../data/companions.js?v=8782554';
+import { roomView, dungeonMap } from '../core/dungeon.js?v=8782554';
+import { noticesView, ranking, rumorsView, sinceLast, markSeen } from '../core/world.js?v=8782554';
+import { auctionView } from '../core/auction.js?v=8782554';
+import { RANKS } from '../data/world.js?v=8782554';
+import { townRooms, BOAT_NEEDS, BOAT_FEE, OFFER_FEE, countOf, regenRate } from '../core/game.js?v=8782554';
+import { townOf } from '../core/social.js?v=8782554';
+import { DUNGEONS } from '../data/dungeon.js?v=8782554';
+import { FAME, TITLES, PEOPLE } from '../data/people.js?v=8782554';
+import { RECIPES } from '../data/recipes.js?v=8782554';
+import { ITEMS } from '../data/items.js?v=8782554';
+import { GRADES } from '../data/items.js?v=8782554';
+import { bagView, tabCounts, previewEquip, iconOf, itemPower, itemWeight, slotFor, equipWeight } from '../core/inventory.js?v=8782554';
+import { BAG_TABS, EQUIP_SLOTS, itemDef, gradeName } from '../data/items.js?v=8782554';
+import { monsterDef } from '../data/monsters.js?v=8782554';
+import { originById, dealOrigins, ROOTS, ORIGIN_GRADES, STAT_NAMES, STAT_USES, rollDice, DICE_TOTAL, DICE_MIN, DICE_FREE_AT } from '../data/origins.js?v=8782554';
+import { placeById, PLACES, TOWN_ORDER, PHASES, ACTIONS, PHASE_TICKS } from '../data/places.js?v=8782554';
+import { SKILL_NAMES, gradeLabel, progress, skillEffect } from '../core/skills.js?v=8782554';
+import { hiddenSlots, foundCount, hiddenTotal, hiddenById } from '../core/hidden.js?v=8782554';
+import { rebirthCarry, rebirthLoss } from '../core/rebirth.js?v=8782554';
+import { createCloud } from './cloud.js?v=8782554';
+import { mailView, unreadMail } from '../core/mail.js?v=8782554';
+import { shadowView, BLESSERS } from '../core/fall.js?v=8782554';
+import { ringView, afterText } from '../core/ending.js?v=8782554';
+import { derived, formula, valueOf } from '../core/derived.js?v=8782554';
+import { saveTo, loadFrom, listSlots, clearSlot, exportText, importText, shouldAutosave, revOf, SaveConflict } from '../core/save.js?v=8782554';
+import { createPressGuard, keyDecision, slotIndex } from '../core/press.js?v=8782554';
+import { createAssist, assistable } from '../core/assist.js?v=8782554';
+import { STANCES, stanceOf, wisResist } from '../core/battle.js?v=8782554';
+import { gearName, optionLines, maxDur, repairCost, enhanceView, mendHere } from '../core/gear.js?v=8782554';
+import { guildView, DONATE } from '../core/guild.js?v=8782554';
+import { DRINK_HOSTS } from '../core/social.js?v=8782554';
+import { TEACHERS, learnableHere, KNOWN_BOND } from '../core/work.js?v=8782554';
+import { rootOf } from '../data/origins.js?v=8782554';
+import { recordError, readErrors, clearErrors } from '../core/errors.js?v=8782554';
+import { ro, iGa, waGwa, eulReul, eunNeun } from '../core/ko.js?v=8782554';
 
 const SCARECROW_ALT = ['멀쩡한 허수아비', '짚이 빠지기 시작한 허수아비', '한쪽으로 기운 허수아비', '터져서 짚이 흩날리는 허수아비'];
 const SCARECROW_SAY = ['아직 멀쩡하다', '짚이 빠지기 시작했다', '한쪽으로 기울었다', '터졌다. 기둥만 남았다'];
@@ -1038,10 +1038,15 @@ export function start(root, storage = globalThis.localStorage) {
   }
 
   function openShop() {
+    const picked = new Set(); // 여러 개 고르기 (Z85): 고른 가방 칸. 고른 칸은 묶음째 판다
     wins.open({
       title: '상점', size: 'wide', side: shopView(game)?.keeper || '',
       render(body, { rerender }) {
         const v = shopView(game);
+        for (const it of [...picked]) if (!v.mine.some((m) => m.item === it)) picked.delete(it);
+        const chosen = v.mine.filter((m) => picked.has(m.item));
+        const sum = chosen.reduce((a, m) => a + m.each * m.n, 0);
+        const toggle = (m) => { if (picked.has(m.item)) picked.delete(m.item); else picked.add(m.item); rerender(); };
         const act = (action) => { if (run(action, true)) rerender(); };
         const ask = (text, yes, action) => confirmTrade(text, yes, () => act(action));
         add(body,
@@ -1057,7 +1062,11 @@ export function start(root, storage = globalThis.localStorage) {
                 h('button', { class: 'btn sm', type: 'button', 'aria-label': `${g.name} 하나 사기`, disabled: game.silver < g.now, onclick: () => ask(`${g.name} 하나를 은화 ${g.now}에 살까요? (가진 은화 ${game.silver})`, '산다', { type: 'buy', id: g.id }) }, '구매')))),
             h('div', { style: 'display:flex;flex-direction:column;gap:4px;min-width:0' },
               h('span', { class: 'h', style: 'margin-top:0' }, '내 가방 (팔면 값의 40%)'),
-              v.mine.length ? h('div', { class: 'items' }, v.mine.map((m) => h('div', { class: 'traderow' },
+              v.mine.length ? h('div', { class: 'row-btns pickbar' },
+                h('button', { class: 'btn sm go', type: 'button', disabled: !chosen.length, onclick: () => ask(`고른 ${chosen.length}가지를 은화 ${sum}에 한꺼번에 팔까요? (${chosen.map((m) => `${m.name}${m.n > 1 ? ` ${m.n}개` : ''}`).join(', ')})`, '한꺼번에 판다', { type: 'sellMany', picks: chosen.map((m) => ({ index: game.bag.indexOf(m.item), n: m.item.n })) }) }, chosen.length ? `고른 것 팔기 (${chosen.length}가지, 은화 ${sum})` : '고른 것 팔기'),
+                h('button', { class: 'btn sm', type: 'button', onclick: () => { if (chosen.length === v.mine.length) picked.clear(); else for (const m of v.mine) picked.add(m.item); rerender(); } }, chosen.length === v.mine.length ? '고르기 풀기' : '모두 고르기')) : null,
+              v.mine.length ? h('div', { class: 'items' }, v.mine.map((m) => h('div', { class: `traderow ${picked.has(m.item) ? 'picked' : ''}` },
+                h('input', { type: 'checkbox', class: 'pick', checked: picked.has(m.item), 'aria-label': `${m.name} ${m.grade}${m.n > 1 ? ` ${m.n}개` : ''} 고르기`, onchange: () => toggle(m) }),
                 icon(m.item), h('span', { class: 'grow' }, h('b', {}, m.name), h('small', {}, ` ${m.grade}${m.n > 1 ? `, ${m.n}개` : ''}`)),
                 h('span', {}, `하나에 ${m.each}`),
                 h('button', { class: 'btn sm', type: 'button', 'aria-label': `${m.name} ${m.grade} 하나 팔기`, onclick: () => ask(`${m.name} 하나를 은화 ${m.each}에 팔까요?`, '판다', { type: 'sell', index: game.bag.indexOf(m.item), n: 1 }) }, '판매'),
