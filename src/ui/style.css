@@ -536,3 +536,6 @@ body { word-break: keep-all; overflow-wrap: break-word; }
 @media (max-width: 1000px) { .create h1 { font-size: 1.55rem; } }
 /* 누르기 돕기를 켜 두면 안내 줄 자리를 늘 비워 둔다. 연타할 때 줄이 생겼다 사라지며 칸이 위아래로 튀던 것 (사용자 제보) */
 html.assist-on .assistline, html.assist-on .assistline:empty { display: block; min-height: 1.6em; line-height: 1.6em; }
+
+/* 설정의 연결 표시가 줄 끝까지 늘어나던 것 */
+.setrow .cloudtag { justify-self: start; align-self: flex-start; width: max-content; margin-left: 0; }
