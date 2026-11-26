@@ -36,3 +36,17 @@ node --test tests/
 
 - 시험판(v0.1.0)입니다. 숫자와 글이 바뀔 수 있습니다.
 - 저장은 브라우저 안에만 있습니다. 브라우저 데이터를 지우면 사라지니 "파일로 내보내기"로 따로 간직해 두세요.
+
+## 기획 문서
+
+게임을 어떻게 짰는지 적은 문서입니다. 줄거리의 끝과 숨은 조건까지 적혀 있으니, 모르고 하고 싶으면 읽지 마세요.
+
+| 문서 | 내용 |
+|---|---|
+| [concept.md](concept.md) | 어떤 게임인가, 화면 틀 |
+| [systems.md](systems.md) | 규칙과 창 (번호째로) |
+| [story.md](story.md) | 줄거리 (끝까지) |
+| [personas.md](personas.md) | 누가 하는가 |
+| [persona-scenarios.md](persona-scenarios.md) | 그 사람들이 어떻게 하는가 |
+| [roadmap.md](roadmap.md) | 만든 순서 |
+| [checklist.md](checklist.md) | 기능 목록 |
