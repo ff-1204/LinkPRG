@@ -354,3 +354,7 @@ html.calm .cool i { animation: none !important; }
 
 .pastlife { background: rgba(242, 180, 56, .14); border: 1px solid var(--honey); border-radius: 8px; padding: 10px 14px; margin-bottom: 1rem; max-width: 40rem; }
 .pastlife h2 { font-size: 1.1rem; margin: 0 0 4px; }
+
+/* 방 목록: 묶음 사이에 짧은 선 */
+.nav > small:not(:first-child):not(.part) { position: relative; margin-top: 10px; }
+.nav > small:not(:first-child):not(.part)::before { content: ''; position: absolute; left: 20px; width: 60%; top: -5px; border-top: 2px solid var(--line2); border-radius: 2px; }
