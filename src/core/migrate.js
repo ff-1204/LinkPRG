@@ -1,17 +1,17 @@
 // 저장의 판(버전)과, 옛 저장을 지금 꼴로 올리는 길.
 // 저장 형식을 바꾸면 SAVE_VERSION을 올리고 여기에 한 단계를 더한다.
 
-import { makeItem } from './inventory.js?v=c0f458e';
-import { valueOf } from './derived.js?v=c0f458e';
-import { worldFields } from './world.js?v=c0f458e';
-import { auctionFields } from './auction.js?v=c0f458e';
+import { makeItem } from './inventory.js?v=6d96d3a';
+import { valueOf } from './derived.js?v=6d96d3a';
+import { worldFields } from './world.js?v=6d96d3a';
+import { auctionFields } from './auction.js?v=6d96d3a';
 
-import { endingFields } from './ending.js?v=c0f458e';
-import { MAIN } from '../data/quests.js?v=c0f458e';
-import { ITEMS } from '../data/items.js?v=c0f458e';
-import { ADVANCED } from '../data/jobs.js?v=c0f458e';
-import { nativeWork } from './work.js?v=c0f458e';
-import { deliverMail } from './mail.js?v=c0f458e';
+import { endingFields } from './ending.js?v=6d96d3a';
+import { MAIN } from '../data/quests.js?v=6d96d3a';
+import { ITEMS } from '../data/items.js?v=6d96d3a';
+import { ADVANCED } from '../data/jobs.js?v=6d96d3a';
+import { nativeWork } from './work.js?v=6d96d3a';
+import { deliverMail } from './mail.js?v=6d96d3a';
 const ORIGIN_NATIVE = new Proxy({}, { get: (_, id) => nativeWork(id) });
 
 export { worldFields, auctionFields, endingFields };

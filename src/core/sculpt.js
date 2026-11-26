@@ -1,21 +1,21 @@
 // 조각과 작품 (N2, X1, X3-3). 칼질 마흔 번을 손으로. 본 것만 깎는다.
 // 등급은 마지막 칼질에서 갈린다. 그 전에는 그림으로도 글로도 알 수 없다.
 
-import { next } from './rng.js?v=c0f458e';
-import { pushLine, ding } from './log.js?v=c0f458e';
-import { countOf, takeById } from './inventory.js?v=c0f458e';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=c0f458e';
-import { itemDef } from '../data/items.js?v=c0f458e';
-import { bondOf, bondBy, addFame } from './social.js?v=c0f458e';
-import { jobXp } from './jobs.js?v=c0f458e';
-import { REGULAR, PEOPLE } from '../data/people.js?v=c0f458e';
-import { placeById } from '../data/places.js?v=c0f458e';
+import { next } from './rng.js?v=6d96d3a';
+import { pushLine, ding } from './log.js?v=6d96d3a';
+import { countOf, takeById } from './inventory.js?v=6d96d3a';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=6d96d3a';
+import { itemDef } from '../data/items.js?v=6d96d3a';
+import { bondOf, bondBy, addFame } from './social.js?v=6d96d3a';
+import { jobXp } from './jobs.js?v=6d96d3a';
+import { REGULAR, PEOPLE } from '../data/people.js?v=6d96d3a';
+import { placeById } from '../data/places.js?v=6d96d3a';
 import {
   CUTS, WORK_GRADES, WORK_BASE, WORK_PUSH, WORK_NEEDS, SCULPT_DIFFICULTY, CUT_MARKS, CUT_LINES,
   SUBJECTS, SUBJECT_ORDER, ADMIRE, WORK_PRICE, WORK_FAME,
-} from '../data/works.js?v=c0f458e';
-import { iGa, eulReul } from './ko.js?v=c0f458e';
-import { buffOf, xpBoost } from './buffs.js?v=c0f458e';
+} from '../data/works.js?v=6d96d3a';
+import { iGa, eulReul } from './ko.js?v=6d96d3a';
+import { buffOf, xpBoost } from './buffs.js?v=6d96d3a';
 
 export { buffOf };
 

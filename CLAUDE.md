@@ -47,5 +47,6 @@
 
 ## 진행 기록
 
-- 어디까지 됐는지: [roadmap.md](roadmap.md)의 ✅
-- 이어 하기 메모: [docs/이어하기.md](docs/이어하기.md)
+- 어디까지 됐는지: [roadmap.md](roadmap.md)의 ✅, 로드맵 뒤에 더한 것은 [systems.md](systems.md) "11차" 절의 Z 표
+- 이어 하기 메모(새 세션은 여기부터): [docs/이어하기.md](docs/이어하기.md)
+- 공개: 사용자가 "올려 줘"라고 할 때만 `bash tools/publish.sh`

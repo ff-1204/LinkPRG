@@ -2,11 +2,11 @@
 // 일터의 주인과 낯익은 사이가 되어 거들게 해 달라고 청하거나, 곁에서 오래 구경하면 주인이 먼저 가르쳐 준다.
 // 출신에 따라 처음부터 할 줄 아는 일이 있다.
 
-import { pushLine, ding } from './log.js?v=c0f458e';
-import { PEOPLE } from '../data/people.js?v=c0f458e';
-import { ACTIONS, placeById } from '../data/places.js?v=c0f458e';
-import { originById } from '../data/origins.js?v=c0f458e';
-import { iGa, eulReul } from './ko.js?v=c0f458e';
+import { pushLine, ding } from './log.js?v=6d96d3a';
+import { PEOPLE } from '../data/people.js?v=6d96d3a';
+import { ACTIONS, placeById } from '../data/places.js?v=6d96d3a';
+import { originById } from '../data/origins.js?v=6d96d3a';
+import { iGa, eulReul } from './ko.js?v=6d96d3a';
 
 /** 곳 → 가르쳐 줄 사람 */
 export const TEACHERS = { forge: 'smith', tailor: 'tailor', kitchen: 'chef', craftrow: 'master', shipyard: 'shipwright', fishmarket: 'fishwife', dock: 'ferryman', branch: 'agent', backalley: 'elder', guild: 'clerk' };
