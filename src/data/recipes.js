@@ -88,7 +88,21 @@ RECIPES.fangring = jewel('fangring', '송곳니 반지', 2, 2, 10, [{ id: 'wolff
 RECIPES.ironring = jewel('ironring', '철 반지', 3, 3, 12, [{ id: 'ironore', n: 3 }, { id: 'wolffang', n: 1 }], '두꺼운 쇠고리에 송곳니 하나를 박았다.');
 export const JEWEL_ORDER = ['copperring', 'prayerbeads', 'fangring', 'ironring'];
 export const JEWEL_LINES = ['줄로 쓸었다. 쇳가루가 반짝인다.', '끌로 홈을 팠다. 손끝에 힘이 들어간다.', '고리를 불에 달궈 둥글게 다듬었다.', '가죽에 문질러 광을 냈다.'];
-export const ORDER_OF = { smith: RECIPE_ORDER, sew: SEW_ORDER, jewel: JEWEL_ORDER };
+/**
+ * 요리 (Z93): 만들기·바느질처럼 레벨별 요리 목록에서 골라, 한 번 누르면 한 번 젓는다. 식지 않는다.
+ * 공용주방에서는 그릇에 담아 가방에, 강가 모닥불에서는 다 되면 그 자리에서 먹는다. 등급이 높을수록 음식의 힘이 오래 간다.
+ */
+const cookR = (id, lv, hits, needs, say) => ({ id: `cook_${id}`, name: DISHES_NAME[id], makes: `dish_${id}`, dish: id, skill: 'cooking', difficulty: lv, hits, sew: true, cook: true, branch: 'cook', lv, needs, say });
+const DISHES_NAME = { saltfish: '소금 붕어 구이', berryrice: '산열매 주먹밥', boarstew: '멧돼지 약초 찜', herbfish: '약초 붕어 탕', eelsoup: '장어 소금 국', boarskewer: '멧돼지 산열매 꼬치' };
+RECIPES.cook_saltfish = cookR('saltfish', 1, 6, [{ id: 'crucian', n: 1 }, { id: 'salt', n: 1 }], '민물고기는 소금만 쳐서 굽는 게 제일이다.');
+RECIPES.cook_berryrice = cookR('berryrice', 1, 6, [{ id: 'riceball', n: 1 }, { id: 'berry', n: 1 }], '주먹밥에 산열매를 박는다.');
+RECIPES.cook_boarstew = cookR('boarstew', 1, 8, [{ id: 'boarmeat', n: 1 }, { id: 'herb', n: 1 }, { id: 'salt', n: 1 }], '누린내는 약초로 잡는다.');
+RECIPES.cook_herbfish = cookR('herbfish', 1, 8, [{ id: 'crucian', n: 1 }, { id: 'herb', n: 1 }], '생선 넣은 약초 물. 아픈 사람에게 먹인다.');
+RECIPES.cook_eelsoup = cookR('eelsoup', 2, 10, [{ id: 'eel', n: 1 }, { id: 'salt', n: 1 }, { id: 'herb', n: 1 }], '나루 장어를 소금과 약초만 넣고 끓인다.');
+RECIPES.cook_boarskewer = cookR('boarskewer', 3, 10, [{ id: 'boarmeat', n: 1 }, { id: 'berry', n: 1 }, { id: 'salt', n: 1 }], '멧돼지 고기에 산열매를 끼우고 소금을 쳐서 굽는다.');
+export const COOK_ORDER = ['cook_saltfish', 'cook_berryrice', 'cook_boarstew', 'cook_herbfish', 'cook_eelsoup', 'cook_boarskewer'];
+export const COOK_STIR = ['솥을 저었다. 김이 오른다.', '불을 조금 줄였다. 냄새가 번진다.', '간을 보았다. 조금 더 끓인다.', '뒤집었다. 지글거린다.'];
+export const ORDER_OF = { smith: RECIPE_ORDER, sew: SEW_ORDER, jewel: JEWEL_ORDER, cook: COOK_ORDER };
 export const STITCH_LINES = ['바늘을 찔렀다. 실이 팽팽하다.', '송곳으로 구멍을 내고 실을 당겼다.', '한 땀 떴다. 가죽이 질기다.', '바늘 끝이 손가락을 스쳤다.'];
 
 /** 망치질 줄. 몇 번째인지에 따라 다르다. */

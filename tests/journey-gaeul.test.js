@@ -93,8 +93,9 @@ test('가을 2~8: 나무를 주워 토끼를 깎고, 걸작을 세우고, 붕어
   while (countOf(s, 'crucian') < 1 && n++ < 200) { if (s.battle) fight(s); else if (s.choice) dispatch(s, { type: 'choose', id: slotsNow(s).at(-1).action.id }); else dispatch(s, { type: 'act', id: 'fish' }); feed(s); }
   s.full = 30;
   const hp = valueOf(s, 'maxHp');
-  dispatch(s, { type: 'cook', ids: ['crucian', 'salt'] });
-  assert.equal(cookMenu(s).known[0].name, '소금 붕어 구이');
+  dispatch(s, { type: 'craft', recipe: 'cook_saltfish' }); // 요리 목록에서 골라 젓는다 (Z93)
+  while (s.craft) { s.tired = 0; dispatch(s, { type: 'hammer' }); }
+  assert.ok(s.dex.dishes.saltfish);
   assert.ok(s.full > 30);
   assert.equal(foodBuff(s).name, '든든한 속');
   assert.ok(valueOf(s, 'maxHp') >= hp + 15 - 10, '체력 버프가 붙는다(감상 버프가 그사이 끝났을 수 있다)');

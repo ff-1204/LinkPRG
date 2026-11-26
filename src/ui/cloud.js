@@ -1,10 +1,12 @@
 // 구글 로그인과 드라이브 맞추기 (Z44). 화면(app.js)이 부른다.
 // 로그인은 구글의 Google Identity Services(토큰 방식). 서버도 비밀값도 없다. 클라이언트 ID는 공개해도 되는 값이다.
-// 접근 토큰은 이 창의 sessionStorage에만 한 시간쯤 둔다. 지나면 "다시 연결"을 눌러야 한다.
+// 접근 토큰은 이 창의 sessionStorage에만 한 시간쯤 둔다.
+// 로그인 유지 (Z91): 한 번 연결한 기기에서는 토큰이 끝나 가거나 풀렸을 때, 다음에 화면을 누르는 순간
+// (지도 이동, 단추 무엇이든) 구글에 조용히 다시 받아 온다. 브라우저는 누른 순간에만 로그인 창을 허락하기 때문이다.
 
-import { createDrive } from './drive.js?v=d783470';
-import { syncPlan } from '../core/sync.js?v=d783470';
-import { revOf, exportText, importText, parseSave, SLOT_COUNT } from '../core/save.js?v=d783470';
+import { createDrive } from './drive.js?v=fc38b0e';
+import { syncPlan } from '../core/sync.js?v=fc38b0e';
+import { revOf, exportText, importText, parseSave, SLOT_COUNT } from '../core/save.js?v=fc38b0e';
 
 export const CLIENT_ID = '782176240387-mi4cvftsmbefiddvd25rul2mvtf09adp.apps.googleusercontent.com';
 const SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
@@ -13,6 +15,8 @@ const TOKEN_KEY = 'ttiring.cloud.token';
 const WANT_KEY = 'ttiring.cloud'; // 로그인한 적이 있다(토큰은 아니다)
 const LOG_KEY = 'ttiring.cloud.log'; // 이 기기에서 드라이브에 올린 기록. 최근 둘만 둔다 (보기만 한다)
 export const LOG_KEEP = 2;
+export const RENEW_BEFORE = 10 * 60 * 1000; // 끝나기 10분 전부터 다시 받는다
+export const RENEW_GAP = 2 * 60 * 1000; // 조용히 다시 받기는 2분에 한 번까지만 해 본다
 
 let gisPromise = null;
 function loadGis() {
@@ -39,12 +43,46 @@ export function createCloud({ storage, session, onChange }) {
   let offers = {}; // 드라이브에만 있는 칸의 요약: { slot: { raw, name, level, when } }
   let status = token ? 'on' : 'off'; // off, on, busy, expired, error
   let message = '';
+  let quiet = null; // 조용히 다시 받는 데 쓰는 구글 토큰 클라이언트
+  let renewing = false, lastTry = 0;
   let lastUp = 0;
   const timers = {};
   const drive = createDrive((...a) => fetch(...a), () => (token && exp > Date.now() ? token : null));
   const wanted = () => { try { return storage.getItem(WANT_KEY) === '1'; } catch { return false; } };
+  // 한 번 연결했던 기기인데 토큰이 없으면(새 창, 한 시간 지남) 풀린 것으로 두고 구글 스크립트를 미리 불러 둔다
+  if (!token && wanted()) { status = 'expired'; message = '로그인이 잠시 풀렸다. 화면을 누르면 조용히 다시 잇는다.'; loadGis().then(() => readyQuiet()).catch(() => {}); }
+  else if (token) loadGis().then(() => readyQuiet()).catch(() => {});
+  function keep(r) {
+    token = r.access_token; exp = Date.now() + (Number(r.expires_in) || 3600) * 1000 - 60000;
+    try { session.setItem(TOKEN_KEY, JSON.stringify({ token, exp })); storage.setItem(WANT_KEY, '1'); } catch { /* 저장 못 해도 이 창에서는 된다 */ }
+  }
+  function readyQuiet() {
+    if (quiet || !globalThis.google?.accounts?.oauth2) return;
+    quiet = globalThis.google.accounts.oauth2.initTokenClient({
+      client_id: CLIENT_ID, scope: SCOPE,
+      callback: (r) => {
+        renewing = false;
+        if (r.error) return; // 조용히 안 되면 그대로 둔다. "다시 연결"은 늘 있다
+        const was = status;
+        keep(r);
+        if (was === 'expired' || was === 'off') { set('on'); refresh(); } else onChange();
+      },
+      error_callback: () => { renewing = false; },
+    });
+  }
+  /** 누를 때마다 부른다 (Z91): 끝나 가거나 풀렸으면 조용히 다시 받는다. 누른 그 순간이어야 브라우저가 막지 않는다. */
+  function keepAlive() {
+    if (!wanted() || renewing) return false;
+    if (token && exp - Date.now() > RENEW_BEFORE) return false;
+    if (Date.now() - lastTry < RENEW_GAP) return false;
+    if (!quiet) { loadGis().then(() => readyQuiet()).catch(() => {}); return false; }
+    lastTry = Date.now();
+    renewing = true;
+    try { quiet.requestAccessToken({ prompt: '' }); } catch { renewing = false; return false; }
+    return true;
+  }
   const set = (s, m = '') => { status = s; message = m; onChange(); };
-  const fail = (e) => { if (e?.status === 401) { token = null; set('expired', '로그인이 풀렸다. 다시 연결하면 이어서 올린다.'); } else set('error', e?.message || String(e)); };
+  const fail = (e) => { if (e?.status === 401) { token = null; set('expired', '로그인이 풀렸다. 화면을 누르면 조용히 다시 잇는다. 안 되면 "다시 연결".'); } else set('error', e?.message || String(e)); };
 
   async function signIn() {
     await loadGis();
@@ -53,8 +91,8 @@ export function createCloud({ storage, session, onChange }) {
         client_id: CLIENT_ID, scope: SCOPE,
         callback: (r) => {
           if (r.error) return reject(new Error(r.error === 'access_denied' ? '허락하지 않아 연결하지 않았습니다' : `로그인 실패: ${r.error}`));
-          token = r.access_token; exp = Date.now() + (Number(r.expires_in) || 3600) * 1000 - 60000;
-          try { session.setItem(TOKEN_KEY, JSON.stringify({ token, exp })); storage.setItem(WANT_KEY, '1'); } catch { /* 저장 못 해도 이 창에서는 된다 */ }
+          keep(r);
+          readyQuiet();
           resolve();
         },
         error_callback: (e) => reject(new Error(e?.type === 'popup_closed' ? '로그인 창을 닫았습니다' : '로그인 창을 열지 못했습니다')),
@@ -119,7 +157,7 @@ export function createCloud({ storage, session, onChange }) {
     get status() { return status; },
     get message() { return message; },
     get lastUp() { return lastUp; },
-    wanted,
+    wanted, keepAlive,
     signIn, signOut, refresh,
     has: (slot) => !!remote[slot],
     offerOf: (slot) => offers[slot] || null,

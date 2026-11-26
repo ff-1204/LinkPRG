@@ -137,12 +137,14 @@ test('맡긴 은화에는 날마다 1% 이자. 은화만 맡기면 삯이 없다
   assert.ok(!n.log.slice(k).some((l) => l.text.includes('장부')), '한 번만 알려 준다');
 });
 
-test('신전의 축복받기: 그림자가 있으면 걷고, 없으면 두 때 동안 신의 가호 (Z43)', async () => {
+test('사당의 축복받기: 그림자가 있으면 걷고, 없으면 두 때 동안 신의 가호 (Z43). 시작 마을 신전에는 없다 (Z92)', async () => {
   const { slotsNow } = await import('../src/core/game.js');
   const { graceBuff } = await import('../src/core/buffs.js');
   const { derived } = await import('../src/core/derived.js');
   const s = make('grace'); s.place = 'temple'; s.silver = 100; s.level = 3; s.stats.str = 40;
   const slot = () => slotsNow(s).find((x) => x.action?.id === 'blessing');
+  assert.equal(slot(), undefined, '시작 마을 신전에는 축복받기가 없다');
+  s.place = 'shrine';
   assert.equal(slot().label, '축복받기 (은화 15)');
   assert.ok(slot().sub.includes('신의 가호'));
   const atk = derived(s).find((d) => d.id === 'attack').value;

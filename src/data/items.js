@@ -64,9 +64,9 @@ export const ITEMS = {
   deed: { name: '광맥의 옛 증서', kind: 'quest', weight: 0, icon: 'item-unknown', desc: '물에 불어 글씨가 번졌다. 울림쇠 광맥의 첫 임자 이름과, 그가 광맥을 "캐는 사람 모두"에게 남긴다는 말이 적혀 있다.' },
   salt: { name: '소금', kind: 'material', weight: 0, icon: 'item-rice', price: 2, desc: '굵은 소금 한 줌. 굽는 것에 뿌린다.' },
   berry: { name: '산열매', kind: 'eat', weight: 0, icon: 'item-berry', price: 1, eat: { full: 10 }, desc: '시고 달다. 포만감 +10, 생명력 +5.' },
-  bread: { name: '신전의 빵', kind: 'eat', weight: 1, icon: 'item-rice', price: 0, nosell: true, eat: { full: 20 }, desc: '신전에서 날마다 하나씩 나눠 주는 딱딱한 빵. 포만감 +20, 생명력 +10. 팔 수는 없다.' },
+  bread: { name: '신전의 빵', kind: 'eat', weight: 1, icon: 'item-rice', price: 0, nosell: true, eat: { full: 20 }, desc: '경매장 수수료로 사 온 밀가루를 주방장이 구워 날마다 하나씩 나눠 주는 딱딱한 빵. 포만감 +20, 생명력 +10. 팔 수는 없다.' },
   riceball: { name: '주먹밥', kind: 'eat', weight: 1, icon: 'item-rice', price: 5, eat: { full: 30 }, desc: '소금만 친 주먹밥. 포만감 +30, 생명력 +15.' },
-  holywater: { name: '성수', kind: 'eat', weight: 1, icon: 'item-water', price: 60, perLevel: 6, eat: { grace: true }, desc: '신전에서 축복한 물. 마시면 신의 가호(공격력·방어력 +5%)가 두 때 동안 붙는다. 값은 레벨 × 6.' },
+  holywater: { name: '성수', kind: 'eat', weight: 1, icon: 'item-water', price: 60, perLevel: 6, eat: { grace: true, shadow: true }, desc: '신전에서 축복한 물. 마시면 죽음의 그림자가 모두 걷히고, 신의 가호(공격력·방어력 +5%)가 두 때 동안 붙는다. 값은 레벨 × 6.' },
   // 공용주방에서 만든 음식 (Z83): 가방에 담겼다가 먹으면 그 음식의 힘이 붙는다
   dish_saltfish: { name: '소금 붕어 구이', kind: 'eat', weight: 1, icon: 'item-fish', price: 12, eat: { full: 45, dish: 'saltfish' }, desc: '그릇에 담아 온 구이. 먹으면 든든한 속(최대 생명력 +15).' },
   dish_berryrice: { name: '산열매 주먹밥', kind: 'eat', weight: 1, icon: 'item-rice', price: 10, eat: { full: 50, dish: 'berryrice' }, desc: '열매를 박은 주먹밥. 먹으면 가벼운 발(방어력 +2).' },

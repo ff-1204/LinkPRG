@@ -96,7 +96,7 @@ test('덤이 실제로 듣는다', () => {
   assert.equal(valueOf(make('porter'), 'carry'), valueOf(make('miller'), 'carry') + 5);
   // 순례자: 빵 둘
   const p = make('pilgrim');
-  dispatch(p, { type: 'move', to: 'temple' });
+  dispatch(p, { type: 'move', to: 'kitchen' }); // 빵은 공용주방에서 (Z92)
   dispatch(p, { type: 'act', id: 'bread' });
   assert.equal(countOf(p, 'bread'), 2);
   // 종지기의 아이: 모든 숙련도가 5% 빨리

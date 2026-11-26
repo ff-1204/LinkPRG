@@ -1,29 +1,29 @@
 // 전투 (E5~E9, R2-2). 한 턴에 행동 하나. 적의 다음 행동은 늘 미리 보인다.
 // 방어하면 피해가 절반이고, 돌진류는 막고 되받아친다.
 
-import { next, chance } from './rng.js?v=d783470';
-import { pushLine, ding } from './log.js?v=d783470';
-import { monsterDef, STATUS } from '../data/monsters.js?v=d783470';
-import { itemDef, ITEMS, gradeName } from '../data/items.js?v=d783470';
-import { roll01 } from './rng.js?v=d783470';
-import { guildPerk } from './guild.js?v=d783470';
-import { rollOptions, gearName } from './gear.js?v=d783470';
-import { derived, skillBonus } from './derived.js?v=d783470';
-import { addItem, removeAt, usable, totalWeight, equip, slotFor, equipPower } from './inventory.js?v=d783470';
-import { grantXp } from './reward.js?v=d783470';
-import { useSkill, emptySkill, gradeLabel, SKILL_NAMES } from './skills.js?v=d783470';
-import { fall } from './fall.js?v=d783470';
-import { iGa, eulReul, ro } from './ko.js?v=d783470';
-import { branchOf } from './evolve.js?v=d783470';
-import { skillsNow, jobXp, adv } from './jobs.js?v=d783470';
-import { guardFor, hitCompanion, companionsAct, afterBattle, roleBonus, cross } from './party.js?v=d783470';
-import { jobDef } from '../data/jobs.js?v=d783470';
-import { BEATS, WEAK_MULT, RESIST_MULT } from '../data/dungeon.js?v=d783470';
-import { HUNGRY, DUEL, DUEL_MOVES, BANDIT, BANDIT_MOVES } from '../data/wild.js?v=d783470';
-import { addFame } from './social.js?v=d783470';
-import { giveMurder, MURDER, giveGrace, GRACE } from './buffs.js?v=d783470';
-import { applyDish } from './cook.js?v=d783470';
-import { DISHES } from '../data/cooking.js?v=d783470';
+import { next, chance } from './rng.js?v=fc38b0e';
+import { pushLine, ding } from './log.js?v=fc38b0e';
+import { monsterDef, STATUS } from '../data/monsters.js?v=fc38b0e';
+import { itemDef, ITEMS, gradeName } from '../data/items.js?v=fc38b0e';
+import { roll01 } from './rng.js?v=fc38b0e';
+import { guildPerk } from './guild.js?v=fc38b0e';
+import { rollOptions, gearName } from './gear.js?v=fc38b0e';
+import { derived, skillBonus } from './derived.js?v=fc38b0e';
+import { addItem, removeAt, usable, totalWeight, equip, slotFor, equipPower } from './inventory.js?v=fc38b0e';
+import { grantXp } from './reward.js?v=fc38b0e';
+import { useSkill, emptySkill, gradeLabel, SKILL_NAMES } from './skills.js?v=fc38b0e';
+import { fall } from './fall.js?v=fc38b0e';
+import { iGa, eulReul, ro } from './ko.js?v=fc38b0e';
+import { branchOf } from './evolve.js?v=fc38b0e';
+import { skillsNow, jobXp, adv } from './jobs.js?v=fc38b0e';
+import { guardFor, hitCompanion, companionsAct, afterBattle, roleBonus, cross } from './party.js?v=fc38b0e';
+import { jobDef } from '../data/jobs.js?v=fc38b0e';
+import { BEATS, WEAK_MULT, RESIST_MULT } from '../data/dungeon.js?v=fc38b0e';
+import { HUNGRY, DUEL, DUEL_MOVES, BANDIT, BANDIT_MOVES } from '../data/wild.js?v=fc38b0e';
+import { addFame } from './social.js?v=fc38b0e';
+import { giveMurder, MURDER, giveGrace, GRACE } from './buffs.js?v=fc38b0e';
+import { applyDish } from './cook.js?v=fc38b0e';
+import { DISHES } from '../data/cooking.js?v=fc38b0e';
 
 /** 사나움 (Z60): 세계의 날마다 괴물의 생명·공격과 경험치·떨굼 확률이 조금씩 오른다. 끝이 없다. 우두머리·던전도 같다. */
 export const FIERCE_PER = 0.0005;
@@ -671,6 +671,7 @@ export function healOf(state, def, max) {
 /** 먹거나 마신다. 전투 밖에서도 쓴다. */
 export function eat(state, events, index) {
   const item = state.bag[index];
+  const grade = item?.grade || 0;
   if (!item) throw new Error('가방에 없는 물건입니다');
   const def = itemDef(item.id);
   if (def.throw) throw new Error('싸움에서 쓰는 물건입니다');
@@ -680,7 +681,8 @@ export function eat(state, events, index) {
   const more = state.flags.foodPlus ? 1.2 : 1;
   if (def.eat.full) { const got = Math.round(def.eat.full * more); state.full = Math.min(100, state.full + got); parts.push(`포만감 +${got}`); }
   // 생명력: 물약은 최대 생명력의 비율, 약초·음식은 정해진 양 (Z54)
-  if (def.eat.dish) { const had = applyDish(state, events, def.eat.dish); const db = DISHES[def.eat.dish].buff; parts.push(`'${db.name}': ${db.text}${had ? ` (먼저 붙어 있던 '${had.name}'는 사라졌다)` : ''}`); } // 공용주방의 음식 (Z83)
+  if (def.eat.dish) { const had = applyDish(state, events, def.eat.dish, grade); const db = DISHES[def.eat.dish].buff; parts.push(`'${db.name}': ${db.text}${had ? ` (먼저 붙어 있던 '${had.name}'는 사라졌다)` : ''}`); } // 공용주방의 음식 (Z83)
+  if (def.eat.shadow && (state.shadow || 0) > 0) { state.shadow = 0; state.shadowPray = 0; parts.push('죽음의 그림자가 모두 걷혔다'); events.push({ type: 'shadow', n: 0 }); } // 성수 (Z92)
   if (def.eat.grace) { giveGrace(state); parts.push(`${GRACE.name}: ${GRACE.text}, 두 때 동안`); } // 성수 (Z77)
   { const max = val(state, 'maxHp'); const heal = healOf(state, def, max); if (heal) { const before = state.hp; state.hp = Math.min(max, state.hp + heal); if (state.hp > before || !def.eat.full) parts.push(`생명력 +${state.hp - before}`); } }
   pushLine(state, events, { k: 'me', text: `${eulReul(def.name)} ${def.eat.full ? '먹었다' : def.kind === 'material' ? '씹어 상처에 붙였다' : '마셨다'}. ${parts.join(', ')}.` });

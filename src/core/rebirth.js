@@ -1,8 +1,8 @@
 // 환생 (Z32). 쓰러진 뒤 신전에서 눈을 뜨는 대신 다시 태어날 수 있다.
 // 몸은 처음부터 다시지만, 종이 기억한 것(히든 스탯, 다시 일어선 몸으로 오른 스탯, 칭호, 도감), 숙련도의 5%, 보관함은 가지고 간다.
 
-import { HIDDEN } from './hidden.js?v=d783470';
-import { xpNeeded, MAX_GRADE } from './skills.js?v=d783470';
+import { HIDDEN } from './hidden.js?v=fc38b0e';
+import { xpNeeded, MAX_GRADE } from './skills.js?v=fc38b0e';
 
 export const SKILL_KEEP = 0.05; // 숙련도의 이만큼을 가지고 간다
 /** 숙련도에 쌓인 경험치 전부. */
@@ -17,7 +17,7 @@ function fromTotal(total) {
   while (grade < MAX_GRADE && xp >= xpNeeded(grade)) { xp -= xpNeeded(grade); grade++; }
   return { grade, xp };
 }
-import { JOBS, HIDDEN_JOBS } from '../data/jobs.js?v=d783470';
+import { JOBS, HIDDEN_JOBS } from '../data/jobs.js?v=fc38b0e';
 const jobName = (id) => (id ? (JOBS[id] || HIDDEN_JOBS[id])?.name || id : null);
 
 const STATS = ['str', 'agi', 'con', 'wis'];

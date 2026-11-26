@@ -1,7 +1,7 @@
 // 시스템 창 (D3). 한 번에 하나가 보이고, 나머지는 줄을 선다.
 // 창이 떠 있는 동안 초점은 창 안에 머문다. Esc로 닫는다.
 
-import { h, focusables } from './dom.js?v=d783470';
+import { h, focusables } from './dom.js?v=fc38b0e';
 
 /** 다시 그린 뒤에도 같은 단추를 찾을 수 있게 하는 이름표. */
 function tagOf(el) {

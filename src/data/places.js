@@ -32,7 +32,7 @@ export const PLACES = {
     strip: { day: 'strip-temple-day', night: 'strip-temple-night' },
     stripAlt: '신전. 돌기둥과 높은 창, 작은 종탑',
     users: [3, 4, 1],
-    actions: ['pray', 'blessing', 'heal', 'bread', 'shop', 'talk', 'rest'],
+    actions: ['pray', 'heal', 'shop', 'talk', 'rest'], // 축복받기는 없앴다(그림자는 성수와 기도로 걷는다). 빵은 공용주방에서 (Z92)
   },
   forge: {
     id: 'forge', name: '대장간', town: '시작 마을', danger: '안전',
@@ -49,7 +49,7 @@ export const PLACES = {
     strip: { day: 'strip-plaza-empty', night: 'strip-plaza-empty' },
     stripAlt: '예술협회. 집 둘, 나무, 분수',
     users: [6, 9, 2],
-    actions: ['sculpt', 'jewel', 'auction', 'shop', 'sort', 'talk'], // 잡화점의 상점·물건 살피기·할머니가 옮겨 왔다 (Z82)
+    actions: ['jewel', 'sort', 'shop', 'sculpt', 'auction', 'talk'], // 칸 순서: 세공·물건 살피기·상점·조각·경매장 (Z92) // 잡화점의 상점·물건 살피기·할머니가 옮겨 왔다 (Z82)
   },
   // 의류점 (Z74): 가죽과 천을 다룬다. 바느질, 몸·발 장비 손질, 실 잣기
   tailor: {
@@ -67,7 +67,7 @@ export const PLACES = {
     strip: { day: 'strip-tavern-day', night: 'strip-tavern-night' },
     stripAlt: '공용주방. 간판이 걸린 집과 통 둘',
     users: [4, 7, 2],
-    actions: ['cook', 'trim', 'shop', 'talk'],
+    actions: ['cook', 'trim', 'shop', 'bread', 'talk'], // 4번 칸: 빵 받기 (Z92)
   },
   tavern: {
     id: 'tavern', name: '주점', town: '시작 마을', danger: '안전', storage: true, merc: true,

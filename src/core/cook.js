@@ -1,17 +1,17 @@
 // 요리 (N3). 재료를 셋까지 넣어 조합을 찾는다.
 
-import { next } from './rng.js?v=d783470';
-import { pushLine, ding } from './log.js?v=d783470';
-import { countOf, takeById, addItem } from './inventory.js?v=d783470';
-import { craftLvOf } from './craft.js?v=d783470';
-import { CRAFT_LV } from '../data/recipes.js?v=d783470';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=d783470';
-import { itemDef } from '../data/items.js?v=d783470';
-import { placeById } from '../data/places.js?v=d783470';
-import { jobXp } from './jobs.js?v=d783470';
-import { COOK_MAX, COOK_DIFFICULTY, INGREDIENTS, DISHES, DISH_ORDER, MUSH, COOK_LINES } from '../data/cooking.js?v=d783470';
-import { iGa, eulReul, eunNeun } from './ko.js?v=d783470';
-import { foodBuff, xpBoost } from './buffs.js?v=d783470';
+import { next } from './rng.js?v=fc38b0e';
+import { pushLine, ding } from './log.js?v=fc38b0e';
+import { countOf, takeById, addItem } from './inventory.js?v=fc38b0e';
+import { craftLvOf } from './craft.js?v=fc38b0e';
+import { CRAFT_LV } from '../data/recipes.js?v=fc38b0e';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=fc38b0e';
+import { itemDef } from '../data/items.js?v=fc38b0e';
+import { placeById } from '../data/places.js?v=fc38b0e';
+import { jobXp } from './jobs.js?v=fc38b0e';
+import { COOK_MAX, COOK_DIFFICULTY, INGREDIENTS, DISHES, DISH_ORDER, MUSH, COOK_LINES } from '../data/cooking.js?v=fc38b0e';
+import { iGa, eulReul, eunNeun } from './ko.js?v=fc38b0e';
+import { foodBuff, xpBoost } from './buffs.js?v=fc38b0e';
 
 export { foodBuff };
 
@@ -31,15 +31,15 @@ export function cookMenu(state) {
 }
 
 /** 음식의 힘이 가는 때: 요리 숙련도 단계(초급·중급…)마다 한 때 더 (Z83). */
-export function dishPhases(state, d) {
-  return d.buff.phases + Math.floor((state.skills.cooking?.grade || 0) / 9);
+export function dishPhases(state, d, grade = 0) {
+  return d.buff.phases + Math.floor((state.skills.cooking?.grade || 0) / 9) + (grade || 0); // 등급마다 한 때 더 (Z93)
 }
 /** 음식의 힘을 붙인다. 먹을 때(모닥불에서 바로, 또는 가방의 그릇을 먹을 때). */
-export function applyDish(state, events, dishId) {
+export function applyDish(state, events, dishId, grade = 0) {
   const d = DISHES[dishId];
   const had = foodBuff(state);
   if (!state.buffs) state.buffs = {};
-  state.buffs.food = { name: d.buff.name, text: d.buff.text, attack: d.buff.attack || 0, defense: d.buff.defense || 0, hp: d.buff.hp || 0, xp: d.buff.xp || 0, until: phasesLater(state, dishPhases(state, d)) };
+  state.buffs.food = { name: d.buff.name, text: d.buff.text, attack: d.buff.attack || 0, defense: d.buff.defense || 0, hp: d.buff.hp || 0, xp: d.buff.xp || 0, until: phasesLater(state, dishPhases(state, d, grade)) };
   events.push({ type: 'buff' });
   return had;
 }

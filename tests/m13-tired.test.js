@@ -103,10 +103,10 @@ test('10판 저장은 11판으로 올라온다. 깎아 본 사람은 조각칼�
   assert.equal(countOf(up, 'chisel'), 1);
 });
 
-test('신전에서는 날마다 빵을 하나 거저 받는다. 하루에 한 번이고 팔 수 없다', async () => {
+test('공용주방에서는 날마다 빵을 하나 거저 받는다(신전에서 옮겼다, Z92). 하루에 한 번이고 팔 수 없다', async () => {
   const { sellPrice } = await import('../src/core/trade.js');
   const s = fresh('bread');
-  dispatch(s, { type: 'move', to: 'temple' });
+  dispatch(s, { type: 'move', to: 'kitchen' });
   const slot = () => slotsNow(s).find((x) => x.label === '빵 받기');
   assert.ok(slot() && !slot().disabled);
   dispatch(s, slot().action);

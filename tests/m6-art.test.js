@@ -178,47 +178,34 @@ test('작품은 팔고 선물할 수 있다. 그 사람을 깎은 것이면 더 
   assert.equal(worksView(s)[1].whereName, '잡화점 할머니에게 선물함');
 });
 
-test('요리: 맞는 조합은 레시피가 적히고, 틀리면 "먹을 수는 있는 것". 재료는 돌아오지 않는다 (N3-1, N3-3)', () => {
+const cookIt = (s, recipe) => { dispatch(s, { type: 'craft', recipe }); let ev = []; while (s.craft) { s.tired = 0; ev = dispatch(s, { type: 'hammer' }); } return ev; };
+
+test('요리 (Z93): 요리 목록에서 골라 젓는다. 모닥불에서는 다 되면 먹는다. 옛 재료 조합은 없다', () => {
   const s = fresh('cook');
-  addItem(s, 'crucian', 3); addItem(s, 'salt', 2); addItem(s, 'herb', 1);
-  assert.throws(() => dispatch(s, { type: 'cook', ids: ['crucian', 'salt'] }), /모닥불/);
+  addItem(s, 'crucian', 3); addItem(s, 'salt', 2);
+  assert.throws(() => dispatch(s, { type: 'craft', recipe: 'cook_saltfish' }), /공용주방에서 만듭니다|모닥불/);
   s.place = 'river';
   s.full = 10;
-  assert.throws(() => dispatch(s, { type: 'cook', ids: ['crucian', 'crucian', 'crucian', 'salt'] }), /3개까지/);
-  assert.throws(() => dispatch(s, { type: 'cook', ids: ['ironore'] }), /넣을 수 없는/);
-  assert.equal(cookMenu(s).known.length, 0);
-  const ev = dispatch(s, { type: 'cook', ids: ['salt', 'crucian'] });
-  assert.ok(ev.some((e) => e.type === 'ding' && e.ding.title.includes('소금 붕어 구이')));
-  assert.equal(s.full, 55);
-  assert.equal(countOf(s, 'crucian'), 2);
-  assert.equal(cookMenu(s).known[0].name, '소금 붕어 구이');
+  assert.throws(() => dispatch(s, { type: 'cook', ids: ['crucian', 'salt'] }), /요리 목록/);
+  cookIt(s, 'cook_saltfish');
+  assert.equal(countOf(s, 'crucian'), 2, '재료가 들어갔다');
+  assert.ok(s.full >= 50, '그 자리에서 먹는다');
   assert.equal(foodBuff(s).name, '든든한 속');
-  assert.ok(!dispatch(s, { type: 'cook', ids: ['crucian', 'salt'] }).some((e) => e.type === 'ding' && e.ding.kind === 'dish'), '두 번째부터는 새 레시피가 아니다');
-  // 틀린 조합
-  addItem(s, 'berry', 1);
-  s.full = 10;
-  dispatch(s, { type: 'cook', ids: ['berry', 'crucian'] });
-  assert.ok(s.full === 24 || s.full === 25, `포만감 ${s.full} (굽는 사이 배가 조금 꺼진다)`);
-  assert.equal(countOf(s, 'crucian'), 0);
-  assert.deepEqual(cookMenu(s).fails, ['산열매, 붕어']);
-  assert.ok(s.skills.cooking);
+  assert.ok(s.dex.dishes.saltfish);
+  assert.ok(s.skills.cooking.uses > 0);
 });
 
-test('음식 버프는 한 번에 하나만 붙는다. 못 찾은 조합의 귀띔은 사람에게 들어야 보인다 (N3-4, N3-5)', () => {
+test('음식 버프는 한 번에 하나만 붙는다', () => {
   const s = fresh('buff');
   s.place = 'river';
   addItem(s, 'crucian', 2); addItem(s, 'salt', 2); addItem(s, 'herb', 2); addItem(s, 'boarmeat', 1);
-  dispatch(s, { type: 'cook', ids: ['crucian', 'salt'] });
+  cookIt(s, 'cook_saltfish');
   const hp = valueOf(s, 'maxHp');
-  dispatch(s, { type: 'cook', ids: ['boarmeat', 'herb', 'salt'] });
+  cookIt(s, 'cook_boarstew');
   assert.equal(foodBuff(s).name, '뜨거운 피');
   assert.equal(valueOf(s, 'maxHp'), hp - 15, '먼저 붙어 있던 것은 사라진다');
   assert.equal(buffRows(s).filter((r) => r.kind === '음식').length, 1);
-  assert.deepEqual(cookMenu(s).hints, []);
-  s.place = 'temple';
-  talkTo(s, 'priest');
-  assert.equal(cookMenu(s).hints.length, 1);
-  for (const d of Object.values(DISHES)) { assert.ok(d.hint && d.buff.name && d.buff.text && d.full > 0); for (const id of d.needs) assert.ok(INGREDIENTS.includes(id) && ITEMS[id]); }
+  for (const d of Object.values(DISHES)) { assert.ok(d.buff.name && d.buff.text && d.full > 0); for (const id of d.needs) assert.ok(ITEMS[id]); }
 });
 
 test('동료 영입: 사이가 단골 이상인 미루에게 청한다. 파티는 둘까지 (T28, T25)', () => {

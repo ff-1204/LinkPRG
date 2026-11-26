@@ -27,3 +27,13 @@ test('성수 값은 레벨 × 6. 신전 축복(레벨 × 5)보다 늘 비싸고 
   s.place = 'temple';
   for (const lv of [1, 5, 13, 20, 40]) { s.level = lv; assert.equal(buyPrice(s, 'holywater').now, Math.max(6, lv * 6)); }
 });
+
+test('성수를 마시면 죽음의 그림자가 모두 걷힌다. 신전에는 축복받기가 없다 (Z92)', () => {
+  const s = createGame({ name: '신', origin: 'bard', rolled: rollDice('same'), seed: 'sh' });
+  dispatch(s, { type: 'move', to: 'temple' });
+  assert.ok(!slotsNow(s).some((x) => x.action?.id === 'blessing'));
+  s.shadow = 3; s.silver = 500;
+  dispatch(s, { type: 'buy', id: 'holywater' });
+  dispatch(s, { type: 'use', index: s.bag.findIndex((x) => x.id === 'holywater') });
+  assert.equal(s.shadow, 0);
+});
