@@ -597,3 +597,10 @@ h3.benchlv { font: 700 1rem var(--sans); color: var(--cinnamon); margin: .6rem 0
 .traderow input.pick { width: 1.15rem; height: 1.15rem; accent-color: var(--cinnamon); flex: none; }
 .traderow.picked { background: var(--sand); border-radius: 6px; }
 .pickbar { margin-bottom: 4px; }
+
+/* 경매 내 판매 좌우 (Z89) */
+.asplit { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: .9rem; align-items: start; }
+.asplit .acol { display: flex; flex-direction: column; gap: .4rem; min-width: 0; background: var(--paper); border: 1px solid var(--line2); border-radius: 8px; padding: .6rem .75rem; }
+.asplit .ascroll { max-height: 26rem; overflow-y: auto; }
+.asplit .it.sel { border-color: var(--cinnamon); background: var(--sand); }
+@media (max-width: 640px) { .asplit { grid-template-columns: 1fr; } }

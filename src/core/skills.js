@@ -17,7 +17,7 @@ export const SKILL_EFFECTS = {
   smash: '강타가 더 잘 들어가고 더 아프다',
   evade: '더 잘 피하고, 피한 뒤 치는 한 방이 세진다',
   focus: '모아 친 한 방이 세진다',
-  pray: '최대 마나가 오른다',
+  pray: '최대 마나가 오른다. 경매에 올린 물건에 입찰이 잘 붙는다',
   haul: '더 많이 들 수 있다',
   stamina: '최대 생명력이 오른다',
   mining: '허탕이 줄어든다',

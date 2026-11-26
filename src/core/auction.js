@@ -1,18 +1,19 @@
 // 경매장 (N6-1 ~ N6-3). 가상 유저가 입찰하고 한마디씩 남긴다.
 // 입찰은 씨앗과 날짜로 셈한다. 같은 씨앗이면 같은 값에 팔린다.
 
-import { seedFrom } from './rng.js?v=8782554';
-import { gearName } from './gear.js?v=8782554';
-import { pushLine } from './log.js?v=8782554';
-import { ITEMS, itemDef, gradeName } from '../data/items.js?v=8782554';
-import { addItem, removeAt } from './inventory.js?v=8782554';
-import { worth } from './trade.js?v=8782554';
-import { placeById } from '../data/places.js?v=8782554';
-import { standingOf } from './factions.js?v=8782554';
-import { FACTION_REGULAR } from '../data/factions.js?v=8782554';
-import { userBase } from './world.js?v=8782554';
-import { AUCTION_FEE, AUCTION_DAYS, LOT_TIERS, LOT_SKIP, LOT_ASK, LOT_GEAR_MIN, BID_SAYS, USER_COUNT } from '../data/world.js?v=8782554';
-import { eulReul, iGa, eunNeun } from './ko.js?v=8782554';
+import { seedFrom } from './rng.js?v=d783470';
+import { gearName } from './gear.js?v=d783470';
+import { pushLine } from './log.js?v=d783470';
+import { ITEMS, itemDef, gradeName } from '../data/items.js?v=d783470';
+import { addItem, removeAt } from './inventory.js?v=d783470';
+import { worth } from './trade.js?v=d783470';
+import { placeById } from '../data/places.js?v=d783470';
+import { standingOf } from './factions.js?v=d783470';
+import { FACTION_REGULAR } from '../data/factions.js?v=d783470';
+import { userBase } from './world.js?v=d783470';
+import { MASK_LOT, AUCTION_FEE, AUCTION_DAYS, LOT_TIERS, LOT_SKIP, LOT_ASK, LOT_GEAR_MIN, BID_SAYS, USER_COUNT } from '../data/world.js?v=d783470';
+import { eulReul, iGa, eunNeun } from './ko.js?v=d783470';
+import { grantTitle } from './social.js?v=d783470';
 
 // 끝 글자만 다른 글들도 고르게 흩어지도록 한 번 더 섞는다(전에는 같은 날 물건들의 시작가가 거의 같았다)
 const mix = (h) => { h ^= h >>> 16; h = Math.imul(h, 0x85ebca6b) >>> 0; h ^= h >>> 13; h = Math.imul(h, 0xc2b2ae35) >>> 0; h ^= h >>> 16; return h >>> 0; };
@@ -61,6 +62,11 @@ export function lotsToday(state, day = state.day) {
       });
     }
   }
+  // 암살자의 가면 (Z88): 드물게, 값은 정해져 있다
+  if (unit(state.seed, 'mask', day) < MASK_LOT.chance) {
+    out.push({ key: `${day}-mask`, tier: 'high', item: { id: MASK_LOT.id, grade: 3, n: 1 }, name: itemDef(MASK_LOT.id).name, fair: MASK_LOT.price, fixed: true,
+      seller: userBase(state, hash(state.seed, 'seller', 'mask', day) % USER_COUNT).name, ask: MASK_LOT.price, ends: day + 1 });
+  }
   return out;
 }
 
@@ -98,10 +104,12 @@ export function bid(state, events, key, amount) {
   const pay = amount - (had ? had.amount : 0);
   if (pay > state.silver) throw new Error(`은화가 모자랍니다 (${state.silver} / ${pay})`);
   state.silver -= pay;
-  if (had) had.amount = amount; else a.bids.push({ key, amount, item: lot.item, name: lot.name, fair: lot.fair, ends: lot.ends, seller: lot.seller });
+  if (had) had.amount = amount; else a.bids.push({ key, amount, item: lot.item, name: lot.name, fair: lot.fair, ends: lot.ends, seller: lot.seller, fixed: !!lot.fixed });
   pushLine(state, events, { k: 'me', text: `${lot.name}에 ${eulReul(`은화 ${amount}`)} 불렀다.` });
   events.push({ type: 'auction' });
 }
+
+export const PRAY_BID = 0.005;
 
 /** 날이 바뀔 때: 입찰이 붙고, 끝난 것은 팔리거나 돌아온다. */
 export function auctionDay(state, events) {
@@ -113,7 +121,9 @@ export function auctionDay(state, events) {
     for (let d = Math.max(m.day + 1, day); d <= day; d++) {
       const top = m.bids.length ? m.bids.at(-1).amount : 0;
       // 이 물건에 사람들이 낼 만한 값: 가게에서 사는 값을 넘지 않는다(사서 올려 남기는 길이 없게)
-      const cap = Math.max(1, Math.round(fair * (0.6 + unit(state.seed, 'cap', m.item.id, m.item.grade, m.day) * 0.35)));
+      // 기도 (Z87): 기도 숙련도 한 단계마다 사람들이 낼 만한 값이 0.5% 오른다. 상한 없음
+      const pray = 1 + (state.skills?.pray?.grade || 0) * PRAY_BID;
+      const cap = Math.max(1, Math.round(fair * (0.6 + unit(state.seed, 'cap', m.item.id, m.item.grade, m.day) * 0.35) * pray));
       const n = m.start > cap ? 0 : 1 + (hash(state.seed, 'nb', m.no, d) % 3);
       // 싸게 올린 것은 첫 입찰이 낼 만한 값의 절반 넘게 뛴다
       let cur = Math.max(top, m.start - 1, top ? 0 : Math.round(cap * (0.5 + unit(state.seed, 'open', m.no) * 0.2)) - 1);
@@ -143,11 +153,12 @@ export function auctionDay(state, events) {
   for (const b of [...a.bids]) {
     if (b.ends > day) continue;
     a.bids.splice(a.bids.indexOf(b), 1);
-    const rival = Math.round(b.fair * (0.85 + unit(state.seed, 'rival', b.key) * 0.45)); // 다른 사람이 부른 가장 높은 값
+    const rival = b.fixed ? 0 : Math.round(b.fair * (0.85 + unit(state.seed, 'rival', b.key) * 0.45)); // 다른 사람이 부른 가장 높은 값 (값이 정해진 것은 없다)
     if (b.amount >= rival) {
       if (itemDef(b.item.id).kind === 'gear') addItem(state, b.item.id, 1, { grade: b.item.grade, maker: b.seller });
       else addItem(state, b.item.id, b.item.n, { grade: b.item.grade });
       const text = `${eulReul(b.name)} 은화 ${b.amount}에 낙찰받았다.`;
+      if (b.item.id === MASK_LOT.id) grantTitle(state, events, 'assassin', '경매장에서 암살자의 가면을 손에 넣었다');
       a.history.push({ day, kind: 'won', text, amount: b.amount });
       pushLine(state, events, { k: 'sys', who: '경매장', text });
     } else {

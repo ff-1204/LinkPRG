@@ -1,29 +1,29 @@
 // 전투 (E5~E9, R2-2). 한 턴에 행동 하나. 적의 다음 행동은 늘 미리 보인다.
 // 방어하면 피해가 절반이고, 돌진류는 막고 되받아친다.
 
-import { next, chance } from './rng.js?v=8782554';
-import { pushLine, ding } from './log.js?v=8782554';
-import { monsterDef, STATUS } from '../data/monsters.js?v=8782554';
-import { itemDef, ITEMS, gradeName } from '../data/items.js?v=8782554';
-import { roll01 } from './rng.js?v=8782554';
-import { guildPerk } from './guild.js?v=8782554';
-import { rollOptions, gearName } from './gear.js?v=8782554';
-import { derived, skillBonus } from './derived.js?v=8782554';
-import { addItem, removeAt, usable, totalWeight, equip, slotFor, equipPower } from './inventory.js?v=8782554';
-import { grantXp } from './reward.js?v=8782554';
-import { useSkill, emptySkill, gradeLabel, SKILL_NAMES } from './skills.js?v=8782554';
-import { fall } from './fall.js?v=8782554';
-import { iGa, eulReul, ro } from './ko.js?v=8782554';
-import { branchOf } from './evolve.js?v=8782554';
-import { skillsNow, jobXp, adv } from './jobs.js?v=8782554';
-import { guardFor, hitCompanion, companionsAct, afterBattle, roleBonus, cross } from './party.js?v=8782554';
-import { jobDef } from '../data/jobs.js?v=8782554';
-import { BEATS, WEAK_MULT, RESIST_MULT } from '../data/dungeon.js?v=8782554';
-import { HUNGRY, DUEL, DUEL_MOVES } from '../data/wild.js?v=8782554';
-import { addFame } from './social.js?v=8782554';
-import { giveMurder, MURDER, giveGrace, GRACE } from './buffs.js?v=8782554';
-import { applyDish } from './cook.js?v=8782554';
-import { DISHES } from '../data/cooking.js?v=8782554';
+import { next, chance } from './rng.js?v=d783470';
+import { pushLine, ding } from './log.js?v=d783470';
+import { monsterDef, STATUS } from '../data/monsters.js?v=d783470';
+import { itemDef, ITEMS, gradeName } from '../data/items.js?v=d783470';
+import { roll01 } from './rng.js?v=d783470';
+import { guildPerk } from './guild.js?v=d783470';
+import { rollOptions, gearName } from './gear.js?v=d783470';
+import { derived, skillBonus } from './derived.js?v=d783470';
+import { addItem, removeAt, usable, totalWeight, equip, slotFor, equipPower } from './inventory.js?v=d783470';
+import { grantXp } from './reward.js?v=d783470';
+import { useSkill, emptySkill, gradeLabel, SKILL_NAMES } from './skills.js?v=d783470';
+import { fall } from './fall.js?v=d783470';
+import { iGa, eulReul, ro } from './ko.js?v=d783470';
+import { branchOf } from './evolve.js?v=d783470';
+import { skillsNow, jobXp, adv } from './jobs.js?v=d783470';
+import { guardFor, hitCompanion, companionsAct, afterBattle, roleBonus, cross } from './party.js?v=d783470';
+import { jobDef } from '../data/jobs.js?v=d783470';
+import { BEATS, WEAK_MULT, RESIST_MULT } from '../data/dungeon.js?v=d783470';
+import { HUNGRY, DUEL, DUEL_MOVES, BANDIT, BANDIT_MOVES } from '../data/wild.js?v=d783470';
+import { addFame } from './social.js?v=d783470';
+import { giveMurder, MURDER, giveGrace, GRACE } from './buffs.js?v=d783470';
+import { applyDish } from './cook.js?v=d783470';
+import { DISHES } from '../data/cooking.js?v=d783470';
 
 /** 사나움 (Z60): 세계의 날마다 괴물의 생명·공격과 경험치·떨굼 확률이 조금씩 오른다. 끝이 없다. 우두머리·던전도 같다. */
 export const FIERCE_PER = 0.0005;
@@ -40,6 +40,8 @@ function mdef(b) {
   if (b.hungry) m = { ...m, name: `굶주린 ${m.name}`, hp: Math.round(m.hp * HUNGRY.hp), attack: Math.round(m.attack * HUNGRY.attack), xp: m.xp * HUNGRY.xp }; // 먹잇감 냄새를 맡고 온 놈 (Z64)
   // 모험가 (Z72): 그 들판에서 가장 센 짐승만큼 세다. 사람의 기술을 쓰고, 떨굼 대신 가진 것을 빼앗긴다
   if (b.person) m = { ...m, name: `모험가 '${b.person}'`, element: null, hp: Math.round(m.hp * DUEL.hp), attack: Math.round(m.attack * DUEL.attack), xp: m.xp * DUEL.xp, moves: DUEL_MOVES, drops: [], phases: null };
+  // 도적 (Z90): 그 들판의 가장 센 짐승에서, 눈에 띄는 정도 1000마다 레벨 +1
+  if (b.bandit) { const u = b.bandit.up || 0; m = { ...m, name: `도적 '${b.bandit.name}'`, element: null, level: m.level + u, hp: Math.round(m.hp * 1.2 * (1 + BANDIT.hp * u)), attack: Math.round(m.attack * (1 + BANDIT.attack * u)), defense: m.defense + Math.floor(u / 2), xp: Math.round(m.xp * BANDIT.xp * (1 + 0.1 * u)), moves: BANDIT_MOVES, drops: [], phases: null }; }
   const f = b.fierce || 1; // 싸움이 시작된 날의 사나움
   if (f !== 1) m = { ...m, hp: Math.round(m.hp * f), attack: Math.round(m.attack * f), xp: Math.round(m.xp * f), drops: (m.drops || []).map((d) => ({ ...d, p: Math.min(1, d.p * f) })) };
   return m;
@@ -107,15 +109,16 @@ function damage(state, attack, power, defense) {
   return Math.max(1, Math.round(base * (0.9 + next(state) * 0.2)));
 }
 
-export function startBattle(state, events, monId, { ambush = false, pounce = false, caught = false, hungry = false, person = null } = {}) {
+export function startBattle(state, events, monId, { ambush = false, pounce = false, caught = false, hungry = false, person = null, bandit = null } = {}) {
   const m = monsterDef(monId);
   const seenN = (state.counters.fights = (state.counters.fights || 0) + 1);
-  const elite = !hungry && !person && roll01(`${state.seed}|elite|${monId}|${seenN}`) < eliteChance(state, monId);
+  const elite = !hungry && !person && !bandit && roll01(`${state.seed}|elite|${monId}|${seenN}`) < eliteChance(state, monId);
   // stun·weak·burn: 내 스킬이 적에게 건 것. ward: 내 몸을 감싼 것. streak: 같은 공격을 이어 한 횟수.
   state.battle = { mon: monId, hp: 0, turn: 1, intent: null, stun: 0, weak: null, burn: 0, ward: null, streak: 0, phase: 0 };
   if (elite) state.battle.elite = true;
   if (hungry) state.battle.hungry = true;
   if (person) state.battle.person = person;
+  if (bandit) state.battle.bandit = bandit;
   const f = fierceOf(state.day);
   if (f !== 1) state.battle.fierce = f;
   state.battle.hp = mdef(state.battle).hp;
@@ -123,6 +126,7 @@ export function startBattle(state, events, monId, { ambush = false, pounce = fal
   state.choice = null;
   state.lastAction = null;
   if (person) pushLine(state, events, { k: 'user', who: `모험가 '${person}'`, text: '그래, 그렇게 나오시겠다? 좋아요. 끝을 봅시다.' });
+  else if (bandit) pushLine(state, events, { k: 'npc', who: `도적 '${bandit.name}'`, text: '장비도 반짝이는군. 오늘 운이 좋다.' });
   else pushLine(state, events, { k: 'room', who: '전투', text: hungry ? `${iGa(`굶주린 ${m.name}`)} 이빨을 드러낸다. 입가가 붉다.` : m.intro });
   if (elite) pushLine(state, events, { k: 'sys', text: `여느 놈이 아니다. 몸집이 크고 눈빛이 다르다. 이름난 ${m.name}다.`, tone: 'warn' });
   events.push({ type: 'battle', phase: 'start', mon: monId });
@@ -356,6 +360,7 @@ function enemyAct(state, events, defended, guard = null, stance = null) {
   if (clashWon) b.clashHit = true;
   hurt(state, events, dmg);
   pushLine(state, events, { k: 'room', text: `${move.say} ${defended || guard?.cut ? '막았지만 ' : ''}${dmg} 피해.` });
+  if (move.steal && !defended && state.silver > 0) { const lost = Math.max(1, Math.floor(state.silver * move.steal)); state.silver -= lost; pushLine(state, events, { k: 'sys', tone: 'warn', text: `주머니가 가벼워졌다. 은화 −${lost}.` }); } // 도적의 주머니 털기 (Z90)
   if (state.hp <= 0) return;
   if (!defended && !guard?.cut) applyStatus(state, events, move.status);
 }
@@ -410,6 +415,7 @@ function win(state, events) {
     got.push(`${itemDef(d.id).name} 1`);
   }
   if (b.person) got.push(...duelSpoils(state, events, m));
+  if (b.bandit) got.push(...banditSpoils(state, events, m));
   pushLine(state, events, { k: 'sys', text: `얻은 것: ${got.join(', ')}.` });
   if (b.person) {
     // 보는 사람이 없으니 소문은 나지 않는다. 대신 이틀 동안 그 얼굴이 떠오른다 (Z72)
@@ -423,14 +429,14 @@ function win(state, events) {
   const maxHp = val(state, 'maxHp');
   if (state.hp <= maxHp * 0.1) state.counters.nearDeath += 1;
   if (m.level >= before + 5) state.counters.bigWins += 1;
-  if (!b.person) state.dex.mon[b.mon] = { ...(state.dex.mon[b.mon] || { seen: 0, lost: 0 }), won: (state.dex.mon[b.mon]?.won || 0) + 1 };
+  if (!b.person && !b.bandit) state.dex.mon[b.mon] = { ...(state.dex.mon[b.mon] || { seen: 0, lost: 0 }), won: (state.dex.mon[b.mon]?.won || 0) + 1 };
   state.battle = null;
   state.status = [];
   state.calm = 2;
   state.tension[state.place] = 0;
   afterBattle(state, events, true);
   grantXp(state, events, Math.round(m.xp * (1 + guildPerk(state, 'fight'))));
-  events.push({ type: 'battle', phase: 'win', mon: b.person ? null : b.mon, person: b.person || null, elite: !!b.elite }); // 모험가는 사냥 의뢰에 세지 않는다 (Z72)
+  events.push({ type: 'battle', phase: 'win', mon: b.person || b.bandit ? null : b.mon, person: b.person || null, elite: !!b.elite }); // 모험가는 사냥 의뢰에 세지 않는다 (Z72)
 }
 
 /** 쓰러뜨린 모험가가 가진 것 (Z72): 장비 한두 점과 은화(상대 레벨 × 20~40). */
@@ -443,6 +449,17 @@ function duelSpoils(state, events, m) {
   for (let i = 0; i < gears; i++) dropGear(state, events);
   ding(state, events, { level: 3, title: `${eulReul(m.name)} 쓰러뜨렸습니다`, body: `빼앗은 것: 은화 ${silver}, 장비 ${gears}점.` });
   return [`은화 ${silver}`, `장비 ${gears}점`];
+}
+
+/** 쓰러뜨린 도적이 모아 둔 것 (Z90): 은화(도적 레벨 × 40~80)와 장비 하나. 살인의 추억은 없다(먼저 덮친 쪽이 도적이다). */
+function banditSpoils(state, events, m) {
+  const n = (state.counters.bandits = (state.counters.bandits || 0) + 1);
+  const silver = Math.round(m.level * (BANDIT.silver[0] + roll01(`${state.seed}|banditsilver|${n}`) * (BANDIT.silver[1] - BANDIT.silver[0])));
+  state.silver += silver;
+  pushLine(state, events, { k: 'room', text: '쓰러진 도적의 자루를 뒤졌다. 남에게서 빼앗은 것들이다.' });
+  dropGear(state, events);
+  ding(state, events, { level: 3, title: `${eulReul(m.name)} 쓰러뜨렸습니다`, body: `빼앗은 것: 은화 ${silver}, 장비 1점.` });
+  return [`은화 ${silver}`, '장비 1점'];
 }
 
 /** 사람을 치고 달아난 소문 (Z72): 살아남은 모험가가 떠들고 다닌다. 그 근처 마을 명성이 깎인다. */
@@ -464,7 +481,11 @@ export function dozeInBattle(state, events) {
 function lose(state, events) {
   const b = state.battle;
   const m = b ? mdef(b) : null;
-  if (b && !b.person) state.dex.mon[b.mon] = { ...(state.dex.mon[b.mon] || { seen: 0, won: 0 }), lost: (state.dex.mon[b.mon]?.lost || 0) + 1 };
+  if (b?.bandit) {
+    const took = Math.floor((state.silver || 0) * BANDIT.lose);
+    if (took > 0) { state.silver -= took; pushLine(state, events, { k: 'sys', tone: 'warn', text: `도적이 쓰러진 몸에서 은화 ${took}을 털어 갔다.` }); }
+  }
+  if (b && !b.person && !b.bandit) state.dex.mon[b.mon] = { ...(state.dex.mon[b.mon] || { seen: 0, won: 0 }), lost: (state.dex.mon[b.mon]?.lost || 0) + 1 };
   events.push({ type: 'battle', phase: 'lose', mon: b?.mon });
   afterBattle(state, events, false);
   // 다시 일어선 몸 (Z30): 나보다 레벨이 같거나 높은 적의 생명력을 30% 넘게 깎고 쓰러졌는가

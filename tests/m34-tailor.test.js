@@ -22,16 +22,19 @@ test('시작 마을 대장간 옆에 의류점. 칸은 바느질·실 잣기·�
   assert.equal(order[order.indexOf('forge') + 1], 'tailor');
   assert.deepEqual(placeById('tailor').actions, ['sew', 'spin', 'shop', 'talk']);
   assert.ok(!placeById('forge').actions.includes('sew'));
-  for (const id of ['trainwear', 'sandals', 'boarhide', 'sailcloth', 'waterpouch']) assert.ok(SHOPS.tailor.sells.includes(id), id);
+  for (const id of ['sandals', 'boarhide', 'waterpouch']) assert.ok(SHOPS.tailor.sells.includes(id), id);
   assert.equal(PEOPLE.tailor.place, 'tailor');
   const s = make();
   dispatch(s, { type: 'move', to: 'tailor' });
   assert.deepEqual(slotsNow(s).map((x) => x.label), ['바느질', '구경하기 (실 잣기)', '상점']);
 });
 
-test('몸·발은 의류점에서, 무기는 대장간에서 손본다', () => {
+test('손·발은 의류점에서, 머리·몸통·무기는 대장간에서 손본다 (Z86)', () => {
   const s = make();
-  const vest = addItem(s, 'trainwear'); vest.dur = 5;
+  const body = addItem(s, 'trainwear'); body.dur = 5;
+  dispatch(s, { type: 'move', to: 'tailor' });
+  assert.throws(() => dispatch(s, { type: 'repair', index: s.bag.indexOf(body) }), /대장간에서만/);
+  const vest = addItem(s, 'leatherboots'); vest.dur = 5;
   const sword = addItem(s, 'ironsword'); sword.dur = 5;
   dispatch(s, { type: 'move', to: 'forge' });
   assert.equal(mendHere(s, vest).ok, false);
@@ -40,7 +43,7 @@ test('몸·발은 의류점에서, 무기는 대장간에서 손본다', () => {
   dispatch(s, { type: 'move', to: 'tailor' });
   assert.throws(() => dispatch(s, { type: 'repair', index: s.bag.indexOf(sword) }), /대장간에서만/);
   dispatch(s, { type: 'repair', index: s.bag.indexOf(vest) });
-  assert.equal(vest.dur, 40);
+  assert.equal(vest.dur, 60);
 });
 
 test('실 잣기는 구경해서 배우고, 가죽 숙련도가 오른다', () => {

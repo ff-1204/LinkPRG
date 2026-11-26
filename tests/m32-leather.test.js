@@ -5,7 +5,7 @@ import { createGame, dispatch, slotsNow } from '../src/core/game.js';
 import { rollDice } from '../src/data/origins.js';
 import { addItem, countOf } from '../src/core/inventory.js';
 import { recipeList, craftView, TANNER_XP } from '../src/core/craft.js';
-import { SEW_ORDER } from '../src/data/recipes.js';
+import { SEW_ORDER, RECIPES } from '../src/data/recipes.js';
 import { SKILL_NAMES, skillEffect } from '../src/core/skills.js';
 
 const make = (origin = 'bard', seed = 'lt') => {
@@ -16,12 +16,13 @@ const make = (origin = 'bard', seed = 'lt') => {
 };
 const keep = (s) => { s.full = 100; s.tired = 0; s.hp = 999; };
 
-test('설계도 셋, 재료는 멧돼지 가죽(갑옷은 철광석도)', () => {
-  const list = recipeList(make(), SEW_ORDER).filter((r) => r.id.startsWith('leather'));
+test('의류점은 손·발(짚신·가죽 장갑·가죽 장화), 몸통 가죽 옷은 대장간 (Z86)', () => {
+  const list = recipeList(make(), SEW_ORDER);
   assert.deepEqual(list.map((r) => [r.id, r.hits, r.needs.map((n) => `${n.id}${n.n}`).join('+')]), [
-    ['leatherboots', 10, 'boarhide2'], ['leathervest', 12, 'boarhide3'], ['leatherarmor', 16, 'boarhide5+ironore2'],
+    ['sandals', 6, 'herb3'], ['leathergloves', 8, 'boarhide1'], ['leatherboots', 10, 'boarhide2'],
   ]);
   for (const r of list) assert.deepEqual(r.best, r.worst, '가죽은 박자가 없어 확률이 하나다');
+  for (const id of ['leathervest', 'leatherarmor', 'trainwear', 'ironhelm']) assert.equal(RECIPES[id].branch, 'smith', id);
 });
 
 test('한 땀씩 끝까지 뜨면 장비가 나온다. 다시 달구기는 없다', () => {

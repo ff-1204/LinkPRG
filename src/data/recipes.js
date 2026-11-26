@@ -61,19 +61,24 @@ RECIPES.leatherboots = {
   say: '발목까지 감싸는 장화. 처음 꿰매 보기에 좋다.',
 };
 RECIPES.leathervest = {
-  id: 'leathervest', name: '가죽 조끼', makes: 'leathervest', skill: 'leather', difficulty: 3, hits: 12, sew: true, branch: 'sew', lv: 3,
+  id: 'leathervest', name: '가죽 조끼', makes: 'leathervest', skill: 'smithing', difficulty: 3, hits: 12, branch: 'smith', lv: 3,
   needs: [{ id: 'boarhide', n: 3 }],
-  say: '가죽 두 겹을 꿰맨 조끼.',
+  say: '가죽 두 겹 사이에 쇠테를 대고 두드려 붙인다.',
 };
 RECIPES.leatherarmor = {
-  id: 'leatherarmor', name: '가죽 갑옷', makes: 'leatherarmor', skill: 'leather', difficulty: 5, hits: 16, sew: true, branch: 'sew', lv: 4,
+  id: 'leatherarmor', name: '가죽 갑옷', makes: 'leatherarmor', skill: 'smithing', difficulty: 5, hits: 16, branch: 'smith', lv: 4,
   needs: [{ id: 'boarhide', n: 5 }, { id: 'ironore', n: 2 }],
-  say: '겹 사이에 쇠 징을 박는다. 땀이 많다.',
+  say: '겹 사이에 쇠 징을 박는다. 망치질이 많다.',
 };
 const sew = (id, name, lv, difficulty, hits, needs, say) => ({ id, name, makes: id, skill: 'leather', difficulty, hits, sew: true, branch: 'sew', lv, needs, say });
 RECIPES.sandals = sew('sandals', '짚신', 1, 0, 6, [{ id: 'herb', n: 3 }], '풀을 꼬아 삼는다. 금방 닳지만 금방 삼는다.');
-RECIPES.trainwear = sew('trainwear', '훈련복', 1, 1, 8, [{ id: 'sailcloth', n: 1 }], '질긴 돛천을 잘라 꿰맨 옷.');
-export const SEW_ORDER = ['sandals', 'trainwear', 'leatherboots', 'leathervest', 'leatherarmor'];
+RECIPES.leathergloves = sew('leathergloves', '가죽 장갑', 1, 1, 8, [{ id: 'boarhide', n: 1 }], '손바닥에 가죽을 덧대 꿰맨다.');
+export const SEW_ORDER = ['sandals', 'leathergloves', 'leatherboots'];
+
+// 머리·몸통은 대장간에서 (Z86)
+RECIPES.trainwear = smith('trainwear', '훈련복', 1, 1, 8, [{ id: 'sailcloth', n: 1 }], '돛천에 쇠단추를 박아 두드려 여민다.');
+RECIPES.ironhelm = smith('ironhelm', '쇠 투구', 2, 3, 12, [{ id: 'ironore', n: 4 }], '쇠판을 둥글게 두드려 편다.');
+RECIPE_ORDER.splice(0, RECIPE_ORDER.length, 'woodsword', 'coppersword', 'chisel', 'trainwear', 'ashwand', 'thinknife', 'ironhelm', 'ironsword', 'shortbow', 'leathervest', 'oldshield', 'leatherarmor');
 
 /** 세공 (Z80): 예술협회에서 반지를 다듬는다. 조각 숙련도가 오른다. 식지 않는다. */
 const jewel = (id, name, lv, difficulty, hits, needs, say) => ({ id, name, makes: id, skill: 'sculpting', difficulty, hits, sew: true, jewel: true, branch: 'jewel', lv, needs, say });

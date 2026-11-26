@@ -1,26 +1,28 @@
 // 탐색과 랜덤 인카운터, 기척 (E1~E4, R2-3).
 // 탐색 한 번마다 전투·발견·사건·만남·희귀 가운데 하나. 싸울지는 되도록 내가 고른다.
 
-import { next, pick, chance, roll01 } from './rng.js?v=8782554';
-import { addFame } from './social.js?v=8782554';
-import { pushLine } from './log.js?v=8782554';
-import { weighted, startBattle } from './battle.js?v=8782554';
-import { addItem, countOf, takeById } from './inventory.js?v=8782554';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=8782554';
-import { ding } from './log.js?v=8782554';
-import { monsterDef } from '../data/monsters.js?v=8782554';
-import { itemDef } from '../data/items.js?v=8782554';
-import { USERS } from '../data/lines.js?v=8782554';
-import { WILDS, INCIDENTS, DANGER, DANGER_UP, OTHER_WEIGHTS, TENSION_STEP, TENSION_MAX, SCENT_TRIES, SCENT_PHASES } from '../data/wild.js?v=8782554';
-import { placeById } from '../data/places.js?v=8782554';
-import { iGa, eulReul, eunNeun } from './ko.js?v=8782554';
-import { branchOf } from './evolve.js?v=8782554';
-import { answerHidden } from './quests.js?v=8782554';
-import { jobXp, hiddenJobView, answerHiddenJob } from './jobs.js?v=8782554';
-import { HIDDENS } from '../data/quests.js?v=8782554';
-import { dungeonChoiceView, dungeonChoose } from './dungeon.js?v=8782554';
-import { endingChoiceView, applyEnding } from './ending.js?v=8782554';
-import { memoryChoiceView, chooseMemory } from './memories.js?v=8782554';
+import { next, pick, chance, roll01 } from './rng.js?v=d783470';
+import { addFame } from './social.js?v=d783470';
+import { pushLine } from './log.js?v=d783470';
+import { weighted, startBattle } from './battle.js?v=d783470';
+import { addItem, countOf, takeById } from './inventory.js?v=d783470';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=d783470';
+import { ding } from './log.js?v=d783470';
+import { monsterDef } from '../data/monsters.js?v=d783470';
+import { itemDef } from '../data/items.js?v=d783470';
+import { USERS } from '../data/lines.js?v=d783470';
+import { BANDIT, BANDIT_FEEL, BANDIT_NAMES, WILDS, INCIDENTS, DANGER, DANGER_UP, OTHER_WEIGHTS, TENSION_STEP, TENSION_MAX, SCENT_TRIES, SCENT_PHASES } from '../data/wild.js?v=d783470';
+import { placeById } from '../data/places.js?v=d783470';
+import { iGa, eulReul, eunNeun } from './ko.js?v=d783470';
+import { hasTitle } from './titles.js?v=d783470';
+import { worth } from './trade.js?v=d783470';
+import { branchOf } from './evolve.js?v=d783470';
+import { answerHidden } from './quests.js?v=d783470';
+import { jobXp, hiddenJobView, answerHiddenJob } from './jobs.js?v=d783470';
+import { HIDDENS } from '../data/quests.js?v=d783470';
+import { dungeonChoiceView, dungeonChoose } from './dungeon.js?v=d783470';
+import { endingChoiceView, applyEnding } from './ending.js?v=d783470';
+import { memoryChoiceView, chooseMemory } from './memories.js?v=d783470';
 
 const WORK = { smith: { name: '대장장이', who: '대장간 주인', skill: 'smithing' }, tailor: { name: '재봉사', who: '재봉사', skill: 'leather' }, chef: { name: '요리사', who: '주방장', skill: 'cooking' } };
 
@@ -142,8 +144,15 @@ function meetMonster(state, events, wild) {
   seen(state, monId);
   if (chance(state, senseChance(state, monId))) {
     state.choice = { kind: 'sense', mon: monId, watched: false };
-    // 기척이 짐승이 아니라 같은 들판을 다니는 모험가일 수도 있다 (Z37)
     const fights = state.counters.fights || 0;
+    // 지닌 것이 눈에 띄면 도적이 노린다 (Z90)
+    if (roll01(`${state.seed}|bandit|${state.day}|${state.phase}|${state.tick}|${fights}`) < banditChance(state)) {
+      state.choice = { kind: 'bandit', mon: duelMon(state, monId), up: banditUp(state), name: BANDIT_NAMES[Math.floor(roll01(`${state.seed}|banditname|${state.day}|${state.tick}`) * BANDIT_NAMES.length)] };
+      pushLine(state, events, { k: 'room', who: '기척', text: '사람 발소리다. 하나가 아니다. 길이 막혔다.' });
+      events.push({ type: 'choice' });
+      return;
+    }
+    // 기척이 짐승이 아니라 같은 들판을 다니는 모험가일 수도 있다 (Z37)
     if (roll01(`${state.seed}|person|${state.day}|${state.phase}|${state.tick}|${fights}`) < personChance(state)) {
       state.choice.person = USERS[Math.floor(roll01(`${state.seed}|personname|${state.day}|${state.tick}`) * USERS.length)];
     }
@@ -170,9 +179,32 @@ export function caughtFeel(p) {
 /** 기척이 모험가일 확률: 그곳 유저 수 × 1%, 많아야 15%. */
 export function personChance(state) {
   const users = placeById(state.place).users?.[state.phase] || 0;
-  return Math.min(0.15, users * 0.01);
+  return Math.min(0.15, users * 0.01) + (hasTitle(state, 'assassin') ? 0.30 : 0); // 칭호 암살자 (Z88): +30%p
 }
 export const HURT_FEE = 10; // 치료비: 내 레벨 × 이만큼
+
+// ── 도적 (Z90) ──
+/** 눈에 띄는 정도: 지닌 은화 + 찬 장비의 값. 보관함에 맡긴 것은 세지 않는다. */
+export function wealthOf(state) {
+  let w = state.silver || 0;
+  for (const it of Object.values(state.equip || {})) if (it) w += worth(it);
+  return w;
+}
+export function wealthFeel(state) {
+  const w = wealthOf(state);
+  return [...BANDIT_FEEL].reverse().find((f) => w >= f.at).text;
+}
+/** 기척이 도적일 확률: 500부터 1000마다 1%p, 많아야 25%. */
+export function banditChance(state) {
+  const w = wealthOf(state);
+  return w < BANDIT.from ? 0 : Math.min(BANDIT.cap, (w / BANDIT.per) * BANDIT.rate);
+}
+/** 도적이 얼마나 센가: 1000마다 레벨 +1. */
+export const banditUp = (state) => Math.floor(wealthOf(state) / BANDIT.per);
+export const banditFee = (state) => Math.max(1, Math.floor((state.silver || 0) * BANDIT.pay));
+function banditRun(state) {
+  return Math.min(0.9, Math.max(0.1, 0.45 + ((state.stats?.agi || 10) - 10) * 0.03));
+}
 /** 그 들판에서 가장 센 짐승 (Z72): 덮쳤던 모험가가 맞서면 이만큼 세다. */
 export function duelMon(state, fallback) {
   const list = (WILDS[state.place]?.monsters || []).map((x) => x.id).filter((id) => !monsterDef(id).boss);
@@ -211,6 +243,19 @@ export function choiceView(state) {
         { id: 'pounce', label: '먼저 덮친다', sub: '들키면 적이 먼저 움직인다', go: true },
         ...(c.watched ? [] : [{ id: 'watch', label: '숨어서 지켜본다', sub: '무엇인지 보고, 덮치기가 쉬워진다' }]),
         { id: 'leave', label: '돌아간다' },
+      ],
+    };
+  }
+  if (c.kind === 'bandit') {
+    const lv = monsterDef(c.mon).level + c.up;
+    return {
+      kind: 'bandit', title: '길이 막혔다', side: '도적',
+      text: `복면을 쓴 사람이 길을 막는다. 도적 '${c.name}'다. "주머니가 무거워 보이는데. 나눠 들어 주지."`,
+      note: '지닌 은화와 찬 장비가 눈에 띌수록 도적이 자주, 세게 온다. 보관함에 맡긴 것은 모른다.',
+      options: [
+        { id: 'fight', label: '싸운다', sub: `도적 레벨 ${lv}쯤. 이기면 도적이 모은 것을 빼앗는다. 지면 쓰러지고 지닌 은화의 30%를 잃는다`, go: true },
+        { id: 'pay', label: '은화를 내준다', sub: `지닌 은화의 10% (${banditFee(state)}). 싸우지 않고 지나간다` },
+        { id: 'run', label: '달아난다', sub: '민첩에 따라. 놓치면 도적이 먼저 친다' },
       ],
     };
   }
@@ -267,6 +312,27 @@ export function choose(state, events, id) {
   const c = state.choice;
   if (!c) throw new Error('정할 것이 없습니다');
   if (c.kind === 'memory') return chooseMemory(state, events, id);
+  if (c.kind === 'bandit') {
+    state.choice = null;
+    const opts = { bandit: { name: c.name, up: c.up } };
+    if (id === 'fight') return startBattle(state, events, c.mon, opts);
+    if (id === 'pay') {
+      const fee = banditFee(state);
+      state.silver -= fee;
+      pushLine(state, events, { k: 'me', text: `은화 ${fee}을 던져 주었다. 도적은 세어 보지도 않고 길을 비켰다.` });
+      return;
+    }
+    if (id === 'run') {
+      if (roll01(`${state.seed}|banditrun|${state.day}|${state.tick}|${state.counters.fights || 0}`) < banditRun(state)) {
+        pushLine(state, events, { k: 'me', text: '덤불 사이로 몸을 던져 달아났다. 등 뒤에서 욕지거리가 들린다.' });
+        return;
+      }
+      pushLine(state, events, { k: 'sys', tone: 'warn', text: '달아나려다 붙잡혔다.' });
+      return startBattle(state, events, c.mon, { ...opts, ambush: true });
+    }
+    state.choice = c;
+    throw new Error('고를 수 없는 것입니다');
+  }
   if (c.kind === 'hurt') {
     state.choice = null;
     if (id === 'pay') {

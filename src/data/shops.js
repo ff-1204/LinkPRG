@@ -3,11 +3,11 @@
 export const SHOPS = {
   forge: {
     keeper: '대장간 주인', keeperId: 'smith', hello: '쇠는 안 속인다. 두드린 만큼 나온다.',
-    sells: ['ironore', 'copperore', 'oakbranch', 'batwing', 'chisel', 'torch'], // 쇠와 나무 (Z81, Z84)
+    sells: ['ironore', 'copperore', 'oakbranch', 'batwing', 'boarhide', 'sailcloth', 'chisel', 'torch', 'trainwear'], // 쇠와 나무, 몸통 옷감 (Z81, Z84, Z86)
   },
   tailor: {
     keeper: '재봉사', keeperId: 'tailor', hello: '치수부터 재고. 옷은 몸을 따라가는 거야.',
-    sells: ['boarhide', 'sailcloth', 'trainwear', 'sandals', 'herb', 'ironore', 'waterpouch'], // 가죽과 천 (Z81, Z84)
+    sells: ['boarhide', 'sandals', 'herb', 'waterpouch'], // 손·발의 가죽 (Z81, Z84, Z86)
   },
   // 예술협회 (Z81, Z82): 잡화점 할머니가 선반을 옮겨 왔다. 잡화와 조각·세공 재료를 함께 판다
   artguild: {

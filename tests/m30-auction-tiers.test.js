@@ -15,7 +15,7 @@ test('하급 5·중급 3·상급 0~1, 칸마다 맞는 등급, 시작가는 제�
   const seen = new Set();
   for (let d = 1; d <= 90; d++) {
     s.day = d;
-    const lots = lotsToday(s);
+    const lots = lotsToday(s).filter((l) => !l.fixed); // 암살자의 가면(Z88)은 따로 센다
     const by = (t) => lots.filter((l) => l.tier === t);
     assert.equal(by('low').length, 5);
     assert.equal(by('mid').length, 3);

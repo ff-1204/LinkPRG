@@ -155,3 +155,21 @@ export const DUEL_MOVES = [
   { id: 'heavy', name: '내려치기', kind: 'charge', power: 2.1, tell: '상대가 검을 머리 위로 치켜든다.', say: '상대가 힘껏 내려쳤다.', w: 2 },
   { id: 'breath', name: '숨 고르기', kind: 'wait', power: 0, tell: '상대가 다친 어깨를 감싸 쥐고 숨을 고른다.', say: '상대가 숨을 골랐다.', w: 1 },
 ];
+
+/**
+ * 도적 (Z90): 지닌 은화와 찬 장비의 값(눈에 띄는 정도)이 클수록 들판의 기척이 도적일 확률이 오른다.
+ * 500부터, 1000마다 1%p, 많아야 25%. 세기도 1000마다 레벨 +1.
+ */
+export const BANDIT = { from: 500, per: 1000, rate: 0.01, cap: 0.25, pay: 0.10, lose: 0.30, hp: 0.15, attack: 0.08, xp: 2, silver: [40, 80] };
+export const BANDIT_FEEL = [
+  { at: 0, text: '눈에 띄지 않는다' },
+  { at: 500, text: '조금 눈에 띈다' },
+  { at: 3000, text: '주머니가 두둑해 보인다' },
+  { at: 10000, text: '멀리서도 보인다' },
+];
+export const BANDIT_NAMES = ['검은 손', '외눈', '빈 자루', '고갯마루', '마른 늑대', '쇠갈퀴'];
+export const BANDIT_MOVES = [
+  { id: 'stab', name: '찌르기', kind: 'hit', power: 1, tell: '도적이 칼끝을 낮춘다.', say: '도적이 찔러 왔다.', w: 3 },
+  { id: 'ambush', name: '기습', kind: 'charge', power: 2.2, tell: '도적이 옆으로 돌아 들어온다.', say: '도적이 옆구리를 노리고 덮쳤다.', w: 2 },
+  { id: 'pick', name: '주머니 털기', kind: 'hit', power: 0.6, steal: 0.02, tell: '도적의 눈이 허리춤을 본다.', say: '도적의 손이 허리춤을 스쳤다.', w: 1 },
+];

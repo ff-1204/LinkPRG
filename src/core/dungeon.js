@@ -1,20 +1,20 @@
 // 던전 (T15~T19). 층과 방을 방 목록으로 옮겨 다닌다. 지나온 방만 지도에 그려진다.
 // 나가면 지도와 연 문·챙긴 보물은 남고, 괴물과 쉼터는 다시 찬다.
 
-import { next } from './rng.js?v=8782554';
-import { pushLine, ding } from './log.js?v=8782554';
-import { DUNGEONS, REST_HEAL, KEEPER } from '../data/dungeon.js?v=8782554';
-import { STAT_NAMES } from '../data/origins.js?v=8782554';
-import { itemDef } from '../data/items.js?v=8782554';
-import { monsterDef } from '../data/monsters.js?v=8782554';
-import { addItem, countOf, takeById } from './inventory.js?v=8782554';
-import { startBattle } from './battle.js?v=8782554';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=8782554';
-import { valueOf } from './derived.js?v=8782554';
-import { jobXp, adv } from './jobs.js?v=8782554';
-import { partyRest } from './party.js?v=8782554';
-import { iGa, eulReul, ro } from './ko.js?v=8782554';
-import { hasTitle } from './titles.js?v=8782554';
+import { next } from './rng.js?v=d783470';
+import { pushLine, ding } from './log.js?v=d783470';
+import { DUNGEONS, REST_HEAL, KEEPER } from '../data/dungeon.js?v=d783470';
+import { STAT_NAMES } from '../data/origins.js?v=d783470';
+import { itemDef } from '../data/items.js?v=d783470';
+import { monsterDef } from '../data/monsters.js?v=d783470';
+import { addItem, countOf, takeById } from './inventory.js?v=d783470';
+import { startBattle } from './battle.js?v=d783470';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=d783470';
+import { valueOf } from './derived.js?v=d783470';
+import { jobXp, adv } from './jobs.js?v=d783470';
+import { partyRest } from './party.js?v=d783470';
+import { iGa, eulReul, ro } from './ko.js?v=d783470';
+import { hasTitle } from './titles.js?v=d783470';
 
 const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
 const defOf = (state) => DUNGEONS[state.dungeon.id];

@@ -1,13 +1,13 @@
 // 장비의 이름, 수리, 강화, 옵션 (Z17~Z19). 템은 두드리고 고치고 키운 만큼 세진다.
 
-import { roll01 } from './rng.js?v=8782554';
-import { pushLine, ding } from './log.js?v=8782554';
-import { itemDef } from '../data/items.js?v=8782554';
-import { countOf, takeById } from './inventory.js?v=8782554';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=8782554';
-import { placeById } from '../data/places.js?v=8782554';
-import { iGa, eulReul } from './ko.js?v=8782554';
-import { jobXp } from './jobs.js?v=8782554';
+import { roll01 } from './rng.js?v=d783470';
+import { pushLine, ding } from './log.js?v=d783470';
+import { itemDef } from '../data/items.js?v=d783470';
+import { countOf, takeById } from './inventory.js?v=d783470';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=d783470';
+import { placeById } from '../data/places.js?v=d783470';
+import { iGa, eulReul } from './ko.js?v=d783470';
+import { jobXp } from './jobs.js?v=d783470';
 
 export const PLUS_MAX = 10;
 /** +0에서 +1로 갈 때부터의 성공 확률. 높을수록 어렵다. */
@@ -85,8 +85,8 @@ function pick(state, loc) {
   if (!isGear(item)) throw new Error('장비가 아닙니다');
   return item;
 }
-/** 몸·발에 걸치는 것은 의류점에서, 나머지(쇠붙이)는 대장간에서 손본다 (Z74). */
-export const CLOTH_SLOTS = ['body', 'feet'];
+/** 손·발에 걸치는 것은 의류점에서, 나머지(머리·몸통·무기·방패·반지)는 대장간에서 손본다 (Z74, Z86). */
+export const CLOTH_SLOTS = ['hand', 'feet']; // 손·발은 의류점, 머리·몸통은 대장간 (Z86)
 export const isCloth = (item) => CLOTH_SLOTS.includes(itemDef(item.id).slot);
 /** 이곳에서 이 장비를 손볼 수 있는가. 못 하면 어디서 하는지 알려 준다. */
 export function mendHere(state, item) {
