@@ -182,7 +182,7 @@ test('탐색 만 번: 전투·발견·사건·만남·희귀가 정한 몫대로
   for (let i = 0; i < N; i++) {
     // 조용함·방금 싸움의 보정을 빼고 바탕 몫만 본다
     s.tension = {}; s.calm = 0; s.choice = null; s.battle = null; s.bag = []; s.hp = 100; s.counters.rare = 0; s.hidden = {};
-    s.phase = 0; s.tick = 0;
+    s.phase = 0; s.tick = 0; s.tired = 0; // 싸우다 잠들어 쓰러지지 않게 (Z65)
     const ev = dispatch(s, { type: 'act', id: 'explore' });
     got[ev.find((e) => e.type === 'explore').outcome] += 1;
   }

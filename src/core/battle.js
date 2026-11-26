@@ -1,25 +1,25 @@
 // 전투 (E5~E9, R2-2). 한 턴에 행동 하나. 적의 다음 행동은 늘 미리 보인다.
 // 방어하면 피해가 절반이고, 돌진류는 막고 되받아친다.
 
-import { next, chance } from './rng.js?v=30ec326';
-import { pushLine, ding } from './log.js?v=30ec326';
-import { monsterDef, STATUS } from '../data/monsters.js?v=30ec326';
-import { itemDef, ITEMS, gradeName } from '../data/items.js?v=30ec326';
-import { roll01 } from './rng.js?v=30ec326';
-import { guildPerk } from './guild.js?v=30ec326';
-import { rollOptions, gearName } from './gear.js?v=30ec326';
-import { derived, skillBonus } from './derived.js?v=30ec326';
-import { addItem, removeAt, usable, totalWeight, equip, slotFor, equipPower } from './inventory.js?v=30ec326';
-import { grantXp } from './reward.js?v=30ec326';
-import { useSkill, emptySkill, gradeLabel, SKILL_NAMES } from './skills.js?v=30ec326';
-import { fall } from './fall.js?v=30ec326';
-import { iGa, eulReul, ro } from './ko.js?v=30ec326';
-import { branchOf } from './evolve.js?v=30ec326';
-import { skillsNow, jobXp, adv } from './jobs.js?v=30ec326';
-import { guardFor, hitCompanion, companionsAct, afterBattle, roleBonus, cross } from './party.js?v=30ec326';
-import { jobDef } from '../data/jobs.js?v=30ec326';
-import { BEATS, WEAK_MULT, RESIST_MULT } from '../data/dungeon.js?v=30ec326';
-import { HUNGRY } from '../data/wild.js?v=30ec326';
+import { next, chance } from './rng.js?v=d206204';
+import { pushLine, ding } from './log.js?v=d206204';
+import { monsterDef, STATUS } from '../data/monsters.js?v=d206204';
+import { itemDef, ITEMS, gradeName } from '../data/items.js?v=d206204';
+import { roll01 } from './rng.js?v=d206204';
+import { guildPerk } from './guild.js?v=d206204';
+import { rollOptions, gearName } from './gear.js?v=d206204';
+import { derived, skillBonus } from './derived.js?v=d206204';
+import { addItem, removeAt, usable, totalWeight, equip, slotFor, equipPower } from './inventory.js?v=d206204';
+import { grantXp } from './reward.js?v=d206204';
+import { useSkill, emptySkill, gradeLabel, SKILL_NAMES } from './skills.js?v=d206204';
+import { fall } from './fall.js?v=d206204';
+import { iGa, eulReul, ro } from './ko.js?v=d206204';
+import { branchOf } from './evolve.js?v=d206204';
+import { skillsNow, jobXp, adv } from './jobs.js?v=d206204';
+import { guardFor, hitCompanion, companionsAct, afterBattle, roleBonus, cross } from './party.js?v=d206204';
+import { jobDef } from '../data/jobs.js?v=d206204';
+import { BEATS, WEAK_MULT, RESIST_MULT } from '../data/dungeon.js?v=d206204';
+import { HUNGRY } from '../data/wild.js?v=d206204';
 
 /** 사나움 (Z60): 세계의 날마다 괴물의 생명·공격과 경험치·떨굼 확률이 조금씩 오른다. 끝이 없다. 우두머리·던전도 같다. */
 export const FIERCE_PER = 0.0005;
@@ -417,6 +417,15 @@ function win(state, events) {
   afterBattle(state, events, true);
   grantXp(state, events, Math.round(m.xp * (1 + guildPerk(state, 'fight'))));
   events.push({ type: 'battle', phase: 'win', mon: b.mon, elite: !!b.elite });
+}
+
+/** 싸우다 곯아떨어졌다 (Z65): 적 앞에서 잠든 몸은 그대로 쓰러진다. */
+export function dozeInBattle(state, events) {
+  const m = state.battle ? mdef(state.battle) : null;
+  pushLine(state, events, { k: 'sys', tone: 'warn', text: '싸우는 도중 눈꺼풀이 내려앉았다. 버티지 못하고 그 자리에서 잠들었다.' });
+  if (m) pushLine(state, events, { k: 'room', text: `${iGa(m.name)} 잠든 몸을 덮쳤다.` });
+  state.hp = 0;
+  lose(state, events);
 }
 
 function lose(state, events) {

@@ -35,6 +35,7 @@ test('태윤: 광산에 가서 캐고, 습격을 받아도 예고를 읽고 살�
   // 캔다. 중간에 탐색도 한다. 기척을 알아채면 지켜본 뒤 돌아간다(싸움을 고르지 않는다).
   let blocked = 0;
   for (let i = 0; i < 120 && s.place === 'mine'; i++) {
+    if (s.tired >= 80 && !s.battle) s.tired = 30; // 지치면 갱도 입구에서 눈을 붙인다(지친 채 싸우면 잠들어 쓰러진다, Z65)
     if (s.choice) {
       const ids = slotsNow(s).map((x) => x.action.id);
       dispatch(s, { type: 'choose', id: ids.includes('watch') ? 'watch' : ids.includes('leave') ? 'leave' : ids[ids.length - 1] });

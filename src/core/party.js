@@ -1,14 +1,14 @@
 // 동료와 파티 (T20, T21, T25~T28, H1-1~H1-4). 파티는 나와 동료 둘까지.
 
-import { chance } from './rng.js?v=30ec326';
-import { pushLine, ding } from './log.js?v=30ec326';
-import { COMPANIONS, PARTY_MAX, CROSS_LIMIT, MERC_FEE, ROLE_BONUS, GUARD_RATE, ROLES, ROWS, PLANS } from '../data/companions.js?v=30ec326';
-import { SUBJECTS, ALIVE_COST } from '../data/works.js?v=30ec326';
-import { REGULAR, PEOPLE } from '../data/people.js?v=30ec326';
-import { bondOf } from './social.js?v=30ec326';
-import { placeById } from '../data/places.js?v=30ec326';
-import { workName } from './sculpt.js?v=30ec326';
-import { iGa, eulReul, waGwa } from './ko.js?v=30ec326';
+import { chance } from './rng.js?v=d206204';
+import { pushLine, ding } from './log.js?v=d206204';
+import { COMPANIONS, PARTY_MAX, CROSS_LIMIT, MERC_FEE, ROLE_BONUS, GUARD_RATE, ROLES, ROWS, PLANS } from '../data/companions.js?v=d206204';
+import { SUBJECTS, ALIVE_COST } from '../data/works.js?v=d206204';
+import { REGULAR, PEOPLE } from '../data/people.js?v=d206204';
+import { bondOf } from './social.js?v=d206204';
+import { placeById } from '../data/places.js?v=d206204';
+import { workName } from './sculpt.js?v=d206204';
+import { iGa, eulReul, waGwa } from './ko.js?v=d206204';
 
 const def = (c) => COMPANIONS[c.id];
 
