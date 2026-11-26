@@ -75,7 +75,7 @@ h1, h2, h3, p { margin: 0; }
 .logwrap .log { position: relative; z-index: 1; }
 .strip { position: absolute; inset: 0; pointer-events: none; display: flex; align-items: flex-end; overflow: hidden; }
 .strip img { width: 100%; height: auto; opacity: .15; -webkit-mask-image: linear-gradient(to bottom, transparent, #000 45%); mask-image: linear-gradient(to bottom, transparent, #000 45%); }
-.strip button { pointer-events: auto; position: absolute; right: 22px; top: 8px; z-index: 2; min-height: 32px; padding: 0 10px; border: 1px solid var(--line2); border-radius: 8px; background: var(--paper); font-size: .8rem; }
+
 /* 책 위의 캐릭터 메뉴: 네 칸씩 두 줄 */
 .cmenu { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; margin: 0 0 12px 14px; }
 .cm { min-height: 40px; padding: 0 4px; border: 1.5px solid var(--line2); border-radius: 8px; background: var(--paper); font-size: .9rem; display: flex; align-items: center; justify-content: center; gap: 4px; }

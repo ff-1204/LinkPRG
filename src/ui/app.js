@@ -404,8 +404,7 @@ export function start(root, storage = globalThis.localStorage) {
     const name = statue && statue.art === 'rabbit' && !isNight(game) ? 'strip-plaza' : isNight(game) ? place.strip.night : place.strip.day;
     refs.strip.className = `strip ${settings.stripFolded ? 'folded' : ''}`;
     refs.strip.replaceChildren(
-      settings.stripFolded ? null : pixel(name, '', 384, 96),
-      h('button', { type: 'button', 'aria-pressed': String(!settings.stripFolded), onclick: () => { setSetting('stripFolded', !settings.stripFolded); } }, settings.stripFolded ? '그림 켜기' : '그림 끄기'));
+      settings.stripFolded ? null : pixel(name, '', 384, 96));
   }
 
   function drawHeader() {

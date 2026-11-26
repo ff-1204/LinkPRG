@@ -39,6 +39,7 @@ export const SETTING_GROUPS = [
     { key: 'contrast', label: '고대비', options: [[false, '끔'], [true, '켬']] },
     { key: 'calm', label: '움직임 줄이기', options: [[false, '끔'], [true, '켬']] },
     { key: 'art', label: '그림', options: [[true, '켬'], [false, '끔 (글만)']] },
+    { key: 'stripFolded', label: '배경 그림', options: [[false, '켬'], [true, '끔']] },
   ] },
   { title: '소리', rows: [
     { key: 'sound', label: '띠링 소리', options: [[0, '끔'], [1, '작게'], [2, '보통'], [3, '크게']] },
