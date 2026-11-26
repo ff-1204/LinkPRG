@@ -194,6 +194,7 @@ export function start(root, storage = globalThis.localStorage) {
     const draw = () => {
       const o = originById(origin);
       const stats = Object.fromEntries(Object.keys(STAT_NAMES).map((k) => [k, rolled[k] + (o.stats[k] || 0)]));
+      const bonus = Object.values(o.stats || {}).reduce((a, b) => a + b, 0); // 출신이 더해 준 스탯. 합계에 넣어 보여 준다
       const free = rolls >= DICE_FREE_AT; // 끝까지 굴린 사람은 손으로 옮긴다
       fill(root,h('div', { class: 'create' },
         h('main', {},
@@ -213,7 +214,7 @@ export function start(root, storage = globalThis.localStorage) {
         h('aside', {},
           h('div', { style: 'display:flex;justify-content:space-between;align-items:baseline' },
             h('h2', { class: 'serif', style: 'font-size:1.4rem' }, '시작 스탯'),
-            h('span', {}, `합계 ${DICE_TOTAL}${free ? `, 남은 점수 ${pool}` : ''}`)),
+            h('span', {}, `합계 ${DICE_TOTAL + bonus}${bonus ? ` (출신 +${bonus} 포함)` : ''}${free ? `, 남은 점수 ${pool}` : ''}`)),
           Object.keys(STAT_NAMES).map((key) => h('div', { class: 'statline' },
             h('span', {}, h('b', {}, STAT_NAMES[key]), ` ${stats[key]}${o.stats[key] ? `(+${o.stats[key]})` : ''} `, h('span', { class: 'muted', style: 'font-size:.88rem' }, STAT_USES[key])),
             free ? h('button', { class: 'pm', type: 'button', 'aria-label': `${STAT_NAMES[key]} 내리기`, disabled: rolled[key] <= DICE_MIN, onclick: () => { rolled = { ...rolled, [key]: rolled[key] - 1 }; pool += 1; draw(); refocus(`${STAT_NAMES[key]} 내리기`); } }, '−') : null,
@@ -221,7 +222,7 @@ export function start(root, storage = globalThis.localStorage) {
           )),
           h('button', { class: 'btn go', type: 'button', 'data-press': true, disabled: free, 'aria-label': `주사위 굴리기. 지금 힘 ${stats.str}, 민첩 ${stats.agi}, 체력 ${stats.con}, 지혜 ${stats.wis}`, style: 'min-height:3rem;margin:.6rem 0', onclick: () => { rolls += 1; rolled = rollDice(`${salt}|${rolls}`); pool = 0; if (rolls === DICE_FREE_AT) error = ''; draw(); if (rolls >= DICE_FREE_AT) root.querySelector('.create .pm:not([disabled])')?.focus(); else refocus('주사위'); } }, '주사위 굴리기'),
           free ? h('p', { class: 'serif', role: 'status', style: 'color:var(--cinnamon)' }, '주사위가 닳았다. 더는 구르지 않는다. 이제 눈을 손으로 옮긴다. −로 덜어 +로 넣는다.') : null,
-          free ? null : h('p', { class: 'muted', style: 'font-size:.85rem' }, '합계는 늘 같다. 어떻게 나뉘느냐만 달라진다.'),
+          free ? null : h('p', { class: 'muted', style: 'font-size:.85rem' }, `주사위의 합은 늘 ${DICE_TOTAL}이다. 어떻게 나뉘느냐만 달라진다.${bonus ? ' 출신이 준 것은 그 위에 더해진다.' : ''}`),
           h('span', { class: 'h' }, '이 사람은'),
           h('p', { class: 'serif', style: 'font-size:1.05rem;line-height:1.8' }, o.story),
           h('p', { class: 'muted', style: 'margin-top:auto;font-size:.88rem' }, '직업은 레벨 5에 고릅니다. 지금은 누구나 무직입니다.'))));
@@ -1881,13 +1882,22 @@ export function start(root, storage = globalThis.localStorage) {
   function openHelp(topicId = 'screen') {
     let current = topicId;
     wins.open({
-      title: '도움말', size: 'mid', render(body, { rerender }) {
+      title: '도움말', size: 'wide', render(body, { rerender }) {
         const topic = HELP.find((t) => t.id === current) || HELP[0];
         body.style.padding = '0';
         add(body,h('div', { class: 'helpgrid' },
           h('nav', { 'aria-label': '도움말 갈래' }, HELP.map((t) =>
-            h('button', { type: 'button', 'aria-pressed': String(t.id === topic.id), 'data-help': t.id, onclick: () => { current = t.id; rerender(); document.querySelector(`[data-help="${t.id}"]`)?.focus(); } }, t.title))),
-          h('article', {}, h('h2', {}, topic.title), topic.body.map((p) => h('p', {}, p)))));
+            h('button', { type: 'button', 'aria-pressed': String(t.id === topic.id), 'data-help': t.id, onclick: () => { current = t.id; rerender(); document.querySelector(`[data-help="${t.id}"]`)?.focus(); } },
+              settings.art && t.icon ? pixel(t.icon, '', 24, 24) : null, h('span', {}, t.title)))),
+          h('article', {},
+            settings.art && topic.art ? h('div', { class: 'helpart', 'aria-hidden': 'true' }, pixel(topic.art, '', 384, 96)) : null,
+            h('h2', {}, topic.title),
+            topic.lead ? h('p', { class: 'helplead' }, topic.lead) : null,
+            // 한 문단이 한 줄. 화면에 보이는 이름("잠자기" 같은 것)은 굵게 해서 눈에 걸리게 한다
+            h('ul', { class: 'helplist' }, topic.body.map((p) => h('li', {}, p.split(/"([^"]+)"/).map((part, i) => (i % 2 ? h('b', {}, part) : part))))),
+            h('div', { class: 'helpnext' },
+              (() => { const i = HELP.indexOf(topic); const prev = HELP[i - 1], next = HELP[i + 1]; const go = (t) => () => { current = t.id; rerender(); document.querySelector('.helpgrid article')?.scrollIntoView({ block: 'start' }); document.querySelector(`[data-help="${t.id}"]`)?.focus(); };
+                return [prev ? h('button', { class: 'btn sm', type: 'button', onclick: go(prev) }, `이전: ${prev.title}`) : h('span', {}), next ? h('button', { class: 'btn sm go', type: 'button', onclick: go(next) }, `다음: ${next.title}`) : h('span', {})]; })()))));
       },
     });
   }

@@ -135,10 +135,21 @@ h1, h2, h3, p { margin: 0; }
 .setrow { display: grid; grid-template-columns: 9.4rem minmax(0, 1fr); gap: 10px; align-items: center; padding: 6px 0; border-bottom: 1px dashed var(--line2); }
 .helpgrid { display: grid; grid-template-columns: 12.5rem minmax(0, 1fr); min-height: 24rem; }
 .helpgrid nav { border-right: 1px solid var(--line); display: flex; flex-direction: column; }
-.helpgrid nav button { min-height: 44px; padding: 0 12px; border: 0; border-bottom: 1px dashed var(--line2); background: transparent; text-align: left; }
+.helpgrid nav button { min-height: 46px; padding: 0 12px; border: 0; border-bottom: 1px dashed var(--line2); background: transparent; text-align: left; display: flex; align-items: center; gap: 10px; }
+.helpgrid nav button img { flex: none; width: 24px; height: 24px; object-fit: contain; }
 .helpgrid nav button[aria-pressed="true"] { background: var(--sand); font-weight: 700; }
-.helpgrid article { padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; font-family: var(--serif); }
-.helpgrid article h2 { font-size: 1.4rem; }
+.helpgrid article { padding: 0 0 18px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.helpgrid article > * { margin-left: 22px; margin-right: 22px; }
+.helpgrid article h2 { font-family: var(--serif); font-size: 1.6rem; margin-top: 14px; }
+.helpart { flex: none; margin: 0 !important; background: var(--sand); border-bottom: 2px solid var(--deep); display: flex; justify-content: center; overflow: hidden; }
+.helpart img { height: 96px; width: auto; max-width: none; }
+.helplead { font-family: var(--serif); font-size: 1.12rem; line-height: 1.7; padding: 10px 14px; background: var(--paper); border-left: 4px solid var(--honey); }
+.helplist { list-style: none; padding: 0; display: flex; flex-direction: column; max-width: 46rem; }
+.helplist li { position: relative; padding: 9px 0 9px 20px; line-height: 1.75; border-bottom: 1px dashed var(--line2); }
+.helplist li:last-child { border-bottom: 0; }
+.helplist li::before { content: ''; position: absolute; left: 3px; top: 1.15em; width: 7px; height: 7px; background: var(--cinnamon); }
+.helplist b { color: var(--cinnamon); }
+.helpnext { display: flex; justify-content: space-between; gap: 8px; margin-top: 6px; }
 
 html.calm * { animation: none !important; transition: none !important; }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
@@ -298,6 +309,12 @@ html.calm .cool i { animation: none !important; }
   .origins { grid-template-columns: minmax(0, 1fr); }
   .namebox { flex-wrap: wrap; }
   .helpgrid { grid-template-columns: minmax(0, 1fr) !important; }
+  /* 좁은 화면: 갈래는 옆으로 넘기는 한 줄 */
+  .helpgrid { grid-template-rows: auto minmax(0, 1fr); }
+  .helpgrid nav { flex-direction: row; overflow-x: auto; overflow-y: hidden; min-height: 48px; border-right: 0; border-bottom: 1px solid var(--line); }
+  .helpgrid nav button { flex: none; border-bottom: 0; border-right: 1px dashed var(--line2); white-space: nowrap; }
+  .helpgrid article > * { margin-left: 14px; margin-right: 14px; }
+  .helpart img { height: 72px; }
   .setrow { flex-direction: column; align-items: flex-start; gap: .3rem; }
 }
 @media (max-width: 760px) and (prefers-reduced-motion: reduce) { .nav, .book { transition: none; } }
