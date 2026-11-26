@@ -30,6 +30,7 @@ h1, h2, h3, p { margin: 0; }
 /* ── 처음 화면과 캐릭터 만들기 ── */
 .title { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.4rem; padding: 2rem 1rem; }
 .title h1 { font-family: var(--serif); font-size: 4.5rem; line-height: 1; }
+.title .titleart { width: min(100%, 560px); height: auto; border: 2px solid var(--deep); image-rendering: pixelated; }
 .title .tag { font-family: var(--serif); font-size: 1.15rem; max-width: 30rem; text-align: center; line-height: 1.8; }
 .slots { display: flex; flex-direction: column; gap: .6rem; width: min(30rem, 100%); }
 .slot { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: .7rem .9rem; border: 1.5px solid var(--line2); border-radius: 8px; background: var(--paper); text-align: left; min-height: 3.6rem; }

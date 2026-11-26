@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>카톡 미리보기 시안</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; padding: 24px 16px 48px; background: #f4f1ea; color: #3A2A1E; font: 15px/1.6 "Gowun Dodum", "Malgun Gothic", sans-serif; }
+  h1 { font: 700 22px/1.3 "Gowun Batang", serif; margin: 0 0 4px; }
+  .note { margin: 0 0 20px; color: #6b5a4a; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 22px; }
+  figure { margin: 0; }
+  figcaption { margin-bottom: 8px; font-size: 14px; color: #6b5a4a; }
+  figcaption b { color: #3A2A1E; margin-right: 6px; }
+  .talk { background: #B2C7D9; padding: 14px; border-radius: 6px; }
+  .card { width: 300px; max-width: 100%; background: #fff; border-radius: 6px; overflow: hidden; }
+  .shot { position: relative; aspect-ratio: 1200 / 630; overflow: hidden; display: flex; flex-direction: column; align-items: center; text-align: center; font-family: "Gowun Batang", serif; color: #3A2A1E; }
+  .brand { margin-top: 12px; font: 700 12px/1 "Gowun Dodum", sans-serif; letter-spacing: .02em; color: #8B4E2B; }
+  .quote { margin-top: 8px; font-weight: 700; font-size: 27px; line-height: 1.15; }
+  .quote .acc { color: #2F7D5B; }
+  .sub { margin-top: 5px; font: 11.5px/1.4 "Gowun Dodum", sans-serif; color: #6b5a4a; }
+  .rowart { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: center; align-items: flex-end; gap: 16px; border-bottom: 5px solid #3A2A1E; }
+  .rowart img { height: 58px !important; }
+  .strip { position: absolute; left: 0; right: 0; bottom: 0; }
+  .ding { margin: auto; width: 78%; border: 2px solid #3A2A1E; background: #FBF4E4; text-align: left; box-shadow: 5px 5px 0 rgba(58, 42, 30, .25); }
+  .dh { display: flex; justify-content: space-between; padding: 5px 9px; background: #F2B438; border-bottom: 2px solid #3A2A1E; font: 12px/1.3 "Gowun Dodum", sans-serif; }
+  .db { padding: 8px 10px 10px; font: 11px/1.45 "Gowun Dodum", sans-serif; }
+  .db .big { font: 700 21px/1.2 "Gowun Batang", serif; margin-bottom: 2px; }
+  .db .ok { margin-top: 7px; padding: 4px; text-align: center; background: #8B4E2B; color: #fff; border-radius: 4px; font-size: 11px; }
+  .chat { width: 100%; padding: 10px 14px; display: flex; flex-direction: column; gap: 4px; text-align: left; font-size: 11.5px; line-height: 1.35; }
+  .chat .me { align-self: flex-end; background: #F3E8D3; border: 1px solid #E2D2B4; border-radius: 10px 3px 10px 10px; padding: 4px 9px; }
+  .chat .who { font: 9.5px/1 "Gowun Dodum", sans-serif; color: #6b5a4a; margin-top: 1px; }
+  .chat .npc { align-self: flex-start; background: #fff; border: 1px solid #E2D2B4; border-radius: 3px 10px 10px 10px; padding: 4px 9px; }
+  .chat .sys { align-self: flex-start; background: #F2B438; border-radius: 3px 10px 10px 10px; padding: 4px 9px; font: 700 11.5px/1.35 "Gowun Dodum", sans-serif; }
+  .meta { padding: 10px 12px 12px; font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; }
+  .meta .t { font-weight: 700; font-size: 15px; color: #111; }
+  .meta .d { margin-top: 3px; font-size: 13.5px; line-height: 1.4; color: #777; }
+  .meta .u { margin-top: 7px; font-size: 12px; color: #2a6fd6; text-decoration: underline; }
+</style></head>
+<body>
+<h1>카톡에 주소를 붙였을 때 보이는 모습</h1>
+<p class="note">그림(위)과 제목·설명(아래)이 한 묶음으로 보입니다. 그림만 다섯 가지로 그렸고, 제목과 설명은 같습니다.</p>
+<div class="grid">
+  <figure>
+    <figcaption><b>1. 한마디</b> 작업실 카드와 같은 꼴. 게임의 규칙 한 줄을 크게.</figcaption>
+    <div class="talk">
+      <div class="card">
+        <div class="shot" style="background:#FBF4E4">
+      <div class="brand">LinkPRG</div>
+      <div class="quote">“한 번 누르면, <span class="acc">한 번.</span>”</div>
+      <div class="sub">백 번은 손으로 백 번. 누른 만큼 강해져요.</div>
+      <div class="rowart"><img alt="" style="image-rendering:pixelated;display:block;height:76px" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAAB4CAYAAAANHffOAAABh0lEQVR4nO3asU0DQRBAUVdCAdABTdCXO6QTMkicnqwF7/3Bel+afG9esrL3cpEkSdKA3l9fvndO/X3jAxAHIA5AHIA4ACd1tKCvz+vWAXMLQByAOABxAOIAxK0CrF43AdwJQByAOABxAOIAxK0uzjX0wQGIAxAHIA5AHIChrV43V6f+vvEBiAMQByAOQByAW7sXsTrXj7elqc/7Z/j6wAAGHBrAoAEAAACAE34sO5pVgOqcAAAAAAAAAIBnBajGNRQAAAAAAAAAcA7A7o4Ouvsa+m8WtDsAcQDiAMQBiAMQByAOQByAOABxAOIAxK0CPGoA3AIQByAOQByAOABxAOIAxAGIAxAHIA7A0I4W9Kipv298AOIAxAGIAxAHYGirf0nW5326AMQBiAMQByAOQByAOABxAOIAxAGIAxAHIA5AHIA4AHEA4gDEAYgDEAcgDkAcgDgAJ3X0oGoVwMOsXwYgDkAcgDgAcQBOavczdM/W71QvHMCApQMYNPU+Tq9eOIABS58A8AOZ5dwYDdituAAAAABJRU5ErkJggg=="><img alt="" style="image-rendering:pixelated;display:block;height:76px" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAAB4CAYAAAANHffOAAABm0lEQVR4nO3awVECQRBAUSIxAM3AJMyLDM3Em164rtSUNH+E96v6Cku/y9Qyp5MkSZI26P315Xty6t+3fQDiAMQBiAMQB+BOHS3o6/M8OmAuAYgDEAcgDkAcgLjp4yaAKwGIAxAHIA5AHIC41cU5ht44AHEA4gDEAYgDsGnTx9P6920fgDgAcQDiAMQBuDS9iNU5f7wtTf28f4avHxjABg8NYKMBAAAAgF9elt3qc45mFWD6Jd34yz4AAAAAAAAAwGYA1TiGAgAAAAAAAADuA3DU6jF0FXj6GDq+oOkAxAGIAxAHIA7AgwQgDkAcgDgAcQDiAMQdLWIVZnUAXAIQByAOQByAOABx1aJvBXD0vTPbGghAHIA4AHEA4gBs2uriphf9dAGIAxAHIA5AHIBNW/1Lsn7ehwtAHIA4AHEA4gDEAYgDEAcgDkAcgDgAcQDiAMQBiAMQByAOQByAOABxAOIAxAGIA3ClW13XPrpQtQrwdBezAMQBiAMQByAOwD9r+hq6a+tXqhcOYIOlA9ho6n3cvXrhADZY+g4AP4OfCCyWWBhtAAAAAElFTkSuQmCC"><img alt="" style="image-rendering:pixelated;display:block;height:76px" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAAB4CAYAAAANHffOAAABn0lEQVR4nO3asVHDQBBAUVdCAdABTdAXHdIJGSRKBbPg85fl92culU/7khv5LhdJkiTdYa/PT18rV/1+hw9AHIA4AHEA4gDcqL0BfX68L11gtgDEAYgDEAcgDkDc6uMmgF8CEAcgDkAcgDgAcdPBOYZeOQBxAOIAxAGIA3DQVh9P6/c7fADiAMQBiAMQ93AAq194ut7fXkar3u+/gesNAzjApgEcaAEAAADADx/FrvWcvTUFWP0xbvlHPQAAAAAAAADAwQCq5RgKAAAAAAAAALgNwF7TY+gUePUxdPmAVgcgDkAcgDgAcQBOEoA4AHEA4gDEAYgDELc3iCnMdAHYAhAHIA5AHIA4AFt7G139u9WgrwVwtbkBAAAAAAAAAGZVc1vedHCrB/1wAYgDEAcgDkAcgLjpX4/1fk8XgDgAcQDiAMQBiLsXgNN+jAMQByAOQByAOABx9wJw2gDEAYgDEAcgDkAcgDgAcQDiAMQBiAOwNb0OPn3+3sWpKcBpL2ABiAMQByAOQByAgzYFWH3d/OGupwOIAxAHIA5AHIC/9Q1tTerbUYCSZAAAAABJRU5ErkJggg=="><img alt="" style="image-rendering:pixelated;display:block;height:76px" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAAB4CAYAAAANHffOAAABm0lEQVR4nO3cwU1DQQxF0VRCAdABTdBXOqQTdmEBS0Zo0DjPJudIs03suZuvLyWXCwAAAAAsfLxfbz+d9FxV2u3bbqBi7fZtN1Cxdvu2G6hYu33bDVSs3b7tBir2aPsuuYgwAcIECBMgTIAwAf5o+sVNn3/8AtPnH7/A9PnHLzB9/vELTJ9//ALT5wcAGOb1+enW6VzfXrbOqe8VQIAeRwABBBBAgHyA1cup6rMbYPfzTwU49vJOAAEEEEAAAQRoFuC/PoZuX1C19IUL0ODSBWh0BBDgvtIX/vABqq0u4tRjaHq/9gQIEyBMgDABwgRoqvplXHq/9gQIEyBMgDABwgS4k90Lqn4MfbhgAoQJECZAmABhAgxTHYBfCBAmQJgAYQKECRAmQJgAYQKECRAmQJgAYQKECRAmQJgAYQKECRAmQJgAYQKECRAmQJgAYQKECRAmQJgAYQKECRAmQJgAYQKECRAmQJgA36p/zFb9t5Wn5oz9qE+ALwIIIIAAAghQFmD1Bbtn9fm7f65dfU7dgwACCCCAAAIIMCTAJ6r1EMito4YVAAAAAElFTkSuQmCC"></div></div>
+        <div class="meta"><div class="t">LinkPRG (띠링)</div><div class="d">누른 만큼 강해지는 글 RPG. 브라우저에서 바로 돼요.</div><div class="u">ff-1204.github.io</div></div>
+      </div>
+    </div>
+  </figure>
+  <figure>
+    <figcaption><b>2. 밤의 종루</b> 어두운 바탕에 제목. 이야기의 분위기.</figcaption>
+    <div class="talk">
+      <div class="card">
+        <div class="shot" style="background:#6B5446">
+      <div class="brand" style="color:#F6D98A">LinkPRG</div>
+      <div class="quote" style="color:#FBF4E4;font-size:62px">띠링</div>
+      <div class="sub" style="color:#EADFC8">끝까지 해낸 사람에게 종소리가 들린다.</div>
+      <div class="strip"><img alt="" style="image-rendering:pixelated;display:block;width:100%" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAYAAAABgCAYAAAAU9KWJAAAEuElEQVR4nO3dva1kRRSF0RcJAYCBj/AIAAebBMiAEF5AeBPIS2ACQEIaCQPMft1Gt676Z+9TtYxljnSn6pz6kFoj3v747Zf/ANjPW/oDAMgQAIBNCQDApgSAp/r7r5/PpL8HOBEAnkoAoJcA8FQCAL0EgKcSAOgVD4AHAngV7805AQC24b05JwDANrw35wQA2Ib35lw8APBK//7z9ar098ErCQBbEQA4EQC2IgBwIgBsRQDgRADYyq0APDsI3z7ez6TPg70JAFsRADgRALYiAHAiAGxFAOBEAG6wsGvzIzA7E4AbBGBtAsDOBOAGAVibALAzAbhBANYmAOxMAACGePR/kAoAwBACALApAQDYlACwtZ++/65a+nzgCAFglPQDLwCsRAAYJf3ACwArEQBGST/wAsBKBIBR2h7ctu+BIwSAUdoe3LbvgSMEgFHaHty274EjBIBR2h7ctu+BIwSAUdI/8voRmJUIAKOkH3gBYCUCwCjpB14AWIkAMEr6gRcAViIAjNL24LZ9DxwhAIzS9uC2fQ8cIQCM0vbgtn0PHCEAjNL24LZ9DxwhAIzS9uC2fQ8cIQCM0vbgtn0PHCEAjNL24LZ9DxwhAIzS9uC2fQ8cIQCMkv6HXv4hGCsRAEZJP/ACwEoEgFHSD7wAsBIBYJT0Ay8ArGR8ANIL70Hpuv+vH1+eyv3cdz+rSZ/vvQSgXPp82wlAt/T+2M/rBKBc+nzbCUC39P7Yz+sEoFz6fNsJQLf0/tjP68YF4PIC3n/9YWmrDdyz5+HoA37vn0///dtcns+Pf/6+tOnzIADlpg/Yq+dBALruI/1AC8B1AlBu+oC9eh4EoOs+0g+0AFwnAOWmD9ir50EAuu4j/UALwHX1AdjtwReE++bDj8DZ808/yGnT5kMAhpk2YK+eDwHInn/6AU6bNh8CMMy0AXv1fAhA9vzTD3DatPkQgGGmDdir50MAsueffoDTps1HXQBu/UjHden7S8+LANjPZun7uyQAi0nfX3peBMB+Nkvf3yUBWEz6/tLzIgD2s1n6/i4JwGLS95eeFwGwn83S93epPgDPXujp2gesbV5uLajztp877acADNc+YG3zIgD2036eCMBw7QPWNi8CYD/t54kADNc+YG3zIgD2036ejA/ArYVuG9hHf2/7gLXNy+oL3Xbe9rN7XgTAgI0mAN3nbT+750UADNhoAtB93vaze14EwICNJgDd520/u+dluQB8+3g/8+yBbfve9P21z4sA2E/7eSIABmw0Aeg+b/vZPS8CYMBGE4Du87af3fMiAAZsNAHoPm/72T0vywXg0QNw9H/Qkv7e9P29ej4eff73/vn0+dhP+3mEABiwUQSg6/zT824/7yMABmwUAeg6//S828/7CIABG0UAus4/Pe/28z7jA/Bozx6wZ39v+v7a5+PehXb+XfNuP+8jAAZsFAGYff72M3+HnwmAARtFAGafv/3M3+FnAmDARhGA2edvP/N3+Fl9ADgmfX+7z0f6fHY//3bp+7skAItJ39/u85E+n93Pv136/i4JwGLS97f7fKTPZ/fzb5e+v0sCsJj0/e0+H+nz2f3826Xv79Jb+kAAyBAAgE0JAMCmBABgU/8DMz2RK4G6l1IAAAAASUVORK5CYII="></div></div>
+        <div class="meta"><div class="t">LinkPRG (띠링)</div><div class="d">누른 만큼 강해지는 글 RPG. 브라우저에서 바로 돼요.</div><div class="u">ff-1204.github.io</div></div>
+      </div>
+    </div>
+  </figure>
+  <figure>
+    <figcaption><b>3. 띠링 창</b> 게임에서 가장 자주 보는 알림창을 그대로.</figcaption>
+    <div class="talk">
+      <div class="card">
+        <div class="shot" style="background:#F3E8D3">
+      <div class="ding">
+        <div class="dh"><b>띠링! 숙련도</b><span>귀함</span></div>
+        <div class="db"><div class="big">치기 중급 1</div><div>같은 자리를 치고 또 친 손에 답이 왔습니다.</div><div class="ok">확인</div></div>
+      </div></div>
+        <div class="meta"><div class="t">LinkPRG (띠링)</div><div class="d">누른 만큼 강해지는 글 RPG. 브라우저에서 바로 돼요.</div><div class="u">ff-1204.github.io</div></div>
+      </div>
+    </div>
+  </figure>
+  <figure>
+    <figcaption><b>4. 대화방</b> 실제로 하는 화면. 글로 하는 게임이라는 것이 바로 보인다.</figcaption>
+    <div class="talk">
+      <div class="card">
+        <div class="shot" style="background:#FBF4E4">
+      <div class="chat">
+        <div class="me">허수아비를 쳤다. 이백 번째다.</div>
+        <div class="who">교관</div><div class="npc">…아직도 있나.</div>
+        <div class="me">허수아비를 쳤다. 숨이 조금 찬다.</div>
+        <div class="sys">띠링! 치기 숙련도가 올랐습니다</div>
+      </div></div>
+        <div class="meta"><div class="t">LinkPRG (띠링)</div><div class="d">누른 만큼 강해지는 글 RPG. 브라우저에서 바로 돼요.</div><div class="u">ff-1204.github.io</div></div>
+      </div>
+    </div>
+  </figure>
+  <figure>
+    <figcaption><b>5. 제목과 마을</b> 이름을 가장 크게. 아래에 시작 마을.</figcaption>
+    <div class="talk">
+      <div class="card">
+        <div class="shot" style="background:#FBF4E4">
+      <div class="quote" style="margin-top:34px;font-size:60px">LinkPRG</div>
+      <div class="sub">누른 만큼 강해지는 글 RPG</div>
+      <div class="strip"><img alt="" style="image-rendering:pixelated;display:block;width:100%" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAYAAAABgCAYAAAAU9KWJAAADPUlEQVR4nO3cu40UQRQF0I2EAMDAJwkyIBBCICdECrjYSKSxWK1h2phSUb3zPnWO9NxR163ud40VvLwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMB/+vT+3eujiX4+1vz4/fP10UQ/HzyTfXcikN4UANzYdycC6U0BwI19dyKQ3hQA3Gy/784H/vb5w8OpFtDogru/ALMLXiHQWfd9N617IApAAcCh+76b1j0QBaAA4NB9303rHogCUABw6L7vhmYDqBbQ+Xk+fv2yNNnONzJa4LN/BFYIVNZ9303rHogCUABw6L7vpnUPRAEoADh033fTugeiABQAHLrvu6GrA8gW0OzCPy+07oVw1v2P3uyt+76b1j0QBTBHAdBZ9303rXsgCmCOAqCz7vtuWvdAFMAcBUBn3fddugCiA5otgNWCSHfhA+fn/fPr+8Opdj72ttu+E8jgvArgngKgs932nUAG51UA9xQAne227wQyOK8CuKcA6Gy3fTcMoNq8dR6rhZBtIa7mPVsA0fcJ/4reV+m+j+gDZQvk/PsK4H4UAJVF76t030f0gbIFcv59BXA/CoDKovdVuu8j+kDZAjn/vgK4HwVAZdH7Kt33MfuBR8+zF0a6C1t8/tF/5hY92fJ7a9ELpfr7Pcu+E8hSPtU+EAWQW/QCr/5+z7LvBLKUT7UPRAHkFr3Aq7/fs+w7gSzlU+0DUQC5RS/w6u/3LPtuMZDRC7F6wNHvRb+Ao3/I8eznOav2god/AMGq3Vf1+7DvBLJEAVg4V6p2X9Xvw74TyBIFYOFcqdp9Vb8P+04gSxSAhXOlavdV/T7sO4EsUQAWzgr3E8u+E8gSBWDBrHA/sew7gSxRABbMCvcTy74TyBIFYMGscD+x7LtBINXm8kAGqhVAt4nOd1V0frvfT3Q+6fKNPlC6QAYUwF73fbXo/Ha/n+h80uUbfaB0gQwogL3u+2rR+e1+P9H5pMs3+kDpAhlQAHvd99Wi89v9fqLzeXq+0Q9sjDEmZhSAMcZsOgrAGGM2HQVgjDGbzl+oxDOHno2K9QAAAABJRU5ErkJggg=="></div></div>
+        <div class="meta"><div class="t">LinkPRG (띠링)</div><div class="d">누른 만큼 강해지는 글 RPG. 브라우저에서 바로 돼요.</div><div class="u">ff-1204.github.io</div></div>
+      </div>
+    </div>
+  </figure></div>
+</body></html>

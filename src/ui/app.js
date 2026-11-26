@@ -85,6 +85,8 @@ export function start(root, storage = globalThis.localStorage) {
     const firstEmpty = slots.find((s) => s.empty);
     const list = h('div', { class: 'slots', 'aria-label': '저장 칸' }, slots.map((s) => slotRow(s, used[0]?.slot === s.slot)));
     fill(root,h('main', { class: 'title' },
+      // 꾸밈 그림: 같은 숲의 낮과 밤. 알려 주는 것이 없어 대체 글은 비운다. 그림을 끄면 나오지 않는다
+      settings.art ? h('img', { class: 'px titleart', src: 'title.png', alt: '', width: 1200, height: 630 }) : null,
       h('h1', {}, '띠링'),
       h('p', { class: 'tag' }, '이 세계에서는 무언가를 끝까지 해낸 사람에게 종소리가 들린다.'),
       // 읽을 수 없는 칸을 묻지 않고 덮어쓰지 않도록, "시작"은 늘 빈 칸으로 간다.

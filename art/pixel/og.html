@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<title>미리보기 그림 만들기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>body { margin: 0; background: #ddd; } canvas { display: block; width: 600px; height: 315px; image-rendering: auto; }</style>
+</head><body>
+<!--
+  미리보기 그림(og.png, 1200×630)을 그린다. 글자가 들어가서 브라우저에서 그린다.
+  쓰는 법: 개발 서버를 켜고 이 페이지를 연 뒤, 받는 쪽(node art/pixel/og-save.cjs)을 켜 두고 ?save=1 을 붙여 연다.
+  카톡은 그림을 가운데 기준으로 잘라 보일 때가 있어 글자를 가운데에 모으고 가장자리를 비웠다.
+-->
+<canvas id="c" width="1200" height="630"></canvas>
+<script>
+(async () => {
+  const c = document.getElementById('c'), g = c.getContext('2d');
+  const load = (src) => new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = src; });
+  await Promise.all([document.fonts.load('700 160px "Gowun Batang"', 'LinkPRG'), document.fonts.load('46px "Gowun Dodum"', '누른 만큼 강해지는 글 RPG')]);
+  const strip = await load('out/strip-plaza-empty.png');
+  g.fillStyle = '#FBF4E4'; g.fillRect(0, 0, 1200, 630);
+  g.textAlign = 'center'; g.textBaseline = 'alphabetic';
+  g.fillStyle = '#3A2A1E'; g.font = '700 168px "Gowun Batang", serif';
+  g.fillText('LinkPRG', 600, 230);
+  g.fillStyle = '#6B5A4A'; g.font = '46px "Gowun Dodum", sans-serif';
+  g.fillText('누른 만큼 강해지는 글 RPG', 600, 306);
+  // 시작 마을: 점이 뭉개지지 않게 정수배로 늘린다
+  g.imageSmoothingEnabled = false;
+  const s = 2.5, w = strip.width * s, h = strip.height * s;
+  g.drawImage(strip, Math.round((1200 - w) / 2), 630 - h - 30, w, h);
+  g.fillStyle = '#3A2A1E'; g.fillRect(0, 630 - 30, 1200, 30);
+  document.title = '그림 준비됨';
+  if (new URLSearchParams(location.search).get('save')) {
+    const blob = await new Promise((ok) => c.toBlob(ok, 'image/png'));
+    const r = await fetch('http://localhost:5181/og.png', { method: 'POST', body: blob });
+    document.title = r.ok ? '저장함' : '저장 실패';
+  }
+})().catch((e) => { document.title = '오류: ' + e.message; });
+</script>
+</body></html>
