@@ -285,11 +285,12 @@ export function start(root, storage = globalThis.localStorage) {
     refs.mBook = h('button', { class: 'btn', type: 'button', 'aria-expanded': 'false', onclick: toggle('book-open', 'nav-open') }, '모험 일지');
     refs.shade = h('button', { class: 'shade', type: 'button', 'aria-label': '닫기', onclick: closeDrawers });
     refs.tabs = h('div', { class: 'tabs', role: 'tablist', 'aria-label': '모험 일지' });
+    refs.menu = h('nav', { class: 'cmenu', 'aria-label': '캐릭터' });
     refs.pg = h('div', { class: 'pg', role: 'tabpanel' });
     refs.game = h('div', { class: 'game' },
       refs.nav,
-      h('main', { class: 'room' }, h('div', { class: 'mbar' }, refs.mNav, refs.mBook), refs.strip, refs.hd, refs.body, refs.log, refs.suggest, refs.fight, refs.assist, refs.slots, refs.sr),
-      h('aside', { class: 'book', 'aria-label': '모험 일지' }, refs.tabs, refs.pg),
+      h('main', { class: 'room' }, h('div', { class: 'mbar' }, refs.mNav, refs.mBook), refs.hd, refs.body, h('div', { class: 'logwrap' }, refs.strip, refs.log), refs.suggest, refs.fight, refs.assist, refs.slots, refs.sr),
+      h('aside', { class: 'book', 'aria-label': '모험 일지' }, refs.menu, refs.tabs, refs.pg),
       refs.shade);
     fill(root, refs.game);
     assist = createAssist(settings.assist);
@@ -347,6 +348,7 @@ export function start(root, storage = globalThis.localStorage) {
     const place = placeById(game.place);
     const busy = !!(game.battle || game.choice);
     const rv = roomView(game);
+    drawMenu(!!rv);
     if (rv) {
       fill(refs.nav,
         h('small', {}, '현재 위치'),
@@ -355,11 +357,6 @@ export function start(root, storage = globalThis.localStorage) {
         h('small', {}, '이 방에서 갈 수 있는 곳'),
         rv.exits.map((x) => h('button', { class: 'ch', type: 'button', disabled: busy || !x.can, title: x.why || null, onclick: () => run({ type: 'room', to: x.id }) }, h('span', {}, `${x.name}${x.floor ? ` (${x.floor})` : ''}`), x.why ? h('small', { class: 'muted' }, ` ${x.why}`) : null)),
         rv.canLeave ? h('button', { class: 'ch', type: 'button', disabled: busy, onclick: () => run({ type: 'dungeon', op: 'leave' }) }, h('span', {}, '밖으로 나간다')) : null,
-        h('small', {}, '캐릭터'),
-        h('button', { class: 'ch', type: 'button', onclick: () => openBag('all') }, h('span', {}, '가방')),
-        h('button', { class: 'ch', type: 'button', onclick: openGear }, h('span', {}, '장비')),
-        h('button', { class: 'ch', type: 'button', onclick: openParty }, h('span', {}, '동료'), game.party.length ? h('b', { class: 'num' }, game.party.length) : null),
-        h('button', { class: 'ch', type: 'button', onclick: () => openQuests() }, h('span', {}, '퀘스트')),
         h('div', { class: 'foot' },
           h('button', { class: 'ch', type: 'button', onclick: openSettings }, h('span', {}, '저장과 설정')),
           h('button', { class: 'ch', type: 'button', onclick: () => openHelp() }, h('span', {}, '도움말'))));
@@ -385,18 +382,18 @@ export function start(root, storage = globalThis.localStorage) {
       h('button', { class: 'ch', type: 'button', onclick: openWorld }, h('span', {}, '세계 공지와 랭킹')),
       h('button', { class: 'ch', type: 'button', disabled: busy, onclick: openGuild }, h('span', {}, '길드'), game.guild ? h('b', { class: 'num' }, guildView(game).mine.rank) : null),
       ringView(game) ? h('button', { class: 'ch', type: 'button', disabled: busy, onclick: openRing }, h('span', {}, '지켜본다'), h('b', { class: 'num' }, ringView(game).list.filter((x) => !x.done).length || '')) : null,
-      h('small', {}, '캐릭터'),
-      h('button', { class: 'ch', type: 'button', onclick: () => openBag('all') }, h('span', {}, '가방')),
-      h('button', { class: 'ch', type: 'button', onclick: openGear }, h('span', {}, '장비')),
-      h('button', { class: 'ch', type: 'button', onclick: openWorks }, h('span', {}, '작품')),
-      h('button', { class: 'ch', type: 'button', onclick: openParty }, h('span', {}, '동료'), game.party.length ? h('b', { class: 'num' }, game.party.length) : null),
-      h('button', { class: 'ch', type: 'button', onclick: () => openQuests() }, h('span', {}, '퀘스트')),
-      h('button', { class: 'ch', type: 'button', onclick: openTitles }, h('span', {}, '칭호')),
-      h('button', { class: 'ch', type: 'button', onclick: () => openDex() }, h('span', {}, '도감')),
-      h('button', { class: 'ch', type: 'button', onclick: openPast }, h('span', {}, '알림 기록')),
       h('div', { class: 'foot' },
         h('button', { class: 'ch', type: 'button', onclick: openSettings }, h('span', {}, '저장과 설정')),
         h('button', { class: 'ch', type: 'button', onclick: () => openHelp() }, h('span', {}, '도움말'))));
+  }
+
+  /** 책 위의 캐릭터 메뉴: 네 칸씩 두 줄. 던전 안에서는 가방·장비·동료·퀘스트만. */
+  function drawMenu(inDungeon) {
+    const item = (label, onclick, num) => h('button', { class: 'cm', type: 'button', onclick, 'aria-label': num ? `${label} ${num}` : null }, label, num ? h('b', { class: 'num' }, num) : null);
+    const party = game.party.length || null;
+    fill(refs.menu, inDungeon
+      ? [item('가방', () => openBag('all')), item('장비', openGear), item('동료', openParty, party), item('퀘스트', () => openQuests())]
+      : [item('가방', () => openBag('all')), item('장비', openGear), item('작품', openWorks), item('동료', openParty, party), item('퀘스트', () => openQuests()), item('칭호', openTitles), item('알림 기록', openPast)]);
   }
 
   function drawStrip() {
@@ -407,8 +404,8 @@ export function start(root, storage = globalThis.localStorage) {
     const name = statue && statue.art === 'rabbit' && !isNight(game) ? 'strip-plaza' : isNight(game) ? place.strip.night : place.strip.day;
     refs.strip.className = `strip ${settings.stripFolded ? 'folded' : ''}`;
     refs.strip.replaceChildren(
-      pixel(name, '', 384, 96),
-      h('button', { type: 'button', 'aria-expanded': String(!settings.stripFolded), onclick: () => { setSetting('stripFolded', !settings.stripFolded); } }, settings.stripFolded ? '그림 펴기' : '그림 접기'));
+      settings.stripFolded ? null : pixel(name, '', 384, 96),
+      h('button', { type: 'button', 'aria-pressed': String(!settings.stripFolded), onclick: () => { setSetting('stripFolded', !settings.stripFolded); } }, settings.stripFolded ? '그림 켜기' : '그림 끄기'));
   }
 
   function drawHeader() {
