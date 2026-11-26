@@ -385,3 +385,19 @@ test('몰래 지나가기는 들켜도 다음 날 밤에 다시 해 볼 수 있�
   dispatch(s, { type: 'choose', id: 'stay' });
   assert.ok(s.full <= full - 5, `포만감 ${full} → ${s.full}`);
 });
+
+test('던전: 갈 곳마다 방향이 붙는다. 같은 층은 동서남북, 다른 층은 아래로·위로 (사용자 피드백)', () => {
+  const s = inRuins('dir');
+  const d = DUNGEONS.ruins;
+  const dirs = new Set();
+  for (const [id, r] of Object.entries(d.rooms)) {
+    s.dungeon.room = id;
+    for (const x of roomView(s).exits) {
+      const to = d.rooms[x.id];
+      if (to.floor !== r.floor) assert.equal(x.dir, to.floor > r.floor ? '아래로' : '위로');
+      else assert.ok(['동', '서', '남', '북'].includes(x.dir), `${id} → ${x.id}: ${x.dir}`);
+      dirs.add(x.dir);
+    }
+  }
+  assert.ok(dirs.size >= 4);
+});

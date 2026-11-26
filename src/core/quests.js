@@ -1,28 +1,28 @@
 // 퀘스트 네 갈래를 굴린다 (Q1~Q4, E19~E23, S1).
 // 의뢰(게시판) · 서브(사람이 준다, 선택으로 갈린다) · 히든(조건을 채우면 나타난다) · 메인(장마다 길 여럿)
 
-import { seedFrom, next, chance } from './rng.js?v=200257c';
-import { pushLine, ding } from './log.js?v=200257c';
-import { JOBS, JOB_LIMIT, JOB_DAYS, BOARD_SIZE, SUBS, SUB_ORDER, STAT_CHECKS, HIDDENS, HIDDEN_ORDER, MAIN } from '../data/quests.js?v=200257c';
-import { PEOPLE, REGULAR, PEOPLE_ORDER, BONDS } from '../data/people.js?v=200257c';
-import { itemDef } from '../data/items.js?v=200257c';
-import { monsterDef } from '../data/monsters.js?v=200257c';
-import { placeById, PLACES } from '../data/places.js?v=200257c';
-import { countOf, takeById, addItem } from './inventory.js?v=200257c';
-import { grantXp } from './reward.js?v=200257c';
-import { bondOf, bondBy, addFame, fameOf, grantTitle, checkChance, rollCheck, CHECKS } from './social.js?v=200257c';
-import { SKILL_NAMES, gradeLabel } from './skills.js?v=200257c';
-import { addStanding, standingOf, previewEffects } from './factions.js?v=200257c';
-import { offerHiddenJob } from './jobs.js?v=200257c';
-import { cross } from './party.js?v=200257c';
-import { SEARCH_NEED } from '../data/lines.js?v=200257c';
-import { endingChoices, afterText, ENDINGS } from './ending.js?v=200257c';
-import { HIDDEN_JOBS } from '../data/jobs.js?v=200257c';
-import { iGa, eulReul } from './ko.js?v=200257c';
-import { WILDS } from '../data/wild.js?v=200257c';
-import { rootOf } from '../data/origins.js?v=200257c';
-import { MONSTERS } from '../data/monsters.js?v=200257c';
-import { SHOPS } from '../data/shops.js?v=200257c';
+import { seedFrom, next, chance } from './rng.js?v=69728af';
+import { pushLine, ding } from './log.js?v=69728af';
+import { JOBS, JOB_LIMIT, JOB_DAYS, BOARD_SIZE, SUBS, SUB_ORDER, STAT_CHECKS, HIDDENS, HIDDEN_ORDER, MAIN } from '../data/quests.js?v=69728af';
+import { PEOPLE, REGULAR, PEOPLE_ORDER, BONDS } from '../data/people.js?v=69728af';
+import { itemDef } from '../data/items.js?v=69728af';
+import { monsterDef } from '../data/monsters.js?v=69728af';
+import { placeById, PLACES } from '../data/places.js?v=69728af';
+import { countOf, takeById, addItem } from './inventory.js?v=69728af';
+import { grantXp } from './reward.js?v=69728af';
+import { bondOf, bondBy, addFame, fameOf, grantTitle, checkChance, rollCheck, CHECKS } from './social.js?v=69728af';
+import { SKILL_NAMES, gradeLabel } from './skills.js?v=69728af';
+import { addStanding, standingOf, previewEffects } from './factions.js?v=69728af';
+import { offerHiddenJob } from './jobs.js?v=69728af';
+import { cross } from './party.js?v=69728af';
+import { SEARCH_NEED } from '../data/lines.js?v=69728af';
+import { endingChoices, afterText, ENDINGS } from './ending.js?v=69728af';
+import { HIDDEN_JOBS } from '../data/jobs.js?v=69728af';
+import { iGa, eulReul } from './ko.js?v=69728af';
+import { WILDS } from '../data/wild.js?v=69728af';
+import { rootOf } from '../data/origins.js?v=69728af';
+import { MONSTERS } from '../data/monsters.js?v=69728af';
+import { SHOPS } from '../data/shops.js?v=69728af';
 
 const FAVOR_STRIKES = 300;
 /** '이웃'이라고 / '깎는 이'라고 */

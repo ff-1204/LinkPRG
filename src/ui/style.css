@@ -505,3 +505,19 @@ html.calm .cool i { animation: none !important; }
 }
 @media (max-width: 1000px) { .mst.wt { display: none; } }
 @media (min-width: 1001px) { .game { grid-template-columns: 248px minmax(0, 1fr) 350px; } }
+
+/* 던전: 장소 판의 작은 지도와 갈 곳의 방향 (사용자 피드백) */
+.navmap { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 4px; padding: 4px 16px; }
+.navmap .note { padding: 0; }
+.navmap .dmap { max-width: 220px; }
+.ch .dir { display: inline-block; min-width: 2.6em; margin-right: 6px; padding: 0 6px; border-radius: 999px; background: var(--sand); border: 1px solid var(--line2); font-size: .75rem; color: var(--cinnamon); text-align: center; }
+.nav > .navmap { padding: 0 2px; }
+
+/* 몸 상태: 칸들은 한 줄, 붙은 효과(그림자·기척·상태)는 그 아래 줄 */
+.mstats .mcells { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: inherit; }
+.mstats .mtags { margin-top: 6px; }
+@media (max-width: 1000px) { .mstats { display: block; } .mstats .mcells { gap: 8px; } }
+@media (min-width: 1001px) { .mstats { display: block; } .mstats .mcells { gap: 14px; } }
+/* 던전의 갈 곳은 한 줄을 다 쓴다 */
+.nav > .ch.exit { grid-column: 1 / -1; justify-content: flex-start; gap: 6px; flex-wrap: wrap; padding: 6px 10px; }
+.nav > .ch.exit small { width: 100%; }

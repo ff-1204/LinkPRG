@@ -1,19 +1,19 @@
 // 던전 (T15~T19). 층과 방을 방 목록으로 옮겨 다닌다. 지나온 방만 지도에 그려진다.
 // 나가면 지도와 연 문·챙긴 보물은 남고, 괴물과 쉼터는 다시 찬다.
 
-import { next } from './rng.js?v=200257c';
-import { pushLine, ding } from './log.js?v=200257c';
-import { DUNGEONS, REST_HEAL, KEEPER } from '../data/dungeon.js?v=200257c';
-import { STAT_NAMES } from '../data/origins.js?v=200257c';
-import { itemDef } from '../data/items.js?v=200257c';
-import { monsterDef } from '../data/monsters.js?v=200257c';
-import { addItem, countOf, takeById } from './inventory.js?v=200257c';
-import { startBattle } from './battle.js?v=200257c';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=200257c';
-import { valueOf } from './derived.js?v=200257c';
-import { jobXp, adv } from './jobs.js?v=200257c';
-import { partyRest } from './party.js?v=200257c';
-import { iGa, eulReul, ro } from './ko.js?v=200257c';
+import { next } from './rng.js?v=69728af';
+import { pushLine, ding } from './log.js?v=69728af';
+import { DUNGEONS, REST_HEAL, KEEPER } from '../data/dungeon.js?v=69728af';
+import { STAT_NAMES } from '../data/origins.js?v=69728af';
+import { itemDef } from '../data/items.js?v=69728af';
+import { monsterDef } from '../data/monsters.js?v=69728af';
+import { addItem, countOf, takeById } from './inventory.js?v=69728af';
+import { startBattle } from './battle.js?v=69728af';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=69728af';
+import { valueOf } from './derived.js?v=69728af';
+import { jobXp, adv } from './jobs.js?v=69728af';
+import { partyRest } from './party.js?v=69728af';
+import { iGa, eulReul, ro } from './ko.js?v=69728af';
 
 const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
 const defOf = (state) => DUNGEONS[state.dungeon.id];
@@ -128,7 +128,10 @@ export function roomView(state) {
       const seen = mem.seen.includes(id);
       const locked = r.kind === 'door' && r.door.beyond === id && !mem.done[dg.room];
       const blocked = !seen && !resolved(state);
-      return { id, name: seen ? x.name : '가 보지 않은 곳', floor: x.floor !== r.floor ? d.floors[x.floor] : '', seen, can: !locked && !blocked, why: locked ? '잠겨 있다' : blocked ? '이 방의 일을 넘어야 한다' : '' };
+      // 방향 (사용자 피드백: 어디쯤인지 모르겠다): 다른 층이면 아래층·위층, 같은 층이면 칸의 자리로 동서남북
+      const dx = x.pos[0] - r.pos[0], dy = x.pos[1] - r.pos[1];
+      const dir = x.floor !== r.floor ? (x.floor > r.floor ? '아래로' : '위로') : Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? '동' : dx < 0 ? '서' : '') : (dy > 0 ? '남' : '북');
+      return { id, name: seen ? x.name : '가 보지 않은 곳', dir, floor: x.floor !== r.floor ? d.floors[x.floor] : '', seen, can: !locked && !blocked, why: locked ? '잠겨 있다' : blocked ? '이 방의 일을 넘어야 한다' : '' };
     }),
   };
 }
