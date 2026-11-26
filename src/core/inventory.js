@@ -120,7 +120,7 @@ export function equip(state, index) {
   const slot = slotFor(state, item);
   if (itemDef(item.id).tool) throw new Error('도구는 차지 않습니다. 가방에 두면 됩니다');
   if (!slot) throw new Error('찰 수 없는 물건입니다');
-  if (itemDef(item.id).job && itemDef(item.id).job !== state.job) throw new Error(`${jobDef(itemDef(item.id).job)?.name || itemDef(item.id).job}만 쓸 수 있습니다`);
+  if (itemDef(item.id).job && itemDef(item.id).job !== state.job && !(state.flags?.anyShield && item.id === 'oldshield')) throw new Error(`${jobDef(itemDef(item.id).job)?.name || itemDef(item.id).job}만 쓸 수 있습니다`);
   state.bag.splice(index, 1);
   const old = state.equip[slot];
   state.equip[slot] = item;

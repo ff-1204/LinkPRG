@@ -93,7 +93,7 @@ export function repairCost(state, item) {
   const max = maxDur(item);
   if (!max || item.dur >= max) return 0;
   const base = (itemDef(item.id).price || 10) * (1 - item.dur / max) * 0.5;
-  return Math.max(1, Math.ceil(base * (state.work === 'smith' ? 0.5 : 1)));
+  return Math.max(1, Math.ceil(base * (state.work === 'smith' ? 0.5 : 1) * (state.flags.cheapRepair ? 0.5 : 1))); // 편자공의 조수는 절반
 }
 
 export function repair(state, events, loc) {

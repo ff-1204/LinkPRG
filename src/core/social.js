@@ -2,12 +2,15 @@
 
 import { next, pick, roll01 } from './rng.js';
 import { pushLine, ding } from './log.js';
-import { PEOPLE, PEOPLE_ORDER, BONDS, GIFT, TALK_POINT, FAME, TITLES, personById } from '../data/people.js';
+import { PEOPLE, PEOPLE_ORDER, BONDS, GIFT, TALK_POINT, FAME, TITLES, personById, REGULAR } from '../data/people.js';
 import { itemDef } from '../data/items.js';
 import { removeAt } from './inventory.js';
 import { placeById, ACTIONS } from '../data/places.js';
 import { COMPANIONS, ROLE_BONUS } from '../data/companions.js';
 import { iGa, eulReul, ro, eunNeun } from './ko.js';
+import { TALKS } from '../data/talks.js';
+import { rootOf } from '../data/origins.js';
+import { smithMemory } from './memories.js';
 
 const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
 
@@ -35,7 +38,7 @@ function mustBeHere(state, id) {
   return p;
 }
 
-function addPoints(state, events, id, n) {
+export function addPoints(state, events, id, n) {
   const p = personById(id);
   const r = rec(state, id);
   const before = bondOf(state, id);
@@ -106,10 +109,15 @@ function speak(state, events, p) {
 }
 
 /** 지금 그 사람이 말을 걸 확률(화면에는 보이지 않는다). n: 오늘 이곳에서 한, 이곳에 맞는 일의 수. */
+const SMITHS = ['smith', 'master', 'shipwright'];
 export function speakChance(state, id, n) {
   const b = bondOf(state, id);
   if (b >= FRIEND) return 1;
-  return Math.min(1, SPEAK_BASE[b] + SPEAK_STEP * Math.max(0, n - 1));
+  const root = rootOf(state.origin);
+  let c = SPEAK_BASE[b] + SPEAK_STEP * Math.max(0, n - 1);
+  if (root === 'farmer' && placeById(state.place).town === '시작 마을') c += 0.10; // 땅의 사람: 마을 사람들이 편하게 대한다
+  if (root === 'fallen' && ['eye', 'elder'].includes(id) && state.day <= 30) c *= 0.5; // 이름 있는 사람: 나쁘게 아는 사람도 있다
+  return Math.min(1, c);
 }
 
 /**
@@ -126,7 +134,8 @@ export function workedHere(state, events, kind = 'fit') {
   const x = state.flags.workHere;
   const idle = !placeById(state.place).actions.some((act) => !ACTIONS[act].open && !ACTIONS[act].rest && !ACTIONS[act].service && !ACTIONS[act].chore);
   if (kind === 'enter') {
-    for (const p of here) if (!spokeToday(state, p.id) && (idle || bondOf(state, p.id) >= FRIEND)) speak(state, events, p);
+    const smithy = rootOf(state.origin) === 'smithboy';
+    for (const p of here) if (!spokeToday(state, p.id) && (idle || bondOf(state, p.id) >= FRIEND || (smithy && SMITHS.includes(p.id)))) speak(state, events, p);
     return;
   }
   x.n += 1;
@@ -144,6 +153,48 @@ export function workedHere(state, events, kind = 'fit') {
   }
 }
 
+/** 들은 힌트를 모아 둔다(퀘스트 창의 "들은 말"). 같은 말은 한 번만. */
+export function rememberHint(state, who, text, chapter) {
+  if (!state.lore) state.lore = { hints: [] };
+  if (state.lore.hints.some((h) => h.text === text)) return;
+  state.lore.hints.push({ who, text, ch: chapter, day: state.day });
+}
+
+/**
+ * 이야기 한 줄을 고른다 (Z26). 처음에는 내 뿌리를 알아보는 말. 그다음은
+ * 아직 안 들은 이번 장의 힌트 → 아직 안 들은 상식 → 나머지(잡담·속마음·때·출신)를 섞어서. 같은 줄은 연달아 나오지 않는다.
+ */
+export function talkLine(state, id) {
+  const p = personById(id);
+  const t = TALKS[id];
+  if (!t) return { kind: 'chat', text: pick(state, p.talk) };
+  const r = rec(state, id);
+  if (!Array.isArray(r.heard)) r.heard = [];
+  const root = rootOf(state.origin);
+  const ch = Math.min(5, state.ending ? 5 : state.main?.chapter || 1);
+  const bond = bondOf(state, id);
+  const night = state.phase === 2;
+  const all = [];
+  t.chat.forEach((x, i) => all.push({ kind: 'chat', key: `c${i}`, text: x }));
+  t.tip.forEach((x, i) => all.push({ kind: 'tip', key: `t${i}`, text: x }));
+  (t.hint[ch] || []).forEach((x, i) => all.push({ kind: 'hint', key: `h${ch}-${i}`, text: x }));
+  if (bond >= REGULAR) t.close.forEach((x, i) => all.push({ kind: 'close', key: `s${i}`, text: x }));
+  (t.time[night ? 'night' : 'day'] || []).forEach((x, i) => all.push({ kind: 'time', key: `${night ? 'n' : 'd'}${i}`, text: x }));
+  if (t.root[root]) all.push({ kind: 'root', key: 'r', text: t.root[root] });
+  let line = null;
+  if (!r.heard.includes('r') && t.root[root]) line = all.find((x) => x.kind === 'root');
+  const fresh = (k) => all.filter((x) => x.kind === k && !r.heard.includes(x.key));
+  if (!line) line = fresh('hint')[0] || fresh('tip')[0];
+  if (!line) {
+    const rest = all.filter((x) => x.kind !== 'hint' && x.kind !== 'tip' && x.key !== r.lastLine);
+    line = pick(state, rest.length ? rest : all);
+  }
+  if (!r.heard.includes(line.key)) r.heard.push(line.key);
+  r.lastLine = line.key;
+  if (line.kind === 'hint') rememberHint(state, p.name, line.text, ch);
+  return line;
+}
+
 /** 이야기를 듣는다. 하루에 한 번은 사이가 조금 가까워진다. 그 사람이 먼저 말을 걸어온 날에만 된다. */
 export function talk(state, events, id) {
   const p = mustBeHere(state, id);
@@ -151,12 +202,31 @@ export function talk(state, events, id) {
   const r = rec(state, id);
   r.met = true;
   if (!state.counters.npcs.includes(id)) state.counters.npcs.push(id);
+  if (smithMemory(state, events, id)) { events.push({ type: 'social' }); return; } // 옛 인연: 정을 돌려드렸다
   pushLine(state, events, { k: 'me', text: `${p.name}의 이야기를 들었다.` });
-  pushLine(state, events, { k: 'npc', who: p.name, text: pick(state, p.talk) });
+  const line = talkLine(state, id);
+  pushLine(state, events, { k: 'npc', who: p.name, text: line.text, tone: line.kind === 'hint' || line.kind === 'close' ? 'mint' : undefined });
   if (r.talked !== state.day) {
     r.talked = state.day;
     addPoints(state, events, id, TALK_POINT + (state.title === 'neighbor' ? 1 : 0));
   }
+  events.push({ type: 'social' });
+}
+
+export const DRINK_HOSTS = ['keeper', 'innkeeper', 'hostess'];
+/** 길의 사람: 주점·주막·여인숙에서 하루 한 번 한 잔 얻어 마신다. 포만감 +10, 피로 −10, 이야기 한 줄. */
+export function drink(state, events, id) {
+  const p = mustBeHere(state, id);
+  if (rootOf(state.origin) !== 'bard') throw new Error('얻어 마실 사이가 아닙니다');
+  if (!DRINK_HOSTS.includes(id)) throw new Error('술을 파는 곳이 아닙니다');
+  if (state.flags.drinkDay === state.day) throw new Error('오늘은 이미 한 잔 얻어 마셨습니다');
+  state.flags.drinkDay = state.day;
+  state.full = Math.min(100, state.full + 10);
+  state.tired = Math.max(0, (state.tired || 0) - 10);
+  pushLine(state, events, { k: 'npc', who: p.name, text: '떠도는 사람 목은 늘 마르지. 이건 내가 사네.' });
+  pushLine(state, events, { k: 'sys', text: '한 잔 얻어 마셨다. 포만감 +10, 피로 −10.' });
+  const line = talkLine(state, id);
+  pushLine(state, events, { k: 'npc', who: p.name, text: line.text, tone: line.kind === 'hint' ? 'mint' : undefined });
   events.push({ type: 'social' });
 }
 
@@ -299,6 +369,7 @@ export function checkChance(state, kind, npcId) {
     if (state.title === 'helper') chance += 0.05;
   }
   if (kind === 'threat') chance += (state.hidden.nerve?.value || 0) * 0.01;
+  if (kind === 'trick' && state.flags.trick10) chance += 0.10; // 약장수의 조수
   return clamp(chance, 0.05, 0.95);
 }
 

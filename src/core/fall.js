@@ -36,6 +36,8 @@ export function fall(state, events, cause = '') {
     item.n -= lose;
   }
   const until = { day: state.day + 1, phase: state.phase };
+  // 묘지기는 쇠약이 빨리 풀린다: 한 때만 지나면 된다 (두고 온 것이 남는 때는 그대로)
+  const weakUntil = state.flags.weakFast ? (state.phase >= 2 ? { day: state.day + 1, phase: 0 } : { day: state.day, phase: state.phase + 1 }) : until;
   const old = state.relic;
   const fresh = silver > 0 || items.length ? { place: where, until, silver, items } : null;
   // 새로 둘 것이 없으면 먼저 두고 온 것은 그대로 남는다. 있으면 먼저 것은 잃는다.
@@ -47,7 +49,7 @@ export function fall(state, events, cause = '') {
   state.status = [];
   state.lastAction = null;
   state.place = TEMPLE;
-  state.weak = { ...until };
+  state.weak = { ...weakUntil };
   const maxHp = derived(state).find((d) => d.id === 'maxHp').value;
   state.hp = Math.max(1, Math.ceil(maxHp * 0.3));
 

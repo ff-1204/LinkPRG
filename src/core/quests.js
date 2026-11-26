@@ -20,6 +20,7 @@ import { endingChoices, afterText, ENDINGS } from './ending.js';
 import { HIDDEN_JOBS } from '../data/jobs.js';
 import { iGa, eulReul } from './ko.js';
 import { WILDS } from '../data/wild.js';
+import { rootOf } from '../data/origins.js';
 import { MONSTERS } from '../data/monsters.js';
 import { SHOPS } from '../data/shops.js';
 
@@ -172,7 +173,7 @@ function choiceChance(state, c) {
 function choicesOf(state, q, st, step) {
   return (step.choices || []).filter((c) => !c.when || st.set.includes(c.when)).map((c) => {
     const closed = st.closed.includes(c.id);
-    const freeOk = c.free ? (c.free.origin ? state.origin === c.free.origin : c.free.item ? countOf(state, c.free.item) > 0 : state.title === c.free.title) : true;
+    const freeOk = c.free ? (c.free.origin ? rootOf(state.origin) === c.free.origin : c.free.item ? countOf(state, c.free.item) > 0 : state.title === c.free.title) : true;
     const ok = needOk(state, c.need);
     const p = choiceChance(state, c);
     return {

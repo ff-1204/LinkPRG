@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>출신 뽑기 시안: 패 다섯 장과 등급</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  :root { --cream: #FBF4E4; --paper: #FFFDF6; --sand: #F3E8D3; --ink: #3A2A1E; --muted: #6B5A4A; --cin: #8B4E2B; --honey: #F2B438; --line: #E2D2B4;
+    --g0: #6B5A4A; --g1: #2F7D5B; --g2: #2A6FD6; --g3: #7B4AB8; --g4: #C8860B; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 22px 16px 60px; background: var(--cream); color: var(--ink); font: 16px/1.6 "Gowun Dodum", "Malgun Gothic", sans-serif; }
+  h1 { font: 700 26px/1.3 "Gowun Batang", serif; margin: 0 0 4px; }
+  h2 { font: 700 20px/1.3 "Gowun Batang", serif; margin: 38px 0 4px; }
+  .note { color: var(--muted); margin: 0 0 14px; max-width: 48rem; }
+  .frame { border: 2px solid var(--ink); background: var(--paper); padding: 20px; max-width: 780px; box-shadow: 6px 6px 0 rgba(58, 42, 30, .18); }
+  .q { font: 700 22px/1.3 "Gowun Batang", serif; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 14px; font-size: 15px; }
+  button { font: inherit; cursor: pointer; }
+  .ghost { min-height: 46px; padding: 0 18px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); color: var(--ink); }
+  .go { min-height: 46px; padding: 0 22px; border: 0; border-radius: 6px; background: var(--cin); color: #fff; }
+  .go:disabled { opacity: .5; cursor: default; }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 14px; }
+  .hand { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+  .hand button { aspect-ratio: 3 / 4; border: 2px solid var(--ink); border-radius: 8px; padding: 8px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    background: repeating-linear-gradient(45deg, var(--sand), var(--sand) 8px, #EADFC8 8px, #EADFC8 16px); font: 700 15px/1.3 "Gowun Batang", serif; color: var(--ink); }
+  .hand button .mark { font-size: 30px; opacity: .55; }
+  .hand button.up { background: #fff; border-width: 3px; }
+  .hand button.dim { opacity: .45; }
+  .hand button:disabled { cursor: default; }
+  .hand small { font: 12.5px/1.2 "Gowun Dodum", sans-serif; }
+  .card { margin-top: 14px; padding: 14px 16px; border: 3px solid var(--cin); border-radius: 10px; background: #fff; min-height: 150px; }
+  .card.wait { border: 2px dashed var(--line); color: var(--muted); display: flex; align-items: center; justify-content: center; }
+  .card b.name { display: block; font: 700 23px/1.3 "Gowun Batang", serif; margin: 6px 0 2px; }
+  .card span { display: block; }
+  .card .talk { color: var(--muted); }
+  .tag { display: inline-block !important; padding: 1px 9px; border: 1px solid currentColor; border-radius: 999px; font-size: 13px; margin-right: 6px; }
+  .g0 { color: var(--g0); } .g1 { color: var(--g1); } .g2 { color: var(--g2); } .g3 { color: var(--g3); } .g4 { color: var(--g4); }
+  .b0 { border-color: var(--g0) !important; } .b1 { border-color: var(--g1) !important; } .b2 { border-color: var(--g2) !important; } .b3 { border-color: var(--g3) !important; } .b4 { border-color: var(--g4) !important; }
+  .card.b4, .hand button.b4 { background: #FFF8E1; }
+  table { border-collapse: collapse; width: 100%; max-width: 940px; font-size: 14.5px; background: var(--paper); }
+  th, td { border-bottom: 1px dashed var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { border-bottom: 2px solid var(--ink); }
+  tr.fam td { background: var(--sand); font: 700 15px/1.4 "Gowun Batang", serif; }
+  .odds { max-width: 620px; }
+  .odds td:nth-child(n+2), .odds th:nth-child(n+2) { text-align: right; }
+</style></head>
+<body>
+<h1>출신 뽑기 시안: 패 다섯 장과 등급</h1>
+<p class="note">고르신 시안 C에 등급을 넣었습니다. 엎어진 패 다섯 장 가운데 한 장을 뒤집으면 그것이 내 출신입니다. 패의 뒷면은 모두 같아서, 뒤집기 전에는 등급을 알 수 없습니다. 아래에서 직접 눌러 볼 수 있습니다.</p>
+
+<div class="frame">
+  <p class="q">당신은 어떤 사람이었습니까</p>
+  <p class="sub">패 한 장을 뒤집으십시오. 뒤집은 것이 당신의 지난날입니다.</p>
+  <div class="hand" id="hand"></div>
+  <div class="row"><button class="ghost" id="again">패를 새로 깐다</button><button class="go" id="start" disabled>이 사람으로 시작</button></div>
+  <div class="card wait" id="card">한 장을 뒤집으면 여기에 나옵니다</div>
+</div>
+
+<h2>등급과 나올 확률</h2>
+<p class="note">등급 이름과 빛깔은 장비의 등급과 같습니다. 등급이 높을수록 드물게 나오고, 스탯과 덤이 좋습니다. 확률은 패 한 장이 그 등급일 확률입니다.</p>
+<table class="odds" id="odds"><thead><tr><th>등급</th><th>가짓수</th><th>패 한 장이 이 등급일 확률</th><th>스탯</th></tr></thead><tbody></tbody></table>
+
+<h2>서른 가지 출신</h2>
+<p class="note">지금의 여섯 출신을 "뿌리"로 삼았습니다. 같은 뿌리의 출신은 사람들이 대하는 말과 퀘스트에서 열리는 대답을 함께 씁니다. 굵은 이름이 지금 있는 여섯입니다.</p>
+<table id="list"><thead><tr><th>등급</th><th>출신</th><th>스탯</th><th>덤</th></tr></thead><tbody></tbody></table>
+
+<script>
+const GRADES = ['일반', '고급', '희귀', '영웅', '전설'];
+const WEIGHT = [10, 6, 3, 1.5, 0.5]; // 한 가지가 뽑힐 몫
+const STATS = ['+1~2', '+2', '+3', '+4', '모두 +1, 그리고 +1'];
+const FAM = [
+  { name: '쇠의 사람', talk: '대장장이들이 먼저 말을 건다.', list: [
+    [0, '대장간 심부름꾼', '힘 +1', '대장 숙련도 초급 2로 시작', 1],
+    [0, '숯쟁이', '체력 +2', '피로가 조금 더디게 쌓인다'],
+    [1, '광부의 자식', '힘 +2', '채광 숙련도 초급 2로 시작'],
+    [1, '편자공의 조수', '힘 +1, 체력 +1', '장비를 고치는 값이 절반'],
+    [2, '떠돌이 땜장이', '힘 +2, 지혜 +1', '대장 숙련도 초급 4, 은화 50으로 시작'] ] },
+  { name: '땅의 사람', talk: '마을 사람들이 편하게 대한다.', list: [
+    [0, '농부의 자식', '체력 +2', '포만감이 천천히 줄어든다', 1],
+    [0, '방앗간 일꾼', '힘 +1, 체력 +1', '주먹밥 다섯 개로 시작'],
+    [1, '나무꾼', '힘 +2', '참나무 가지 여섯 개, 채집 숙련도 초급 2로 시작'],
+    [1, '양치기', '민첩 +1, 체력 +1', '짐승이 덜 덤빈다'],
+    [2, '약초꾼의 아이', '지혜 +2, 체력 +1', '채집 숙련도 초급 4, 먹는 것의 회복이 조금 크다'] ] },
+  { name: '숲의 사람', talk: '숲의 짐승 약점 하나를 안다.', list: [
+    [0, '사냥꾼의 조수', '민첩 +2', '기척을 더 잘 알아챈다', 1],
+    [0, '새잡이', '민첩 +1', '기척을 더 잘 알아채고 도망이 조금 쉽다'],
+    [1, '무두장이', '체력 +1, 민첩 +1', '가죽을 팔 때 값을 더 받는다'],
+    [2, '덫놓이', '민첩 +2, 지혜 +1', '먼저 덮칠 때 더 아프게 친다'],
+    [3, '숲지기의 아이', '민첩 +3, 체력 +1', '기척을 더 잘 알아채고, 숲의 짐승이 먼저 덤비지 않는다'] ] },
+  { name: '길의 사람', talk: '주점에서 공짜 술을 얻는다.', list: [
+    [0, '떠돌이 악사', '없음', '설득 판정 +10%, 소문을 하나 더 듣는다', 1],
+    [0, '짐꾼', '힘 +1, 체력 +1', '무게 한도 +5'],
+    [1, '뱃사공의 아이', '체력 +1, 민첩 +1', '낚시 숙련도 초급 2로 시작'],
+    [1, '약장수의 조수', '지혜 +2', '속임 판정 +10%, 붉은 물약 둘로 시작'],
+    [2, '곡예단 막내', '민첩 +3', '피하기가 10% 더 잘된다'] ] },
+  { name: '이름 있는 사람', talk: '옛 이름을 아는 사람이 있다. 좋게든 나쁘게든.', list: [
+    [0, '가게 집 막내', '지혜 +1', '은화 40으로 시작, 사는 값이 조금 싸다'],
+    [0, '빚에 쫓기는 이', '민첩 +1, 지혜 +1', '도망이 쉽다. 은화 없이 시작'],
+    [1, '몰락한 집안', '지혜 +2', '은화 100으로 시작', 1],
+    [2, '서기 견습', '지혜 +3', '감정 숙련도 초급 4로 시작'],
+    [3, '기사의 종자', '힘 +2, 체력 +2', '낡은 방패를 들고, 막기 숙련도 초급 3으로 시작'] ] },
+  { name: '신전의 사람', talk: "신전 평판 '낯익음'으로 시작.", list: [
+    [0, '신전 고아', '없음', '쓰러졌을 때 두고 오는 돈이 절반', 1],
+    [0, '묘지기', '체력 +2', '쇠약이 빨리 풀린다'],
+    [1, '순례자', '체력 +1, 지혜 +1', '신전의 빵을 하루에 둘 받는다'],
+    [2, '필경 견습', '지혜 +3', '서고의 기록을 빨리 찾는다'],
+    [4, '종지기의 아이', '힘·민첩·체력·지혜 +1, 지혜 +1', '모든 숙련도가 5% 빨리 오른다'] ] },
+];
+const ALL = FAM.flatMap((f) => f.list.map(([g, name, stat, perk, old]) => ({ fam: f.name, talk: f.talk, g, name, stat, perk, old: !!old })));
+const TOTAL = ALL.reduce((a, o) => a + WEIGHT[o.g], 0);
+function pick() { let r = Math.random() * TOTAL; for (const o of ALL) { r -= WEIGHT[o.g]; if (r < 0) return o; } return ALL[0]; }
+
+let chosen = null;
+function deal() {
+  chosen = null;
+  const hand = document.getElementById('hand'); hand.innerHTML = '';
+  document.getElementById('start').disabled = true;
+  const card = document.getElementById('card'); card.className = 'card wait'; card.textContent = '한 장을 뒤집으면 여기에 나옵니다';
+  const five = []; while (five.length < 5) { const o = pick(); if (!five.includes(o)) five.push(o); }
+  five.forEach((o, i) => {
+    const b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-label', `${i + 1}번째 패`);
+    b.innerHTML = '<span class="mark">?</span>';
+    b.onclick = () => {
+      chosen = o;
+      hand.querySelectorAll('button').forEach((x) => { x.disabled = true; if (x !== b) x.classList.add('dim'); });
+      b.className = `up b${o.g}`;
+      b.innerHTML = `<small class="g${o.g}">${GRADES[o.g]}</small>${o.name}`;
+      b.setAttribute('aria-label', `${GRADES[o.g]} ${o.name}`);
+      card.className = `card b${o.g}`;
+      card.innerHTML = `<span><span class="tag g${o.g}">${GRADES[o.g]}</span><span class="tag" style="color:var(--muted)">${o.fam}</span></span><b class="name">${o.name}</b><span>${o.stat === '없음' ? '' : o.stat + '. '}${o.perk}.</span><span class="talk">${o.talk}</span>`;
+      document.getElementById('start').disabled = false;
+    };
+    hand.append(b);
+  });
+}
+document.getElementById('again').onclick = deal;
+document.getElementById('start').onclick = () => alert(`시안입니다. 실제 게임에서는 '${chosen.name}'(으)로 이름을 적고 시작합니다.`);
+deal();
+
+const ob = document.querySelector('#odds tbody');
+GRADES.forEach((g, i) => {
+  const n = ALL.filter((o) => o.g === i).length;
+  const p = (n * WEIGHT[i]) / TOTAL * 100;
+  ob.insertAdjacentHTML('beforeend', `<tr><td><b class="g${i}">${g}</b></td><td>${n}가지</td><td>${p >= 1 ? p.toFixed(1) : p.toFixed(2)}%</td><td>${STATS[i]}</td></tr>`);
+});
+const tb = document.querySelector('#list tbody');
+for (const f of FAM) {
+  tb.insertAdjacentHTML('beforeend', `<tr class="fam"><td colspan="4">${f.name}: ${f.talk}</td></tr>`);
+  for (const [g, name, stat, perk, old] of f.list) tb.insertAdjacentHTML('beforeend', `<tr><td><b class="g${g}">${GRADES[g]}</b></td><td>${old ? `<b>${name}</b>` : name}</td><td>${stat}</td><td>${perk}</td></tr>`);
+}
+</script>
+</body></html>

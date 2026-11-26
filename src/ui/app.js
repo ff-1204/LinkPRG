@@ -40,7 +40,7 @@ import { GRADES } from '../data/items.js';
 import { bagView, tabCounts, previewEquip, iconOf, itemPower, itemWeight, slotFor, equipWeight } from '../core/inventory.js';
 import { BAG_TABS, EQUIP_SLOTS, itemDef, gradeName } from '../data/items.js';
 import { monsterDef } from '../data/monsters.js';
-import { ORIGINS, originById, STAT_NAMES, STAT_USES, rollDice, DICE_TOTAL, DICE_MIN, DICE_FREE_AT } from '../data/origins.js';
+import { originById, dealOrigins, ROOTS, ORIGIN_GRADES, STAT_NAMES, STAT_USES, rollDice, DICE_TOTAL, DICE_MIN, DICE_FREE_AT } from '../data/origins.js';
 import { placeById, PLACES, TOWN_ORDER, PHASES } from '../data/places.js';
 import { SKILL_NAMES, gradeLabel, progress } from '../core/skills.js';
 import { hiddenSlots, foundCount, hiddenTotal } from '../core/hidden.js';
@@ -52,6 +52,8 @@ import { createAssist, assistable } from '../core/assist.js';
 import { STANCES, stanceOf } from '../core/battle.js';
 import { gearName, optionLines, maxDur, repairCost, enhanceView } from '../core/gear.js';
 import { guildView, DONATE } from '../core/guild.js';
+import { DRINK_HOSTS } from '../core/social.js';
+import { rootOf } from '../data/origins.js';
 import { recordError, readErrors, clearErrors } from '../core/errors.js';
 import { ro, iGa, waGwa, eulReul } from '../core/ko.js';
 
@@ -178,9 +180,12 @@ export function start(root, storage = globalThis.localStorage) {
 
   // ── 캐릭터 만들기 (T1~T3) ───────────────────────────────
   function showCreate(n) {
-    let origin = ORIGINS[0].id;
-    // 스탯은 주사위로 정한다. 마음에 들 때까지 몇 번이든 굴린다
+    // 출신은 엎어진 패 다섯 장 가운데 한 장을 뒤집어 정한다 (Z25). 뒤집기 전에는 무엇인지, 어떤 등급인지 알 수 없다
     const salt = Date.now();
+    const hand = dealOrigins(`${salt}|deal`); // 이 화면에서 깔린 패. 다시 깔지 않는다
+    const flipped = new Set(); // 뒤집어 본 패. 다섯 장 모두 뒤집어 볼 수 있다
+    let origin = null; // 고른 패(마지막으로 누른 것)
+    // 스탯은 주사위로 정한다. 마음에 들 때까지 몇 번이든 굴린다
     let rolls = 0; // 단추를 누른 횟수. 처음 주어진 눈은 세지 않는다
     let rolled = rollDice(`${salt}|${rolls}`);
     let pool = 0; // 백 번 굴린 뒤: 스탯에서 덜어 내 아직 다시 넣지 않은 점수
@@ -189,32 +194,44 @@ export function start(root, storage = globalThis.localStorage) {
     // 다시 그린 뒤 같은 단추로 초점을 돌려준다. 그 단추가 꺼졌으면 켜져 있는 다른 단추로.
     const refocus = (label) => {
       const el = root.querySelector(`[aria-label^="${label}"]`);
-      (el && !el.disabled ? el : root.querySelector('.origin[aria-pressed="true"]'))?.focus();
+      (el && !el.disabled ? el : root.querySelector('.hand button:not([disabled]), .namebox input'))?.focus();
     };
     const draw = () => {
-      const o = originById(origin);
+      const o = origin ? originById(origin) : { stats: {}, story: '', grade: 0, root: null };
       const stats = Object.fromEntries(Object.keys(STAT_NAMES).map((k) => [k, rolled[k] + (o.stats[k] || 0)]));
       const bonus = Object.values(o.stats || {}).reduce((a, b) => a + b, 0); // 출신이 더해 준 스탯. 합계에 넣어 보여 준다
       const free = rolls >= DICE_FREE_AT; // 끝까지 굴린 사람은 손으로 옮긴다
       fill(root,h('div', { class: 'create' },
         h('main', {},
           h('h1', {}, '당신은 어떤 사람이었습니까'),
-          h('p', { class: 'muted', style: 'max-width:40rem' }, '출신은 바꿀 수 없습니다. 시작할 때의 작은 차이와, 사람들이 당신을 대하는 첫마디를 정합니다.'),
-          h('div', { class: 'origins', role: 'group', 'aria-label': '출신' }, ORIGINS.map((x) =>
-            h('button', { class: 'origin', type: 'button', 'aria-pressed': String(x.id === origin), onclick: () => { origin = x.id; draw(); root.querySelector('.origin[aria-pressed="true"]')?.focus(); } },
-              h('b', {}, x.name), h('span', {}, x.number), h('span', { class: 'muted' }, x.talk)))),
+          h('p', { class: 'muted', style: 'max-width:40rem' }, '패를 뒤집어 보고 한 장을 고르십시오. 고른 것이 당신의 지난날입니다. 시작할 때의 작은 차이와, 사람들이 당신을 대하는 첫마디를 정합니다.'),
+          h('div', { class: 'hand', role: 'group', 'aria-label': '출신 패 다섯 장' }, hand.map((id, i) => {
+            const x = originById(id);
+            const up = flipped.has(id);
+            const picked = origin === id;
+            return h('button', { class: `card5 ${up ? `up og${x.grade}` : ''} ${picked ? 'picked' : ''}`, type: 'button', 'aria-pressed': String(picked), 'data-card': i, 'data-autofocus': i === 0 || null,
+              'aria-label': up ? `${ORIGIN_GRADES[x.grade].name} ${x.name}${picked ? ', 고름' : ''}` : `${i + 1}번째 패, 뒤집기`,
+              onclick: () => { if (!flipped.has(id) && x.grade >= 2) playDing(x.grade, settings.sound); flipped.add(id); origin = id; error = ''; draw(); root.querySelector(`[data-card="${i}"]`)?.focus(); } },
+              up ? [picked ? h('span', { class: 'pick' }, '고름') : null, h('small', {}, ORIGIN_GRADES[x.grade].name), h('b', {}, x.name)] : h('span', { class: 'mark', 'aria-hidden': 'true' }, '?'));
+          })),
+          h('p', { class: 'muted', style: 'font-size:.9rem' }, flipped.size < 5 ? `다섯 장 모두 뒤집어 볼 수 있습니다. 마지막으로 누른 패가 당신의 출신이 됩니다. (${flipped.size} / 5)` : '다섯 장을 모두 보았습니다. 누른 패가 당신의 출신이 됩니다.'),
+          origin
+            ? h('div', { class: `origincard og${o.grade}`, role: 'status' },
+              h('div', {}, h('span', { class: 'tagx' }, ORIGIN_GRADES[o.grade].name), ' ', h('span', { class: 'tagx plain' }, ROOTS[o.root].name)),
+              h('b', { class: 'serif' }, o.name), h('span', {}, o.number), h('span', { class: 'muted' }, o.talk))
+            : h('div', { class: 'origincard wait' }, '패를 뒤집으면 여기에 나옵니다.'),
           h('p', { class: 'err', role: 'alert' }, error),
           h('div', { class: 'namebox' },
             h('label', {}, '이름', h('input', { type: 'text', maxlength: 12, value: name, autocomplete: 'off', oninput: (e) => { name = e.target.value; } })),
             h('button', { class: 'btn', type: 'button', onclick: showTitle }, '돌아가기'),
             h('button', { class: 'btn go', type: 'button', style: 'min-height:3.1rem;padding:0 2rem;font-size:1.05rem', onclick: () => {
-              try { if (pool > 0) throw new Error(`남은 점수 ${pool}점을 스탯에 넣어 주세요`); game = createGame({ name, origin, rolled }); slot = n; saveRev = saveTo(storage, slot, game); showGame(); }
+              try { if (!origin) throw new Error('패를 뒤집어 한 장을 골라 주세요'); if (pool > 0) throw new Error(`남은 점수 ${pool}점을 스탯에 넣어 주세요`); game = createGame({ name, origin, rolled }); slot = n; saveRev = saveTo(storage, slot, game); showGame(); }
               catch (e) { error = e.message; draw(); root.querySelector('.namebox input')?.focus(); }
             } }, '시작 마을로'))),
         h('aside', {},
           h('div', { style: 'display:flex;justify-content:space-between;align-items:baseline' },
             h('h2', { class: 'serif', style: 'font-size:1.4rem' }, '시작 스탯'),
-            h('span', {}, `합계 ${DICE_TOTAL + bonus}${bonus ? ` (출신 +${bonus} 포함)` : ''}${free ? `, 남은 점수 ${pool}` : ''}`)),
+            h('span', {}, `합계 ${DICE_TOTAL + bonus}${bonus ? ` (출신 +${bonus})` : ''}${free ? `, 남은 점수 ${pool}` : ''}`)),
           Object.keys(STAT_NAMES).map((key) => h('div', { class: 'statline' },
             h('span', {}, h('b', {}, STAT_NAMES[key]), ` ${stats[key]}${o.stats[key] ? `(+${o.stats[key]})` : ''} `, h('span', { class: 'muted', style: 'font-size:.88rem' }, STAT_USES[key])),
             free ? h('button', { class: 'pm', type: 'button', 'aria-label': `${STAT_NAMES[key]} 내리기`, disabled: rolled[key] <= DICE_MIN, onclick: () => { rolled = { ...rolled, [key]: rolled[key] - 1 }; pool += 1; draw(); refocus(`${STAT_NAMES[key]} 내리기`); } }, '−') : null,
@@ -224,11 +241,11 @@ export function start(root, storage = globalThis.localStorage) {
           free ? h('p', { class: 'serif', role: 'status', style: 'color:var(--cinnamon)' }, '주사위가 닳았다. 더는 구르지 않는다. 이제 눈을 손으로 옮긴다. −로 덜어 +로 넣는다.') : null,
           free ? null : h('p', { class: 'muted', style: 'font-size:.85rem' }, `주사위의 합은 늘 ${DICE_TOTAL}이다. 어떻게 나뉘느냐만 달라진다.${bonus ? ' 출신이 준 것은 그 위에 더해진다.' : ''}`),
           h('span', { class: 'h' }, '이 사람은'),
-          h('p', { class: 'serif', style: 'font-size:1.05rem;line-height:1.8' }, o.story),
+          h('p', { class: 'serif', style: 'font-size:1.05rem;line-height:1.8' }, origin ? o.story : '아직 패를 뒤집지 않았다.'),
           h('p', { class: 'muted', style: 'margin-top:auto;font-size:.88rem' }, '직업은 레벨 5에 고릅니다. 지금은 누구나 무직입니다.'))));
     };
     draw();
-    root.querySelector('.origin[aria-pressed="true"]')?.focus();
+    root.querySelector('.hand button')?.focus();
   }
 
   // ── 게임 화면 (D1~D6) ───────────────────────────────────
@@ -1567,6 +1584,7 @@ export function start(root, storage = globalThis.localStorage) {
               h('button', { class: 'btn', type: 'button', onclick: () => { giving = true; rerender(); } }, '선물'),
               shopView(game) && shopView(game).keeper === p.name ? h('button', { class: 'btn', type: 'button', onclick: () => { close(); openShop(); } }, '상점') : null,
               who === 'miru' ? h('button', { class: 'btn', type: 'button', disabled: bondOf(game, 'miru') < REGULAR || game.party.length >= PARTY_MAX, title: bondOf(game, 'miru') < REGULAR ? `사이가 '${BONDS[REGULAR].name}' 이상이어야 한다` : null, onclick: () => act({ type: 'party', op: 'ask', npc: 'miru' }) }, bondOf(game, 'miru') < REGULAR ? `영입 ('${BONDS[REGULAR].name}'부터)` : '영입') : null,
+              rootOf(game.origin) === 'bard' && DRINK_HOSTS.includes(who) ? h('button', { class: 'btn', type: 'button', disabled: game.flags.drinkDay === game.day, title: game.flags.drinkDay === game.day ? '오늘은 이미 얻어 마셨다' : null, onclick: () => act({ type: 'drink', npc: who }) }, game.flags.drinkDay === game.day ? '오늘은 이미 한 잔' : '한 잔 얻어 마신다') : null,
               who === 'keeper' && !game.party.some((c) => c.id === 'gaon') ? h('button', { class: 'btn', type: 'button', disabled: game.silver < MERC_FEE || game.party.length >= PARTY_MAX, onclick: () => act({ type: 'party', op: 'hire' }) }, `용병 고용 (하루 은화 ${MERC_FEE})`) : null),
           spokeToday(game, who) ? null : h('p', { class: 'muted', style: 'font-size:.88rem' }, '아직 말을 걸어오지 않았다. 이곳에서 할 일을 하다 보면 먼저 말을 건다.'),
           h('div', { class: 'talklog', 'aria-live': 'polite' }, game.log.slice(-3).map((l) => h('p', { class: 'muted', style: 'font-size:.9rem' }, l.who ? `${l.who}: ${l.text}` : l.text))));
@@ -1645,7 +1663,11 @@ export function start(root, storage = globalThis.localStorage) {
               h('span', {}, p.text),
               p.closed ? h('span', { class: 'muted' }, p.closed) : h('span', {}, `${p.have} / ${p.need}`))),
             m.paths.length ? h('p', { class: 'muted', style: 'font-size:.85rem' }, '적히지 않은 길이 하나 더 있다고들 한다.') : null,
-            m.called ? h('div', { class: 'rowx' }, h('span', {}, '호칭'), h('b', {}, m.called)) : null);
+            m.called ? h('div', { class: 'rowx' }, h('span', {}, '호칭'), h('b', {}, m.called)) : null,
+            h('span', { class: 'h' }, '들은 말'),
+            (game.lore?.hints || []).length
+              ? h('div', { class: 'items', style: 'max-height:16rem' }, game.lore.hints.slice().reverse().map((x) => h('div', { class: 'rowx' }, h('span', { class: 'serif' }, `"${x.text}"`), h('small', { class: 'muted', style: 'white-space:nowrap' }, `${x.who}, ${x.ch}장`))))
+              : h('p', { class: 'muted', style: 'font-size:.9rem' }, '아직 들은 말이 없다. 사람들의 이야기를 들으면 이야기의 실마리가 여기에 모인다.'));
         } else if (qt === 'subs') {
           add(body, q.subs.length ? q.subs.map((v) => h('div', { class: 'card' },
             h('div', {}, h('b', { class: 'serif', style: 'font-size:1.15rem' }, v.name), h('small', { class: 'muted' }, ` 준 사람: ${v.giver}`)),

@@ -320,3 +320,31 @@ html.calm .cool i { animation: none !important; }
 @media (max-width: 760px) and (prefers-reduced-motion: reduce) { .nav, .book { transition: none; } }
 
 .statline .dice { min-width: 2.2rem; text-align: center; font-family: var(--serif); font-size: 1.3rem; color: var(--cinnamon); }
+
+/* ── 출신 패 다섯 장 (Z25). 등급은 글로도 적는다. 빛깔은 크림·시나몬·민트·꿀의 명암만 쓴다 ── */
+.hand { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .6rem; max-width: 46rem; }
+.card5 { aspect-ratio: 3 / 4; border: 2px solid var(--deep); border-radius: 10px; padding: .4rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .3rem; text-align: center;
+  background: repeating-linear-gradient(45deg, var(--sand), var(--sand) 8px, var(--line) 8px, var(--line) 16px); color: var(--ink); }
+.card5 .mark { font-family: var(--serif); font-size: 2rem; color: var(--muted); }
+.card5 b { font-family: var(--serif); font-size: 1rem; line-height: 1.3; }
+.card5 small { font-size: .8rem; }
+.card5.up { background: var(--paper); border-width: 3px; }
+.card5 { position: relative; }
+.card5.up:not(.picked) { opacity: .7; }
+.card5.picked { box-shadow: 0 0 0 3px var(--paper), 0 0 0 6px var(--deep); }
+.card5 .pick { position: absolute; top: -.7rem; left: 50%; transform: translateX(-50%); padding: 0 .5rem; border-radius: 999px; background: var(--deep); color: var(--cream); font-size: .75rem; line-height: 1.5; }
+.origincard { max-width: 46rem; min-height: 7.2rem; padding: .8rem 1rem; border: 3px solid var(--line2); border-radius: 12px; background: var(--paper); display: flex; flex-direction: column; gap: .2rem; }
+.origincard b { font-size: 1.35rem; }
+.origincard.wait { border: 2px dashed var(--line2); color: var(--muted); align-items: center; justify-content: center; }
+.tagx.plain { border-color: var(--line2); color: var(--muted); }
+.og0 { border-color: var(--muted) !important; }
+.og1 { border-color: var(--mint-ink) !important; }
+.og1 small, .og1 .tagx:first-child { color: var(--mint-ink); border-color: var(--mint-ink); }
+.og2 { border-color: var(--cinnamon) !important; }
+.og2 small, .og2 .tagx:first-child { color: var(--cinnamon); border-color: var(--cinnamon); }
+.og3 { border-color: var(--deep) !important; background: var(--sand) !important; }
+.og3 small, .og3 .tagx:first-child { color: var(--deep); border-color: var(--deep); font-weight: 700; }
+.og4 { border-color: var(--honey) !important; background: var(--honey) !important; color: #3A2A1E !important; box-shadow: 0 0 0 3px var(--deep); }
+.og4 small, .og4 .tagx { color: #3A2A1E !important; border-color: #3A2A1E !important; font-weight: 700; }
+.og4 .muted { color: #3A2A1E !important; }
+@media (max-width: 760px) { .hand { gap: .35rem; } .card5 b { font-size: .85rem; } .card5 .mark { font-size: 1.5rem; } }

@@ -53,6 +53,7 @@ export function jobXp(state, skillId, repeated = false) {
   const def = jobDef(state.job);
   let m = state.buffs ? xpBoost(state) : 1; // 감상·음식의 힘도 여기서 곱한다
   if (['smithing', 'sculpting', 'cooking'].includes(skillId)) m *= 1 + guildPerk(state, 'craft'); // 모루회
+  if (state.flags?.allSkill5) m *= 1.05; // 종지기의 아이
   if (state.ending === 'free') m *= 1.1; // 푼 뒤: 재주는 다시 사람의 것. 모든 숙련도가 조금 빨리 오른다
   if (state.ending === 'mend') m *= 1 + (state.hidden?.echo?.value || 0) * 0.01;
   if (!def) return m;

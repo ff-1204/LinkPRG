@@ -19,6 +19,7 @@ import { jobXp, hiddenJobView, answerHiddenJob } from './jobs.js';
 import { HIDDENS } from '../data/quests.js';
 import { dungeonChoiceView, dungeonChoose } from './dungeon.js';
 import { endingChoiceView, applyEnding } from './ending.js';
+import { memoryChoiceView, chooseMemory } from './memories.js';
 
 const WORK = { smith: { name: '대장장이', who: '대장간 주인', skill: 'smithing' } };
 
@@ -155,6 +156,7 @@ export function choiceView(state) {
       options: [{ id: 'accept', label: '받는다', go: true }, { id: 'decline', label: '거절한다' }],
     };
   }
+  if (c.kind === 'memory') return memoryChoiceView(state);
   if (c.kind === 'offer') {
     const w = WORK[c.job];
     return {
@@ -175,6 +177,7 @@ export function choiceView(state) {
 export function choose(state, events, id) {
   const c = state.choice;
   if (!c) throw new Error('정할 것이 없습니다');
+  if (c.kind === 'memory') return chooseMemory(state, events, id);
   if (c.kind === 'sense') {
     if (id === 'pounce') { state.choice = null; return startBattle(state, events, c.mon, { pounce: true }); }
     if (id === 'watch' && !c.watched) {

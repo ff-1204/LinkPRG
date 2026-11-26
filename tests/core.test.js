@@ -22,8 +22,9 @@ test('같은 씨앗으로 같은 행동을 두 번 돌리면 결과가 같다 (M
   assert.equal(run(), run());
 });
 
-test('출신 여섯, 시작 점수 5 (T1~T3)', () => {
-  assert.equal(ORIGINS.length, 6);
+test('출신 서른(뿌리 여섯), 시작 점수 5 (T1~T3, Z25)', () => {
+  assert.equal(ORIGINS.length, 30);
+  assert.equal(new Set(ORIGINS.map((o) => o.root)).size, 6);
   const { stats, unspent } = buildStats('smithboy', { str: 1, agi: 2 });
   assert.deepEqual(stats, { str: 12, agi: 11, con: 10, wis: 7 });
   assert.equal(unspent, 2);

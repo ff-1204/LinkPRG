@@ -29,6 +29,11 @@ import { chooseBranch, forgetBranch, pendingEvolves, branchOf } from './evolve.j
 import { buy, sell, deposit, withdraw, depositSilver, withdrawSilver, storeDay } from './trade.js';
 import { valueOf, isHungry, isTired, TIRED_AT, TIRED_MAX } from './derived.js';
 import { chiselOf } from './sculpt.js';
+import { START_SCENES } from '../data/scenes.js';
+import { PEOPLE } from '../data/people.js';
+import { ORIGIN_GRADES } from '../data/origins.js';
+import { memoryHook, chooseMemory } from './memories.js';
+import { drink } from './social.js';
 import { makeItem, equip as equipItem, unequip as unequipItem, discard as discardItem, totalWeight, countOf } from './inventory.js';
 import { xpToNext } from './level.js';
 import { tickFall, recoverRelic, isWeak } from './fall.js';
@@ -109,8 +114,25 @@ export function createGame({ name, origin, spent, seed, rolled }) {
   state.hp = valueOf(state, 'maxHp');
   state.mp = valueOf(state, 'maxMp');
   for (const [id, grade] of Object.entries(o.skills || {})) state.skills[id] = { ...emptySkill(), grade };
-  state.journal.push({ day: 1, phase: 0, place: 'plaza', text: START_JOURNAL[origin] });
+  for (const [id, n] of o.items || []) addItem(state, id, n); // 출신이 들고 나온 것
+  // 뿌리의 약속 (Z25 ①): 적힌 대로 사람들이 대한다
+  const start = (id, pts) => { state.people[id] = { pts, talked: 0, likes: [], dislikes: [], stats: [], met: false }; };
+  if (o.root === 'smithboy') start('smith', 10);
+  if (o.root === 'farmer') for (const p of Object.values(PEOPLE)) if (PLACES[p.place]?.town === '시작 마을') start(p.id, 5);
+  if (o.root === 'fallen') { start('agent', 10); start('trader', 10); }
+  if (o.root === 'hunter') state.dex.mon.boar = { seen: 1, won: 0, lost: 0 };
+  state.lore = { hints: [] };
+  // 첫 장면 (Z27)
+  const scene = START_SCENES[origin];
+  state.journal.push({ day: 1, phase: 0, place: 'plaza', text: scene ? scene.journal : START_JOURNAL[o.root || origin] });
   pushLine(state, [], { k: 'room', text: PLACES.plaza.room });
+  for (const [k, text] of scene?.lines || []) pushLine(state, [], { k, text });
+  // 등급의 맛 (Z25 ④)
+  if (o.grade >= 3) pushLine(state, [], { k: 'user', who: "지나가던 유저 '밤비노'", text: o.grade >= 4 ? '방금 시작한 사람 출신 봤음? 저거 진짜 처음 봄' : '방금 시작한 사람 출신 봤음? 저거 잘 안 나오는 건데' });
+  if (o.grade >= 4) {
+    state.world.notices.push({ day: 1, phase: 0, who: trimmed, mine: true, text: `'${trimmed}'님이 드문 지난날(${ORIGIN_GRADES[o.grade].name})을 안고 시작했습니다` });
+    state.flags.legendNight = true;
+  }
   return state;
 }
 
@@ -283,7 +305,7 @@ export function enemyView(state) {
   return {
     id: b.mon, elite: !!b.elite, name: m.name, level: m.level, hp: b.hp, maxHp: m.hp, turn: b.turn, element: m.element || '', boss: !!m.boss, stage: base.phases ? (b.phase || 0) + 1 : 0, stages: base.phases ? base.phases.length + 1 : 0,
     next: move ? { name: move.name, tell: move.tell, kind: move.kind } : null,
-    hint: !move ? '' : stanceHint(state, move.kind),
+    hint: !move ? '' : stanceHint(state, move.kind) + (state.flags.knowsBoar && b.mon === 'boar' && move.kind === 'charge' ? ' (뒷발을 긁으면 온다. 옆으로 비켜라.)' : ''),
   };
 }
 
@@ -349,7 +371,7 @@ const TIRE_NIGHT = 1.0; // 밤을 새우며 한 일은 더 무겁다
 /** 움직인 만큼 지친다. 잠을 자야 할 밤에 깨어 있으면 더 빨리 쌓인다. */
 function tire(state, events, ticks) {
   const before = state.tired || 0;
-  const slow = Math.max(0.5, 1 - (state.hidden?.vigil?.value || 0) * 0.03); // 집념: 버텨 본 몸은 더디게 지친다
+  const slow = Math.max(0.5, 1 - (state.hidden?.vigil?.value || 0) * 0.03) * (state.flags.slowTire ? 0.9 : 1); // 숯쟁이는 더디게 지친다 // 집념: 버텨 본 몸은 더디게 지친다
   state.tired = Math.min(TIRED_MAX, Math.round((before + ticks * (state.phase === 2 ? TIRE_NIGHT : TIRE_DAY) * slow) * 100) / 100);
   if (before < TIRED_AT && state.tired >= TIRED_AT) pushLine(state, events, { k: 'sys', text: '몸이 무겁다. 눈이 자꾸 감긴다. 밤에 자야 풀린다.', tone: 'warn' });
 }
@@ -385,6 +407,10 @@ const HUNGRY_WORK = 30; // 굶은 날로 치려면 그날 굶은 채 한 일의 
 
 function nextPhase(state, events) {
   state.phase += 1;
+  if (state.flags.legendNight && state.day === 1 && state.phase === 2) {
+    delete state.flags.legendNight;
+    pushLine(state, events, { k: 'room', text: '종루 쪽에서 아주 작은 울림이 한 번 지나갔다. 아무도 고개를 들지 않았다.' });
+  }
   if (state.phase > 2) {
     state.phase = 0;
     state.day += 1;
@@ -467,6 +493,7 @@ export function dispatch(state, action, options = {}) {
     else if (action.op === 'donate') donate(state, events);
     else throw new Error('모르는 길드 일입니다');
   }
+  else if (t === 'drink') drink(state, events, action.npc);
   else if (t === 'stance') {
     if (!STANCES[action.id]) throw new Error('모르는 태세입니다');
     if (state.battle) throw new Error('싸우는 중에는 태세를 바꿀 수 없습니다');
@@ -659,6 +686,7 @@ export function dispatch(state, action, options = {}) {
     if (state.full === 0) state.flags.hungryWork = (state.flags.hungryWork || 0) + 1; // 근성의 재료
   }
   afterCounters(state, events);
+  memoryHook(state, events, t, action);
   if (!state.battle && !state.dungeon && !state.choice) {
     // 그곳에 맞는 일: 그 방의 행동(쉬기 빼고), 망치질, 칼질, 사고팔기, 요리, 바치기
     const fit = (t === 'act' && !ACTIONS[action.id]?.rest && !ACTIONS[action.id]?.open) || ['hammer', 'cut', 'buy', 'sell', 'cook', 'offer', 'enhance', 'repair'].includes(t);
@@ -700,7 +728,7 @@ function search(state, events) {
   const repeated = state.lastAction === 'search';
   state.lastAction = 'search';
   const skill = state.skills.appraise || (state.skills.appraise = emptySkill());
-  const up = useSkill(skill, 6, jobXp(state, 'appraise', repeated));
+  const up = useSkill(skill, 6, jobXp(state, 'appraise', repeated) * (state.flags.fastSearch ? 2 : 1));
   pushLine(state, events, { k: 'me', text: SEARCH_LINES[int(state, SEARCH_LINES.length)] });
   if (SEARCH_MARKS[n] && state.main.chapter >= 4) pushLine(state, events, { k: 'room', who: '기록', text: SEARCH_MARKS[n] });
   else if (SEARCH_MARKS[n]) pushLine(state, events, { k: 'room', text: '무언가의 한 쪽을 찾았다. 아직은 무슨 뜻인지 모르겠다.' });
@@ -811,7 +839,7 @@ function travel(state, events, to) {
   advance(state, events, Math.round(TRAVEL_TICKS * (over ? 1.5 : 1)));
   const wildId = dest.wild ? dest.id : from.wild ? from.id : null;
   if (wildId) {
-    const p = adv(state).noAmbush ? 0 : DANGER[dangerNow(state, wildId)].ambush - (state.hidden.kind?.value || 0) * 0.01;
+    const p = adv(state).noAmbush || state.flags.noAmbush ? 0 : DANGER[dangerNow(state, wildId)].ambush - (state.hidden.kind?.value || 0) * 0.01 - (state.flags.calmBeasts ? 0.05 : 0);
     if (chance(state, Math.max(0, p))) {
       const monId = weighted(state, WILDS[wildId].monsters).id;
       if (state.level < monsterDef(monId).level + 5) {
@@ -836,9 +864,10 @@ function act(state, events, id, options) {
   if (def.special === 'bread') {
     if (state.flags.breadDay === state.day) throw new Error('오늘은 이미 받았습니다. 빵은 하루에 하나입니다');
     state.flags.breadDay = state.day;
-    addItem(state, 'bread', 1);
-    pushLine(state, events, { k: 'npc', who: '신전지기', text: '"배고픈 이는 누구든 하나씩."' });
-    pushLine(state, events, { k: 'sys', text: '신전의 빵 1개를 받았다.' });
+    const loaves = state.flags.bread2 ? 2 : 1; // 순례자는 어느 문에서 빵이 나오는지 안다
+    addItem(state, 'bread', loaves);
+    pushLine(state, events, { k: 'npc', who: '신전지기', text: loaves > 1 ? '"먼 길 온 이에게는 하나 더."' : '"배고픈 이는 누구든 하나씩."' });
+    pushLine(state, events, { k: 'sys', text: `신전의 빵 ${loaves}개를 받았다.` });
     events.push({ type: 'bag' });
     advance(state, events, def.ticks);
     return;
@@ -898,7 +927,7 @@ const INN_FEE = 10; // 방 빌리는 값
 function ambushedAtRest(state, events, weight) {
   const here = placeById(state.place);
   if (!here.wild || !WILDS[here.id]) return false;
-  const p = adv(state).noAmbush ? 0 : DANGER[dangerNow(state, here.id)].ambush * weight - (state.hidden.kind?.value || 0) * 0.01;
+  const p = adv(state).noAmbush || state.flags.noAmbush ? 0 : DANGER[dangerNow(state, here.id)].ambush * weight - (state.hidden.kind?.value || 0) * 0.01 - (state.flags.calmBeasts ? 0.05 : 0);
   if (!chance(state, Math.max(0, p))) return false;
   const monId = weighted(state, WILDS[here.id].monsters).id;
   if (state.level >= monsterDef(monId).level + 5) return false;

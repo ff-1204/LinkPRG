@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>출신 디테일과 사람들의 말 시안</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  :root { --cream: #FBF4E4; --paper: #FFFDF6; --sand: #F3E8D3; --ink: #3A2A1E; --muted: #6B5A4A; --cin: #8B4E2B; --honey: #F2B438; --mint: #DDF0E6; --mint-ink: #1F5A44; --line: #E2D2B4; --deep: #3A2A1E; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px 16px 70px; background: var(--cream); color: var(--ink); font: 16px/1.65 "Gowun Dodum", "Malgun Gothic", sans-serif; }
+  .wrap { max-width: 980px; margin: 0 auto; }
+  h1 { font: 700 28px/1.3 "Gowun Batang", serif; margin: 0 0 6px; }
+  h2 { font: 700 22px/1.3 "Gowun Batang", serif; margin: 44px 0 6px; padding-top: 14px; border-top: 2px solid var(--deep); }
+  h3 { font: 700 18px/1.35 "Gowun Batang", serif; margin: 26px 0 6px; }
+  p { margin: 6px 0; }
+  .muted { color: var(--muted); }
+  .note { color: var(--muted); max-width: 52rem; }
+  table { border-collapse: collapse; width: 100%; background: var(--paper); font-size: 14.5px; margin-top: 8px; }
+  th, td { border-bottom: 1px dashed var(--line); padding: 7px 9px; text-align: left; vertical-align: top; }
+  th { border-bottom: 2px solid var(--deep); white-space: nowrap; }
+  td b { font-family: "Gowun Batang", serif; }
+  .new { display: inline-block; padding: 0 7px; border-radius: 999px; background: var(--mint); color: var(--mint-ink); font-size: 12px; margin-left: 4px; }
+  .fix { display: inline-block; padding: 0 7px; border-radius: 999px; background: #FBE3C2; color: #7A4410; font-size: 12px; margin-left: 4px; }
+  .opt { display: inline-block; padding: 0 7px; border-radius: 999px; background: var(--sand); color: var(--muted); font-size: 12px; margin-left: 4px; border: 1px solid var(--line); }
+  .chat { background: var(--paper); border: 2px solid var(--deep); padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; max-width: 640px; }
+  .room { align-self: center; color: var(--muted); font: 14px/1.5 "Gowun Batang", serif; text-align: center; }
+  .who { font-size: 12.5px; color: var(--muted); margin-bottom: -4px; }
+  .npc { align-self: flex-start; background: #fff; border: 1px solid var(--line); border-radius: 4px 14px 14px 14px; padding: 7px 12px; font-family: "Gowun Batang", serif; max-width: 92%; }
+  .me { align-self: flex-end; background: var(--sand); border: 1px solid var(--line); border-radius: 14px 4px 14px 14px; padding: 7px 12px; font-family: "Gowun Batang", serif; }
+  .sys { align-self: flex-start; background: var(--honey); border-radius: 4px 14px 14px 14px; padding: 7px 12px; font-weight: 700; }
+  .kind { display: inline-block; font: 12px/1.4 "Gowun Dodum", sans-serif; padding: 0 7px; border-radius: 999px; margin-right: 6px; border: 1px solid currentColor; vertical-align: 1px; }
+  .k-chat { color: var(--muted); } .k-tip { color: var(--mint-ink); } .k-hint { color: var(--cin); } .k-close { color: #6B3FA0; } .k-time { color: #2A6FD6; } .k-root { color: #7A4410; }
+  .lab { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; max-width: 900px; margin: 10px 0; }
+  .lab label { display: flex; flex-direction: column; gap: 3px; font-size: 13.5px; color: var(--muted); }
+  select, button { font: inherit; }
+  select { min-height: 40px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); padding: 0 8px; color: var(--ink); }
+  .go { min-height: 44px; padding: 0 20px; border: 0; border-radius: 6px; background: var(--cin); color: #fff; cursor: pointer; }
+  .ghost { min-height: 44px; padding: 0 16px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); cursor: pointer; }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 10px 0; }
+  .lines { columns: 2 320px; column-gap: 24px; margin-top: 8px; }
+  .lines div { break-inside: avoid; padding: 5px 0; border-bottom: 1px dashed var(--line); font: 14.5px/1.6 "Gowun Batang", serif; }
+  .lines .off { opacity: .4; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+  .box { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .box b.t { font: 700 16px/1.3 "Gowun Batang", serif; display: block; margin-bottom: 4px; }
+</style></head>
+<body><div class="wrap">
+<h1>출신 디테일과 사람들의 말 시안</h1>
+<p class="note">두 가지를 함께 담았습니다. 앞쪽은 출신마다 게임이 어떻게 달라지는지, 뒤쪽은 사람들(NPC)의 말을 어떻게 늘리고 고르는지입니다. 뒤쪽 "직접 들어 보기"는 눌러 볼 수 있습니다. 표시: <span class="fix">고침</span> 지금 화면에 적혀 있는데 실제로는 안 되던 것, <span class="new">새로</span> 새로 넣을 것, <span class="opt">골라 주세요</span> 넣을지 정해 주실 것.</p>
+
+<h2>1. 출신 디테일</h2>
+
+<h3>① 뿌리의 약속을 진짜로 <span class="fix">고침</span></h3>
+<p class="note">만들기 화면에 뿌리마다 "사람들이 당신을 대하는 첫마디"가 적혀 있는데, 여섯 가운데 넷은 실제로 아무 일도 하지 않습니다. 적힌 대로 되게 합니다.</p>
+<table>
+  <thead><tr><th>뿌리</th><th>적혀 있는 것</th><th>지금</th><th>이렇게 되게</th></tr></thead>
+  <tbody>
+    <tr><td><b>쇠의 사람</b></td><td>대장장이들이 먼저 말을 건다</td><td>안 됨</td><td>대장간 주인·장인 우두머리·배 목수가 들어서는 순간 먼저 말을 건다(일하지 않아도). 대장간 주인과는 "낯익은 사이"로 시작</td></tr>
+    <tr><td><b>땅의 사람</b></td><td>마을 사람들이 편하게 대한다</td><td>안 됨</td><td>시작 마을 사람 모두와 친밀도 +5로 시작. 시작 마을에서 말을 걸어올 확률 +10%p</td></tr>
+    <tr><td><b>숲의 사람</b></td><td>숲의 짐승 약점 하나를 안다</td><td>안 됨</td><td>멧돼지와 싸울 때 돌진 예고에 "뒷발을 긁으면 온다. 옆으로 비켜라"가 붙고, 멧돼지에게 주는 피해 +15%. 도감의 멧돼지 칸이 처음부터 그림자로 채워져 있다</td></tr>
+    <tr><td><b>길의 사람</b></td><td>주점에서 공짜 술을 얻는다</td><td>안 됨</td><td>주점·뱃사람 주막·여인숙 골목에서 하루 한 번 "한 잔 얻어 마신다": 포만감 +10, 피로 −10, 그날의 소문 하나</td></tr>
+    <tr><td><b>이름 있는 사람</b></td><td>옛 이름을 아는 사람이 있다. 좋게든 나쁘게든</td><td>안 됨</td><td>상단 대리인·큰 시장 상인은 "낯익은 사이"로 시작(좋게). 뒷골목 어른과 다리 밑의 눈은 처음 한 달 동안 말을 늦게 건다(나쁘게)</td></tr>
+    <tr><td><b>신전의 사람</b></td><td>신전 평판 '낯익음'으로 시작</td><td>됨</td><td>그대로</td></tr>
+  </tbody>
+</table>
+
+<h3>② 출신마다 다른 첫 장면 <span class="new">새로</span></h3>
+<p class="note">지금은 뿌리가 같으면 첫 일지 글이 같습니다. 서른 출신마다 첫날 아침의 대화방 한 장면과 일지 첫 글을 따로 씁니다. 아래는 뿌리마다 하나씩 쓴 보기입니다.</p>
+<div class="grid2" id="scenes"></div>
+
+<h3>③ 사람들이 출신을 알아본다 <span class="new">새로</span></h3>
+<p class="note">사람마다 처음 말을 걸어올 때, 내 뿌리에 따라 한마디가 다릅니다(사람 23명 × 뿌리 6 = 138줄). 그 뒤로도 가끔 출신 이야기를 꺼냅니다. 아래 "직접 들어 보기"에서 출신을 바꿔 들어 보실 수 있습니다.</p>
+
+<h3>④ 등급의 맛 <span class="new">새로</span></h3>
+<table>
+  <thead><tr><th>등급</th><th>패를 뒤집을 때</th><th>첫날</th></tr></thead>
+  <tbody>
+    <tr><td><b>일반·고급</b></td><td>지금처럼</td><td>지금처럼</td></tr>
+    <tr><td><b>희귀</b></td><td>작은 띠링 소리</td><td>첫 일지에 한 줄 더</td></tr>
+    <tr><td><b>영웅</b></td><td>띠링 소리와 패가 반짝임</td><td>가상 유저 잡담: "방금 시작한 사람 출신 봤음? 저거 잘 안 나오는 건데"</td></tr>
+    <tr><td><b>전설</b></td><td>가장 큰 띠링과 꿀빛 테두리</td><td>세계 공지: "'이름'님이 드문 지난날을 안고 시작했습니다". 첫날 밤, 종루 쪽에서 아주 작은 울림 한 줄</td></tr>
+  </tbody>
+</table>
+
+<h3>⑤ 출신의 옛 인연 <span class="opt">골라 주세요</span></h3>
+<p class="note">뿌리마다 한 번, 어딘가에서 지난날과 이어지는 작은 사건이 일어납니다. 보상은 작고(물건 하나나 친밀도), 이야기 맛이 큽니다. 여섯 편이라 작업이 큽니다. 넣을지 정해 주세요.</p>
+<div class="grid2">
+  <div class="box"><b class="t">쇠의 사람: 이름이 새겨진 정</b>광산 깊은 곳에서 녹슨 정 하나를 줍는다. 손잡이에 대장간 영감의 이름이 있다. 가져다주면 영감이 한참 말이 없다가, 젊을 적 광산에서 울림쇠를 캐던 얘기를 한다(3장 실마리).</div>
+  <div class="box"><b class="t">땅의 사람: 비 오는 날의 밭</b>서쪽 숲 어귀에서 한 농부가 쓰러진 울타리를 붙들고 있다. 같이 세우면 이듬해 씨앗 한 줌을 준다(요리 재료).</div>
+  <div class="box"><b class="t">숲의 사람: 옛 스승의 덫</b>숲 깊은 곳에서 낯익은 매듭의 덫을 본다. 풀어 주면 여우가 따라오다 사라지고, 다음 날 같은 자리에 산열매가 놓여 있다(친화의 귀띔).</div>
+  <div class="box"><b class="t">길의 사람: 같은 노래</b>나루 주막에서 누가 내가 부르던 노래를 흥얼거린다. 따라 부르면 주막 주인과 단골이 되고, 노랫말 속 "종 없는 종루" 이야기를 듣는다(4장 실마리).</div>
+  <div class="box"><b class="t">이름 있는 사람: 빚 문서</b>큰 시장에서 옛 집안의 인장이 찍힌 문서를 경매에 올린 사람이 있다. 사들이면 상단 쪽과, 찢어 버리면 뒷골목 쪽과 사이가 가까워진다.</div>
+  <div class="box"><b class="t">신전의 사람: 마루 밑의 상자</b>시작 마을 신전 마루 밑에서 어릴 적 숨겨 둔 상자를 찾는다. 안에는 종소리를 그린 그림 한 장. 신전지기가 그림을 보고 "이건 신의 목소리가 아니야. 쇠의 소리지"라고 중얼거린다(2장 실마리).</div>
+</div>
+
+<h2>2. 사람들의 말</h2>
+<p class="note">지금은 사람마다 이야기가 넷뿐이라 금방 같은 말이 돌아옵니다. 말을 여섯 갈래로 나누고, 사람마다 스물다섯 줄 안팎으로 늘립니다(23명 × 약 25줄 = 약 570줄).</p>
+<table>
+  <thead><tr><th>갈래</th><th>무엇인가</th><th>언제 나오나</th><th>한 사람에</th></tr></thead>
+  <tbody>
+    <tr><td><span class="kind k-chat">잡담</span></td><td>그 사람의 성격과 하루. 동네 이야기</td><td>언제나</td><td>8줄</td></tr>
+    <tr><td><span class="kind k-tip">상식</span></td><td>게임을 하는 데 쓸모 있는 귀띔(그 사람이 알 만한 것). 숫자와 히든은 말하지 않는다</td><td>언제나. 아직 안 들은 것이 먼저</td><td>3줄</td></tr>
+    <tr><td><span class="kind k-hint">힌트</span></td><td>메인 이야기의 실마리. 지금 장에 맞는 것만 나온다. 장이 넘어가면 바뀐다</td><td>지금 장. 아직 안 들은 것이 가장 먼저</td><td>장마다 1~2줄</td></tr>
+    <tr><td><span class="kind k-close">속마음</span></td><td>사이가 가까워져야 꺼내는 지난 이야기</td><td>단골부터</td><td>3줄</td></tr>
+    <tr><td><span class="kind k-time">때</span></td><td>밤이나 아침에만 하는 말</td><td>그때만</td><td>2줄</td></tr>
+    <tr><td><span class="kind k-root">출신</span></td><td>내 뿌리를 알아보는 말</td><td>처음 말을 걸어올 때, 그 뒤로 가끔</td><td>뿌리마다 1줄</td></tr>
+  </tbody>
+</table>
+<p class="note">고르는 법: 이야기를 들을 때마다 한 줄. ① 아직 안 들은 이번 장 힌트 → ② 아직 안 들은 상식 → ③ 나머지(잡담·속마음·때·출신)를 섞어서. 같은 줄이 연달아 나오지 않습니다. 들은 힌트는 퀘스트 창 "들은 말"에 모입니다.</p>
+
+<h3>직접 들어 보기</h3>
+<p class="note">사람 여섯은 줄을 다 써 두었습니다. 나머지 열일곱 사람도 같은 꼴로 씁니다.</p>
+<div class="lab">
+  <label>사람<select id="who"></select></label>
+  <label>메인 몇 장<select id="ch"><option value="1">1장 이름 없는 자</option><option value="2">2장 폐허의 소리</option><option value="3">3장 광맥의 주인</option><option value="4">4장 흐려지는 띠링</option><option value="5">5장 마지막 울림</option></select></label>
+  <label>사이<select id="bond"><option value="0">남</option><option value="1">낯익은 사이</option><option value="2">단골</option><option value="3">벗</option></select></label>
+  <label>내 뿌리<select id="root"><option value="smith">쇠의 사람</option><option value="farm">땅의 사람</option><option value="forest">숲의 사람</option><option value="road">길의 사람</option><option value="name">이름 있는 사람</option><option value="temple">신전의 사람</option></select></label>
+  <label>때<select id="time"><option value="day">낮</option><option value="night">밤</option></select></label>
+</div>
+<div class="row"><button class="go" id="listen">이야기를 듣는다</button><button class="ghost" id="reset">처음부터</button><span class="muted" id="count"></span></div>
+<div class="chat" id="chat"><div class="room">말을 걸어 보세요.</div></div>
+<h3 style="margin-top:22px">이 사람의 말 전부 <span class="muted" style="font-size:14px;font-weight:400">(흐린 것은 지금 조건에서는 나오지 않는 말)</span></h3>
+<div class="lines" id="all"></div>
+
+<h2>3. 정해 주실 것</h2>
+<ol>
+  <li>①~④를 이대로 넣을지</li>
+  <li>⑤ 옛 인연 여섯 편을 넣을지</li>
+  <li>사람들의 말투와 내용: 위 여섯 사람의 줄이 마음에 드는지. 고칠 사람이나 줄이 있으면 짚어 주세요</li>
+  <li>힌트의 세기: 지금은 "가리키되 말하지 않는" 정도입니다. 더 직접적으로 / 더 흐리게</li>
+</ol>
+</div>
+
+<script>
+const ROOTS = { smith: '쇠의 사람', farm: '땅의 사람', forest: '숲의 사람', road: '길의 사람', name: '이름 있는 사람', temple: '신전의 사람' };
+
+const SCENES = [
+  { root: '쇠의 사람', who: '대장간 심부름꾼', lines: [['room', '광장 분수 소리 너머로 대장간 망치 소리가 들린다. 박자가 영감님 것이 아니다.'], ['me', '손바닥의 굳은살을 문질렀다. 이제 저 박자는 내 것이 아니다.']], journal: '대장간을 나왔다. 영감님은 말리지 않았다. 망치 소리가 등 뒤에서 한 번 멎었다가 다시 났다.' },
+  { root: '땅의 사람', who: '나무꾼', lines: [['room', '광장 가장자리에 장작더미가 쌓여 있다. 쌓은 솜씨가 엉성하다.'], ['me', '도끼 자루를 고쳐 쥐었다. 이 마을에도 겨울은 온다.']], journal: '산을 내려왔다. 나무는 베면 다시 자라는데, 사람은 떠나면 그만이다. 그래서 떠나 보기로 했다.' },
+  { root: '숲의 사람', who: '덫놓이', lines: [['room', '광장에 사람 냄새가 너무 많다. 바람이 어느 쪽에서 오는지 알 수 없다.'], ['me', '허리춤의 덫 줄을 만져 보았다. 여기서는 기다려도 아무것도 걸리지 않는다.']], journal: '숲에서는 기다리는 쪽이 이겼다. 마을에서는 어떨까. 일단 기다려 보기로 했다.' },
+  { root: '길의 사람', who: '곡예단 막내', lines: [['room', '분수 가장자리가 좁고 미끄럽다. 걷기 좋은 줄이다.'], ['me', '분수 턱 위를 한 바퀴 걸었다. 아무도 박수를 치지 않는다. 그래도 떨어지지 않았다.']], journal: '천막이 떠났다. 나는 남았다. 줄 위가 아닌 땅 위에서 사는 법을 배워야 한다.' },
+  { root: '이름 있는 사람', who: '기사의 종자', lines: [['room', '광장 한복판에 서 있으니 오가는 사람들이 방패를 힐끗 본다.'], ['me', '방패의 문장을 소매로 가렸다. 이 문장을 기억하는 사람이 없기를.']], journal: '기사는 돌아오지 않았다. 방패를 돌려줄 곳이 없다. 그러니 이제 이것은 내 방패다.' },
+  { root: '신전의 사람', who: '종지기의 아이', lines: [['room', '아침 종소리가 들린다. 아니, 종은 없다. 그런데 들린다.'], ['me', '귀를 기울였다. 다른 사람들은 아무도 고개를 들지 않는다.']], journal: '할머니는 종루를 쓸었고, 어머니도 쓸었다. 나는 비질 대신 소리가 나는 쪽을 찾아가 보기로 했다.' },
+];
+
+// 사람마다: hello(첫마디), chat, tip, hint{장:[]}, close(단골부터), time{day,night}, root{뿌리:처음 알아보는 말}
+const P = {
+  교관: {
+    chat: ['검은 팔로 치는 게 아니다. 발로 친다.', '허수아비를 우습게 보는 놈은 멧돼지한테 진다.', '아침에 오는 놈과 밤에 오는 놈은 치는 소리가 다르다. 밤에 오는 놈이 더 오래 버티지.', '쉰 번 치고 그만두는 놈이 열에 아홉이다. 남은 하나가 무섭다.', '목검은 닳는다. 손은 안 닳는다. 닳는 건 마음이지.', '허수아비 짚은 신전 뒤 밭에서 얻어 온다. 해마다 같은 밭이야.', '젊어서는 나도 칼깨나 쓴다는 소리를 들었다. 칼 쓰는 것과 버티는 것은 다르더군.', '말이 많으면 손이 느려진다. 그러니 이만.'],
+    tip: ['같은 일을 이어서 하면 손에 더 붙는다. 이것저것 건드리면 다 어설퍼져.', '밤을 새우면 몸이 무거워진다. 무거운 몸으로 버틴 놈만 아는 게 있긴 하다만, 먼저 자고 와라.', '싸움에서 적이 뭘 하려는지는 다 보인다. 보고도 못 피하는 건 네 탓이다.'],
+    hint: { 1: ['옛날엔 여기서도 종소리가 더 크게 들렸다고들 하지. 나는 한 번도 못 들었다.'], 2: ['폐허 문 앞에 서 있다는 그 덩치 말이다. 지키는 놈은 이유가 있어서 지키는 거다. 이유를 물어봐라.'], 3: ['울림쇠라는 게 광산에서만 난다지. 조합 놈들 고집이 그래서 센 거다.'], 4: ['요즘 띠링이 늦게 온다고들 하더군. 나는 처음부터 안 왔으니 모르겠다.', '서고에 가 봐라. 끝까지 한 놈들의 이름을 적어 둔 사람들이 있었다더군.'], 5: ['종 앞에 서거든, 네가 여기서 뭘 쳤는지 기억해라. 그게 네 답이다.'] },
+    close: ['젊을 때 허수아비를 삼백 번 친 적이 있다. 아무 일도 없었다. 그래서 교관이 됐다. 누가 그 다음을 해 주길 바랐지.', '네가 처음 왔을 때 쉰 번 치고 갈 줄 알았다. 미안하다.', '종소리를 들으면 무슨 기분이냐. ...아니다. 말하지 마라. 내가 들을 때까지 아껴 두마.'],
+    time: { day: ['해 떴다. 허수아비도 일어났다.'], night: ['이 시간에 치는 놈은 너뿐이다. 그게 좋은 건지는 모르겠다.'] },
+    root: { smith: '손이 쇠 냄새가 나는군. 망치는 휘두를 줄 알겠다. 칼은 다르다.', farm: '어깨가 넓구나. 밭 갈던 어깨는 쉽게 지치지 않지.', forest: '발소리가 없군. 숲에서 왔나. 여기선 허수아비가 도망가지 않는다.', road: '떠돌던 놈이군. 오래 머무를 생각이면 오래 쳐라.', name: '자세가 배운 자세다. 누가 가르쳤는지는 묻지 않겠다.', temple: '신전에서 왔나. 기도로는 허수아비가 안 쓰러진다.' },
+  },
+  '대장간 주인': {
+    chat: ['쇠는 식기 전에 쳐야 한다. 사람도 그렇고.', '구리는 무르지만 거짓말을 안 한다.', '좋은 검은 열두 번째 망치질에서 정해진다.', '숯은 참나무 숯이 제일이지. 오래 타고 덜 튄다.', '화덕은 내 할아버지 때부터 이 자리다. 벽돌은 세 번 바꿨고.', '쇠를 버리는 놈은 대장장이가 아니야. 녹인다.', '오늘 쇠가 좋아. 날씨가 맑으면 쇠도 맑게 운다.', '말은 됐고, 두드려 봐.'],
+    tip: ['강화는 높을수록 쇠가 갈라지기 쉽다. 일곱부터는 한 칸씩 물러날 각오를 해라.', '닳은 날은 버리지 말고 가져와. 고치는 게 새로 사는 것보다 싸다.', '좋은 재료를 넣으면 좋은 게 나올 확률이 오른다. 당연한 소리지만 다들 잊더군.'],
+    hint: { 1: ['폐허에서 밤마다 쇳소리가 난다는데, 누가 두드리는 건지.'], 2: ['폐허가 옛 장인들 공방이었다는 얘기, 나는 믿는다. 거기 모루 자국이 아직 있거든.'], 3: ['울림쇠는 보통 쇠랑 달라. 두드리면 한참 운다. 우리 할아버지가 한 번 만져 봤다더군.', '조합장이 고집을 부리는 건 다 이유가 있어. 그 광맥 없으면 이 마을도 없어.'], 4: ['금이 간 쇠는 아무리 두드려도 소리가 흐려. 띠링이 흐리다는 소리 들으니 그 생각이 나는군.'], 5: ['새로 짓든 녹이든, 쇠는 쇠다. 다만 누가 두드렸는지는 쇠가 기억해.'] },
+    close: ['아버지는 망치를 쥔 채로 돌아가셨다. 마지막 검은 반쯤 두드리다 말았지. 나는 아직 그걸 못 마쳤다.', '자네 칼자루 밑에 이름을 새겨. 쇠는 남고 사람은 가니까.', '나도 젊어선 전설을 한 번 띄워 보려고 밤을 샜지. 고급이 나왔어. 그래도 그 밤이 제일 좋았다.'],
+    time: { day: ['아침 쇠가 제일 정직해.'], night: ['밤에 두드리면 이웃이 싫어해. 그래도 쇠가 부르면 어쩔 수 없지.'] },
+    root: { smith: '어, 그 손. 풀무 좀 밟아 봤구먼. 망치 자리 하나 비워 두지.', farm: '농사짓던 손이군. 쇠도 밭이랑 같아. 때를 놓치면 끝이야.', forest: '사냥꾼인가. 화살촉은 내가 잘 벼려 주지.', road: '떠돌이는 외상 안 줘. 미안하지만 그게 규칙이야.', name: '그 방패, 어디서 났나. 문장이 낯이 익은데... 아니야, 됐어.', temple: '신전 사람이 대장간엔 웬일이야. 종소리 대신 망치 소리 들으러 왔나.' },
+  },
+  '잡화점 할머니': {
+    chat: ['영감이 살았을 땐 아침마다 강에 나갔지. 붕어를 그렇게 좋아했어.', '약초는 바위틈 것이 제일이야.', '박쥐 날개는 가져오지 마. 보기만 해도 소름이 돋아.', '요즘 젊은 사람들은 소금을 너무 안 쳐. 소금이 있어야 오래 가.', '우리 집 고양이가 또 생선을 물어 갔어. 그래도 이쁘지.', '저울은 영감이 만든 거야. 사십 년이 넘었는데 한 번도 안 틀렸어.', '선반 맨 위 칸은 건드리지 마. 영감 물건이야.', '차 한잔 하고 가. 식으면 맛없어.'],
+    tip: ['배가 고프면 힘이 안 나. 주먹밥 하나 넣고 다녀.', '요리해 먹으면 한동안 몸이 좋아. 같은 재료라도 굽는 게 날것보다 나아.', '신전에 가면 빵을 하나씩 줘. 공짜는 공짜니까 받아 와.'],
+    hint: { 1: ['새벽 강에는 사람 말고 다른 것도 낚시를 한다더라.'], 2: ['영감은 밤에 가끔 폐허 쪽을 보고 서 있었어. 왜 그러냐고 물어도 대답을 안 했지.'], 3: ['영감 낚싯대를 강에 빠뜨렸었지. 거기 뭘 달아 놨었는데. 쇠붙이 같은 거.'], 4: ['영감 장부에 이상한 이름들이 적혀 있었어. 손님 이름도 아니고. 서고 사람한테 물어보면 알까.', '사십 년 전에 영감이 큰 시장에 갔다 와서는, 이제 다 끝났다고 했어. 뭐가 끝났는지는 몰라.'], 5: ['영감이 마지막으로 그랬어. 누가 와서 끝까지 하면 그 사람한테 맡기라고. 뭘 맡기라는 건지.'] },
+    close: ['영감은 말이 없었어. 그런데 누가 뭘 끝까지 해내면 그날은 꼭 웃었지. 남의 일인데도.', '자식이 없어서 그런지, 자네 같은 사람이 오면 반가워.', '영감이 죽던 날 밤에 종소리 비슷한 게 들렸어. 그 뒤로는 못 들었어.'],
+    time: { day: ['아침 일찍 왔네. 빵은 아직 안 구워졌어.'], night: ['이 시간까지 안 자고. 몸 상해.'] },
+    root: { smith: '쇠 냄새 나네. 대장간 영감 밑에 있었어? 그 양반 잘 있지?', farm: '아이고, 시골 냄새. 우리 고향 냄새다.', forest: '숲에서 왔구나. 약초 좀 캐다 주면 값 잘 쳐 줄게.', road: '떠돌이구나. 그래도 밥은 챙겨 먹고 다녀.', name: '어디서 귀하게 자란 티가 나네. 여기선 다 똑같이 값 내.', temple: '신전 아이구나. 신전지기가 자네 얘기 하더라. 착하다고.' },
+  },
+  '주점 주인': {
+    chat: ['외상은 사람을 보고 주는 걸세.', '보관함 삯은 맡긴 날만 받네. 그게 내 장사 방식이야.', '오늘은 손님이 없군. 비가 오려나.', '저 구석 자리는 늘 같은 사람이 앉아. 아무도 이름을 몰라.', '술은 많이 마시는 사람보다 천천히 마시는 사람이 오래 와.', '내 주점 벽에 붙은 쪽지들, 반은 거짓말이야. 어느 반인지는 나도 몰라.', '싸움은 밖에서. 안에서 하면 둘 다 내쫓네.', '한 잔 더?'],
+    tip: ['방을 빌리면 낮에도 잘 수 있네. 들판에서 자는 것보다 백 배 낫지.', '소문 게시판은 날마다 바뀌어. 내 얘기 같은 게 있으면 그건 진짜일 가능성이 커.', '짐이 무거우면 보관함에 맡기고 가. 마을마다 따로라는 건 잊지 말고.'],
+    hint: { 1: ['폐허에서 밤마다 소리가 난다네. 들은 사람이 한둘이 아니야.'], 2: ['폐허 문지기한테 맞고 온 놈이 그러더군. 그 덩치가 누굴 기다리는 것 같았다고.'], 3: ['광산이랑 상단이 또 붙었어. 이번엔 진짜로 끝장을 볼 모양이야. 나루 쪽 상단 지부가 시끄럽대.'], 4: ['요즘 손님들이 띠링이 늦게 온다고 투덜대. 술맛이 떨어진다나.', '종루에 사는 아가씨 얘기 들었나. 종도 없는 종루를 날마다 쓴대.'], 5: ['다들 종 얘기만 하는군. 나는 종이 멈춰도 술은 팔 걸세.'] },
+    close: ['젊을 때 나도 모험가였네. 폐허 문 앞까지 갔다가 돌아왔지. 그게 평생 걸려.', '자네한텐 말하지. 저 구석 자리 사람, 사실 내 형이야. 아무도 몰라.', '외상 장부에서 자네 이름은 지웠네. 그만큼 했으니까.'],
+    time: { day: ['낮술은 안 팔아. ...농담이야.'], night: ['이 시간이 우리 장사야. 앉게.'] },
+    root: { smith: '대장간 사람인가. 망치질 하고 나면 목마르지. 한 잔 주지.', farm: '밭에서 왔구먼. 여긴 흙 안 털고 들어와도 돼.', forest: '사냥꾼이군. 잡은 거 있으면 주방에 넘겨. 값은 쳐 주지.', road: '악사 양반! 노래 한 곡에 한 잔, 그게 이 집 규칙일세.', name: '자네 집안 이름 들어 봤네. 좋은 얘기는 아니었지만, 여기선 상관없어.', temple: '신전 사람이 주점에? 미루가 좋아하겠군.' },
+  },
+  신전지기: {
+    chat: ['쓰러진 자리에 둔 것은 하루를 기다려 주네. 그 이상은 아니야.', '빵은 하루에 하나. 많이 주면 다른 사람 몫이 없어.', '조용히. 여기선 발소리도 기도라네.', '향은 다 타기 전에 갈아야 해. 꺼지면 다시 붙이기 어렵지.', '사람들이 쓰러져서 실려 오면 나는 얼굴부터 보네. 다음에 또 오나 싶어서.', '신전 뒤 밭에서 짚을 키우네. 교관이 허수아비 만든다고 가져가지.', '기도는 바라는 게 아니야. 들어 주는 거지.', '오늘은 조용하군. 좋은 날이야.'],
+    tip: ['쓰러지면 하루 동안 몸이 약해. 그날은 무리하지 말게.', '기도를 하면 마음이 맑아지고 마나가 늘어. 믿든 안 믿든.', '두고 온 것은 하루 안에 찾아가. 그 다음엔 누가 가져가도 할 말이 없어.'],
+    hint: { 1: ['종소리를 신의 목소리라 가르치지. 나도 그렇게 배웠고.'], 2: ['폐허에서 나는 소리가... 우리 종소리와 닮았다는 말이 있네. 그 말은 여기서 하지 말게.'], 3: ['울림쇠라. 옛 경전에 비슷한 말이 있었던 것 같은데, 그 장은 누가 찢어 갔어.'], 4: ['띠링이 흐려진다고? 신의 목소리가 흐려질 리가... 미안하네. 오늘은 기도가 잘 안 되는군.', '대사제님께 물어봐도 같은 말만 하실 걸세. 진짜를 알고 싶으면 서고로 가게.'], 5: ['무엇을 고르든 자네를 위해 기도하겠네. 신에게인지, 종에게인지는 모르겠지만.'] },
+    close: ['사십 년 전 어느 날 밤, 종소리가 아주 크게 한 번 울렸어. 그 다음 날 잡화점 영감이 세상을 떠났지. 우연이겠지.', '신의 목소리가 쇠의 소리라면, 나는 평생 쇠에게 기도한 건가. ...그래도 괜찮아. 기도는 내가 한 거니까.', '자네가 처음 실려 왔을 때 얼굴을 기억해. 이렇게 될 줄은 몰랐네.'],
+    time: { day: ['아침 기도는 짧게. 다들 일하러 가야지.'], night: ['밤에는 문을 닫지 않네. 쓰러진 사람은 밤에도 오니까.'] },
+    root: { smith: '대장장이 손이군. 그 손으로 기도하면 신도 놀라시겠어.', farm: '흙 묻은 발로 들어와도 돼. 신은 그런 거 안 따지셔.', forest: '숲에서 다친 데는 없나. 짐승한테 물리면 꼭 와.', road: '떠도는 사람은 신전을 잘 안 찾지. 그래도 빵은 받아 가게.', name: '이름 있는 집안 사람이군. 여기선 이름 대신 얼굴을 보네.', temple: '돌아왔구나. 마루가 아직 네 자리를 기억해.' },
+  },
+  '견습 사제 미루': {
+    chat: ['아, 안녕하세요. 주점에 있는 거 신전엔 비밀이에요.', '여기 계시면 사람들 이야기가 다 들려요. 신전보다 여기가 더 기도하기 좋아요.', '저는 치유밖에 못 해요. 그래도 그게 어딘가요.', '어제는 처음으로 쓰러진 사람을 혼자 일으켰어요. 손이 떨렸어요.', '신전에서는 웃으면 안 된대요. 그래서 여기 와요.', '주점 주인 아저씨가 꿀물을 공짜로 줘요. 착하시죠.', '언젠가 큰 신전에 가 보고 싶어요. 거기 종루가 있대요. 종은 없지만요.', '같이 가 주시면 앞에서 막아 주세요. 저는 뒤에서 고칠게요.'],
+    tip: ['같이 다니면 제가 뒤에서 고쳐 드려요. 앞줄엔 튼튼한 사람이 서야 해요.', '쓰러질 것 같으면 도망치세요. 도망도 용기예요. 신전에서 그렇게 배웠어요.', '빵은 신전에서 하루에 하나 받을 수 있어요. 알고 계셨어요?'],
+    hint: { 1: ['신전에서는 종소리가 신의 목소리래요. 그런데 왜 폐허 쪽에서 들릴까요.'], 2: ['폐허 문지기가 누가 깎은 거래요. 사람이 만든 게 살아 있다니, 그것도 기적 아닐까요.'], 3: ['신전도 광맥 일에 한마디 하고 싶어 하는 것 같아요. 무슨 상관인지는 모르겠지만요.'], 4: ['띠링이 흐려지면 신의 목소리가 흐려지는 걸까요. 무서워요.', '만약 그 소리가 신이 아니라면, 저는 뭘 믿어야 하죠?'], 5: ['당신이 무엇을 고르든 저는 따라갈게요. 무섭지만요.'] },
+    close: ['사실 저, 신전에 버려진 아이였어요. 종소리 덕분에 울지 않았대요.', '신이 아니어도 괜찮을 것 같아요. 누가 끝까지 해냈을 때 그걸 알아봐 주는 무언가가 있다는 거, 그것만으로도요.', '당신이 쓰러지면 제가 꼭 일으킬게요. 약속해요.'],
+    time: { day: ['낮에는 신전에 있어야 하는데... 쉿.'], night: ['이렇게 늦게까지 깨어 있으면 신전지기님이 혼내세요.'] },
+    root: { smith: '대장간 분이세요? 망치 소리랑 종소리가 닮았다는 거 아세요?', farm: '흙 냄새가 좋아요. 우리 신전 밭 냄새 같아요.', forest: '숲에서 오셨어요? 다친 짐승 보시면 저 불러 주세요.', road: '노래하세요? 신전 노래 말고 다른 노래 가르쳐 주세요.', name: '어... 귀족이세요? 제가 실수하면 말씀해 주세요.', temple: '신전 출신이세요? 그럼 저랑 같은 마루에서 잤겠네요!' },
+  },
+};
+
+const $ = (id) => document.getElementById(id);
+for (const name of Object.keys(P)) $('who').insertAdjacentHTML('beforeend', `<option>${name}</option>`);
+const KIND = { chat: '잡담', tip: '상식', hint: '힌트', close: '속마음', time: '때', root: '출신' };
+
+// 첫 장면 보기
+for (const sc of SCENES) {
+  $('scenes').insertAdjacentHTML('beforeend', `<div class="box"><b class="t">${sc.root}: ${sc.who}</b><div class="chat" style="border-width:1px">${sc.lines.map(([k, t]) => `<div class="${k}">${t}</div>`).join('')}</div><p class="muted" style="margin-top:8px">일지: ${sc.journal}</p></div>`);
+}
+
+let heard = new Set(), last = null, met = false, n = 0;
+function pool() {
+  const p = P[$('who').value], ch = +$('ch').value, bond = +$('bond').value, root = $('root').value, time = $('time').value;
+  const out = [];
+  for (const t of p.chat) out.push(['chat', t, true]);
+  for (const t of p.tip) out.push(['tip', t, true]);
+  for (const [c, list] of Object.entries(p.hint)) for (const t of list) out.push(['hint', t, +c === ch]);
+  for (const t of p.close) out.push(['close', t, bond >= 2]);
+  for (const [k, list] of Object.entries(p.time)) for (const t of list) out.push(['time', t, k === time]);
+  for (const [r, t] of Object.entries(p.root)) out.push(['root', t, r === root]);
+  return out;
+}
+function choose() {
+  const all = pool().filter((x) => x[2]);
+  if (!met) { met = true; return all.find((x) => x[0] === 'root'); }
+  const fresh = (k) => all.filter((x) => x[0] === k && !heard.has(x[1]) && x[1] !== last);
+  let pick = fresh('hint')[0] || fresh('tip')[0];
+  if (!pick) { const rest = all.filter((x) => x[1] !== last && x[0] !== 'hint' && x[0] !== 'tip'); const any = rest.length ? rest : all.filter((x) => x[1] !== last); pick = any[Math.floor(Math.random() * any.length)]; }
+  return pick;
+}
+function drawAll() {
+  $('all').innerHTML = pool().map(([k, t, on]) => `<div class="${on ? '' : 'off'}"><span class="kind k-${k}">${KIND[k]}</span>${t}</div>`).join('');
+}
+function reset() { heard = new Set(); last = null; met = false; n = 0; $('chat').innerHTML = '<div class="room">말을 걸어 보세요.</div>'; $('count').textContent = ''; drawAll(); }
+$('listen').onclick = () => {
+  const name = $('who').value;
+  const [k, t] = choose();
+  if (n === 0) $('chat').innerHTML = `<div class="room">${name}이(가) 이쪽을 보더니 먼저 말을 건다.</div>`;
+  heard.add(t); last = t; n++;
+  $('chat').insertAdjacentHTML('beforeend', `<div class="who">${name} <span class="kind k-${k}" style="margin-left:4px">${KIND[k]}</span></div><div class="npc">${t}</div>`);
+  $('count').textContent = `${n}번 들음`;
+};
+$('reset').onclick = reset;
+for (const id of ['who', 'ch', 'bond', 'root', 'time']) $(id).onchange = reset;
+reset();
+</script>
+</body></html>

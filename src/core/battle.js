@@ -80,7 +80,7 @@ export function hasStatus(state, id) {
 export function fleeChance(state) {
   const m = mdef(state.battle);
   const over = totalWeight(state) > val(state, 'carry') ? 0.2 : 0;
-  return clamp(0.5 + (state.stats.agi - m.agi) * 0.03 - over + roleBonus(state) + (adv(state).flee || 0), 0.05, 0.95);
+  return clamp(0.5 + (state.stats.agi - m.agi) * 0.03 - over + roleBonus(state) + (adv(state).flee || 0) + (state.flags.fleeEasy ? 0.1 : 0), 0.05, 0.95);
 }
 
 function critChance(a, b) {
@@ -108,7 +108,7 @@ export function startBattle(state, events, monId, { ambush = false, pounce = fal
   events.push({ type: 'battle', phase: 'start', mon: monId });
   if (pounce) {
     pushLine(state, events, { k: 'me', text: '덤불에서 뛰쳐나가 먼저 덮쳤다.' });
-    hitEnemy(state, events, 1.2 + (state.hidden.stealth?.value || 0) * 0.02);
+    hitEnemy(state, events, 1.2 + (state.hidden.stealth?.value || 0) * 0.02 + (state.flags.pounceBonus ? 0.3 : 0));
     if (!state.battle) return;
   }
   chooseIntent(state, events);
@@ -155,7 +155,7 @@ function hitEnemy(state, events, power = 1, verb = null, opt = {}) {
   const a2 = adv(state);
   if (a2.rage && state.hp < val(state, 'maxHp') * 0.5) attack = Math.round(attack * a2.rage);
   if (a2.first && b.turn === 1) attack = Math.round(attack * a2.first);
-  let dmg = damage(state, attack, power * (br?.dmg || 1), opt.pierce ? 0 : m.defense);
+  let dmg = damage(state, attack, power * (br?.dmg || 1) * (state.flags.knowsBoar && b.mon === 'boar' ? 1.15 : 1), opt.pierce ? 0 : m.defense); // 숲의 사람은 멧돼지 약점을 안다
   const crit = opt.sure ? true : chance(state, Math.max(0, critChance(state.stats.agi, m.agi) + (br?.crit || 0) + (opt.crit || 0) + (a2.crit || 0) + (equipPower(state).crit || 0)));
   if (crit) dmg = Math.round(dmg * 1.5);
   let em = elementMult(opt.element, m.element);
@@ -219,7 +219,7 @@ export function clashChance(state) {
 /** 피할 확률: 내 민첩이 적보다 높은 만큼, 회피 숙련만큼. */
 export function dodgeChance(state) {
   const m = mdef(state.battle);
-  return odds(0.5 + (state.stats.agi - m.agi) * 0.03 + (state.skills.evade?.grade || 0) * 0.01);
+  return odds(0.5 + (state.stats.agi - m.agi) * 0.03 + (state.skills.evade?.grade || 0) * 0.01 + (state.flags.dodge10 ? 0.1 : 0));
 }
 
 /** 태세로 한 턴을 버텼다. 그 숙련도가 오른다. 센 적일수록 많이 오른다. */
@@ -407,7 +407,7 @@ export function battleAct(state, events, choice, arg) {
     const slot = state.bag[arg] ? slotFor(state, state.bag[arg]) : null;
     if (slot !== 'weapon' && slot !== 'off') throw new Error('싸우는 중에는 무기와 보조만 바꿀 수 있습니다');
     const need = itemDef(state.bag[arg].id).job;
-    if (need && need !== state.job) throw new Error(`${jobDef(need)?.name || need}만 쓸 수 있습니다`);
+    if (need && need !== state.job && !(state.flags.anyShield && state.bag[arg].id === 'oldshield')) throw new Error(`${jobDef(need)?.name || need}만 쓸 수 있습니다`);
   }
   const stunned = hasStatus(state, 'stun');
   const stance = choice === 'defend' && !stunned ? stanceOf(state).id : null;
@@ -558,7 +558,8 @@ export function eat(state, events, index) {
   if (!def.eat) throw new Error('먹을 수 없는 물건입니다');
   removeAt(state, index, 1);
   const parts = [];
-  if (def.eat.full) { state.full = Math.min(100, state.full + def.eat.full); parts.push(`포만감 +${def.eat.full}`); }
-  if (def.eat.hp) { const max = val(state, 'maxHp'); const before = state.hp; state.hp = Math.min(max, state.hp + def.eat.hp); parts.push(`생명력 +${state.hp - before}`); }
+  const more = state.flags.foodPlus ? 1.2 : 1;
+  if (def.eat.full) { const got = Math.round(def.eat.full * more); state.full = Math.min(100, state.full + got); parts.push(`포만감 +${got}`); }
+  if (def.eat.hp) { const max = val(state, 'maxHp'); const before = state.hp; state.hp = Math.min(max, state.hp + Math.round(def.eat.hp * more)); parts.push(`생명력 +${state.hp - before}`); }
   pushLine(state, events, { k: 'me', text: `${eulReul(def.name)} ${def.eat.hp ? '마셨다' : '먹었다'}. ${parts.join(', ')}.` });
 }

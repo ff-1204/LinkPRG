@@ -35,7 +35,7 @@ export function buyPrice(state, id) {
   const shop = SHOPS[state.place];
   if (shop?.daily) base = Math.max(1, Math.round(base * (DAILY_SWING[0] + (seedFrom(`${state.seed}|price|${state.day}|${id}`) / 4294967296) * DAILY_SWING[1])));
   const cut = discountOf(state);
-  const rate = cut.rate + guildPerk(state, 'social'); // 등불 모임
+  const rate = cut.rate + guildPerk(state, 'social') + (state.flags.cheapBuy ? 0.05 : 0); // 등불 모임, 가게 집 막내
   return { base, now: rate > 0 && base >= 5 ? Math.max(1, Math.floor(base * (1 - rate))) : base, why: [cut.why, guildPerk(state, 'social') > 0 ? '길드의 덕' : ''].filter(Boolean).join(', ') };
 }
 
@@ -48,7 +48,8 @@ export function sellPrice(item, state = null) {
   if (itemDef(item.id).kind === 'quest' || itemDef(item.id).nosell) return 0; // 거저 받은 것은 팔 수 없다
   // '이름을 새긴 이'는 제 손으로 만든 것을 더 받고 판다
   const mine = state && state.title === 'maker' && item.maker === state.name ? 1.1 : 1;
-  return Math.max(1, Math.floor(worth(item) * SELL_RATE * mine));
+  const hide = state && state.flags.hideSeller && /hide/.test(item.id) ? 1.3 : 1; // 무두장이는 가죽 값을 더 받는다
+  return Math.max(1, Math.floor(worth(item) * SELL_RATE * mine * hide));
 }
 
 export function shopHere(state) {

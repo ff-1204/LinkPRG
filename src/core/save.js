@@ -117,7 +117,7 @@ function checkShape(s) {
   const c = s.choice;
   if (c) {
     const ok = (c.kind === 'sense' && MONSTERS[c.mon]) || (c.kind === 'incident' && (INCIDENTS[c.place] || []).some((x) => x.id === c.id))
-      || (c.kind === 'offer' && c.job === 'smith') || (c.kind === 'hq' && HIDDENS[c.id]) || (c.kind === 'hjob' && HIDDEN_JOBS[c.id]) || ['trap', 'door', 'keeper', 'ending'].includes(c.kind);
+      || (c.kind === 'offer' && c.job === 'smith') || (c.kind === 'hq' && HIDDENS[c.id]) || (c.kind === 'hjob' && HIDDEN_JOBS[c.id]) || ['trap', 'door', 'keeper', 'ending'].includes(c.kind) || (c.kind === 'memory' && c.id === 'debtpaper');
     if (!ok) bad('모르는 선택');
   }
   if (!s.people || !s.fame || !Array.isArray(s.titles) || !Array.isArray(s.jobs) || !s.quests || !s.hq || !s.main || !Array.isArray(s.main.done) || !Array.isArray(s.opened)) bad('퀘스트');

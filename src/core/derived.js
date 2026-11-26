@@ -59,6 +59,7 @@ export function derived(state) {
   addTo('maxMp', `기도 숙련 ${skillBonus(state.skills.pray)}`, skillBonus(state.skills.pray));
   addTo('carry', `나르기 숙련 ${skillBonus(state.skills.haul)}`, skillBonus(state.skills.haul));
   addTo('maxHp', `지구력 숙련 ${skillBonus(state.skills.stamina) * 2}`, skillBonus(state.skills.stamina) * 2);
+  if (state.flags?.carry5) addTo('carry', '짐꾼 5', 5);
   const adv2 = ADVANCED[state.job2];
   if (adv2?.hp) addTo('maxHp', `${adv2.name} ${adv2.hp}`, adv2.hp);
   const rate = penaltyRate(state);

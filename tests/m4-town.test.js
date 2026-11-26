@@ -58,7 +58,7 @@ test('싫어하는 것을 주면 사이가 내려가고, 그것도 도감에 적
 });
 
 test('이야기 듣기는 하루에 한 번만 사이를 올리고, 만난 사람 수가 쌓인다', () => {
-  const s = fresh();
+  const s = fresh('m4', 'bard'); // 땅의 사람은 마을 사람들과 조금 가깝게 시작한다
   go(s, 'tavern');
   talkTo(s, 'keeper');
   talkTo(s, 'keeper');
@@ -233,7 +233,7 @@ test('주점의 외상 장부: 판정 셋과 돈, 출신이 여는 대답, 그�
   const sb = start('lg2', 'smithboy');
   const errand = subView(sb, 'ledger').step.choices.find((c) => c.id === 'errand');
   assert.equal(errand.chance, null);
-  assert.ok(errand.free.includes('대장간 심부름꾼'));
+  assert.ok(errand.free.includes('쇠의 사람'));
   const ev = dispatch(sb, { type: 'quest', op: 'choose', id: 'ledger', choice: 'errand' });
   assert.ok(!ev.some((e) => e.type === 'check'));
   go(sb, 'tavern');

@@ -134,7 +134,7 @@ test('그곳에 맞는 일을 할수록 사람이 먼저 말을 걸 확률이 �
   const greet = dispatch(s, { type: 'greet', npc: 'instructor' }).filter((e) => e.type === 'line').map((e) => e.line);
   assert.ok(!greet.some((l) => l.k === 'npc'), '먼저 말을 걸어오기 전에는 대꾸하지 않는다');
   // 확률: 할수록 오른다. 사이가 가까울수록 높다
-  assert.equal(speakChance(s, 'instructor', 1), SPEAK_BASE[0]);
+  assert.ok(Math.abs(speakChance(s, 'instructor', 1) - (SPEAK_BASE[0] + 0.10)) < 1e-9, '땅의 사람은 시작 마을에서 +10%p');
   assert.ok(speakChance(s, 'instructor', 20) > speakChance(s, 'instructor', 5));
   // 쉬기는 그곳에 맞는 일이 아니다
   for (let i = 0; i < 5; i++) dispatch(s, { type: 'act', id: 'rest' });
@@ -150,9 +150,9 @@ test('그곳에 맞는 일을 할수록 사람이 먼저 말을 걸 확률이 �
   assert.deepEqual([9, 10, 29, 30, 60, 100].map(workPoints), [0, 1, 1, 2, 3, 4]);
   const t = fresh('bond'); t.place = 'training';
   for (let i = 0; i < WORK_PER_POINT * 6; i++) { dispatch(t, { type: 'act', id: 'strike' }); t.full = 80; t.tired = 0; if (t.phase === 2) { t.phase = 0; } }
-  assert.equal(t.people.instructor.pts, 3, "예순 번이면 셋");
+  assert.equal(t.people.instructor.pts, 5 + 3, "예순 번이면 셋 (땅의 사람은 5에서 시작)");
   for (let i = 0; i < 40; i++) { dispatch(t, { type: "act", id: "strike" }); t.full = 80; t.tired = 0; t.phase = 0; }
-  assert.equal(t.people.instructor.pts, 4, "많이 한 사람은 더 얻는다");
+  assert.equal(t.people.instructor.pts, 5 + 4, "많이 한 사람은 더 얻는다");
   // 벗은 들어서면 바로 말을 건다
   const f = fresh('friend'); f.people.instructor = { ...(f.people.instructor || {}), pts: 80, met: true };
   assert.ok(bondOf(f, 'instructor') >= 3);

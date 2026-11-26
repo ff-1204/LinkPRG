@@ -27,6 +27,8 @@ export const ITEMS = {
   // 도구: 차지 않고 가방에 둔다. 쓸 때마다 닳는다
   chisel: { name: '조각칼', kind: 'gear', tool: true, dur: 120, weight: 1, price: 30, icon: 'item-unknown', desc: '나무를 깎는 칼. 가방에 있어야 조각을 할 수 있다. 칼질 한 번에 조금씩 닳는다.' },
   ironsword: { name: '철검', kind: 'gear', slot: 'weapon', attack: 14, dur: 80, weight: 4, price: 70, gradeIcon: 'sword', desc: '쇠를 두드려 편 검. 등급이 높을수록 날빛이 다르다.' },
+  oldchisel: { name: '이름이 새겨진 정', kind: 'quest', weight: 1, icon: 'item-knife', price: 0, desc: '광산 깊은 곳에서 주운 녹슨 정. 손잡이에 대장간 영감님의 이름이 새겨져 있다.' },
+  bellpicture: { name: '종소리 그림', kind: 'etc', weight: 0, icon: 'item-cloth', price: 0, nosell: true, desc: '어릴 적 신전 마루 밑에 숨겨 둔 그림. 종소리를 쇠처럼 그렸다.' },
   oldshield: { name: '낡은 방패', kind: 'gear', slot: 'off', defense: 4, dur: 60, weight: 4, price: 30, job: 'warrior', icon: 'item-shield', desc: '가장자리가 찌그러진 나무 방패. 전사만 쓴다.' },
   shortbow: { name: '짧은 활', kind: 'gear', slot: 'weapon', attack: 8, dur: 50, weight: 2, price: 36, job: 'archer', icon: 'item-bow', desc: '숲에서 쓰기 좋은 짧은 활. 궁수만 쓴다.' },
   ashwand: { name: '물푸레 지팡이', kind: 'gear', slot: 'weapon', attack: 4, dur: 50, weight: 2, price: 36, job: 'mage', icon: 'item-wand', desc: '끝에 노란 돌이 박힌 지팡이. 마법사만 쓴다.' },

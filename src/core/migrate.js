@@ -124,6 +124,7 @@ function mend(state) {
   if (state.counters && !Number.isFinite(state.counters.tiredWork)) state.counters.tiredWork = 0;
   if (!['hold', 'clash', 'dodge', 'focus'].includes(state.stance)) state.stance = 'hold';
   if (state.guild === undefined) state.guild = null;
+  if (!state.lore || !Array.isArray(state.lore.hints)) state.lore = { hints: [] };
   if (state.guild && (!['fang', 'anvil', 'lantern'].includes(state.guild.id) || !Number.isFinite(state.guild.contrib))) state.guild = null;
   // 만들 때 내구도가 늘어난 옛 장비: 그 값이 최대치다
   const gear = [...(state.bag || []), ...Object.values(state.equip || {})];

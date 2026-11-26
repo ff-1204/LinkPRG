@@ -162,7 +162,7 @@ test('걸작을 광장에 세우면 다음 날 명성이 오르고, 띠와 "이 
 });
 
 test('작품은 팔고 선물할 수 있다. 그 사람을 깎은 것이면 더 기뻐한다 (N2-2)', () => {
-  const s = fresh('wk');
+  const s = fresh('wk', 'bard'); // 땅의 사람은 마을 사람들과 조금 가깝게 시작하므로 다른 뿌리로 잰다
   s.works.push({ no: 1, subject: 'rabbit', grade: 2, day: 1, where: 'bag', maker: '가을' }, { no: 2, subject: 'granny', grade: 2, day: 1, where: 'bag', maker: '가을' }, { no: 3, subject: 'rabbit', grade: 2, day: 1, where: 'bag', maker: '가을' });
   s.place = 'store';
   dispatch(s, { type: 'work', op: 'sell', no: 1 });

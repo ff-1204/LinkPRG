@@ -62,7 +62,7 @@ export const SUBS = {
         { id: 'persuade', label: '좋게 말한다', check: { kind: 'persuade', npc: 'smith' }, say: '"…알았네. 그 사람도 장사지." 대장간 주인이 은화 30을 세어 주었다.', failSay: '"술값은 내가 알아서 갚네." 말이 통하지 않는다.', ok: { set: 'got' }, fail: {} },
         { id: 'threat', label: '으름장을 놓는다', check: { kind: 'threat', npc: 'smith' }, say: '대장간 주인은 한참 노려보다가 은화 자루를 던졌다.', failSay: '"망치 든 사람한테 그러는 거 아니야." 꿈쩍도 않는다.', ok: { set: 'got', bond: [['smith', -15]], lean: -1 }, fail: { bond: [['smith', -8]] } },
         { id: 'trick', label: '주점이 문을 닫는다고 둘러댄다', check: { kind: 'trick', npc: 'smith' }, say: '"뭐? 그럼 어디서 마시나." 대장간 주인이 허둥지둥 은화를 꺼냈다.', failSay: '"어제도 열었던데." 눈을 가늘게 뜬다.', ok: { set: 'got', bond: [['smith', -5]], lean: -1 }, fail: { bond: [['smith', -5]] } },
-        { id: 'errand', label: '심부름하던 시절 얘기를 꺼낸다', free: { origin: 'smithboy', why: '출신: 대장간 심부름꾼' }, say: '"네가 술 받아 오던 놈이었지." 대장간 주인이 껄껄 웃으며 은화를 내주었다.', ok: { set: 'got', bond: [['smith', 5]] } },
+        { id: 'errand', label: '쇠를 만지던 시절 얘기를 꺼낸다', free: { origin: 'smithboy', why: '출신: 쇠의 사람' }, say: '"네가 술 받아 오던 놈이었지." 대장간 주인이 껄껄 웃으며 은화를 내주었다.', ok: { set: 'got', bond: [['smith', 5]] } },
         { id: 'pay', label: '내 돈으로 대신 낸다 (은화 30)', need: { silver: 30 }, needSay: '은화 30', say: '말없이 내 주머니에서 은화 30을 꺼내 따로 싸 두었다. 대장간 주인은 모른다.', ok: { silver: -30, set: 'paid', lean: 1 } },
         { id: 'tear', label: '장부의 그 쪽을 찢어 버린다', end: '장부를 찢었다', say: '"없던 일로 하지요." 대장간 주인이 눈을 크게 떴다. 주점 주인이 알면 좋아하지 않을 것이다.', ok: { bond: [['smith', 20], ['keeper', -15]], fame: 2 } },
       ] },
