@@ -264,6 +264,7 @@ export function start(root, storage = globalThis.localStorage) {
       carry.titles.length ? h('div', { class: 'rowx' }, h('span', {}, '칭호'), h('span', {}, carry.titles.map((t) => TITLES[t.id]?.name || t.id).join(', '))) : null,
       h('div', { class: 'rowx' }, h('span', {}, '도감'), h('span', {}, '그대로 남는다')),
       carry.seedSilver ? h('div', { class: 'rowx' }, h('span', {}, '종잣돈'), h('b', {}, `은화 ${carry.seedSilver} (출신이 가진 것에 더해진다)`)) : null,
+      Object.keys(carry.bank || {}).length ? h('div', { class: 'rowx' }, h('span', {}, '보관함'), h('b', {}, `${Object.entries(carry.bank).map(([t, b]) => `${t} 은화 ${b.silver}${b.items.length ? `, 물건 ${b.items.length}가지` : ''}`).join(' / ')} (그 마을 보관함에서 찾는다)`)) : null,
       Object.keys(carry.skills || {}).length ? h('div', { class: 'rowx' }, h('span', {}, '숙련도'), h('span', {}, `${Object.keys(carry.skills).map((id) => SKILL_NAMES[id] || id).join(', ')}: 쌓은 것의 5%`)) : null,
       carry.pastLives.map((p) => h('div', { class: 'rowx' }, h('span', {}, '지난 삶'), h('span', {}, `'${p.name}' — ${p.job || '무직'}, 레벨 ${p.level}, ${p.day}일째에 쓰러졌다`))));
   }
@@ -438,7 +439,7 @@ export function start(root, storage = globalThis.localStorage) {
         onpointerdown: (e) => { if (assist.mode === 'hold' && e.button === 0) { held = i; pressDown(i); } },
         onpointerup: () => releaseHold(i), onpointerleave: () => releaseHold(i), onpointercancel: () => releaseHold(i),
         // 누르고 있기에서 초점을 두고 Enter로 누른 것은 뗀 때를 알 수 없으니 한 번만 한다
-        onclick: (e) => { if (assist.mode !== 'hold') return pressDown(i); if (e.detail === 0 && !wins.isOpen()) { assist.stop(); drawAssist(); press(i); } } }, h('span', {}, i + 1), s.label, s.disabled && s.why ? h('small', {}, s.why) : null)
+        onclick: (e) => { if (assist.mode !== 'hold') return pressDown(i); if (e.detail === 0 && !wins.isOpen()) { assist.stop(); drawAssist(); press(i); } } }, h('span', {}, i + 1), s.label, s.disabled && s.why ? h('small', {}, s.why) : s.sub ? h('small', { class: 'slsub' }, s.sub) : null)
       : h('button', { class: 'sl none empty', type: 'button', disabled: true, 'data-slot': i }, h('span', {}, i + 1), h('b', {}, '비어 있음'))));
     if (focused != null) refs.slots.querySelector(`[data-slot="${focused}"]:not([disabled])`)?.focus();
   }
@@ -745,11 +746,12 @@ export function start(root, storage = globalThis.localStorage) {
           h('div', { class: 'rowx' }, h('span', {}, '도감'), h('span', {}, '본 괴물·물건·곳·짐승·요리')),
           carry.seedSilver ? h('div', { class: 'rowx' }, h('span', {}, '종잣돈'), h('span', {}, `은화 ${carry.seedSilver} (가진 은화의 10%)`)) : null,
           Object.keys(carry.skills || {}).length ? h('div', { class: 'rowx' }, h('span', {}, '숙련도'), h('span', {}, `${Object.keys(carry.skills).length}가지, 쌓은 것의 5%`)) : null,
+          Object.keys(carry.bank || {}).length ? h('div', { class: 'rowx' }, h('span', {}, '보관함'), h('span', {}, Object.entries(carry.bank).map(([t, b]) => `${t} 은화 ${b.silver}${b.items.length ? `, 물건 ${b.items.length}가지` : ''}`).join(' / '))) : null,
           h('div', { class: 'rowx' }, h('span', {}, '환생한 횟수'), h('span', {}, `${carry.lives}번째 삶`)),
           h('span', { class: 'h' }, '내려놓는 것'),
           h('div', { class: 'rowx' }, h('span', {}, '레벨과 숙련도'), h('span', {}, `레벨 ${loss.level}, 숙련도 ${loss.skills}가지`)),
           h('div', { class: 'rowx' }, h('span', {}, '직업'), h('span', {}, loss.job || '무직')),
-          h('div', { class: 'rowx' }, h('span', {}, '가진 것'), h('span', {}, `물건, 장비, 은화 ${loss.silver}, 보관함`)),
+          h('div', { class: 'rowx' }, h('span', {}, '가진 것'), h('span', {}, `가방의 물건, 장비, 은화 ${loss.silver} (보관함은 남는다)`)),
           h('div', { class: 'rowx' }, h('span', {}, '사람'), h('span', {}, loss.guild ? '사람들과의 사이, 길드' : '사람들과의 사이')),
           h('div', { class: 'rowx' }, h('span', {}, '메인 이야기'), h('span', {}, `${loss.chapter}장까지의 진행`)),
           h('div', { class: 'rowx' }, h('span', {}, '죽음의 그림자'), h('span', {}, '걷힌다'))];
@@ -867,7 +869,7 @@ export function start(root, storage = globalThis.localStorage) {
           h('button', { class: 'btn sm', type: 'button', 'aria-label': `${gearName(item)} ${gradeName(item.grade)} 하나 ${label}`, onclick: one }, label),
           n > 1 ? h('button', { class: 'btn sm', type: 'button', 'aria-label': `${gearName(item)} ${gradeName(item.grade)} ${n}개 모두 ${label}`, onclick: all }, '모두') : null);
         add(body,
-          h('p', { class: 'muted', style: 'font-size:.9rem' }, `맡긴 것이 있는 날만 하루에 은화 ${v.fee}. 쓰러져도 맡긴 것은 잃지 않는다. 보관함은 마을마다 따로다.`),
+          h('p', { class: 'muted', style: 'font-size:.9rem' }, `맡긴 은화에는 날마다 1% 이자가 붙는다${v.interest ? ` (내일 +${v.interest})` : ''}. 물건을 맡긴 날만 삯 은화 ${v.fee}. 쓰러져도, 다시 태어나도 맡긴 것은 잃지 않는다. 보관함은 마을마다 따로다.`),
           v.debt ? h('p', { class: 'warn', role: 'alert' }, `밀린 보관 삯이 은화 ${v.debt} 있다. 찾을 때 먼저 치른다.`) : null,
           h('div', { class: 'cols' },
             h('div', { style: 'display:flex;flex-direction:column;gap:4px;min-width:0' },
@@ -1215,7 +1217,7 @@ export function start(root, storage = globalThis.localStorage) {
         add(body,
           h('p', { class: 'muted', style: 'font-size:.9rem' }, `손으로 깎는다. 작품 하나에 칼질 ${m.cuts}번. 본 것만 깎을 수 있다. 어떤 작품이 될지는 마지막 칼질에서 갈린다. 그만두면 토막은 버려진다.`),
           h('div', {}, '깎을 거리: ', m.needs.map((n) => h('span', { class: n.have >= n.n ? '' : 'warn' }, `${n.name} ${n.have} / ${n.n}`))),
-          h('div', { class: m.chisel ? '' : 'warn' }, m.chisel ? `조각칼 내구도 ${m.chisel.dur}` : '조각칼이 없다. 대장간에서 사거나 만든다.'),
+          h('div', { class: m.chisel ? '' : 'warn' }, m.chisel ? (m.chisel.dur == null ? `${m.chisel.name}: 닳지 않는다` : `${m.chisel.name} 내구도 ${m.chisel.dur}`) : '조각칼이 없다. 대장간에서 사거나 만든다.'),
           h('table', { class: 'odds' }, h('caption', {}, '작품 등급의 확률'),
             h('thead', {}, h('tr', {}, WORK_GRADES.map((g) => h('th', { scope: 'col' }, g)))),
             h('tbody', {}, h('tr', {}, m.odds.map((p) => h('td', {}, `${p >= 10 ? Math.round(p) : p.toFixed(1)}%`))))),

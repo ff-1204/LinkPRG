@@ -12,15 +12,53 @@ export function foodBuff(state) {
   return live(state, b) ? b : null;
 }
 
+/** 잘 잔 몸 (Z41): 방을 빌려 자면 그 집에 따라 다른 힘이 붙는다. 깬 때부터 두 때. */
+export const ROOM_BUFFS = {
+  tavern: { id: 'fresh', name: '개운한 몸', text: '피로가 20% 더디게 쌓인다', tire: 0.8 },
+  inn: { id: 'warm', name: '뜨끈한 아랫목', text: '최대 생명력 +10%, 공격력·방어력 +3%', hp: 0.10, power: 0.03 },
+  innrow: { id: 'feather', name: '깃털 이불', text: '숙련도 오름 +5%', xp: 0.05 },
+};
+/** 신의 가호 (Z43): 신전에서 축복을 받으면 두 때 동안. */
+export const GRACE = { id: 'grace', name: '신의 가호', text: '공격력·방어력 +5%', power: 0.05 };
+export function graceBuff(state) {
+  const b = state.buffs?.grace;
+  return live(state, b) ? b : null;
+}
+/** 지금부터 두 때 뒤까지. */
+export function twoPhases(state) {
+  const p = state.phase + 2;
+  return p <= 2 ? { day: state.day, phase: p } : { day: state.day + 1, phase: p - 3 };
+}
+export function giveGrace(state) {
+  if (!state.buffs) state.buffs = {};
+  state.buffs.grace = { ...GRACE, until: twoPhases(state) };
+  return state.buffs.grace;
+}
+
+export function restBuff(state) {
+  const b = state.buffs?.rest;
+  return live(state, b) ? b : null;
+}
+/** 방을 빌려 자고 깼다. 그 집의 버프를 건다(겹치지 않고 새로 건다). */
+export function giveRoomBuff(state, place) {
+  const def = ROOM_BUFFS[place];
+  if (!def) return null;
+  const p = state.phase + 2;
+  const until = p <= 2 ? { day: state.day, phase: p } : { day: state.day + 1, phase: p - 3 };
+  if (!state.buffs) state.buffs = {};
+  state.buffs.rest = { ...def, until };
+  return state.buffs.rest;
+}
+
 /** 숙련도가 얼마나 더 오르는지(곱). */
 export function xpBoost(state) {
-  return 1 + (buffOf(state)?.xp || 0) + (foodBuff(state)?.xp || 0);
+  return 1 + (buffOf(state)?.xp || 0) + (foodBuff(state)?.xp || 0) + (restBuff(state)?.xp || 0);
 }
 
 /** 상태창의 "지금 걸린 것"에 보일 줄 (M6-3). */
 export function buffRows(state) {
   const out = [];
-  for (const [kind, b] of [['감상', buffOf(state)], ['음식', foodBuff(state)]]) {
+  for (const [kind, b] of [['감상', buffOf(state)], ['음식', foodBuff(state)], ['잠', restBuff(state)], ['축복', graceBuff(state)]]) {
     if (b) out.push({ kind, name: b.name, text: b.text, until: b.until });
   }
   return out;

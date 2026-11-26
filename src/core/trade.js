@@ -15,6 +15,7 @@ import { eulReul, iGa } from './ko.js';
 export const SELL_RATE = 0.4;
 export const STORE_CAP = 200;
 export const STORE_FEE = 2;
+export const STORE_RATE = 0.01; // 맡긴 은화의 하루 이자 (Z42)
 
 /** 물건 하나의 값(등급 반영). */
 export function worth(item) {
@@ -117,7 +118,7 @@ export function storeView(state) {
   const box = boxOf(state);
   return {
     items: box.items.map((item, index) => ({ index, item, name: gearName(item), grade: gradeName(item.grade), n: item.n })),
-    silver: box.silver, weight: storeWeight(box), cap: STORE_CAP, fee: STORE_FEE, debt: state.storeDebt || 0,
+    silver: box.silver, weight: storeWeight(box), cap: STORE_CAP, fee: STORE_FEE, debt: state.storeDebt || 0, rate: STORE_RATE, interest: Math.floor((box.silver || 0) * STORE_RATE),
     busy: box.items.length > 0 || box.silver > 0,
   };
 }
@@ -180,10 +181,15 @@ export function withdrawSilver(state, events, amount) {
   events.push({ type: 'trade' });
 }
 
-/** 날이 바뀔 때 부른다. 맡긴 것이 있는 날만 삯을 낸다 (H1-6). 모자라면 달아 둔다. */
+/** 날이 바뀔 때 부른다. 맡긴 은화에는 하루 1% 이자가 붙는다 (Z42). 물건을 맡긴 날만 삯을 낸다 (H1-6). 모자라면 달아 둔다. */
 export function storeDay(state, events) {
-  for (const box of Object.values(state.store)) {
-    if (!box.items.length && box.silver <= 0) continue;
+  for (const [town, box] of Object.entries(state.store)) {
+    const interest = Math.floor((box.silver || 0) * STORE_RATE);
+    if (interest > 0) {
+      box.silver += interest;
+      pushLine(state, events, { k: 'sys', tone: 'mint', text: `${town}에 맡긴 은화에 이자가 붙었다. 은화 +${interest}.` });
+    }
+    if (!box.items.length) continue; // 은화만 맡기면 삯이 없다
     let fee = STORE_FEE;
     const fromBox = Math.min(box.silver, fee); // 맡긴 은화에서 먼저 뗀다
     box.silver -= fromBox; fee -= fromBox;

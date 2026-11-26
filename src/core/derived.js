@@ -1,7 +1,7 @@
 // 계산된 값과 그 셈 (R2-1, R2-2, G2-2). 누르면 셈이 풀려 보인다.
 
 import { equipPower } from './inventory.js';
-import { buffOf, foodBuff } from './buffs.js';
+import { buffOf, foodBuff, restBuff, graceBuff } from './buffs.js';
 import { ADVANCED } from '../data/jobs.js';
 
 /** 숙련 보너스: 등급 두 칸마다 1. */
@@ -59,6 +59,24 @@ export function derived(state) {
   if (state.flags?.carry5) addTo('carry', '짐꾼 5', 5);
   const adv2 = ADVANCED[state.job2];
   if (adv2?.hp) addTo('maxHp', `${adv2.name} ${adv2.hp}`, adv2.hp);
+  // 잘 잔 몸 (Z41): 뜨끈한 아랫목은 생명력과 힘을 조금 북돋는다
+  const slept = state.buffs ? restBuff(state) : null;
+  // 신의 가호 (Z43): 공격력·방어력 +5%
+  const grace = state.buffs ? graceBuff(state) : null;
+  if (grace) {
+    for (const d of list) {
+      if (d.id !== 'attack' && d.id !== 'defense') continue;
+      const sum = d.parts.reduce((a, p) => a + p.value, 0);
+      addTo(d.id, `${grace.name} ${Math.round(sum * grace.power)}`, Math.round(sum * grace.power));
+    }
+  }
+  if (slept?.hp || slept?.power) {
+    for (const d of list) {
+      const sum = d.parts.reduce((a, p) => a + p.value, 0);
+      if (d.id === 'maxHp' && slept.hp) addTo('maxHp', `${slept.name} ${Math.round(sum * slept.hp)}`, Math.round(sum * slept.hp));
+      if ((d.id === 'attack' || d.id === 'defense') && slept.power) addTo(d.id, `${slept.name} ${Math.round(sum * slept.power)}`, Math.round(sum * slept.power));
+    }
+  }
   const rate = penaltyRate(state);
   for (const d of list) {
     const sum = d.parts.reduce((a, p) => a + p.value, 0);

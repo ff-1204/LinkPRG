@@ -39,6 +39,8 @@ export function rebirthCarry(state) {
   return {
     lives: (state.lives || 1) + 1,
     seedSilver: Math.floor((state.silver || 0) * SEED_RATE),
+    // 보관함은 통째로 남는다 (Z42): 맡긴 은화와 물건
+    bank: Object.fromEntries(Object.entries(state.store || {}).filter(([, box]) => (box.silver || 0) > 0 || (box.items || []).length).map(([town, box]) => [town, { silver: box.silver || 0, items: JSON.parse(JSON.stringify(box.items || [])) }])),
     skills: Object.fromEntries(Object.entries(state.skills || {}).map(([id, sk]) => [id, Math.floor(skillTotal(sk) * SKILL_KEEP)]).filter(([, n]) => n > 0)),
     pastLives: [...(state.pastLives || []), { name: state.name, job: jobName(state.job), level: state.level, day: state.day }],
     pastHidden,
@@ -71,6 +73,9 @@ export function rebirthLoss(state) {
 export function applyCarry(state, carry) {
   state.lives = carry.lives;
   state.silver += carry.seedSilver || 0; // 종잣돈
+  // 맡긴 은화는 장부에 남아 있다 (Z42). 그 마을 보관함에 들르면 주인이 알아본다
+  for (const [town, box] of Object.entries(carry.bank || {})) state.store[town] = { items: JSON.parse(JSON.stringify(box.items || [])), silver: box.silver || 0 };
+  if (Object.keys(carry.bank || {}).length) state.flags.pastBank = Object.keys(carry.bank);
   // 숙련도의 5%: 새 출신이 처음부터 가진 숙련도 위에 더한다
   for (const [id, n] of Object.entries(carry.skills || {})) {
     const sk = state.skills[id] || { grade: 0, xp: 0, uses: 0 };

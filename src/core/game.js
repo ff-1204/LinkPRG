@@ -38,8 +38,9 @@ import { bondOf as bondOfNpc } from './social.js';
 import { drink } from './social.js';
 import { makeItem, equip as equipItem, unequip as unequipItem, discard as discardItem, totalWeight, countOf } from './inventory.js';
 import { xpToNext } from './level.js';
-import { tickFall, recoverRelic, bless, prayShadow, fall } from './fall.js';
+import { tickFall, recoverRelic, bless, prayShadow, fall, blessingHere, blessFee, graceFee } from './fall.js';
 import { applyCarry } from './rebirth.js';
+import { restBuff, giveRoomBuff, ROOM_BUFFS, giveGrace, GRACE } from './buffs.js';
 import { startBattle, battleAct, fleeChance, intentOf, eat, weighted, STANCES, stanceOf, foeDef } from './battle.js';
 import { repair, enhance } from './gear.js';
 import { joinGuild, leaveGuild, donate, guildHook } from './guild.js';
@@ -245,7 +246,13 @@ export function slotsNow(state) {
   for (const x of list) {
     if (x.action?.type === 'act' && x.action.id === 'rest') x.label = placeById(state.place).wild ? '야영' : '잠자기';
     if (x.action?.type === 'act' && x.action.id === 'bread' && state.flags.breadDay === state.day) { x.disabled = true; x.why = '오늘은 이미 받았다'; }
-    if (x.action?.type === 'act' && x.action.id === 'room') { x.label = `방 빌리기 (은화 ${INN_FEE})`; if (state.silver < INN_FEE) { x.disabled = true; x.why = '은화가 모자란다'; } }
+    if (x.action?.type === 'act' && x.action.id === 'blessing') {
+      const fee = state.shadow > 0 ? blessFee(state) : graceFee(state);
+      x.label = `축복받기 (은화 ${fee})`;
+      x.sub = state.shadow > 0 ? `그림자 ${state.shadow}겹을 모두 걷는다` : `${GRACE.name}: ${GRACE.text}`;
+      if (state.silver < fee) { x.disabled = true; x.why = '은화가 모자란다'; }
+    }
+    if (x.action?.type === 'act' && x.action.id === 'room') { x.label = `방 빌리기 (은화 ${INN_FEE})`; if (ROOM_BUFFS[state.place]) x.sub = `${ROOM_BUFFS[state.place].name}: ${ROOM_BUFFS[state.place].text}`; if (state.silver < INN_FEE) { x.disabled = true; x.why = '은화가 모자란다'; } }
     if (x.action?.type === 'act' && ACTIONS[x.action.id]?.teach && !knowsWork(state, x.action.id)) x.label = `구경하기 (${ACTIONS[x.action.id].label})`;
     if (x.open === 'sculpt' && !chiselOf(state)) { x.disabled = true; x.why = '조각칼이 없다'; }
   }
@@ -408,7 +415,7 @@ const TIRE_NIGHT = 1.0; // 밤을 새우며 한 일은 더 무겁다
 /** 움직인 만큼 지친다. 잠을 자야 할 밤에 깨어 있으면 더 빨리 쌓인다. */
 function tire(state, events, ticks) {
   const before = state.tired || 0;
-  const slow = Math.max(0.5, 1 - (state.hidden?.vigil?.value || 0) * 0.03) * (state.flags.slowTire ? 0.9 : 1); // 숯쟁이는 더디게 지친다 // 집념: 버텨 본 몸은 더디게 지친다
+  const slow = Math.max(0.5, 1 - (state.hidden?.vigil?.value || 0) * 0.03) * (state.flags.slowTire ? 0.9 : 1) * (restBuff(state)?.tire || 1); // 숯쟁이는 더디게 지친다 // 집념: 버텨 본 몸은 더디게 지친다
   state.tired = Math.min(TIRED_MAX, Math.round((before + ticks * (state.phase === 2 ? TIRE_NIGHT : TIRE_DAY) * slow) * 100) / 100);
   if (before < TIRED_AT && state.tired >= TIRED_AT) pushLine(state, events, { k: 'sys', text: '몸이 무겁다. 눈이 자꾸 감긴다. 밤에 자야 풀린다.', tone: 'warn' });
   // 졸음 (Z34): 피로가 90을 넘으면 1 오를 때마다 곯아떨어질 수 있다. 100에 가까울수록 잘 그런다
@@ -757,6 +764,16 @@ export function dispatch(state, action, options = {}) {
     // 그곳에 맞는 일: 그 방의 행동(쉬기 빼고), 망치질, 칼질, 사고팔기, 요리, 바치기
     const fit = (t === 'act' && !ACTIONS[action.id]?.rest && !ACTIONS[action.id]?.open) || ['hammer', 'cut', 'buy', 'sell', 'cook', 'offer', 'enhance', 'repair'].includes(t);
     if (t === 'move' || t === 'travel') workedHere(state, events, 'enter');
+    // 지난 삶에 맡긴 은화 (Z42): 그 마을의 보관함이 있는 곳에 처음 들어서면 주인이 장부를 펼친다
+    const here = placeById(state.place);
+    if ((t === 'move' || t === 'travel') && here.storage && state.flags.pastBank?.includes(here.town)) {
+      state.flags.pastBank = state.flags.pastBank.filter((x) => x !== here.town);
+      if (!state.flags.pastBank.length) delete state.flags.pastBank;
+      const host = ROOM_HOSTS[here.id]?.[0] || '주인';
+      const box = state.store[here.town] || { silver: 0, items: [] };
+      const what = [box.silver ? `은화 ${box.silver}` : null, box.items.length ? `물건 ${box.items.length}가지` : null].filter(Boolean).join('과 ');
+      pushLine(state, events, { k: 'npc', who: host, text: `얼굴은 처음 보는데, 장부에 네 앞으로 맡긴 것이 있군. ${what}. 보관함에서 찾아가게.` });
+    }
     else if (fit) workedHere(state, events, 'fit');
   }
   // 허겁지겁 (Z40): 배가 바닥나거나 허기에 쓰러지려 할 때 가방에 먹을 것이 있으면 저도 모르게 먹는다. 가장 배를 덜 채우는 것부터
@@ -950,6 +967,7 @@ function act(state, events, id, options) {
   if (def.rest) return rest(state, events);
   if (def.open) throw new Error('창에서 하는 일입니다');
   if (def.special === 'room') return rentRoom(state, events);
+  if (def.special === 'blessing') { state.lastAction = null; return blessingHere(state, events, giveGrace); }
   // 남의 일터의 일은 배워야 한다. 모르면 곁에서 구경한다 (Z29)
   if (def.teach && !knowsWork(state, id)) { watchWork(state, events, id); state.lastAction = null; advance(state, events, def.ticks); return; }
   if (def.special === 'bread') {
@@ -1042,7 +1060,20 @@ function rentRoom(state, events) {
   state.tick = 0;
   nextPhase(state, events);
   pushLine(state, events, { k: 'sys', text: '푹 잤다. 생명력과 마나가 다 찼고 피로가 풀렸다.' });
+  // 잘 잔 몸 (Z41)
+  const b = giveRoomBuff(state, state.place);
+  if (b) {
+    state.hp = valueOf(state, 'maxHp');
+    pushLine(state, events, { k: 'sys', tone: 'mint', text: `잘 잔 몸: ${b.name}. ${b.text}. ${b.until.phase === 2 ? '밤이 되기 전까지' : b.until.phase === 0 ? '다음 날 아침까지' : '다음 날 낮까지'}.` });
+    const host = ROOM_HOSTS[state.place];
+    if (host) pushLine(state, events, { k: 'npc', who: host[0], text: host[1] });
+  }
 }
+const ROOM_HOSTS = {
+  tavern: ['주점 주인', '잘 잤나. 우리 집 이불은 해 냄새가 나지.'],
+  inn: ['주막 주인', '아랫목 덕 봤지? 뱃사람들은 그 맛에 여기 와.'],
+  innrow: ['여인숙 주인', '깃털 이불이야. 머리가 맑아질 거야.'],
+};
 
 function rest(state, events) {
   if (state.phase !== 2) throw new Error('잠은 밤에 잔다. 낮에는 주점에서 방을 빌린다');

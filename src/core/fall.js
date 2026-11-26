@@ -38,6 +38,25 @@ export function shadowView(state) {
   return { n, max: SHADOW_MAX, cut: Math.round(n * SHADOW_RATE * 100), fee: blessFee(state), pray: state.shadowPray || 0, need: prayNeed(state) };
 }
 
+/** 곳마다 축복을 내리는 사람 (Z43). */
+export const BLESS_AT = { temple: 'priest', shrine: 'shrinekeeper', grandtemple: 'highpriest' };
+export const GRACE_FEE = 5; // 가호 값: 레벨 × 이만큼
+export function graceFee(state) {
+  return Math.max(GRACE_FEE, state.level * GRACE_FEE);
+}
+/** 축복받기 칸 (Z43): 그림자가 있으면 걷어 내고, 없으면 신의 가호를 받는다. */
+export function blessingHere(state, events, giveGrace) {
+  const npc = BLESS_AT[state.place];
+  if (!npc) throw new Error('여기서는 축복을 받을 수 없습니다');
+  if ((state.shadow || 0) > 0) return bless(state, events, npc);
+  const fee = graceFee(state);
+  if (state.silver < fee) throw new Error(`은화가 모자랍니다 (${fee} 필요)`);
+  state.silver -= fee;
+  const g = giveGrace(state);
+  pushLine(state, events, { k: 'me', text: `은화 ${fee}을 바쳤다. 이마에 물 한 방울이 떨어졌다.` });
+  pushLine(state, events, { k: 'sys', tone: 'mint', text: `${g.name}: ${g.text}. ${g.until.phase === 2 ? '밤이 되기 전까지' : g.until.phase === 0 ? '다음 날 아침까지' : '다음 날 낮까지'}.` });
+}
+
 /** 신전에서 돈을 바치고 축복을 받는다. 그림자가 모두 걷힌다. */
 export function bless(state, events, npc) {
   if (!BLESSERS.includes(npc)) throw new Error('축복을 내릴 사람이 아닙니다');

@@ -80,3 +80,84 @@ test('배가 바닥나면 가방의 먹을 것을 허겁지겁 먹는다. 배를
   assert.ok(s.full > 5);
   assert.ok(!s.log.some((l) => l.text.includes('허기를 못 이기고')));
 });
+
+test('방을 빌려 자면 그 집의 잘 잔 몸이 깬 때부터 두 때 붙는다 (Z41)', async () => {
+  const { derived } = await import('../src/core/derived.js');
+  const { restBuff, xpBoost, buffRows } = await import('../src/core/buffs.js');
+  const { slotsNow } = await import('../src/core/game.js');
+  const room = (place, seed) => { const s = make(seed); s.place = place; s.opened.push('dock', 'bigmarket'); s.silver = 100; s.phase = 2; s.tick = 10; return s; };
+  // 주점: 피로가 더디게
+  const a = room('tavern', 'rt');
+  assert.ok(slotsNow(a).find((x) => x.action?.id === 'room').sub.includes('개운한 몸'));
+  dispatch(a, { type: 'act', id: 'room' });
+  assert.equal(a.phase, 0);
+  assert.equal(restBuff(a).name, '개운한 몸');
+  assert.deepEqual(restBuff(a).until, { day: a.day, phase: 2 });
+  assert.ok(a.log.some((l) => l.text.startsWith('잘 잔 몸: 개운한 몸')));
+  assert.ok(buffRows(a).some((r) => r.kind === '잠'));
+  const b = make('rt2'); b.place = 'training';
+  for (let i = 0; i < 20; i++) { dispatch(a.place === 'tavern' ? (a.place = 'training', a) : a, { type: 'act', id: 'strike' }); dispatch(b, { type: 'act', id: 'strike' }); }
+  assert.ok(a.tired < b.tired, `개운한 몸 ${a.tired} < 보통 ${b.tired}`);
+  // 주막: 생명력·힘
+  const c = room('inn', 'ri');
+  const hp = derived(c).find((d) => d.id === 'maxHp').value;
+  dispatch(c, { type: 'act', id: 'room' });
+  assert.ok(derived(c).find((d) => d.id === 'maxHp').value > hp);
+  assert.equal(c.hp, derived(c).find((d) => d.id === 'maxHp').value, '늘어난 만큼 차 있다');
+  // 여인숙: 숙련도
+  const e = room('innrow', 'rr');
+  dispatch(e, { type: 'act', id: 'room' });
+  assert.ok(Math.abs(xpBoost(e) - 1.05) < 1e-9);
+  // 두 때가 지나면 풀린다
+  e.phase = 2;
+  assert.equal(restBuff(e), null);
+});
+
+test('맡긴 은화에는 날마다 1% 이자. 은화만 맡기면 삯이 없다. 다시 태어나도 보관함은 통째로 남는다 (Z42)', async () => {
+  const { storeDay, storeView } = await import('../src/core/trade.js');
+  const s = make('bank');
+  s.place = 'tavern'; s.silver = 1000;
+  dispatch(s, { type: 'deposit', silver: 500 });
+  storeDay(s, []);
+  assert.equal(s.store['시작 마을'].silver, 505, '이자 1%');
+  assert.equal(s.silver, 500, '은화만 맡기면 삯이 없다');
+  assert.equal(storeView(s).interest, 5);
+  s.bag = []; addItem(s, 'ironore', 5);
+  dispatch(s, { type: 'deposit', index: 0, n: 5 });
+  storeDay(s, []);
+  assert.equal(s.store['시작 마을'].silver, 505 + 5 - 2, '이자 붙고, 물건이 있으니 삯 2');
+  // 다시 태어나도 남는다
+  const n = createGame({ name: '새', origin: 'farmer', rolled: rollDice('same'), seed: 'nb', carry: rebirthCarry(s) });
+  assert.equal(n.store['시작 마을'].silver, 508);
+  assert.equal(n.store['시작 마을'].items[0].id, 'ironore');
+  dispatch(n, { type: 'move', to: 'tavern' });
+  assert.ok(n.log.some((l) => l.text.includes('장부에 네 앞으로 맡긴 것이 있군')));
+  const k = n.log.length;
+  dispatch(n, { type: 'move', to: 'plaza' }); dispatch(n, { type: 'move', to: 'tavern' });
+  assert.ok(!n.log.slice(k).some((l) => l.text.includes('장부')), '한 번만 알려 준다');
+});
+
+test('신전의 축복받기: 그림자가 있으면 걷고, 없으면 두 때 동안 신의 가호 (Z43)', async () => {
+  const { slotsNow } = await import('../src/core/game.js');
+  const { graceBuff } = await import('../src/core/buffs.js');
+  const { derived } = await import('../src/core/derived.js');
+  const s = make('grace'); s.place = 'temple'; s.silver = 100; s.level = 3; s.stats.str = 40;
+  const slot = () => slotsNow(s).find((x) => x.action?.id === 'blessing');
+  assert.equal(slot().label, '축복받기 (은화 15)');
+  assert.ok(slot().sub.includes('신의 가호'));
+  const atk = derived(s).find((d) => d.id === 'attack').value;
+  dispatch(s, { type: 'act', id: 'blessing' });
+  assert.equal(s.silver, 85);
+  assert.ok(graceBuff(s));
+  assert.ok(derived(s).find((d) => d.id === 'attack').value > atk);
+  // 그림자가 있으면 걷는다
+  s.shadow = 2;
+  assert.ok(slot().sub.includes('그림자 2겹'));
+  assert.equal(slot().label, '축복받기 (은화 30)');
+  dispatch(s, { type: 'act', id: 'blessing' });
+  assert.equal(s.shadow, 0);
+  assert.equal(s.silver, 55);
+  // 은화가 모자라면 칸이 꺼진다
+  s.silver = 3;
+  assert.equal(slot().disabled, true);
+});
