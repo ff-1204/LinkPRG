@@ -1,9 +1,9 @@
 // 경험치를 주고, 레벨이 오르면 띠링을 울린다 (E10, E11). 싸움과 퀘스트가 같이 쓴다.
 
-import { ding } from './log.js?v=9c14cbd';
-import { gainXp, HP_PER_LEVEL, POINTS_PER_LEVEL } from './level.js?v=9c14cbd';
-import { iGa } from './ko.js?v=9c14cbd';
-import { jobDef } from '../data/jobs.js?v=9c14cbd';
+import { ding } from './log.js?v=d58cb06';
+import { gainXp, HP_PER_LEVEL, POINTS_PER_LEVEL } from './level.js?v=d58cb06';
+import { iGa } from './ko.js?v=d58cb06';
+import { jobDef } from '../data/jobs.js?v=d58cb06';
 
 export function grantXp(state, events, amount) {
   const before = state.level;

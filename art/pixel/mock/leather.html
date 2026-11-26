@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>가죽 제작 시안</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  :root { --cream: #FBF5E6; --paper: #FFFDF6; --sand: #F3E9D2; --line2: #CDBE9E; --ink: #3A2A1E; --muted: #6B5443; --deep: #1E140D; --cinnamon: #8A4F2B; --mint-line: #2F7A5E; --mint: #CFE8DC; --honey: #F2B63C; --serif: 'Gowun Batang', serif; --sans: 'Gowun Dodum', sans-serif; }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--cream); color: var(--ink); font: 16px/1.65 var(--sans); padding: 24px 16px 60px; word-break: keep-all; }
+  .wrap { max-width: 960px; margin: 0 auto; }
+  h1 { font: 700 27px/1.3 var(--serif); margin-bottom: 6px; }
+  h2 { font: 700 20px/1.3 var(--serif); margin: 34px 0 8px; padding-top: 10px; border-top: 2px solid var(--deep); }
+  .note { color: var(--muted); max-width: 54rem; margin-bottom: 10px; }
+  .cap { font-size: .85rem; color: var(--muted); margin-top: 6px; max-width: 560px; }
+  .win { width: min(560px, 100%); border: 3px solid var(--deep); border-radius: 6px; background: var(--cream); box-shadow: 8px 8px 0 rgba(30,20,13,.25); }
+  .wt { padding: 9px 14px; background: var(--sand); border-bottom: 3px solid var(--deep); display: flex; justify-content: space-between; font-weight: 700; }
+  .wt span:last-child { font-weight: 400; }
+  .wb { padding: 14px 18px; display: flex; flex-direction: column; gap: 10px; }
+  .card { background: var(--paper); border: 1px solid var(--line2); border-radius: 6px; padding: 10px 12px; }
+  .card b { font-family: var(--serif); }
+  .need { font-size: .9rem; } .need .ok { color: var(--mint-line); } .need .no { color: var(--cinnamon); }
+  .odds { font-size: .85rem; color: var(--muted); }
+  .btn { font: 700 15px var(--sans); border: 2px solid var(--deep); background: var(--honey); color: var(--deep); border-radius: 6px; padding: 7px 16px; box-shadow: 3px 3px 0 var(--deep); }
+  .stitches { display: flex; gap: 4px; flex-wrap: wrap; }
+  .stitches span { width: 20px; height: 8px; border-radius: 2px; background: #EADBBE; }
+  .stitches .even { background: var(--mint-line); }
+  .flow { display: flex; gap: 8px; flex-wrap: wrap; align-items: stretch; }
+  .flow .st { background: var(--paper); border: 2px solid var(--deep); border-radius: 6px; padding: 8px 12px; flex: 1 1 150px; }
+  .flow .st b { font-family: var(--serif); display: block; }
+  .flow .ar { align-self: center; font-weight: 700; color: var(--cinnamon); }
+  .chat { width: min(480px, 100%); background: var(--paper); border: 2px solid var(--deep); padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .sys { align-self: flex-start; background: var(--sand); border-radius: 4px 14px 14px 14px; padding: 6px 12px; }
+  .me { align-self: flex-end; background: var(--mint); border-radius: 14px 4px 14px 14px; padding: 6px 12px; }
+  .row { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+  table { border-collapse: collapse; width: 100%; background: var(--paper); font-size: .94rem; }
+  th, td { border-bottom: 1px dashed var(--line2); padding: 7px 9px; text-align: left; vertical-align: top; }
+  th { border-bottom: 2px solid var(--deep); }
+  .tw { overflow-x: auto; }
+  del { color: var(--muted); }
+</style></head>
+<body><div class="wrap">
+<h1>가죽 제작 시안 (단순하게)</h1>
+<p class="note">멧돼지 가죽을 그대로 꿰매서 장화, 조끼, 갑옷을 짓습니다. 한 번 누르면 한 땀이고, 정해진 땀 수를 채우면 끝납니다. 가죽은 쇠처럼 식지 않으니 서두를 것도 박자를 맞출 것도 없습니다.</p>
+
+<h2>1. 흐름</h2>
+<div class="flow">
+  <div class="st"><b>멧돼지 가죽</b>사냥해서 얻는다</div>
+  <div class="ar">→</div>
+  <div class="st"><b>바느질</b>대장간에서. 설계도마다 10~16땀</div>
+  <div class="ar">→</div>
+  <div class="st"><b>가죽 장비</b>등급이 붙어 나온다</div>
+</div>
+<p class="cap">빠진 것: <del>무두질(긁기·통에 하룻밤)</del>, <del>무두질한 가죽</del>, <del>박자 맞추기(고른 땀)</del>, <del>실타래</del>.</p>
+
+<h2>2. 바느질 창</h2>
+<div class="row">
+  <div class="win">
+    <div class="wt"><span>바느질 · 가죽 설계도</span><span>닫기</span></div>
+    <div class="wb">
+      <div class="card"><b>가죽 장화</b> · 땀 10번
+        <div class="need">멧돼지 가죽 <span class="ok">3 / 2</span></div>
+        <div class="odds">일반 52 · 고급 30 · 희귀 14 · 영웅 3.5 · 전설 0.5</div>
+        <button class="btn" type="button" style="margin-top:6px">제작</button></div>
+      <div class="card"><b>가죽 조끼</b> · 땀 12번
+        <div class="need">멧돼지 가죽 <span class="ok">3 / 3</span></div></div>
+      <div class="card"><b>가죽 갑옷</b> · 땀 16번
+        <div class="need">멧돼지 가죽 <span class="no">3 / 5</span> · 철광석 <span class="ok">24 / 2</span></div></div>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:12px;width:min(480px,100%)">
+    <div class="card"><b>가죽 장화</b> 땀 4 / 10.
+      <div class="stitches" style="margin:6px 0" aria-label="뜬 땀 4, 남은 땀 6"><span class="even"></span><span class="even"></span><span class="even"></span><span class="even"></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      <div class="odds">끝까지 뜨면 나올 등급: 일반 52%, 고급 30%, 희귀 14%, 영웅 3.5%, 전설 0.5%</div></div>
+    <div class="chat">
+      <div class="me">가죽을 본에 맞춰 자르고 바늘에 실을 꿰었다.</div>
+      <div class="me">송곳으로 구멍을 내고 실을 당겼다. (4 / 10)</div>
+      <div class="sys">마지막 땀을 매듭지었다. 가죽 장화가 다 지어졌다.</div>
+    </div>
+  </div>
+</div>
+<p class="cap">단축 칸은 "한 땀 n / 10"과 "그만둔다" 둘입니다. 등급은 가죽 숙련도와 가죽의 품질로만 움직입니다.</p>
+
+<h2>3. 만드는 것</h2>
+<div class="tw"><table>
+  <tr><th>이름</th><th>부위</th><th>방어</th><th>내구도</th><th>무게</th><th>재료</th></tr>
+  <tr><td>가죽 장화</td><td>발</td><td>3</td><td>60</td><td>1</td><td>멧돼지 가죽 2</td></tr>
+  <tr><td>가죽 조끼</td><td>몸</td><td>5</td><td>70</td><td>3</td><td>멧돼지 가죽 3</td></tr>
+  <tr><td>가죽 갑옷</td><td>몸</td><td>8</td><td>100</td><td>5</td><td>멧돼지 가죽 5 · 철광석 2</td></tr>
+</table></div>
+<p class="cap">누구나 입을 수 있습니다. 새 숙련도 "가죽"이 오르고, 무두장이 출신은 조금 빨리 오릅니다.</p>
+</div></body></html>

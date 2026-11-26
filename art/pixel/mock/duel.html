@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>모험가 싸움 시안</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  :root { --cream: #FBF5E6; --paper: #FFFDF6; --sand: #F3E9D2; --line2: #CDBE9E; --ink: #3A2A1E; --muted: #6B5443; --deep: #1E140D; --cinnamon: #8A4F2B; --mint-line: #2F7A5E; --mint: #CFE8DC; --honey: #F2B63C; --serif: 'Gowun Batang', serif; --sans: 'Gowun Dodum', sans-serif; }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--cream); color: var(--ink); font: 16px/1.65 var(--sans); padding: 24px 16px 60px; word-break: keep-all; }
+  .wrap { max-width: 960px; margin: 0 auto; }
+  h1 { font: 700 27px/1.3 var(--serif); margin-bottom: 6px; }
+  h2 { font: 700 20px/1.3 var(--serif); margin: 34px 0 8px; padding-top: 10px; border-top: 2px solid var(--deep); }
+  .note { color: var(--muted); max-width: 54rem; margin-bottom: 10px; }
+  .cap { font-size: .85rem; color: var(--muted); margin-top: 6px; max-width: 560px; }
+  .win { width: min(560px, 100%); border: 3px solid var(--deep); border-radius: 6px; background: var(--cream); box-shadow: 8px 8px 0 rgba(30,20,13,.25); }
+  .wt { padding: 9px 14px; background: var(--sand); border-bottom: 3px solid var(--deep); display: flex; justify-content: space-between; font-weight: 700; }
+  .wt span:last-child { font-weight: 400; }
+  .wb { padding: 14px 18px; display: flex; flex-direction: column; gap: 10px; }
+  .muted { color: var(--muted); font-size: .9rem; }
+  .op { display: block; width: 100%; text-align: left; font: 700 16px var(--sans); border: 2px solid var(--deep); background: var(--paper); border-radius: 8px; padding: 8px 12px; color: var(--ink); }
+  .op small { display: block; font-weight: 400; font-size: .85rem; color: var(--muted); }
+  .op.go { background: var(--cinnamon); color: #fff; } .op.go small { color: #F3E9D2; }
+  .new { outline: 2px dashed var(--honey); outline-offset: 3px; border-radius: 6px; }
+  .fight { background: var(--paper); border: 2px solid var(--deep); padding: 10px 14px; width: min(560px, 100%); }
+  .bar { height: 12px; background: #EADBBE; border: 1px solid var(--line2); margin: 6px 0; }
+  .bar i { display: block; height: 100%; background: var(--cinnamon); }
+  .chat { width: min(480px, 100%); background: var(--paper); border: 2px solid var(--deep); padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .sys { align-self: flex-start; background: var(--sand); border-radius: 4px 14px 14px 14px; padding: 6px 12px; }
+  .sys.warn { background: #F1D9C6; }
+  .sys.mint { background: var(--mint); }
+  .user { align-self: flex-start; background: #fff; border: 1px solid var(--line2); border-radius: 4px 14px 14px 14px; padding: 6px 12px; }
+  .user b { display: block; font-size: .8rem; color: var(--muted); }
+  .me { align-self: flex-end; background: var(--mint); border-radius: 14px 4px 14px 14px; padding: 6px 12px; }
+  .row { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+  table { border-collapse: collapse; width: 100%; background: var(--paper); font-size: .94rem; }
+  th, td { border-bottom: 1px dashed var(--line2); padding: 7px 9px; text-align: left; vertical-align: top; }
+  th { border-bottom: 2px solid var(--deep); }
+  .tw { overflow-x: auto; }
+</style></head>
+<body><div class="wrap">
+<h1>모험가 싸움 시안</h1>
+<p class="note">기척을 짐승인 줄 알고 덮쳤는데 사람이었을 때, 사과하거나 달아나는 것 말고 <b>마저 치는</b> 길이 생깁니다. 노란 점선이 새로 생기는 곳입니다. 이미 만들어 둔 대로 그렸습니다.</p>
+
+<h2>1. 고르는 창</h2>
+<div class="win">
+  <div class="wt"><span>사람이었다 · 잘못 덮쳤다</span><span>닫기</span></div>
+  <div class="wb">
+    <p>덤불에서 뛰쳐나가 내리쳤는데, 비명이 사람 소리다. 모험가 '은여우'가 어깨를 감싸 쥐고 주저앉았다.</p>
+    <button class="op go" type="button">사과하고 치료비를 낸다<small>은화 200 (내 레벨 × 10)</small></button>
+    <button class="op" type="button">모른 척 달아난다<small>이 근처 마을 명성 −20, 소문이 돈다</small></button>
+    <div class="new"><button class="op" type="button">공격한다<small>레벨 5쯤. 이기면 가진 것을 빼앗고 살인의 추억(2일), 지면 죽는다</small></button></div>
+    <p class="muted">은화가 모자라면 가진 만큼 내고, 명성이 5 깎인다.</p>
+  </div>
+</div>
+<p class="cap">치료비가 모자라도 고를 수 있습니다. "레벨 5쯤"은 그 들판에서 가장 센 짐승의 레벨입니다. 서쪽 숲이면 성난 멧돼지(5)입니다.</p>
+
+<h2>2. 싸움</h2>
+<div class="row">
+  <div class="fight new">
+    <div><b>모험가 '은여우'</b> 레벨 5, 1턴째</div>
+    <div class="bar" role="img" aria-label="적 생명력 72 / 72"><i style="width:100%"></i></div>
+    <div class="muted">적 생명력 72 / 72</div>
+    <div><span class="muted">다음 행동</span> <b>내려치기</b>. 상대가 검을 머리 위로 치켜든다. 방어하면 막고 반격합니다.</div>
+  </div>
+  <div class="chat">
+    <div class="me">사과 대신 무기를 다시 들었다.</div>
+    <div class="user"><b>모험가 '은여우'</b>그래, 그렇게 나오시겠다? 좋아요. 끝을 봅시다.</div>
+    <div class="sys">상대가 검을 고쳐 쥔다.</div>
+  </div>
+</div>
+<div class="tw" style="margin-top:12px"><table>
+  <tr><th>상대</th><th>셈</th></tr>
+  <tr><td>세기</td><td>그 들판의 가장 센 짐승: 생명력 ×1.2, 공격 ×1.1, 경험치 ×2. 날마다 오르는 사나움도 받는다</td></tr>
+  <tr><td>기술</td><td>베기(보통, 피 흘림이 걸릴 때가 있음) · 내려치기(큰 한 방) · 숨 고르기(틈)</td></tr>
+  <tr><td>달아나기</td><td>여느 싸움처럼 된다. 달아나면 살아남은 상대가 소문을 내 명성 −20</td></tr>
+</table></div>
+
+<h2>3. 이기면</h2>
+<div class="row">
+  <div class="win" style="width:min(420px,100%)">
+    <div class="wt"><span>띠링! · 귀함</span><span>닫기</span></div>
+    <div class="wb"><b>모험가 '은여우'를 쓰러뜨렸습니다</b><span>빼앗은 것: 은화 102, 장비 1점.</span></div>
+  </div>
+  <div class="chat">
+    <div class="sys">모험가 '은여우'가 쓰러졌다.</div>
+    <div class="sys">쓰러진 모험가의 짐을 풀었다.</div>
+    <div class="sys mint">떨어진 것: 구리 검 (일반).</div>
+    <div class="sys">얻은 것: 경험치 240, 은화 102, 장비 1점.</div>
+    <div class="sys warn">본 사람은 없다. 소문은 나지 않을 것이다. 살인의 추억: 쓰러뜨린 얼굴이 자꾸 떠오른다. 공격력·방어력 −5%. 2일 동안.</div>
+  </div>
+</div>
+<p class="cap">은화는 상대 레벨 × 20~40, 장비는 1~2점입니다. 장비 등급은 이름난 개체가 떨구는 것과 같은 굴림입니다(일반 35, 고급 35, 희귀 20, 영웅 8, 전설 2). 멧돼지 사냥 의뢰나 도감에는 세지 않습니다. 상태창 "걸린 효과"에 "디버프: 살인의 추억 … n일째 낮까지"로 보입니다.</p>
+
+<h2>4. 지면</h2>
+<div class="chat">
+  <div class="sys warn">모험가 '은여우'에게 졌다.</div>
+  <div class="sys">여느 싸움에서 진 것과 같이 쓰러진다(죽음).</div>
+</div>
+</div></body></html>

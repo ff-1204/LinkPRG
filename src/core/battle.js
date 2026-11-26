@@ -1,25 +1,27 @@
 // 전투 (E5~E9, R2-2). 한 턴에 행동 하나. 적의 다음 행동은 늘 미리 보인다.
 // 방어하면 피해가 절반이고, 돌진류는 막고 되받아친다.
 
-import { next, chance } from './rng.js?v=9c14cbd';
-import { pushLine, ding } from './log.js?v=9c14cbd';
-import { monsterDef, STATUS } from '../data/monsters.js?v=9c14cbd';
-import { itemDef, ITEMS, gradeName } from '../data/items.js?v=9c14cbd';
-import { roll01 } from './rng.js?v=9c14cbd';
-import { guildPerk } from './guild.js?v=9c14cbd';
-import { rollOptions, gearName } from './gear.js?v=9c14cbd';
-import { derived, skillBonus } from './derived.js?v=9c14cbd';
-import { addItem, removeAt, usable, totalWeight, equip, slotFor, equipPower } from './inventory.js?v=9c14cbd';
-import { grantXp } from './reward.js?v=9c14cbd';
-import { useSkill, emptySkill, gradeLabel, SKILL_NAMES } from './skills.js?v=9c14cbd';
-import { fall } from './fall.js?v=9c14cbd';
-import { iGa, eulReul, ro } from './ko.js?v=9c14cbd';
-import { branchOf } from './evolve.js?v=9c14cbd';
-import { skillsNow, jobXp, adv } from './jobs.js?v=9c14cbd';
-import { guardFor, hitCompanion, companionsAct, afterBattle, roleBonus, cross } from './party.js?v=9c14cbd';
-import { jobDef } from '../data/jobs.js?v=9c14cbd';
-import { BEATS, WEAK_MULT, RESIST_MULT } from '../data/dungeon.js?v=9c14cbd';
-import { HUNGRY } from '../data/wild.js?v=9c14cbd';
+import { next, chance } from './rng.js?v=d58cb06';
+import { pushLine, ding } from './log.js?v=d58cb06';
+import { monsterDef, STATUS } from '../data/monsters.js?v=d58cb06';
+import { itemDef, ITEMS, gradeName } from '../data/items.js?v=d58cb06';
+import { roll01 } from './rng.js?v=d58cb06';
+import { guildPerk } from './guild.js?v=d58cb06';
+import { rollOptions, gearName } from './gear.js?v=d58cb06';
+import { derived, skillBonus } from './derived.js?v=d58cb06';
+import { addItem, removeAt, usable, totalWeight, equip, slotFor, equipPower } from './inventory.js?v=d58cb06';
+import { grantXp } from './reward.js?v=d58cb06';
+import { useSkill, emptySkill, gradeLabel, SKILL_NAMES } from './skills.js?v=d58cb06';
+import { fall } from './fall.js?v=d58cb06';
+import { iGa, eulReul, ro } from './ko.js?v=d58cb06';
+import { branchOf } from './evolve.js?v=d58cb06';
+import { skillsNow, jobXp, adv } from './jobs.js?v=d58cb06';
+import { guardFor, hitCompanion, companionsAct, afterBattle, roleBonus, cross } from './party.js?v=d58cb06';
+import { jobDef } from '../data/jobs.js?v=d58cb06';
+import { BEATS, WEAK_MULT, RESIST_MULT } from '../data/dungeon.js?v=d58cb06';
+import { HUNGRY, DUEL, DUEL_MOVES } from '../data/wild.js?v=d58cb06';
+import { addFame } from './social.js?v=d58cb06';
+import { giveMurder, MURDER } from './buffs.js?v=d58cb06';
 
 /** 사나움 (Z60): 세계의 날마다 괴물의 생명·공격과 경험치·떨굼 확률이 조금씩 오른다. 끝이 없다. 우두머리·던전도 같다. */
 export const FIERCE_PER = 0.0005;
@@ -34,6 +36,8 @@ function mdef(b) {
   // 이름난 개체: 많이 잡은 사냥감 가운데 드물게 나온다. 훨씬 세고, 잡으면 장비를 떨어뜨린다
   if (b.elite) m = { ...m, name: `이름난 ${m.name}`, hp: Math.round(m.hp * ELITE.hp), attack: Math.round(m.attack * ELITE.attack), defense: m.defense + ELITE.defense, level: m.level + ELITE.level, xp: m.xp * ELITE.xp };
   if (b.hungry) m = { ...m, name: `굶주린 ${m.name}`, hp: Math.round(m.hp * HUNGRY.hp), attack: Math.round(m.attack * HUNGRY.attack), xp: m.xp * HUNGRY.xp }; // 먹잇감 냄새를 맡고 온 놈 (Z64)
+  // 모험가 (Z72): 그 들판에서 가장 센 짐승만큼 세다. 사람의 기술을 쓰고, 떨굼 대신 가진 것을 빼앗긴다
+  if (b.person) m = { ...m, name: `모험가 '${b.person}'`, element: null, hp: Math.round(m.hp * DUEL.hp), attack: Math.round(m.attack * DUEL.attack), xp: m.xp * DUEL.xp, moves: DUEL_MOVES, drops: [], phases: null };
   const f = b.fierce || 1; // 싸움이 시작된 날의 사나움
   if (f !== 1) m = { ...m, hp: Math.round(m.hp * f), attack: Math.round(m.attack * f), xp: Math.round(m.xp * f), drops: (m.drops || []).map((d) => ({ ...d, p: Math.min(1, d.p * f) })) };
   return m;
@@ -101,21 +105,23 @@ function damage(state, attack, power, defense) {
   return Math.max(1, Math.round(base * (0.9 + next(state) * 0.2)));
 }
 
-export function startBattle(state, events, monId, { ambush = false, pounce = false, caught = false, hungry = false } = {}) {
+export function startBattle(state, events, monId, { ambush = false, pounce = false, caught = false, hungry = false, person = null } = {}) {
   const m = monsterDef(monId);
   const seenN = (state.counters.fights = (state.counters.fights || 0) + 1);
-  const elite = !hungry && roll01(`${state.seed}|elite|${monId}|${seenN}`) < eliteChance(state, monId);
+  const elite = !hungry && !person && roll01(`${state.seed}|elite|${monId}|${seenN}`) < eliteChance(state, monId);
   // stun·weak·burn: 내 스킬이 적에게 건 것. ward: 내 몸을 감싼 것. streak: 같은 공격을 이어 한 횟수.
   state.battle = { mon: monId, hp: 0, turn: 1, intent: null, stun: 0, weak: null, burn: 0, ward: null, streak: 0, phase: 0 };
   if (elite) state.battle.elite = true;
   if (hungry) state.battle.hungry = true;
+  if (person) state.battle.person = person;
   const f = fierceOf(state.day);
   if (f !== 1) state.battle.fierce = f;
   state.battle.hp = mdef(state.battle).hp;
   state.status = [];
   state.choice = null;
   state.lastAction = null;
-  pushLine(state, events, { k: 'room', who: '전투', text: hungry ? `${iGa(`굶주린 ${m.name}`)} 이빨을 드러낸다. 입가가 붉다.` : m.intro });
+  if (person) pushLine(state, events, { k: 'user', who: `모험가 '${person}'`, text: '그래, 그렇게 나오시겠다? 좋아요. 끝을 봅시다.' });
+  else pushLine(state, events, { k: 'room', who: '전투', text: hungry ? `${iGa(`굶주린 ${m.name}`)} 이빨을 드러낸다. 입가가 붉다.` : m.intro });
   if (elite) pushLine(state, events, { k: 'sys', text: `여느 놈이 아니다. 몸집이 크고 눈빛이 다르다. 이름난 ${m.name}다.`, tone: 'warn' });
   events.push({ type: 'battle', phase: 'start', mon: monId });
   if (pounce) {
@@ -401,7 +407,13 @@ function win(state, events) {
     addItem(state, d.id, 1);
     got.push(`${itemDef(d.id).name} 1`);
   }
+  if (b.person) got.push(...duelSpoils(state, events, m));
   pushLine(state, events, { k: 'sys', text: `얻은 것: ${got.join(', ')}.` });
+  if (b.person) {
+    // 보는 사람이 없으니 소문은 나지 않는다. 대신 이틀 동안 그 얼굴이 떠오른다 (Z72)
+    giveMurder(state);
+    pushLine(state, events, { k: 'sys', tone: 'warn', text: `본 사람은 없다. 소문은 나지 않을 것이다. ${MURDER.name}: ${MURDER.text}. ${MURDER.days}일 동안.` });
+  }
   if (b.elite) {
     dropGear(state, events);
     ding(state, events, { level: 2, title: `${eulReul(m.name)} 쓰러뜨렸습니다`, body: '많이 잡아 본 사냥감 가운데 드물게 나오는 놈입니다. 장비를 떨어뜨립니다.' });
@@ -409,14 +421,33 @@ function win(state, events) {
   const maxHp = val(state, 'maxHp');
   if (state.hp <= maxHp * 0.1) state.counters.nearDeath += 1;
   if (m.level >= before + 5) state.counters.bigWins += 1;
-  state.dex.mon[b.mon] = { ...(state.dex.mon[b.mon] || { seen: 0, lost: 0 }), won: (state.dex.mon[b.mon]?.won || 0) + 1 };
+  if (!b.person) state.dex.mon[b.mon] = { ...(state.dex.mon[b.mon] || { seen: 0, lost: 0 }), won: (state.dex.mon[b.mon]?.won || 0) + 1 };
   state.battle = null;
   state.status = [];
   state.calm = 2;
   state.tension[state.place] = 0;
   afterBattle(state, events, true);
   grantXp(state, events, Math.round(m.xp * (1 + guildPerk(state, 'fight'))));
-  events.push({ type: 'battle', phase: 'win', mon: b.mon, elite: !!b.elite });
+  events.push({ type: 'battle', phase: 'win', mon: b.person ? null : b.mon, person: b.person || null, elite: !!b.elite }); // 모험가는 사냥 의뢰에 세지 않는다 (Z72)
+}
+
+/** 쓰러뜨린 모험가가 가진 것 (Z72): 장비 한두 점과 은화(상대 레벨 × 20~40). */
+function duelSpoils(state, events, m) {
+  const n = (state.counters.duels = (state.counters.duels || 0) + 1);
+  const silver = Math.round(m.level * (DUEL.silver[0] + roll01(`${state.seed}|duelsilver|${n}`) * (DUEL.silver[1] - DUEL.silver[0])));
+  state.silver += silver;
+  const gears = DUEL.gear[0] + Math.floor(roll01(`${state.seed}|duelgear|${n}`) * (DUEL.gear[1] - DUEL.gear[0] + 1));
+  pushLine(state, events, { k: 'room', text: '쓰러진 모험가의 짐을 풀었다.' });
+  for (let i = 0; i < gears; i++) dropGear(state, events);
+  ding(state, events, { level: 3, title: `${eulReul(m.name)} 쓰러뜨렸습니다`, body: `빼앗은 것: 은화 ${silver}, 장비 ${gears}점.` });
+  return [`은화 ${silver}`, `장비 ${gears}점`];
+}
+
+/** 사람을 치고 달아난 소문 (Z72): 살아남은 모험가가 떠들고 다닌다. 그 근처 마을 명성이 깎인다. */
+function duelRumor(state, events, did) {
+  addFame(state, events, -DUEL.fame);
+  state.flags.hitRun = { place: state.place, day: state.day };
+  pushLine(state, events, { k: 'sys', tone: 'warn', text: `모험가를 ${did} 일이 퍼질 것이다. 이 근처 마을 명성 −${DUEL.fame}.` });
 }
 
 /** 싸우다 곯아떨어졌다 (Z65): 적 앞에서 잠든 몸은 그대로 쓰러진다. */
@@ -431,7 +462,7 @@ export function dozeInBattle(state, events) {
 function lose(state, events) {
   const b = state.battle;
   const m = b ? mdef(b) : null;
-  if (b) state.dex.mon[b.mon] = { ...(state.dex.mon[b.mon] || { seen: 0, won: 0 }), lost: (state.dex.mon[b.mon]?.lost || 0) + 1 };
+  if (b && !b.person) state.dex.mon[b.mon] = { ...(state.dex.mon[b.mon] || { seen: 0, won: 0 }), lost: (state.dex.mon[b.mon]?.lost || 0) + 1 };
   events.push({ type: 'battle', phase: 'lose', mon: b?.mon });
   afterBattle(state, events, false);
   // 다시 일어선 몸 (Z30): 나보다 레벨이 같거나 높은 적의 생명력을 30% 넘게 깎고 쓰러졌는가
@@ -469,6 +500,7 @@ export function battleAct(state, events, choice, arg) {
   if (choice === 'flee' && !stunned) {
     if (chance(state, fleeChance(state))) {
       pushLine(state, events, { k: 'me', text: '등을 돌려 달아났다.' });
+      if (b.person) duelRumor(state, events, '치고 달아난');
       state.battle = null;
       state.status = [];
       state.calm = 2;

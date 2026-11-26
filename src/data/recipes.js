@@ -32,6 +32,25 @@ RECIPES.chisel = {
 
 export const RECIPE_ORDER = ['coppersword', 'ironsword', 'chisel'];
 
+/** 가죽 (Z71). 멧돼지 가죽을 그대로 꿰맨다. 한 번 누르면 한 땀. 가죽은 식지 않는다. */
+RECIPES.leatherboots = {
+  id: 'leatherboots', name: '가죽 장화', makes: 'leatherboots', skill: 'leather', difficulty: 2, hits: 10, sew: true,
+  needs: [{ id: 'boarhide', n: 2 }],
+  say: '발목까지 감싸는 장화. 처음 꿰매 보기에 좋다.',
+};
+RECIPES.leathervest = {
+  id: 'leathervest', name: '가죽 조끼', makes: 'leathervest', skill: 'leather', difficulty: 3, hits: 12, sew: true,
+  needs: [{ id: 'boarhide', n: 3 }],
+  say: '가죽 두 겹을 꿰맨 조끼.',
+};
+RECIPES.leatherarmor = {
+  id: 'leatherarmor', name: '가죽 갑옷', makes: 'leatherarmor', skill: 'leather', difficulty: 5, hits: 16, sew: true,
+  needs: [{ id: 'boarhide', n: 5 }, { id: 'ironore', n: 2 }],
+  say: '겹 사이에 쇠 징을 박는다. 땀이 많다.',
+};
+export const SEW_ORDER = ['leatherboots', 'leathervest', 'leatherarmor'];
+export const STITCH_LINES = ['바늘을 찔렀다. 실이 팽팽하다.', '송곳으로 구멍을 내고 실을 당겼다.', '한 땀 떴다. 가죽이 질기다.', '바늘 끝이 손가락을 스쳤다.'];
+
 /** 망치질 줄. 몇 번째인지에 따라 다르다. */
 export const HAMMER_LINES = [
   '망치를 내리쳤다. 불똥이 튄다.',

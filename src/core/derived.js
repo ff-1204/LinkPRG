@@ -1,8 +1,8 @@
 // 계산된 값과 그 셈 (R2-1, R2-2, G2-2). 누르면 셈이 풀려 보인다.
 
-import { equipPower } from './inventory.js?v=9c14cbd';
-import { buffOf, foodBuff, restBuff, graceBuff } from './buffs.js?v=9c14cbd';
-import { ADVANCED } from '../data/jobs.js?v=9c14cbd';
+import { equipPower } from './inventory.js?v=d58cb06';
+import { buffOf, foodBuff, restBuff, graceBuff, murderBuff } from './buffs.js?v=d58cb06';
+import { ADVANCED } from '../data/jobs.js?v=d58cb06';
 
 /** 숙련 보너스: 등급 두 칸마다 1. */
 export function skillBonus(skill) {
@@ -63,6 +63,15 @@ export function derived(state) {
   const slept = state.buffs ? restBuff(state) : null;
   // 신의 가호 (Z43): 공격력·방어력 +5%
   const grace = state.buffs ? graceBuff(state) : null;
+  // 살인의 추억 (Z72): 공격력·방어력 −5%
+  const murder = state.buffs ? murderBuff(state) : null;
+  if (murder) {
+    for (const d of list) {
+      if (d.id !== 'attack' && d.id !== 'defense') continue;
+      const sum = d.parts.reduce((a, p) => a + p.value, 0);
+      addTo(d.id, `${murder.name} ${Math.round(sum * murder.power)}`, Math.round(sum * murder.power));
+    }
+  }
   if (grace) {
     for (const d of list) {
       if (d.id !== 'attack' && d.id !== 'defense') continue;

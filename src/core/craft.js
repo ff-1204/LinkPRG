@@ -2,20 +2,24 @@
 // 쇠는 식는다. 얼마나 늦었는지는 화면이 재서 알려 주고(late), 규칙은 그 값만 본다.
 // 그래서 같은 씨앗과 같은 입력이면 늘 같은 결과가 나온다.
 
-import { next } from './rng.js?v=9c14cbd';
-import { rollOptions } from './gear.js?v=9c14cbd';
-import { pushLine, ding } from './log.js?v=9c14cbd';
-import { countOf, takeById, addItem } from './inventory.js?v=9c14cbd';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=9c14cbd';
-import { itemDef, GRADES } from '../data/items.js?v=9c14cbd';
-import { RECIPES, RECIPE_ORDER, GRADE_BASE, PUSH, HAMMER_LINES, HAMMER_MARKS, recipeById } from '../data/recipes.js?v=9c14cbd';
-import { branchOf } from './evolve.js?v=9c14cbd';
-import { iGa, eulReul } from './ko.js?v=9c14cbd';
-import { jobXp } from './jobs.js?v=9c14cbd';
-import { jobDef } from '../data/jobs.js?v=9c14cbd';
-import { hasTitle } from './titles.js?v=9c14cbd';
+import { next } from './rng.js?v=d58cb06';
+import { rollOptions } from './gear.js?v=d58cb06';
+import { pushLine, ding } from './log.js?v=d58cb06';
+import { countOf, takeById, addItem } from './inventory.js?v=d58cb06';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=d58cb06';
+import { itemDef, GRADES } from '../data/items.js?v=d58cb06';
+import { RECIPES, RECIPE_ORDER, GRADE_BASE, PUSH, HAMMER_LINES, HAMMER_MARKS, recipeById, STITCH_LINES } from '../data/recipes.js?v=d58cb06';
+import { branchOf } from './evolve.js?v=d58cb06';
+import { placeById } from '../data/places.js?v=d58cb06';
+import { iGa, eulReul } from './ko.js?v=d58cb06';
+import { jobXp } from './jobs.js?v=d58cb06';
+import { jobDef } from '../data/jobs.js?v=d58cb06';
+import { hasTitle } from './titles.js?v=d58cb06';
 
 export const WORK_XP = 1.5; // 일하는 직업이 맞으면 그 숙련도가 빨리 오른다 (T7)
+export const TANNER_XP = 1.2; // 무두장이 출신은 가죽 숙련도가 조금 빨리 오른다 (Z71)
+
+const tanner = (state) => state.origin === 'tanner' || !!state.flags?.hideSeller;
 
 /** 재료의 품질: 가방에서 쓰일 재료들의 평균 등급. */
 function qualityOf(state, recipe) {
@@ -42,8 +46,9 @@ export function pushOf(state, recipe, warmHits, quality) {
     { label: `${SKILL_NAMES[recipe.skill]} 숙련도`, value: skill * PUSH.perSkillGrade },
     { label: '손재주', value: craft * PUSH.perCraft, hidden: true },
     { label: '재료 품질', value: quality * PUSH.perQuality },
-    { label: `식기 전에 친 횟수 ${warmHits} / ${recipe.hits}`, value: (warmHits / recipe.hits) * PUSH.warm },
   ];
+  // 가죽은 식지 않는다: 땀 수만 센다 (Z71)
+  if (!recipe.sew) parts.push({ label: `식기 전에 친 횟수 ${warmHits} / ${recipe.hits}`, value: (warmHits / recipe.hits) * PUSH.warm });
   if (branch?.push) parts.push({ label: branch.name, value: branch.push });
   const job = jobDef(state.job);
   if (job?.push) parts.push({ label: job.name, value: job.push });
@@ -58,14 +63,14 @@ export function gradeOdds(push) {
 }
 
 /** 설계도 목록과, 지금 만들 수 있는지 (제작 창이 그린다). */
-export function recipeList(state) {
-  return RECIPE_ORDER.map((id) => {
+export function recipeList(state, order = RECIPE_ORDER) {
+  return order.map((id) => {
     const r = RECIPES[id];
     const needs = r.needs.map((n) => ({ id: n.id, name: itemDef(n.id).name, n: n.n, have: countOf(state, n.id) }));
     const quality = qualityOf(state, r);
     return {
       id, name: r.name, say: r.say, hits: r.hits, needs, can: needs.every((n) => n.have >= n.n),
-      // 두드리기 전에 보이는 확률: 하나도 식히지 않았을 때와 모두 식혔을 때
+      // 두드리기 전에 보이는 확률: 하나도 식히지 않았을 때와 모두 식혔을 때 (가죽은 둘이 같다)
       best: gradeOdds(pushOf(state, r, r.hits, quality).total),
       worst: gradeOdds(pushOf(state, r, 0, quality).total),
     };
@@ -80,7 +85,7 @@ export function craftView(state) {
   const left = r.hits - c.hits;
   const push = pushOf(state, r, c.warm + left, c.quality); // 다시 달구고 끝까지 치면
   return {
-    recipe: r.id, name: r.name, hits: c.hits, total: r.hits, warm: c.warm, cold: c.cold,
+    recipe: r.id, name: r.name, hits: c.hits, total: r.hits, warm: c.warm, cold: c.cold, kind: r.sew ? 'sew' : 'smith',
     stage: c.hits >= 9 ? 3 : c.hits >= 4 ? 2 : 1,
     odds: gradeOdds(push.total),
     parts: push.parts.filter((p) => !p.hidden || p.value > 0).map((p) => ({ label: p.label, up: p.value > 0 })),
@@ -90,13 +95,19 @@ export function craftView(state) {
 export function startCraft(state, events, recipeId) {
   if (state.craft) throw new Error('이미 만들고 있는 것이 있습니다');
   const r = recipeById(recipeId);
+  if (r.sew && state.place && !placeById(state.place).actions.includes('sew')) throw new Error('여기서는 가죽을 꿰맬 수 없습니다');
   for (const n of r.needs) if (countOf(state, n.id) < n.n) throw new Error(`${iGa(itemDef(n.id).name)} 모자랍니다 (${countOf(state, n.id)} / ${n.n})`);
   const quality = qualityOf(state, r);
   for (const n of r.needs) takeById(state, n.id, n.n);
   state.craft = { recipe: r.id, hits: 0, warm: 0, cold: false, quality };
   state.lastAction = null;
-  pushLine(state, events, { k: 'me', text: `${r.needs.map((n) => `${itemDef(n.id).name} ${n.n}`).join(', ')}. 화덕에 넣고 풀무를 밟았다.` });
-  pushLine(state, events, { k: 'room', text: '쇠가 붉게 달았다. 식기 전에 쳐야 한다.' });
+  const used = r.needs.map((n) => `${itemDef(n.id).name} ${n.n}`).join(', ');
+  if (r.sew) {
+    pushLine(state, events, { k: 'me', text: `${used}. 가죽을 본에 맞춰 자르고 바늘에 실을 꿰었다.` });
+  } else {
+    pushLine(state, events, { k: 'me', text: `${used}. 화덕에 넣고 풀무를 밟았다.` });
+    pushLine(state, events, { k: 'room', text: '쇠가 붉게 달았다. 식기 전에 쳐야 한다.' });
+  }
   events.push({ type: 'craft', phase: 'start' });
   events.push({ type: 'art' });
 }
@@ -109,6 +120,7 @@ export function hammer(state, events, late = false) {
   const c = state.craft;
   if (!c) throw new Error('만들고 있는 것이 없습니다');
   const r = recipeById(c.recipe);
+  if (r.sew) return stitch(state, events, c, r);
   if (c.cold) throw new Error('쇠가 식었습니다. 다시 달궈야 합니다');
   if (late && c.hits > 0) {
     c.cold = true;
@@ -136,6 +148,31 @@ export function hammer(state, events, late = false) {
   return count;
 }
 
+/** 한 땀 (Z71). 가죽은 식지 않는다. 땀 수만 센다. */
+function stitch(state, events, c, r) {
+  c.hits += 1;
+  c.warm += 1;
+  const repeated = state.lastAction === 'hammer';
+  state.lastAction = 'hammer';
+  const count = (state.counters.act.hammer = (state.counters.act.hammer || 0) + 1);
+  pushLine(state, events, { k: 'me', text: `${STITCH_LINES[Math.floor(next(state) * STITCH_LINES.length)]} (${c.hits} / ${r.hits})` });
+  const skill = state.skills[r.skill] || (state.skills[r.skill] = emptySkill());
+  const endure = state.hidden.endure?.value || 0;
+  const mult = (repeated ? 1 + endure * 0.01 : 1) * (tanner(state) ? TANNER_XP : 1) * jobXp(state, r.skill, repeated);
+  const up = useSkill(skill, r.difficulty, mult);
+  if (up.leveled) ding(state, events, { level: up.rankUp ? 2 : 1, title: `${SKILL_NAMES[r.skill]} 숙련도가 ${iGa(gradeLabel(up.grade))} 되었습니다` });
+  if (c.hits >= r.hits) finish(state, events);
+  events.push({ type: 'art' });
+  return count;
+}
+
+function rollGrade(state, odds) {
+  let roll = next(state) * 100;
+  let grade = 0;
+  for (let i = 0; i < odds.length; i++) { roll -= odds[i]; if (roll < 0) { grade = i; break; } grade = i; }
+  return grade;
+}
+
 /** 식은 쇠를 다시 달군다. 달구는 동안은 친 것으로 쳐 주지 않는다. */
 export function reheat(state, events) {
   const c = state.craft;
@@ -155,7 +192,8 @@ export function quitCraft(state, events) {
   if (!c) throw new Error('만들고 있는 것이 없습니다');
   state.craft = null;
   state.lastAction = null;
-  pushLine(state, events, { k: 'me', text: '망치를 내려놓았다. 반쯤 두드린 쇠는 쓸 수 없게 되었다.' });
+  const r = recipeById(c.recipe);
+  pushLine(state, events, { k: 'me', text: r.sew ? '바늘을 내려놓았다. 반쯤 꿰맨 가죽은 쓸 수 없게 되었다.' : '망치를 내려놓았다. 반쯤 두드린 쇠는 쓸 수 없게 되었다.' });
   events.push({ type: 'craft', phase: 'quit' });
   events.push({ type: 'art' });
 }
@@ -166,9 +204,7 @@ function finish(state, events) {
   const c = state.craft;
   const r = recipeById(c.recipe);
   const odds = gradeOdds(pushOf(state, r, c.warm, c.quality).total);
-  let roll = next(state) * 100;
-  let grade = 0;
-  for (let i = 0; i < odds.length; i++) { roll -= odds[i]; if (roll < 0) { grade = i; break; } grade = i; }
+  const grade = rollGrade(state, odds);
   const branch = branchOf(state, r.skill);
   const item = addItem(state, r.makes, 1, { grade, maker: state.name });
   if (itemDef(r.makes).tool) item.dur = Math.round(item.dur * (1 + 0.5 * grade)); // 도구: 등급마다 내구도 +50%
@@ -183,15 +219,15 @@ function finish(state, events) {
   // 손재주의 재료: 만들 때마다 1, 높은 등급이면 그만큼 더 (Q5)
   state.counters.crafts += 1 + grade;
   const name = itemDef(r.makes).name;
-  pushLine(state, events, { k: 'room', text: `물에 담그자 김이 오른다. ${eulReul(name)} 건져 올렸다.` });
+  pushLine(state, events, { k: 'room', text: r.sew ? `마지막 땀을 매듭지었다. ${iGa(name)} 다 지어졌다.` : `물에 담그자 김이 오른다. ${eulReul(name)} 건져 올렸다.` });
   const legend = grade === 4;
   ding(state, events, {
     level: DING_BY_GRADE[grade], kind: legend ? 'legend' : 'craft',
     title: `${GRADES[grade]} 등급 ${iGa(name)} 만들어졌습니다`, big: legend ? '전설 등급' : `${GRADES[grade]} 등급 ${name}`,
-    body: `만든 이: ${state.name}. 식기 전에 친 횟수 ${c.warm} / ${r.hits}.`,
+    body: `만든 이: ${state.name}. ${r.sew ? `땀 ${r.hits}번.` : `식기 전에 친 횟수 ${c.warm} / ${r.hits}.`}`,
     reason: legend ? `이 확률은 ${odds[4].toFixed(1)}%였습니다` : '',
   });
-  if (grade >= 3) state.journal.push({ day: state.day, phase: state.phase, place: state.place, text: `${GRADES[grade]} 등급 ${iGa(name)} 나왔다. 물에서 건질 때 손이 떨렸다. 자루 밑에 내 이름을 새겼다.`, note: `${GRADES[grade]} 등급을 띄운 날` });
+  if (grade >= 3) state.journal.push({ day: state.day, phase: state.phase, place: state.place, text: r.sew ? `${GRADES[grade]} 등급 ${iGa(name)} 나왔다. 매듭을 지을 때 손이 떨렸다. 안쪽에 내 이름을 꿰맸다.` : `${GRADES[grade]} 등급 ${iGa(name)} 나왔다. 물에서 건질 때 손이 떨렸다. 자루 밑에 내 이름을 새겼다.`, note: `${GRADES[grade]} 등급을 띄운 날` });
   events.push({ type: 'craft', phase: 'done', grade, item: r.makes });
   events.push({ type: 'art' });
 }

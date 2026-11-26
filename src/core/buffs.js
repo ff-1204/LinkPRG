@@ -35,6 +35,18 @@ export function giveGrace(state) {
   return state.buffs.grace;
 }
 
+/** 살인의 추억 (Z72): 모험가를 쓰러뜨리면 이틀 동안 붙는 디버프. 보는 사람이 없어 소문은 나지 않는다. */
+export const MURDER = { id: 'murder', name: '살인의 추억', text: '쓰러뜨린 얼굴이 자꾸 떠오른다. 공격력·방어력 −5%', power: -0.05, days: 2 };
+export function murderBuff(state) {
+  const b = state.buffs?.murder;
+  return live(state, b) ? b : null;
+}
+export function giveMurder(state) {
+  if (!state.buffs) state.buffs = {};
+  state.buffs.murder = { ...MURDER, until: { day: state.day + MURDER.days, phase: state.phase } };
+  return state.buffs.murder;
+}
+
 export function restBuff(state) {
   const b = state.buffs?.rest;
   return live(state, b) ? b : null;
@@ -58,7 +70,7 @@ export function xpBoost(state) {
 /** 상태창의 "지금 걸린 것"에 보일 줄 (M6-3). */
 export function buffRows(state) {
   const out = [];
-  for (const [kind, b] of [['감상', buffOf(state)], ['음식', foodBuff(state)], ['잠', restBuff(state)], ['축복', graceBuff(state)]]) {
+  for (const [kind, b] of [['감상', buffOf(state)], ['음식', foodBuff(state)], ['잠', restBuff(state)], ['축복', graceBuff(state)], ['디버프', murderBuff(state)]]) {
     if (b) out.push({ kind, name: b.name, text: b.text, until: b.until });
   }
   return out;

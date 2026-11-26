@@ -143,3 +143,15 @@ export const INCIDENTS = {
     ] },
   ],
 };
+
+/**
+ * 잘못 덮친 모험가를 마저 친다 (Z72). 상대는 그 들판에서 가장 센 짐승만큼이다.
+ * 이기면 가진 것(장비와 은화)을 빼앗고 살인의 추억(이틀)이 붙는다. 본 사람이 없어 소문은 나지 않는다.
+ * 지면 죽는다. 싸우다 달아나면 살아남은 상대가 소문을 낸다(명성 −fame). 치료비가 모자라도 고를 수 있다.
+ */
+export const DUEL = { hp: 1.2, attack: 1.1, xp: 2, silver: [20, 40], gear: [1, 2], fame: 20 };
+export const DUEL_MOVES = [
+  { id: 'slash', name: '베기', kind: 'hit', power: 1, tell: '상대가 검을 고쳐 쥔다.', say: '상대가 검을 휘둘렀다.', status: { id: 'bleed', turns: 2, chance: 0.25 }, w: 3 },
+  { id: 'heavy', name: '내려치기', kind: 'charge', power: 2.1, tell: '상대가 검을 머리 위로 치켜든다.', say: '상대가 힘껏 내려쳤다.', w: 2 },
+  { id: 'breath', name: '숨 고르기', kind: 'wait', power: 0, tell: '상대가 다친 어깨를 감싸 쥐고 숨을 고른다.', say: '상대가 숨을 골랐다.', w: 1 },
+];

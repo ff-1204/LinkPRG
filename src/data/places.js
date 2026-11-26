@@ -40,7 +40,7 @@ export const PLACES = {
     strip: { day: 'strip-forge-day', night: 'strip-forge-night' },
     stripAlt: '대장간. 굴뚝에서 불티가 오르는 집과 모루',
     users: [4, 6, 2],
-    actions: ['craft', 'bellows', 'shop', 'talk'],
+    actions: ['craft', 'sew', 'bellows', 'shop', 'talk'],
   },
   store: {
     id: 'store', name: '잡화점', town: '시작 마을', danger: '안전',
@@ -242,6 +242,7 @@ export const ACTIONS = {
   boat: { id: 'boat', label: '배를 짓는다', ticks: 0, open: 'boat' },
   offer: { id: 'offer', label: '바친다', ticks: 0, open: 'offer' },
   craft: { id: 'craft', label: '만들기', ticks: 0, open: 'craft' },
+  sew: { id: 'sew', label: '바느질', ticks: 0, open: 'sew' },
   shop: { id: 'shop', label: '상점', ticks: 0, open: 'shop' },
   storage: { id: 'storage', label: '보관함', ticks: 0, open: 'storage' },
   explore: { id: 'explore', label: '탐색', ticks: 3, wild: 'explore' },

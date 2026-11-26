@@ -1,66 +1,67 @@
 // 화면 본체. 규칙(core)을 불러 상태를 고치고, 상태를 그린다.
 // 시안 번호: 화면 틀 D1~D6, 캐릭터 만들기 T1~T3, 상태·스킬 창 G2, 저장·설정 G4, 도움말 H2, 그림 X1·X3.
 
-import { h, pixel, fill, add } from './dom.js?v=9c14cbd';
-import { createWindows } from './windows.js?v=9c14cbd';
-import { loadSettings, saveSettings, applySettings, SETTING_GROUPS } from './settings.js?v=9c14cbd';
-import { playDing } from './sound.js?v=9c14cbd';
-import { HELP } from './help.js?v=9c14cbd';
+import { h, pixel, fill, add } from './dom.js?v=d58cb06';
+import { createWindows } from './windows.js?v=d58cb06';
+import { loadSettings, saveSettings, applySettings, SETTING_GROUPS } from './settings.js?v=d58cb06';
+import { playDing } from './sound.js?v=d58cb06';
+import { HELP } from './help.js?v=d58cb06';
 import {
   createGame, dispatch, usersHere, whenLabel, isNight, scarecrowStage, DING_LEVELS,
   slotsNow, mapView, bodyView, clockOf, enemyView, choiceView, craftView,
-} from '../core/game.js?v=9c14cbd';
-import { recipeList } from '../core/craft.js?v=9c14cbd';
-import { evolveView, pendingEvolves, branchOf } from '../core/evolve.js?v=9c14cbd';
-import { shopView, storeView } from '../core/trade.js?v=9c14cbd';
-import { peopleHere, bondName, helloOf, spokeToday, titleView, peopleDex, fameOf, fameRank } from '../core/social.js?v=9c14cbd';
-import { offersOf, subView, boardView, jobsView, questBook, mainView, hiddenView } from '../core/quests.js?v=9c14cbd';
-import { SUBS } from '../data/quests.js?v=9c14cbd';
-import { jobChoices, jobName, skillsNow, canChooseJob, hiddenJobTraces, advanceView } from '../core/jobs.js?v=9c14cbd';
-import { factionView, leanName } from '../core/factions.js?v=9c14cbd';
-import { sculptMenu, sculptView, worksView, statueOf } from '../core/sculpt.js?v=9c14cbd';
-import { cookMenu } from '../core/cook.js?v=9c14cbd';
-import { buffRows } from '../core/buffs.js?v=9c14cbd';
-import { partyView } from '../core/party.js?v=9c14cbd';
-import { WORK_GRADES } from '../data/works.js?v=9c14cbd';
-import { REGULAR, BONDS } from '../data/people.js?v=9c14cbd';
-import { bondOf } from '../core/social.js?v=9c14cbd';
-import { MERC_FEE, PARTY_MAX } from '../data/companions.js?v=9c14cbd';
-import { roomView, dungeonMap } from '../core/dungeon.js?v=9c14cbd';
-import { noticesView, ranking, rumorsView, sinceLast, markSeen } from '../core/world.js?v=9c14cbd';
-import { auctionView } from '../core/auction.js?v=9c14cbd';
-import { RANKS } from '../data/world.js?v=9c14cbd';
-import { townRooms, BOAT_NEEDS, BOAT_FEE, OFFER_FEE, countOf, regenRate } from '../core/game.js?v=9c14cbd';
-import { townOf } from '../core/social.js?v=9c14cbd';
-import { DUNGEONS } from '../data/dungeon.js?v=9c14cbd';
-import { FAME, TITLES, PEOPLE } from '../data/people.js?v=9c14cbd';
-import { RECIPES } from '../data/recipes.js?v=9c14cbd';
-import { ITEMS } from '../data/items.js?v=9c14cbd';
-import { GRADES } from '../data/items.js?v=9c14cbd';
-import { bagView, tabCounts, previewEquip, iconOf, itemPower, itemWeight, slotFor, equipWeight } from '../core/inventory.js?v=9c14cbd';
-import { BAG_TABS, EQUIP_SLOTS, itemDef, gradeName } from '../data/items.js?v=9c14cbd';
-import { monsterDef } from '../data/monsters.js?v=9c14cbd';
-import { originById, dealOrigins, ROOTS, ORIGIN_GRADES, STAT_NAMES, STAT_USES, rollDice, DICE_TOTAL, DICE_MIN, DICE_FREE_AT } from '../data/origins.js?v=9c14cbd';
-import { placeById, PLACES, TOWN_ORDER, PHASES, ACTIONS, PHASE_TICKS } from '../data/places.js?v=9c14cbd';
-import { SKILL_NAMES, gradeLabel, progress, skillEffect } from '../core/skills.js?v=9c14cbd';
-import { hiddenSlots, foundCount, hiddenTotal, hiddenById } from '../core/hidden.js?v=9c14cbd';
-import { rebirthCarry, rebirthLoss } from '../core/rebirth.js?v=9c14cbd';
-import { createCloud } from './cloud.js?v=9c14cbd';
-import { mailView, unreadMail } from '../core/mail.js?v=9c14cbd';
-import { shadowView, BLESSERS } from '../core/fall.js?v=9c14cbd';
-import { ringView, afterText } from '../core/ending.js?v=9c14cbd';
-import { derived, formula, valueOf } from '../core/derived.js?v=9c14cbd';
-import { saveTo, loadFrom, listSlots, clearSlot, exportText, importText, shouldAutosave, revOf, SaveConflict } from '../core/save.js?v=9c14cbd';
-import { createPressGuard, keyDecision, slotIndex } from '../core/press.js?v=9c14cbd';
-import { createAssist, assistable } from '../core/assist.js?v=9c14cbd';
-import { STANCES, stanceOf, wisResist } from '../core/battle.js?v=9c14cbd';
-import { gearName, optionLines, maxDur, repairCost, enhanceView } from '../core/gear.js?v=9c14cbd';
-import { guildView, DONATE } from '../core/guild.js?v=9c14cbd';
-import { DRINK_HOSTS } from '../core/social.js?v=9c14cbd';
-import { TEACHERS, learnableHere, KNOWN_BOND } from '../core/work.js?v=9c14cbd';
-import { rootOf } from '../data/origins.js?v=9c14cbd';
-import { recordError, readErrors, clearErrors } from '../core/errors.js?v=9c14cbd';
-import { ro, iGa, waGwa, eulReul, eunNeun } from '../core/ko.js?v=9c14cbd';
+} from '../core/game.js?v=d58cb06';
+import { recipeList } from '../core/craft.js?v=d58cb06';
+import { SEW_ORDER } from '../data/recipes.js?v=d58cb06';
+import { evolveView, pendingEvolves, branchOf } from '../core/evolve.js?v=d58cb06';
+import { shopView, storeView } from '../core/trade.js?v=d58cb06';
+import { peopleHere, bondName, helloOf, spokeToday, titleView, peopleDex, fameOf, fameRank } from '../core/social.js?v=d58cb06';
+import { offersOf, subView, boardView, jobsView, questBook, mainView, hiddenView } from '../core/quests.js?v=d58cb06';
+import { SUBS } from '../data/quests.js?v=d58cb06';
+import { jobChoices, jobName, skillsNow, canChooseJob, hiddenJobTraces, advanceView } from '../core/jobs.js?v=d58cb06';
+import { factionView, leanName } from '../core/factions.js?v=d58cb06';
+import { sculptMenu, sculptView, worksView, statueOf } from '../core/sculpt.js?v=d58cb06';
+import { cookMenu } from '../core/cook.js?v=d58cb06';
+import { buffRows } from '../core/buffs.js?v=d58cb06';
+import { partyView } from '../core/party.js?v=d58cb06';
+import { WORK_GRADES } from '../data/works.js?v=d58cb06';
+import { REGULAR, BONDS } from '../data/people.js?v=d58cb06';
+import { bondOf } from '../core/social.js?v=d58cb06';
+import { MERC_FEE, PARTY_MAX } from '../data/companions.js?v=d58cb06';
+import { roomView, dungeonMap } from '../core/dungeon.js?v=d58cb06';
+import { noticesView, ranking, rumorsView, sinceLast, markSeen } from '../core/world.js?v=d58cb06';
+import { auctionView } from '../core/auction.js?v=d58cb06';
+import { RANKS } from '../data/world.js?v=d58cb06';
+import { townRooms, BOAT_NEEDS, BOAT_FEE, OFFER_FEE, countOf, regenRate } from '../core/game.js?v=d58cb06';
+import { townOf } from '../core/social.js?v=d58cb06';
+import { DUNGEONS } from '../data/dungeon.js?v=d58cb06';
+import { FAME, TITLES, PEOPLE } from '../data/people.js?v=d58cb06';
+import { RECIPES } from '../data/recipes.js?v=d58cb06';
+import { ITEMS } from '../data/items.js?v=d58cb06';
+import { GRADES } from '../data/items.js?v=d58cb06';
+import { bagView, tabCounts, previewEquip, iconOf, itemPower, itemWeight, slotFor, equipWeight } from '../core/inventory.js?v=d58cb06';
+import { BAG_TABS, EQUIP_SLOTS, itemDef, gradeName } from '../data/items.js?v=d58cb06';
+import { monsterDef } from '../data/monsters.js?v=d58cb06';
+import { originById, dealOrigins, ROOTS, ORIGIN_GRADES, STAT_NAMES, STAT_USES, rollDice, DICE_TOTAL, DICE_MIN, DICE_FREE_AT } from '../data/origins.js?v=d58cb06';
+import { placeById, PLACES, TOWN_ORDER, PHASES, ACTIONS, PHASE_TICKS } from '../data/places.js?v=d58cb06';
+import { SKILL_NAMES, gradeLabel, progress, skillEffect } from '../core/skills.js?v=d58cb06';
+import { hiddenSlots, foundCount, hiddenTotal, hiddenById } from '../core/hidden.js?v=d58cb06';
+import { rebirthCarry, rebirthLoss } from '../core/rebirth.js?v=d58cb06';
+import { createCloud } from './cloud.js?v=d58cb06';
+import { mailView, unreadMail } from '../core/mail.js?v=d58cb06';
+import { shadowView, BLESSERS } from '../core/fall.js?v=d58cb06';
+import { ringView, afterText } from '../core/ending.js?v=d58cb06';
+import { derived, formula, valueOf } from '../core/derived.js?v=d58cb06';
+import { saveTo, loadFrom, listSlots, clearSlot, exportText, importText, shouldAutosave, revOf, SaveConflict } from '../core/save.js?v=d58cb06';
+import { createPressGuard, keyDecision, slotIndex } from '../core/press.js?v=d58cb06';
+import { createAssist, assistable } from '../core/assist.js?v=d58cb06';
+import { STANCES, stanceOf, wisResist } from '../core/battle.js?v=d58cb06';
+import { gearName, optionLines, maxDur, repairCost, enhanceView } from '../core/gear.js?v=d58cb06';
+import { guildView, DONATE } from '../core/guild.js?v=d58cb06';
+import { DRINK_HOSTS } from '../core/social.js?v=d58cb06';
+import { TEACHERS, learnableHere, KNOWN_BOND } from '../core/work.js?v=d58cb06';
+import { rootOf } from '../data/origins.js?v=d58cb06';
+import { recordError, readErrors, clearErrors } from '../core/errors.js?v=d58cb06';
+import { ro, iGa, waGwa, eulReul, eunNeun } from '../core/ko.js?v=d58cb06';
 
 const SCARECROW_ALT = ['멀쩡한 허수아비', '짚이 빠지기 시작한 허수아비', '한쪽으로 기운 허수아비', '터져서 짚이 흩날리는 허수아비'];
 const SCARECROW_SAY = ['아직 멀쩡하다', '짚이 빠지기 시작했다', '한쪽으로 기울었다', '터졌다. 기둥만 남았다'];
@@ -679,6 +680,7 @@ export function start(root, storage = globalThis.localStorage) {
     if (s.open === 'choice') return openChoice();
     if (s.open === 'skillpick') return openSkillPick();
     if (s.open === 'craft') return openCraft();
+    if (s.open === 'sew') return openSew();
     if (s.open === 'talk') return openTalk();
     if (s.open === 'sculpt') return openSculpt();
     if (s.open === 'auction') return openAuction();
@@ -726,6 +728,14 @@ export function start(root, storage = globalThis.localStorage) {
     const c = game && craftView(game);
     if (!c) { if (game && !game.battle && !game.sculpt) { refs.fight.replaceChildren(); refs.fight.className = ''; } return; }
     refs.fight.className = 'fight';
+    if (c.kind === 'sew') {
+      fill(refs.fight,
+        h('div', { class: 'grow' },
+          h('div', {}, h('b', {}, c.name), ` 땀 ${c.hits} / ${c.total}.`),
+          h('div', { class: 'stitches', role: 'img', 'aria-label': `뜬 땀 ${c.hits}, 남은 땀 ${c.total - c.hits}` }, Array.from({ length: c.total }, (_, i) => h('span', { class: i < c.hits ? 'even' : '' }))),
+          h('div', { class: 'muted', style: 'font-size:.85rem' }, '끝까지 뜨면 나올 등급: ', oddsText(c.odds))));
+      return;
+    }
     const art = c.cold ? ['forge-cold', '식어서 잿빛이 된 쇠'] : [`forge-${c.stage}`, ['붉게 단 쇳덩이', '길쭉해진 붉은 쇠', '검의 꼴이 잡힌 붉은 쇠'][c.stage - 1]];
     fill(refs.fight,
       settings.art ? pixel(art[0], art[1], 64, 64) : null,
@@ -958,6 +968,30 @@ export function start(root, storage = globalThis.localStorage) {
                   h('tr', {}, h('th', { scope: 'row' }, '칠 때마다 식히면'), r.worst.map((p) => h('td', {}, `${p >= 10 ? Math.round(p) : p.toFixed(1)}%`)))))),
             h('button', { class: 'btn go', type: 'button', disabled: !r.can, onclick: () => { close(); lastHammer = 0; run({ type: 'craft', recipe: r.id }); } }, r.can ? '제작' : '재료가 모자란다'))),
           h('p', { class: 'muted', style: 'font-size:.85rem' }, '확률을 움직이는 것: 만드는 숙련도, 재료의 품질, 식기 전에 친 횟수. 그리고 아직 모르는 무언가.'));
+      },
+      onClose: () => refs.slots?.querySelector('button:not([disabled])')?.focus(),
+    });
+  }
+
+  // ── 바느질 창 (Z71) ──
+  function openSew() {
+    wins.open({
+      title: '바느질', size: 'wide', side: '가죽 설계도',
+      render(body, { close }) {
+        const list = recipeList(game, SEW_ORDER);
+        const pct = (p) => `${p >= 10 ? Math.round(p) : p.toFixed(1)}%`;
+        add(body,
+          h('p', { class: 'muted', style: 'font-size:.9rem' }, '멧돼지 가죽을 꿰매 짓는다. 한 번 누르면 한 땀. 가죽은 식지 않으니 서두를 것 없다. 그만두면 재료는 돌아오지 않는다.'),
+          list.map((r) => h('div', { class: 'recipe' },
+            h('div', { class: 'grow' },
+              h('b', { class: 'serif', style: 'font-size:1.15rem' }, r.name), ` · 땀 ${r.hits}번`, h('br'), h('span', {}, r.say),
+              h('div', {}, '재료: ', r.needs.map((n, i) => [i ? ', ' : '', h('span', { class: n.have >= n.n ? '' : 'warn' }, `${n.name} ${n.have} / ${n.n}`)])),
+              h('table', { class: 'odds' },
+                h('caption', {}, '등급별 확률 (꿰매기 전에 보인다)'),
+                h('thead', {}, h('tr', {}, GRADES.map((g) => h('th', { scope: 'col' }, g)))),
+                h('tbody', {}, h('tr', {}, r.best.map((p) => h('td', {}, pct(p))))))),
+            h('button', { class: 'btn go', type: 'button', disabled: !r.can, onclick: () => { close(); run({ type: 'craft', recipe: r.id }); } }, r.can ? '제작' : '재료가 모자란다'))),
+          h('p', { class: 'muted', style: 'font-size:.85rem' }, '확률을 움직이는 것: 가죽 숙련도, 가죽의 품질. 그리고 아직 모르는 무언가.'));
       },
       onClose: () => refs.slots?.querySelector('button:not([disabled])')?.focus(),
     });

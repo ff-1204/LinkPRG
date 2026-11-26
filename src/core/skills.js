@@ -7,7 +7,7 @@ export const MAX_GRADE = RANKS.length * LEVELS_PER_RANK - 1; // 0부터 44까지
 /** 숙련도 이름. 행동 id → 보이는 이름. */
 export const SKILL_NAMES = {
   strike: '치기', guard: '막기', smash: '강타', evade: '회피', focus: '집중', pray: '기도', haul: '나르기', stamina: '지구력', mining: '채광', fishing: '낚시', gathering: '채집',
-  smithing: '대장', sculpting: '조각', cooking: '요리', appraise: '감정', lockpick: '자물쇠',
+  smithing: '대장', leather: '가죽', sculpting: '조각', cooking: '요리', appraise: '감정', lockpick: '자물쇠',
 };
 
 /** 숙련도가 주는 것 (Z62). 수치는 숨기고 효과만 적는다. 숙련도가 오를수록 커진다. */
@@ -24,6 +24,7 @@ export const SKILL_EFFECTS = {
   fishing: '허탕이 줄어든다',
   gathering: '허탕이 줄어든다',
   smithing: '만든 것의 등급이 오르기 쉽고, 강화가 잘 된다',
+  leather: '만든 것의 등급이 오르기 쉽다',
   sculpting: '작품이 더 잘 나온다',
   lockpick: '자물쇠를 더 잘 연다',
   appraise: '물건을 더 비싸게 판다. 솜씨가 깊어지면 낯선 물건도 알아본다',

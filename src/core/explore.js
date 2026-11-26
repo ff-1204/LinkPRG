@@ -1,26 +1,26 @@
 // 탐색과 랜덤 인카운터, 기척 (E1~E4, R2-3).
 // 탐색 한 번마다 전투·발견·사건·만남·희귀 가운데 하나. 싸울지는 되도록 내가 고른다.
 
-import { next, pick, chance, roll01 } from './rng.js?v=9c14cbd';
-import { addFame } from './social.js?v=9c14cbd';
-import { pushLine } from './log.js?v=9c14cbd';
-import { weighted, startBattle } from './battle.js?v=9c14cbd';
-import { addItem, countOf, takeById } from './inventory.js?v=9c14cbd';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=9c14cbd';
-import { ding } from './log.js?v=9c14cbd';
-import { monsterDef } from '../data/monsters.js?v=9c14cbd';
-import { itemDef } from '../data/items.js?v=9c14cbd';
-import { USERS } from '../data/lines.js?v=9c14cbd';
-import { WILDS, INCIDENTS, DANGER, DANGER_UP, OTHER_WEIGHTS, TENSION_STEP, TENSION_MAX, SCENT_TRIES, SCENT_PHASES } from '../data/wild.js?v=9c14cbd';
-import { placeById } from '../data/places.js?v=9c14cbd';
-import { iGa, eulReul, eunNeun } from './ko.js?v=9c14cbd';
-import { branchOf } from './evolve.js?v=9c14cbd';
-import { answerHidden } from './quests.js?v=9c14cbd';
-import { jobXp, hiddenJobView, answerHiddenJob } from './jobs.js?v=9c14cbd';
-import { HIDDENS } from '../data/quests.js?v=9c14cbd';
-import { dungeonChoiceView, dungeonChoose } from './dungeon.js?v=9c14cbd';
-import { endingChoiceView, applyEnding } from './ending.js?v=9c14cbd';
-import { memoryChoiceView, chooseMemory } from './memories.js?v=9c14cbd';
+import { next, pick, chance, roll01 } from './rng.js?v=d58cb06';
+import { addFame } from './social.js?v=d58cb06';
+import { pushLine } from './log.js?v=d58cb06';
+import { weighted, startBattle } from './battle.js?v=d58cb06';
+import { addItem, countOf, takeById } from './inventory.js?v=d58cb06';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=d58cb06';
+import { ding } from './log.js?v=d58cb06';
+import { monsterDef } from '../data/monsters.js?v=d58cb06';
+import { itemDef } from '../data/items.js?v=d58cb06';
+import { USERS } from '../data/lines.js?v=d58cb06';
+import { WILDS, INCIDENTS, DANGER, DANGER_UP, OTHER_WEIGHTS, TENSION_STEP, TENSION_MAX, SCENT_TRIES, SCENT_PHASES } from '../data/wild.js?v=d58cb06';
+import { placeById } from '../data/places.js?v=d58cb06';
+import { iGa, eulReul, eunNeun } from './ko.js?v=d58cb06';
+import { branchOf } from './evolve.js?v=d58cb06';
+import { answerHidden } from './quests.js?v=d58cb06';
+import { jobXp, hiddenJobView, answerHiddenJob } from './jobs.js?v=d58cb06';
+import { HIDDENS } from '../data/quests.js?v=d58cb06';
+import { dungeonChoiceView, dungeonChoose } from './dungeon.js?v=d58cb06';
+import { endingChoiceView, applyEnding } from './ending.js?v=d58cb06';
+import { memoryChoiceView, chooseMemory } from './memories.js?v=d58cb06';
 
 const WORK = { smith: { name: '대장장이', who: '대장간 주인', skill: 'smithing' } };
 
@@ -173,6 +173,12 @@ export function personChance(state) {
   return Math.min(0.15, users * 0.01);
 }
 export const HURT_FEE = 10; // 치료비: 내 레벨 × 이만큼
+/** 그 들판에서 가장 센 짐승 (Z72): 덮쳤던 모험가가 맞서면 이만큼 세다. */
+export function duelMon(state, fallback) {
+  const list = (WILDS[state.place]?.monsters || []).map((x) => x.id).filter((id) => !monsterDef(id).boss);
+  if (!list.length) return fallback;
+  return list.reduce((a, id) => (monsterDef(id).level > monsterDef(a).level ? id : a), list[0]);
+}
 export const RUN_FAME = 20; // 달아나면 깎이는 명성
 const PERSON_DOING = ['약초를 캐고 있다', '덫을 살피고 있다', '그루터기에 앉아 쉬고 있다', '지도를 펼쳐 들고 서 있다'];
 
@@ -217,6 +223,7 @@ export function choiceView(state) {
       options: [
         { id: 'pay', label: '사과하고 치료비를 낸다', sub: `은화 ${fee} (내 레벨 × ${HURT_FEE})`, go: true },
         { id: 'run', label: '모른 척 달아난다', sub: `이 근처 마을 명성 −${RUN_FAME}, 소문이 돈다` },
+        { id: 'fight', label: '공격한다', sub: `레벨 ${monsterDef(duelMon(state, c.mon)).level}쯤. 이기면 가진 것을 빼앗고 살인의 추억(2일), 지면 죽는다` },
       ],
     };
   }
@@ -271,6 +278,10 @@ export function choose(state, events, id) {
       pushLine(state, events, { k: 'user', who: `모험가 '${c.person}'`, text: '다음엔 보고 덮쳐요. 그래도 손은 매섭네요.' });
       return;
     }
+    if (id === 'fight') {
+      pushLine(state, events, { k: 'me', text: '사과 대신 무기를 다시 들었다.' });
+      return startBattle(state, events, duelMon(state, c.mon), { person: c.person });
+    }
     if (id === 'run') {
       addFame(state, events, -RUN_FAME);
       state.flags.hitRun = { place: state.place, day: state.day };
@@ -283,7 +294,7 @@ export function choose(state, events, id) {
   }
   if (c.kind === 'sense') {
     if (id === 'pounce' && c.person) {
-      // 사람을 덮쳤다 (Z37): 다치게만 한다. 죽이는 길은 없다
+      // 사람을 덮쳤다 (Z37): 치료비를 내거나, 달아나거나, 마저 친다(Z72)
       state.choice = { kind: 'hurt', person: c.person, mon: c.mon };
       events.push({ type: 'choice' });
       return;
