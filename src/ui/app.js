@@ -84,6 +84,7 @@ export function start(root, storage = globalThis.localStorage) {
   const safeSession = (() => { try { return globalThis.sessionStorage; } catch { return { getItem: () => null, setItem() {}, removeItem() {} }; } })();
   const cloud = createCloud({ storage, session: safeSession, onChange: () => {
     settingsRerender?.();
+    if (game && refs.nav) { drawNav(); drawTabs(); }
     if (!game && root.querySelector('main.title') && !wins.isOpen()) showTitle();
   } });
 
@@ -92,6 +93,13 @@ export function start(root, storage = globalThis.localStorage) {
   globalThis.addEventListener?.('unhandledrejection', (e) => recordError(storage, e.reason, 'promise'));
 
   // ── 처음 화면 ──────────────────────────────────────────
+  /** 저장과 설정 옆의 동그라미: 초록은 드라이브와 맞춰지는 중, 빨강은 안 맞춰짐(로그인 안 함, 풀림, 오류). 글로도 읽힌다 */
+  function syncDot() {
+    const on = cloud.status === 'on' || cloud.status === 'busy';
+    const text = on ? '드라이브와 맞춰짐' : cloud.status === 'off' ? '드라이브에 올리지 않음' : '드라이브와 안 맞춰짐';
+    return h('span', { class: `syncdot ${on ? 'on' : 'off'}`, title: text }, h('span', { class: 'sr' }, `, ${text}`));
+  }
+
   function showTitle() {
     game = null;
     if (cloud.status === 'on' && Date.now() - titleSyncedAt > 15000) { titleSyncedAt = Date.now(); cloud.refresh(); }
@@ -101,7 +109,7 @@ export function start(root, storage = globalThis.localStorage) {
     const list = h('div', { class: 'slots', 'aria-label': '저장 칸' }, slots.map((s) => slotRow(s, used[0]?.slot === s.slot)));
     fill(root,h('main', { class: 'title' },
       // 꾸밈 그림: 같은 숲의 낮과 밤. 알려 주는 것이 없어 대체 글은 비운다. 그림을 끄면 나오지 않는다
-      settings.art ? h('img', { class: 'px titleart', src: 'title.png', alt: '', width: 1200, height: 630 }) : null,
+      settings.art && !settings.stripFolded ? h('div', { class: 'titlebg', 'aria-hidden': 'true', style: "background-image:url('art/pixel/out/strip-plaza.png')" }) : null,
       h('h1', {}, 'LinkPRG'),
       h('p', { class: 'tag' }, '이 세계에서는 무언가를 끝까지 해낸 사람에게 종소리가 들린다.'),
       // 읽을 수 없는 칸을 묻지 않고 덮어쓰지 않도록, "시작"은 늘 빈 칸으로 간다.
@@ -286,6 +294,22 @@ export function start(root, storage = globalThis.localStorage) {
       carry.pastLives.map((p) => h('div', { class: 'rowx' }, h('span', {}, '지난 삶'), h('span', {}, `'${p.name}' — ${p.job || '무직'}, 레벨 ${p.level}, ${p.day}일째에 쓰러졌다`))));
   }
 
+  /** 휴대폰 아래 탭의 작은 그림. 꾸밈이라 읽지 않는다 (글자가 같이 있다). */
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  const ICONS = {
+    chat: ['M4 5h16v11H9l-5 4z'],
+    place: ['M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z', 'M12 7.5a2.5 2.5 0 1 0 0 5a2.5 2.5 0 1 0 0-5z'],
+    bag: ['M5 8h14l-1 12H6z', 'M9 8V6a3 3 0 0 1 6 0v2'],
+    book: ['M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z', 'M5 17a3 3 0 0 1 3-3h11'],
+    menu: ['M4 7h16M4 12h16M4 17h16'],
+  };
+  function svgIcon(name) {
+    const svg = document.createElementNS(SVGNS, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24'); svg.setAttribute('aria-hidden', 'true');
+    for (const d of ICONS[name]) { const p = document.createElementNS(SVGNS, 'path'); p.setAttribute('d', d); svg.append(p); }
+    return svg;
+  }
+
   // ── 게임 화면 (D1~D6) ───────────────────────────────────
   function showGame() {
     refs.nav = h('nav', { class: 'nav', 'aria-label': '방 목록' });
@@ -294,12 +318,15 @@ export function start(root, storage = globalThis.localStorage) {
     refs.log = h('div', { class: 'log', role: 'log', 'aria-live': 'polite', 'aria-label': '대화방', tabindex: '0' });
     refs.suggest = h('div', {});
     refs.body = h('div', { class: 'bodybar', role: 'group', 'aria-label': '몸 상태' });
+    refs.mstats = h('div', { class: 'mstats', role: 'group', 'aria-label': '몸 상태' }); // 휴대폰: 한 줄 네 칸
+    refs.mtabs = h('nav', { class: 'mtabs', 'aria-label': '아래 탭' }); // 휴대폰: 아래 탭 다섯 칸
+    refs.topbar = h('header', { class: 'topbar', 'aria-label': '메뉴' }); // 넓은 화면: 맨 위 메뉴 띠 (PC 시안 A)
     refs.fight = h('div', { role: 'status', 'aria-label': '싸움' });
     refs.slots = h('nav', { class: 'b5', 'aria-label': '단축 칸' });
     refs.sr = h('div', { class: 'sr', role: 'alert', 'aria-live': 'assertive' }); // 띠링은 바로 읽힌다
     refs.assist = h('div', { class: 'assistline', role: 'status' });
     // 좁은 화면(휴대폰)에서는 방 목록과 책을 위의 단추로 여닫는다 (N8-1)
-    const toggle = (cls, other) => () => { refs.game.classList.remove(other); const on = refs.game.classList.toggle(cls); refs.mNav.setAttribute('aria-expanded', String(refs.game.classList.contains('nav-open'))); refs.mBook.setAttribute('aria-expanded', String(refs.game.classList.contains('book-open'))); if (on) (cls === 'nav-open' ? refs.nav : refs.tabs).querySelector('button')?.focus(); };
+    const toggle = (cls, other) => () => { refs.game.classList.remove(other); const on = refs.game.classList.toggle(cls); drawTabs(); refs.mNav.setAttribute('aria-expanded', String(refs.game.classList.contains('nav-open'))); refs.mBook.setAttribute('aria-expanded', String(refs.game.classList.contains('book-open'))); if (on) (cls === 'nav-open' ? refs.nav : refs.tabs).querySelector('button')?.focus(); };
     refs.mNav = h('button', { class: 'btn', type: 'button', 'aria-expanded': 'false', onclick: toggle('nav-open', 'book-open') }, '방 목록');
     refs.mBook = h('button', { class: 'btn', type: 'button', 'aria-expanded': 'false', onclick: toggle('book-open', 'nav-open') }, '모험 일지');
     refs.shade = h('button', { class: 'shade', type: 'button', 'aria-label': '닫기', onclick: closeDrawers });
@@ -307,8 +334,9 @@ export function start(root, storage = globalThis.localStorage) {
     refs.menu = h('nav', { class: 'cmenu', 'aria-label': '캐릭터' });
     refs.pg = h('div', { class: 'pg', role: 'tabpanel' });
     refs.game = h('div', { class: 'game' },
+      refs.topbar,
       refs.nav,
-      h('main', { class: 'room' }, h('div', { class: 'mbar' }, refs.mNav, h('button', { class: 'btn', type: 'button', onclick: () => openBag('all') }, '가방'), refs.mBook), refs.hd, refs.body, h('div', { class: 'logwrap' }, refs.strip, refs.log), refs.suggest, refs.fight, refs.assist, refs.slots, refs.sr),
+      h('main', { class: 'room' }, h('div', { class: 'mbar' }, refs.mNav, h('button', { class: 'btn', type: 'button', onclick: () => openBag('all') }, '가방'), refs.mBook), refs.hd, refs.body, refs.mstats, h('div', { class: 'logwrap' }, refs.strip, refs.log), refs.suggest, refs.fight, refs.assist, refs.slots, refs.mtabs, refs.sr),
       h('aside', { class: 'book', 'aria-label': '모험 일지' }, refs.menu, refs.tabs, refs.pg),
       refs.shade);
     fill(root, refs.game);
@@ -324,6 +352,7 @@ export function start(root, storage = globalThis.localStorage) {
 
   function closeDrawers() {
     if (!refs.game) return;
+    queueMicrotask(() => drawTabs());
     const was = refs.game.classList.contains('nav-open') ? refs.mNav : refs.game.classList.contains('book-open') ? refs.mBook : null;
     refs.game.classList.remove('nav-open', 'book-open');
     if (was && (document.activeElement === document.body || refs.nav.contains(document.activeElement) || refs.pg.contains(document.activeElement) || refs.tabs.contains(document.activeElement) || document.activeElement === refs.shade)) was.focus();
@@ -331,14 +360,66 @@ export function start(root, storage = globalThis.localStorage) {
     refs.mBook?.setAttribute('aria-expanded', 'false');
   }
 
-  function drawAll() { drawNav(); drawStrip(); drawHeader(); drawBody(); drawSuggest(); drawFight(); drawForge(); drawCarve(); drawSlots(); drawBook(); }
+  /** 휴대폰 아래 탭 (시안 A): 대화방·장소·가방·일지·메뉴 */
+  function drawTabs() {
+    if (!refs.mtabs) return;
+    const g = refs.game.classList;
+    const which = g.contains('nav-open') ? 'place' : g.contains('book-open') ? 'book' : 'chat';
+    const tabBtn = (id, label, onclick, extra) => h('button', { class: `mtab ${which === id ? 'on' : ''}`, type: 'button', 'aria-pressed': String(which === id), onclick }, svgIcon(id), h('span', {}, label), extra || null);
+    const on = cloud.status === 'on' || cloud.status === 'busy';
+    fill(refs.mtabs,
+      tabBtn('chat', '대화방', () => { closeDrawers(); refs.slots?.querySelector('button:not([disabled])')?.focus(); }),
+      tabBtn('place', '장소', () => refs.mNav.click()),
+      tabBtn('bag', '가방', () => { closeDrawers(); openBag('all'); }),
+      tabBtn('book', '일지', () => refs.mBook.click()),
+      tabBtn('menu', '메뉴', () => { closeDrawers(); openMenu(); }, h('span', { class: `syncdot ${on ? 'on' : 'off'}`, title: on ? '드라이브와 맞춰짐' : '드라이브와 안 맞춰짐' }, h('span', { class: 'sr' }, on ? ', 드라이브와 맞춰짐' : ', 드라이브와 안 맞춰짐'))));
+  }
+
+  /** 휴대폰 메뉴 판: 나머지 창을 한곳에 */
+  function openMenu() {
+    const busy = !!(game.battle || game.choice);
+    const go = (fn) => (close) => () => { close(); fn(); };
+    const items = [
+      ['퀘스트', () => openQuests()], ['칭호', openTitles], ['장비', openGear], ['동료', openParty], ['작품', openWorks],
+      ['알림 기록', openPast], ['공지와 랭킹', openWorld], ['길드', openGuild, busy], ['저장과 설정', openSettings], ['도움말', () => openHelp()],
+    ];
+    if (ringView(game)) items.splice(8, 0, ['지켜본다', openRing, busy]);
+    wins.open({
+      title: '메뉴', sheet: true,
+      render(body, { close }) {
+        add(body, h('div', { class: 'menugrid' }, items.map(([label, fn, off]) =>
+          h('button', { class: 'btn', type: 'button', disabled: !!off, onclick: go(fn)(close) }, label, label === '저장과 설정' ? syncDot() : null))));
+      },
+    });
+  }
+
+  function drawAll() { drawTabs(); drawNav(); drawStrip(); drawHeader(); drawBody(); drawSuggest(); drawFight(); drawForge(); drawCarve(); drawSlots(); drawBook(); }
 
   const meter = (label, now, max, cls = '') => h('span', { class: `meter ${cls}` },
     h('span', {}, `${label} `, h('b', {}, now), max != null ? ` / ${max}` : ''),
     h('i', { 'aria-hidden': 'true' }, h('i', { style: `width:${Math.max(0, Math.min(100, Math.round((now / (max ?? 100)) * 100)))}%` })));
 
+  /** 휴대폰 몸 상태 (시안 A): 생명·포만·피로·경험 한 줄. 배고프면 포만 칸이 "먹기"가 된다 */
+  function drawMobileStats(b) {
+    if (!refs.mstats) return;
+    const pct = (now, max) => `width:${Math.max(0, Math.min(100, Math.round((now / (max || 100)) * 100)))}%`;
+    const toStatus = () => { tab = 'status'; drawBook(); if (!refs.game.classList.contains('book-open')) refs.mBook.click(); };
+    const cell = (label, value, now, max, opts = {}) => h('button', { class: `mst ${opts.cls || ''}`, type: 'button', 'aria-label': opts.aria || `${label} ${value}`, onclick: opts.onclick || toStatus },
+      h('span', {}, `${label} `, h('b', {}, value), opts.tail ? h('em', {}, opts.tail) : null), h('i', { 'aria-hidden': 'true' }, h('i', { style: pct(now, max) })));
+    const hungry = b.hungry;
+    fill(refs.mstats,
+      cell('생명', b.hp, b.hp, b.maxHp, { cls: b.hp <= b.maxHp * 0.3 ? 'low' : '', aria: `생명력 ${b.hp} / ${b.maxHp}` }),
+      game.job ? cell('마나', b.mp, b.mp, b.maxMp, { aria: `마나 ${b.mp} / ${b.maxMp}` }) : null,
+      cell('포만', b.full, b.full, 100, hungry ? { cls: 'low warn', tail: '먹기', aria: `포만감 ${b.full}. 배가 고프다. 먹을 것 열기`, onclick: () => openBag('eat') } : { aria: `포만감 ${b.full}` }),
+      cell('피로', b.tired, b.tired, 100, { cls: b.tiredOut ? 'low' : '', aria: `피로 ${b.tired}` }),
+      cell('경험', `${Math.floor((b.xp / (b.xpNeed || 1)) * 100)}%`, b.xp, b.xpNeed, { aria: `경험치 ${b.xp} / ${b.xpNeed}` }),
+      cell('무게', b.weight, b.weight, b.carry, { cls: `wt ${b.over ? 'low' : ''}`, tail: b.over ? '넘침' : null, aria: `무게 ${b.weight} / ${b.carry}`, onclick: () => openBag('all') }),
+      b.shadow || b.status.length || b.sense ? h('div', { class: 'mtags' }, b.shadow ? h('span', { class: 'tagx' }, `그림자 ${b.shadow}겹`) : null, b.status.map((x) => h('span', { class: 'tagx' }, `${x.name} ${x.turns}턴`)), b.sense ? h('span', { class: 'tagx' }, `기척 ${b.sense}칸 / 5칸`) : null) : null);
+  }
+
   function drawBody() {
     const b = bodyView(game);
+    drawMobileStats(b);
     fill(refs.body,
       meter('생명력', b.hp, b.maxHp, b.hp <= b.maxHp * 0.3 ? 'low' : ''),
       game.job ? meter('마나', b.mp, b.maxMp) : null,
@@ -375,10 +456,7 @@ export function start(root, storage = globalThis.localStorage) {
         h('span', { class: 'note' }, `${rv.dungeon} ${rv.floor}. ${rv.kind}`),
         h('small', {}, '이 방에서 갈 수 있는 곳'),
         rv.exits.map((x) => h('button', { class: 'ch', type: 'button', disabled: busy || !x.can, title: x.why || null, onclick: () => run({ type: 'room', to: x.id }) }, h('span', {}, `${x.name}${x.floor ? ` (${x.floor})` : ''}`), x.why ? h('small', { class: 'muted' }, ` ${x.why}`) : null)),
-        rv.canLeave ? h('button', { class: 'ch', type: 'button', disabled: busy, onclick: () => run({ type: 'dungeon', op: 'leave' }) }, h('span', {}, '밖으로 나간다')) : null,
-        h('div', { class: 'foot' },
-          h('button', { class: 'ch', type: 'button', onclick: openSettings }, h('span', {}, '저장과 설정')),
-          h('button', { class: 'ch', type: 'button', onclick: () => openHelp() }, h('span', {}, '도움말'))));
+        rv.canLeave ? h('button', { class: 'ch', type: 'button', disabled: busy, onclick: () => run({ type: 'dungeon', op: 'leave' }) }, h('span', {}, '밖으로 나간다')) : null);
       return;
     }
     const danger = place.wild ? mapView(game).find((r) => r.id === place.id).danger : place.danger;
@@ -397,18 +475,28 @@ export function start(root, storage = globalThis.localStorage) {
         const n = offersOf(game, p.id).length;
         return h('button', { class: 'ch', type: 'button', disabled: busy, 'aria-label': n ? `${p.name}, 줄 일이 ${n}개 있다` : p.name, onclick: () => openTalk(p.id) }, h('span', {}, p.name), n ? h('b', { class: 'num' }, n) : null);
       }),
-      h('small', {}, '세계'),
-      h('button', { class: 'ch', type: 'button', disabled: busy, onclick: openMap }, h('span', {}, '세계 지도')),
-      h('button', { class: 'ch', type: 'button', onclick: openWorld }, h('span', {}, '세계 공지와 랭킹')),
-      h('button', { class: 'ch', type: 'button', disabled: busy, onclick: openGuild }, h('span', {}, '길드'), game.guild ? h('b', { class: 'num' }, guildView(game).mine.rank) : null),
-      ringView(game) ? h('button', { class: 'ch', type: 'button', disabled: busy, onclick: openRing }, h('span', {}, '지켜본다'), h('b', { class: 'num' }, ringView(game).list.filter((x) => !x.done).length || '')) : null,
-      h('div', { class: 'foot' },
-        h('button', { class: 'ch', type: 'button', onclick: openSettings }, h('span', {}, '저장과 설정')),
-        h('button', { class: 'ch', type: 'button', onclick: () => openHelp() }, h('span', {}, '도움말'))));
+      h('button', { class: 'ch mapbtn', type: 'button', disabled: busy, onclick: openMap }, h('span', {}, '세계 지도')));
+  }
+
+  /** 넓은 화면의 맨 위 메뉴 띠 (PC 시안 A): 메뉴는 여기 한 줄에. 설정·도움말은 오른쪽 끝 */
+  function drawTopbar() {
+    if (!refs.topbar) return;
+    const busy = !!(game.battle || game.choice);
+    const b = (label, onclick, opts = {}) => h('button', { class: `tb ${opts.key ? 'key' : ''}`, type: 'button', disabled: !!opts.off, onclick, 'aria-label': opts.num ? `${label} ${opts.num}` : null }, label, opts.num ? h('b', { class: 'num' }, opts.num) : null, opts.extra || null);
+    const ring = ringView(game);
+    fill(refs.topbar,
+      h('span', { class: 'logo' }, 'LinkPRG'),
+      h('nav', { class: 'tbmenu', 'aria-label': '캐릭터와 세계' },
+        b('가방', () => openBag('all'), { key: true }), b('장비', openGear), b('퀘스트', () => openQuests()), b('칭호', openTitles),
+        b('동료', openParty, { num: game.party.length || null }), b('작품', openWorks),
+        b('길드', openGuild, { off: busy, num: game.guild ? guildView(game).mine.rank : null }), b('공지와 랭킹', openWorld), b('알림 기록', openPast),
+        ring ? b('지켜본다', openRing, { off: busy, num: ring.list.filter((x) => !x.done).length || null }) : null),
+      h('div', { class: 'tbright' }, b('저장과 설정', openSettings, { extra: syncDot() }), b('도움말', () => openHelp())));
   }
 
   /** 책 위의 캐릭터 메뉴: 네 칸씩 두 줄. 던전 안에서는 가방·장비·동료·퀘스트만. */
   function drawMenu(inDungeon) {
+    drawTopbar();
     const item = (label, onclick, num) => h('button', { class: 'cm', type: 'button', onclick, 'aria-label': num ? `${label} ${num}` : null }, label, num ? h('b', { class: 'num' }, num) : null);
     const party = game.party.length || null;
     fill(refs.menu, inDungeon
@@ -942,7 +1030,7 @@ export function start(root, storage = globalThis.localStorage) {
     if (startTab) bagTab = startTab;
     let picked = null; // 고른 물건 (가방 속 그 물건 자체)
     wins.open({
-      title: '가방', size: 'wide',
+      title: '가방', size: 'wide', sheet: true,
       render(body, { close, rerender }) {
         const b = bodyView(game);
         const counts = tabCounts(game);
@@ -954,10 +1042,14 @@ export function start(root, storage = globalThis.localStorage) {
             h('button', { class: `btn sm ${bagTab === t.id ? 'on' : ''}`, type: 'button', 'aria-pressed': String(bagTab === t.id), 'data-set': `tab:${t.id}`, onclick: () => { bagTab = t.id; rerender(); } }, `${t.name} ${counts[t.id]}`))),
           h('div', { class: 'row-btns', role: 'group', 'aria-label': '늘어놓기' }, SORTS.map(([id, name]) =>
             h('button', { class: `btn sm ${bagSort === id ? 'on' : ''}`, type: 'button', 'aria-pressed': String(bagSort === id), 'data-set': `sort:${id}`, onclick: () => { bagSort = id; rerender(); } }, name))),
-          h('div', { class: 'items', role: 'group', 'aria-label': '물건' }, list.length ? list.map(({ item, def }) =>
-            h('button', { class: `it ${picked === item ? 'on' : ''}`, type: 'button', 'aria-pressed': String(picked === item), 'aria-label': `${def.name}, ${gradeName(item.grade)}${item.n > 1 ? `, ${item.n}개` : ''}`,
+          h('div', { class: 'items', role: 'group', 'aria-label': '물건' }, list.length ? list.map(({ item, def }) => {
+            const row = h('button', { class: `it ${picked === item ? 'on' : ''}`, type: 'button', 'aria-pressed': String(picked === item), 'aria-label': `${def.name}, ${gradeName(item.grade)}${item.n > 1 ? `, ${item.n}개` : ''}`,
               onclick: () => { picked = item; rerender(); } },
-              icon(item), h('span', { class: 'grow' }, h('b', {}, gearName(item)), h('small', {}, ` ${gradeName(item.grade)}`)), h('span', {}, item.n > 1 ? `${item.n}개` : ''), h('small', { class: 'muted' }, `무게 ${itemWeight(item)}`)))
+              icon(item), h('span', { class: 'grow' }, h('b', {}, gearName(item)), h('small', {}, ` ${gradeName(item.grade)}`)), h('span', {}, item.n > 1 ? `${item.n}개` : ''), h('small', { class: 'muted' }, `무게 ${itemWeight(item)}`));
+            // 먹을 것은 줄에서 바로 먹는다 (휴대폰 시안 A). 판을 닫지 않고 연달아 먹을 수 있다
+            if (!def.eat || def.throw) return row;
+            return h('div', { class: 'itrow' }, row, h('button', { class: 'btn sm go eatnow', type: 'button', 'aria-label': `${def.name} 먹기`, onclick: () => { const ev = run({ type: 'use', index: game.bag.indexOf(item) }, true); if (!ev) return; if (game.battle && ev.some((e) => e.type === 'battle' && e.phase !== 'start')) close(); else rerender(); } }, def.eat.hp && !def.eat.full ? '마시기' : '먹기'));
+          })
             : h('p', { class: 'muted' }, '이 갈래에는 아무것도 없다.')),
           h('div', { class: `rowx ${b.over ? 'warn' : ''}` }, h('span', {}, '가방 무게'), h('b', {}, `${b.weight} / ${b.carry}`)),
           b.over ? h('p', { class: 'warn', role: 'alert' }, '무게 한도를 넘겼다. 걸음이 더뎌지고 도망치기 어렵다.') : null);

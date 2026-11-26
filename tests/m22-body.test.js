@@ -170,3 +170,14 @@ test('싸우는 중에는 다른 곳으로 갈 수 없다', () => {
   assert.throws(() => dispatch(s, { type: 'travel', to: 'forest' }), /싸우는 중/);
   assert.equal(s.place, 'training');
 });
+
+test('신전·사당에서 기도하다 지쳐 잠들면 피로가 다 풀린다. 다른 곳은 30 (Z45)', () => {
+  const s = make('holy'); s.place = 'temple'; s.tired = 99.8; s.full = 80;
+  for (let i = 0; i < 5 && s.tired > 0; i++) dispatch(s, { type: 'act', id: 'pray' });
+  assert.equal(s.tired, 0);
+  assert.equal(s.phase, 0);
+  assert.ok(s.log.some((l) => l.text.includes('담요를 덮어 주었다')));
+  const t = make('field'); t.place = 'training'; t.tired = 99.8; t.full = 80;
+  for (let i = 0; i < 5 && t.phase !== 0 || i === 0; i++) dispatch(t, { type: 'act', id: 'strike' });
+  assert.equal(t.tired, 30);
+});

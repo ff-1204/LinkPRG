@@ -446,8 +446,13 @@ function passOut(state, events) {
   state.lastAction = null;
   state.tick = 0;
   do nextPhase(state, events); while (state.phase !== 0);
-  state.tired = 30;
-  pushLine(state, events, { k: 'me', text: '눈을 뜨니 아침이다. 맨바닥에서 잔 몸이 개운하지 않다.' });
+  // 신전·사당에서 지쳐 잠들면 (Z45): 신전지기가 담요를 덮어 준다. 피로가 다 풀린다
+  const holy = !starved && ['temple', 'shrine', 'grandtemple'].includes(state.place);
+  state.tired = holy ? 0 : 30;
+  if (holy) {
+    pushLine(state, events, { k: 'me', text: '눈을 뜨니 아침이다. 누가 담요를 덮어 주었다. 몸이 가볍다.' });
+    pushLine(state, events, { k: 'sys', text: '신전의 고요 속에서 푹 잤다. 피로가 다 풀렸다.', tone: 'good' });
+  } else pushLine(state, events, { k: 'me', text: '눈을 뜨니 아침이다. 맨바닥에서 잔 몸이 개운하지 않다.' });
   events.push({ type: 'phase' });
 }
 

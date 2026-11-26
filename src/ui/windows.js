@@ -45,7 +45,7 @@ export function createWindows(root) {
     current = spec;
     spec.returnTo = spec.returnTo || document.activeElement;
     const body = h('div', { class: 'wb' });
-    const win = h('section', { class: `win ${spec.size || ''}`, role: 'dialog', 'aria-modal': 'true', 'aria-label': spec.title },
+    const win = h('section', { class: `win ${spec.size || ''} ${spec.sheet ? 'sheet' : ''}`, role: 'dialog', 'aria-modal': 'true', 'aria-label': spec.title },
       h('div', { class: `wt ${spec.honey ? 'honey' : ''} ${spec.dark ? 'dark' : ''}` },
         h('span', {}, spec.title),
         spec.side ? h('span', { style: 'font-weight:400' }, spec.side) : null,

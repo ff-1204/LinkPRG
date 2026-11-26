@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>휴대폰 화면 시안</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  :root { --cream: #FBF5E6; --paper: #FFFDF6; --sand: #F3E9D2; --line: #E6D9BD; --line2: #CDBE9E; --ink: #3A2A1E; --muted: #6B5443; --deep: #1E140D; --cinnamon: #8A4F2B; --mint: #BFE3D0; --mint-ink: #1F4A3A; --mint-line: #2F7A5E; --honey: #F2B63C; --serif: 'Gowun Batang', serif; --sans: 'Gowun Dodum', sans-serif; }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: #E4D8BF; color: var(--ink); font: 15px/1.6 var(--sans); padding: 24px 16px 60px; }
+  .wrap { max-width: 1240px; margin: 0 auto; }
+  h1 { font: 700 27px/1.3 var(--serif); margin-bottom: 6px; }
+  h2 { font: 700 20px/1.3 var(--serif); margin: 36px 0 8px; padding-top: 10px; border-top: 2px solid var(--deep); }
+  .note { color: var(--muted); max-width: 54rem; margin-bottom: 10px; }
+  .tag { display: inline-block; font-size: 12px; padding: 0 8px; border-radius: 999px; background: var(--cinnamon); color: #fff; margin-left: 6px; vertical-align: 2px; }
+  .phones { display: flex; gap: 22px; flex-wrap: wrap; align-items: flex-start; }
+  .cap { width: 300px; font-size: .85rem; color: var(--muted); margin-top: 8px; }
+
+  /* 휴대폰 틀: 375×812를 0.8로 */
+  .phone { width: 300px; height: 650px; border: 6px solid var(--deep); border-radius: 26px; background: var(--cream); overflow: hidden; position: relative; display: flex; flex-direction: column; font-size: 12px; box-shadow: 8px 8px 0 rgba(30,20,13,.2); }
+  .hd { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 12px 4px; background: var(--cream); }
+  .hd b { font: 700 16px var(--serif); }
+  .hd span { color: var(--muted); font-size: 10.5px; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 4px 12px 8px; border-bottom: 1px solid var(--line); background: var(--cream); }
+  .st { display: flex; flex-direction: column; gap: 2px; font-size: 10px; color: var(--muted); border: 0; background: none; padding: 0; text-align: left; font-family: var(--sans); }
+  .st b { color: var(--ink); font-size: 11px; }
+  .st i { display: block; height: 4px; border-radius: 3px; background: var(--sand); border: 1px solid var(--line2); overflow: hidden; }
+  .st i i { height: 100%; background: var(--mint-line); border: 0; }
+  .st.low b { color: var(--cinnamon); }
+  .st.low i i { background: var(--cinnamon); }
+  .st.warn { background: rgba(242,182,60,.25); border-radius: 6px; padding: 2px 4px; margin: -2px -4px; }
+  .log { flex: 1; position: relative; padding: 8px 12px; display: flex; flex-direction: column; gap: 6px; overflow: hidden; }
+  .log .bg { position: absolute; left: 0; right: 0; bottom: 0; height: 80px; background-size: 100% auto; background-repeat: no-repeat; background-position: bottom; image-rendering: pixelated; background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAYAAAABgCAYAAAAU9KWJAAAErUlEQVR4nO3dsa0sRRAFUCIhADDwSYIMCIQQfk6IFHC/jUQMeGB+do1ptW5XT+/UOVJ5sPv2MlX3SasnvvsOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAFz//8P2/ydz9899NfrXkC4UsWEZ+teQLhSxYRn615AuFLFhGfrXkCwu9L8g/X79E023h5FdLvlDIgmXkV0u+UMiCZeRXS75QyIJl5FdLvlBotGCjL9W6L1j6pWT3/EbkC4UUQMaBqiVfKKQAMg5ULflCIQWQcaBqyRcKjRbGl2zX5FdLvlDIgmXkV0u+UMiCZeRXS75QyIJl5FdLvrBR+qXb3T//3eRXS75QyIJl5FdLvlDIgmXkV0u+UMiCZeRXS77wP+lCjObLLz9eTvX7y+/s/OQJN7Jw8jvpYMkTNrJw8jvpYMkTNrJw8jvpYMkTNnp/QNM/lHmf0cKtfr+7C+D950nzTvMb5XF3frP5zP7z3fOESwqgNr80724HS56wkQKozS/Nu9vBkidspABq80vz7naw5AkbvT+gq+fpX7rJT54n5wmXLJz8TjpY8oSNLJz8TjpY8oSNLJz8TjpY8oQP8v6Ap1+6ffrCjL60fCe/a/KEg1m4Vw7WWvKEg1m4Vw7WWvKEg1m4Vw7WWvJkK1/izLFwGfmtJU8iCmCOhcvIby15ElEAcyxcRn5ryZOIAphj4TLyW0ueTHn/Dzx6QDwQr0YLNzvd8h39wiG/Od3zHH3+9Bfc6tffTgFkFECm+8FarXueCmCSAsgogEz3g7Va9zwVwCQFkFEAme4Ha7XueSqAyQ8wOvgK4ZoCyKw+ULP5vb/enk9d9/7d8nz/+X767ddoRp9/9etX5zMMTAFkFECm28Gqfv9ueSqAMDAFkFEAmW4Hq/r9u+WpAMLAFEBGAWS6Hazq9++WpwKYDCg9+Arh2ugBShfs6eS31tPynD3If/z158vMHujVr7+9EBTAXk9buN3kt9bT8lQAYWAKoNbTFm43+a31tDwVQBiYAqj1tIXbTX5rPS1PBTAZUPXBVwjXRvnc/fOdTn6Zp+U3e6BnD3j16yuAZp62gLvJL/O0/BTAZEAK4F5PW8Dd5Jd5Wn4KYDIgBXCvpy3gbvLLPC0/BTAI5NOm5Ck5yNMWcDf5ZXbn5w/B5l5/eQCfNkuegoM5YBn5ZRSAAjh6ljwFB3PAMvLLKAAFcPQseQoO5oBl5JdRAM0K4O+vvx89CsABmyG/TLf8qn8hPe4XXgVwtm4LuJr8Mt3yUwAHHHkF8E23BVxNfplu+SmAA468Avim2wKuJr9Mt/wUwOQBTgtk9vUUwLMXcDX5ZbrnV/35b89XAZzt9gfkw8kv0z0/BaAAbnX7A/Lh5Jfpnp8CUAC3uv0B+XDyy3TPTwEogK3eP9/oAXl6HrN/GNQ9v9H/tH3073fP750CUABbWcBXDtgcBbCWAlAAW1nAVw7YHAWwlgJQAFtZwFcO2BwFsFa7Avi0KQ+omHwy8rs2KgD5XVMAh095QMXkk5HfNQWQUQCHT3lAxeSTkd81BZBRAIdPeUDF5JOR3zUFkPm4Arj7IBtjjLlnFIAxxjQdBWCMMU1HARhjTNP5DysTlGa+0WUZAAAAAElFTkSuQmCC); opacity: .15; -webkit-mask-image: linear-gradient(transparent, #000 50%); mask-image: linear-gradient(transparent, #000 50%); }
+  .log > *:not(.bg) { position: relative; }
+  .msg { max-width: 82%; padding: 6px 10px; border-radius: 4px 12px 12px 12px; background: var(--paper); border: 1px solid var(--line); align-self: flex-start; }
+  .msg.me { align-self: flex-end; border-radius: 12px 4px 12px 12px; background: var(--sand); font-family: var(--serif); }
+  .msg.ding { background: var(--honey); border: 0; font-weight: 700; }
+  .msg.ding small { display: block; font-weight: 400; font-size: 9.5px; }
+  .who { font-size: 9.5px; color: var(--muted); margin-bottom: -4px; }
+  .room { align-self: center; color: var(--muted); font: 10.5px var(--serif); text-align: center; }
+  .acts { padding: 6px 10px; border-top: 1px solid var(--line); background: var(--cream); display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+  .acts .sl { min-height: 38px; border: 1.5px solid var(--line2); border-radius: 8px; background: var(--paper); font-size: 11px; font-weight: 700; padding: 3px 6px; display: flex; flex-direction: column; justify-content: center; }
+  .acts .sl small { font-weight: 400; color: var(--muted); font-size: 9px; }
+  .acts .sl.none { border-style: dashed; background: transparent; }
+  .acts .big { grid-column: 1 / -1; min-height: 52px; background: var(--cinnamon); border-color: var(--cinnamon); color: #fff; font-size: 15px; align-items: center; }
+  .tabs { display: grid; grid-template-columns: repeat(5, 1fr); border-top: 2px solid var(--deep); background: var(--sand); }
+  .tab { min-height: 48px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; font-size: 10.5px; color: var(--muted); border: 0; background: none; font-family: var(--sans); position: relative; }
+  .tab svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+  .tab.on { color: var(--cinnamon); font-weight: 700; background: var(--cream); }
+  .tab .dot { position: absolute; top: 7px; right: 18px; width: 7px; height: 7px; border-radius: 50%; background: var(--mint-line); }
+  .tab .num { position: absolute; top: 4px; right: 12px; min-width: 15px; padding: 0 4px; border-radius: 999px; background: var(--cinnamon); color: #fff; font-size: 9px; }
+
+  /* 아래에서 올라오는 판 */
+  .shade { position: absolute; inset: 0; background: rgba(58,42,30,.35); }
+  .sheet { position: absolute; left: 0; right: 0; bottom: 48px; background: var(--cream); border-top: 3px solid var(--deep); border-radius: 14px 14px 0 0; padding: 8px 12px 12px; display: flex; flex-direction: column; gap: 6px; max-height: 72%; overflow: hidden; }
+  .grip { width: 40px; height: 4px; border-radius: 2px; background: var(--line2); align-self: center; margin-bottom: 4px; }
+  .sheet h3 { font: 700 14px var(--serif); display: flex; justify-content: space-between; align-items: baseline; }
+  .sheet h3 span { font: 400 10px var(--sans); color: var(--muted); }
+  .sh { font-size: 10px; color: var(--muted); margin-top: 4px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+  .pl { min-height: 38px; border: 1.5px solid var(--line2); border-radius: 8px; background: var(--paper); padding: 4px 8px; font-size: 12px; display: flex; flex-direction: column; justify-content: center; }
+  .pl small { color: var(--muted); font-size: 9.5px; }
+  .pl.here { border-style: dashed; background: transparent; color: var(--muted); }
+  .pl.person { flex-direction: row; justify-content: space-between; align-items: center; }
+  .chipbar { display: flex; gap: 4px; overflow: hidden; }
+  .chip { padding: 2px 9px; border-radius: 999px; border: 1px solid var(--line2); background: var(--paper); font-size: 10.5px; white-space: nowrap; }
+  .chip.on { background: var(--cinnamon); color: #fff; border-color: var(--cinnamon); }
+  .item { display: flex; align-items: center; gap: 8px; border-bottom: 1px dashed var(--line2); padding: 5px 0; }
+  .item .ico { width: 26px; height: 26px; border-radius: 6px; background: var(--sand); border: 1px solid var(--line2); }
+  .item .grow { flex: 1; }
+  .item small { display: block; color: var(--muted); font-size: 9.5px; }
+  .item .eat { min-height: 30px; padding: 0 10px; border-radius: 7px; border: 0; background: var(--cinnamon); color: #fff; font: 700 11px var(--sans); }
+  .menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+  .mi { min-height: 52px; border: 1.5px solid var(--line2); border-radius: 9px; background: var(--paper); font-size: 11.5px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; position: relative; }
+  .mi svg { width: 18px; height: 18px; stroke: var(--cinnamon); fill: none; stroke-width: 1.8; }
+  .mi .dot { position: absolute; top: 6px; right: 8px; width: 7px; height: 7px; border-radius: 50%; background: var(--mint-line); }
+
+  /* 시안 B: 위쪽만 줄인다 */
+  .topbtns { display: flex; gap: 5px; padding: 6px 10px; background: var(--sand); border-bottom: 1px solid var(--line); }
+  .topbtns span { flex: 1; min-height: 32px; border: 1.5px solid var(--line2); border-radius: 8px; background: var(--paper); display: flex; align-items: center; justify-content: center; font-size: 11px; }
+
+  table { border-collapse: collapse; width: 100%; max-width: 900px; background: var(--paper); font-size: .93rem; }
+  th, td { border-bottom: 1px dashed var(--line2); padding: 7px 9px; text-align: left; vertical-align: top; }
+  th { border-bottom: 2px solid var(--deep); }
+  ol { padding-left: 1.3rem; }
+</style></head>
+<body><div class="wrap">
+<h1>휴대폰 화면 시안</h1>
+<p class="note">지금 휴대폰 화면은 위쪽 세 줄(단추 줄, 곳 이름, 세 줄로 접힌 몸 상태)이 화면의 3분의 1을 차지하고, 가방·지도·퀘스트 같은 메뉴가 서랍 깊숙이 있습니다. 엄지로 닿는 아래쪽에 자주 쓰는 것을 모으고, 대화방을 넓힙니다.</p>
+
+<h2>시안 A: 아래 탭 다섯 칸 <span class="tag">추천</span></h2>
+<p class="note">휴대폰 게임에서 흔한 꼴입니다. 맨 아래에 탭 다섯 칸(대화방·장소·가방·일지·메뉴)을 두고, 누르면 아래에서 판이 올라옵니다. 몸 상태는 한 줄 네 칸으로 줄이고, 누르면 상태 판이 열립니다.</p>
+<div class="phones">
+  <div>
+    <div class="phone">
+      <div class="hd"><b>훈련소</b><span>1일째 아침 11:20 · 유저 6명</span></div>
+      <div class="stats">
+        <button class="st"><span>생명 <b>105</b></span><i><i style="width:100%"></i></i></button>
+        <button class="st warn low"><span>포만 <b>14</b> 먹기</span><i><i style="width:14%"></i></i></button>
+        <button class="st"><span>피로 <b>18</b></span><i><i style="width:18%"></i></i></button>
+        <button class="st"><span>경험 <b>40%</b></span><i><i style="width:40%"></i></i></button>
+      </div>
+      <div class="log">
+        <div class="bg"></div>
+        <span class="room">교관이 이쪽을 보더니 먼저 말을 건다.</span>
+        <span class="who">교관</span><div class="msg" style="font-family:var(--serif)">도리미. 또 왔나.</div>
+        <div class="msg me">허수아비를 쳤다. 손바닥이 얼얼하다.</div>
+        <div class="msg me">허수아비를 쳤다. 짚 부스러기가 날린다.</div>
+        <span class="who">시스템</span><div class="msg ding"><small>흔함:</small>띠링! 치기 숙련도가 초급 2가 되었습니다</div>
+        <div class="msg me">허수아비를 쳤다. 이제 눈을 감고도 칠 수 있을 것 같다.</div>
+      </div>
+      <div class="acts">
+        <span class="sl">2<br>방 빌리기</span><span class="sl none"><small>3 비어 있음</small></span><span class="sl none"><small>4</small></span><span class="sl none"><small>5</small></span>
+        <span class="sl big">치기</span>
+      </div>
+      <div class="tabs">
+        <button class="tab on"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>대화방</button>
+        <button class="tab"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>장소</button>
+        <button class="tab"><svg viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>가방</button>
+        <button class="tab"><svg viewBox="0 0 24 24"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg>일지<span class="num">2</span></button>
+        <button class="tab"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>메뉴<span class="dot"></span></button>
+      </div>
+    </div>
+    <p class="cap">① 기본 화면. 위쪽은 두 줄뿐. 배가 고프면 포만 칸이 꿀색으로 바뀌고 "먹기"가 붙는다. 누르면 가방의 음식이 열린다.</p>
+  </div>
+
+  <div>
+    <div class="phone">
+      <div class="hd"><b>훈련소</b><span>1일째 아침 11:20 · 유저 6명</span></div>
+      <div class="stats">
+        <button class="st"><span>생명 <b>105</b></span><i><i style="width:100%"></i></i></button>
+        <button class="st"><span>포만 <b>71</b></span><i><i style="width:71%"></i></i></button>
+        <button class="st"><span>피로 <b>18</b></span><i><i style="width:18%"></i></i></button>
+        <button class="st"><span>경험 <b>40%</b></span><i><i style="width:40%"></i></i></button>
+      </div>
+      <div class="log"><div class="bg"></div><div class="msg me">허수아비를 쳤다.</div></div>
+      <div class="shade"></div>
+      <div class="sheet">
+        <span class="grip"></span>
+        <h3>장소 <span>시작 마을 · 위험도 안전</span></h3>
+        <div class="grid2">
+          <span class="pl">광장</span><span class="pl here">훈련소<small>지금 여기</small></span>
+          <span class="pl">대장간</span><span class="pl">잡화점</span>
+          <span class="pl">주점</span><span class="pl">신전</span>
+        </div>
+        <span class="sh">여기 있는 사람</span>
+        <span class="pl person"><span>교관<br><small>낯익은 사이</small></span><small>말 걸기 ›</small></span>
+        <span class="sh">더 멀리</span>
+        <span class="pl">세계 지도<small>들판과 다른 마을로 길을 나선다</small></span>
+      </div>
+      <div class="tabs">
+        <button class="tab"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>대화방</button>
+        <button class="tab on"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>장소</button>
+        <button class="tab"><svg viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>가방</button>
+        <button class="tab"><svg viewBox="0 0 24 24"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg>일지</button>
+        <button class="tab"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>메뉴<span class="dot"></span></button>
+      </div>
+    </div>
+    <p class="cap">② 장소 탭. 지금의 "방 목록" 서랍 대신 아래에서 판이 올라온다. 곳은 두 줄로, 사람은 따로, 세계 지도도 여기서.</p>
+  </div>
+
+  <div>
+    <div class="phone">
+      <div class="hd"><b>훈련소</b><span>1일째 아침 11:20 · 유저 6명</span></div>
+      <div class="stats">
+        <button class="st"><span>생명 <b>105</b></span><i><i style="width:100%"></i></i></button>
+        <button class="st warn low"><span>포만 <b>14</b> 먹기</span><i><i style="width:14%"></i></i></button>
+        <button class="st"><span>피로 <b>18</b></span><i><i style="width:18%"></i></i></button>
+        <button class="st"><span>경험 <b>40%</b></span><i><i style="width:40%"></i></i></button>
+      </div>
+      <div class="log"><div class="bg"></div><div class="msg me">허수아비를 쳤다.</div></div>
+      <div class="shade"></div>
+      <div class="sheet">
+        <span class="grip"></span>
+        <h3>가방 <span>무게 10 / 57 · 은화 48</span></h3>
+        <div class="chipbar"><span class="chip">전체</span><span class="chip on">음식</span><span class="chip">장비</span><span class="chip">재료</span><span class="chip">기타</span></div>
+        <div class="item"><span class="ico"></span><span class="grow">주먹밥 ×3<small>포만감 +30</small></span><button class="eat">먹기</button></div>
+        <div class="item"><span class="ico"></span><span class="grow">멧돼지 꼬치 ×1<small>포만감 +45, 공격력 +2 (두 때)</small></span><button class="eat">먹기</button></div>
+        <div class="item"><span class="ico"></span><span class="grow">빵 ×2<small>포만감 +20</small></span><button class="eat">먹기</button></div>
+      </div>
+      <div class="tabs">
+        <button class="tab"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>대화방</button>
+        <button class="tab"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>장소</button>
+        <button class="tab on"><svg viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>가방</button>
+        <button class="tab"><svg viewBox="0 0 24 24"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg>일지</button>
+        <button class="tab"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>메뉴<span class="dot"></span></button>
+      </div>
+    </div>
+    <p class="cap">③ 포만 칸의 "먹기"를 누르면 가방이 음식 갈래로 열린다. 줄마다 "먹기" 단추가 바로 있다. 판을 닫지 않고 연달아 먹을 수 있다.</p>
+  </div>
+
+  <div>
+    <div class="phone">
+      <div class="hd"><b>훈련소</b><span>1일째 아침 11:20 · 유저 6명</span></div>
+      <div class="stats">
+        <button class="st"><span>생명 <b>105</b></span><i><i style="width:100%"></i></i></button>
+        <button class="st"><span>포만 <b>71</b></span><i><i style="width:71%"></i></i></button>
+        <button class="st"><span>피로 <b>18</b></span><i><i style="width:18%"></i></i></button>
+        <button class="st"><span>경험 <b>40%</b></span><i><i style="width:40%"></i></i></button>
+      </div>
+      <div class="log"><div class="bg"></div><div class="msg me">허수아비를 쳤다.</div></div>
+      <div class="shade"></div>
+      <div class="sheet">
+        <span class="grip"></span>
+        <h3>메뉴</h3>
+        <div class="menu">
+          <span class="mi"><svg viewBox="0 0 24 24"><path d="M6 4h12v16l-6-4-6 4z"/></svg>퀘스트</span>
+          <span class="mi"><svg viewBox="0 0 24 24"><path d="M12 3l2.5 5.5 6 .5-4.5 4 1.5 6-5.5-3-5.5 3 1.5-6-4.5-4 6-.5z"/></svg>칭호</span>
+          <span class="mi"><svg viewBox="0 0 24 24"><path d="M7 21v-6l5-11 5 11v6z"/></svg>장비</span>
+          <span class="mi"><svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="3"/><circle cx="16" cy="10" r="2.5"/><path d="M3 20c1-4 4-5 6-5s5 1 6 5"/></svg>동료</span>
+          <span class="mi"><svg viewBox="0 0 24 24"><path d="M5 20h14M8 20V9l4-5 4 5v11"/></svg>작품</span>
+          <span class="mi"><svg viewBox="0 0 24 24"><path d="M4 18h16l-2-4V9a6 6 0 0 0-12 0v5z"/></svg>알림 기록</span>
+          <span class="mi"><svg viewBox="0 0 24 24"><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/><circle cx="12" cy="12" r="9"/></svg>공지와 랭킹</span>
+          <span class="mi"><svg viewBox="0 0 24 24"><path d="M4 20V8l8-4 8 4v12M9 20v-6h6v6"/></svg>길드</span>
+          <span class="mi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>저장과 설정<span class="dot"></span></span>
+        </div>
+        <span class="mi" style="min-height:38px;flex-direction:row">도움말</span>
+      </div>
+      <div class="tabs">
+        <button class="tab"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>대화방</button>
+        <button class="tab"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>장소</button>
+        <button class="tab"><svg viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>가방</button>
+        <button class="tab"><svg viewBox="0 0 24 24"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg>일지</button>
+        <button class="tab on"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>메뉴<span class="dot"></span></button>
+      </div>
+    </div>
+    <p class="cap">④ 메뉴 탭. 나머지 창을 한 판에 모은다. 저장과 설정의 동기화 점은 메뉴 탭에도 붙는다.</p>
+  </div>
+</div>
+
+<h2>시안 B: 지금 꼴을 줄이기만</h2>
+<p class="note">위쪽 단추 줄은 그대로 두고, 곳 이름과 몸 상태를 각각 한 줄로 줄입니다. 바뀌는 것이 적고, 메뉴는 지금처럼 서랍에 있습니다.</p>
+<div class="phones">
+  <div>
+    <div class="phone">
+      <div class="topbtns"><span>방 목록</span><span>가방</span><span>모험 일지</span></div>
+      <div class="hd"><b>훈련소</b><span>1일째 아침 11:20 · 유저 6명</span></div>
+      <div class="stats">
+        <button class="st"><span>생명 <b>105</b></span><i><i style="width:100%"></i></i></button>
+        <button class="st"><span>포만 <b>71</b></span><i><i style="width:71%"></i></i></button>
+        <button class="st"><span>피로 <b>18</b></span><i><i style="width:18%"></i></i></button>
+        <button class="st"><span>경험 <b>40%</b></span><i><i style="width:40%"></i></i></button>
+      </div>
+      <div class="log"><div class="bg"></div>
+        <span class="who">교관</span><div class="msg" style="font-family:var(--serif)">도리미. 또 왔나.</div>
+        <div class="msg me">허수아비를 쳤다. 손바닥이 얼얼하다.</div>
+        <div class="msg me">허수아비를 쳤다. 짚 부스러기가 날린다.</div>
+      </div>
+      <div class="acts">
+        <span class="sl">2<br>방 빌리기</span><span class="sl none"><small>3</small></span><span class="sl none"><small>4</small></span><span class="sl none"><small>5</small></span>
+        <span class="sl big">치기</span>
+      </div>
+    </div>
+    <p class="cap">위쪽이 세 줄에서 조금 얇아질 뿐, 메뉴를 찾는 길은 지금과 같다.</p>
+  </div>
+</div>
+
+<h2>함께 바뀌는 것 (A·B 공통)</h2>
+<table>
+  <thead><tr><th>무엇</th><th>지금</th><th>바꾸면</th></tr></thead>
+  <tbody>
+    <tr><td>몸 상태</td><td>다섯 가지가 세 줄로 접힌다</td><td>생명·포만·피로·경험 네 칸 한 줄. 무게는 가방 판에. 누르면 상태 판</td></tr>
+    <tr><td>곳 이름과 시각</td><td>두 줄로 접힌다</td><td>한 줄. 시각과 유저 수는 작게</td></tr>
+    <tr><td>배고플 때</td><td>가방을 찾아 열고, 음식을 찾아 누르고, 쓰기</td><td>포만 칸이 꿀색으로 "먹기". 누르면 음식만 보이는 가방, 줄마다 먹기</td></tr>
+    <tr><td>창</td><td>화면 위쪽에 가득</td><td>(A) 아래에서 올라오는 판. 엄지가 닿는다</td></tr>
+    <tr><td>넓은 화면(컴퓨터)</td><td colspan="2">바뀌지 않는다. 760px 아래에서만 이 꼴이 된다</td></tr>
+  </tbody>
+</table>
+
+<h2>정해 주실 것</h2>
+<ol>
+  <li>시안 A(아래 탭) / 시안 B(지금 꼴을 줄이기만)</li>
+  <li>A라면 탭 다섯 칸(대화방·장소·가방·일지·메뉴)의 고름과 차례가 괜찮은지</li>
+  <li>배고플 때 포만 칸에 "먹기"가 붙는 것이 괜찮은지</li>
+</ol>
+</div>
+</body></html>
