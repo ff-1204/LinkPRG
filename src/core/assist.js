@@ -6,7 +6,7 @@
 
 export const ASSIST_MODES = ['off', 'hold', 'toggle'];
 export const ASSIST_MS = 1000; // 1초에 한 번
-export const ASSIST_PAUSE = 20; // "한 번 눌러 이어 하기"는 스무 번마다 멈추고 묻는다
+export const ASSIST_PAUSE = 0; // 스무 번마다 멈추고 묻던 것은 없앴다 (사용자 요청, Z57). 다시 누르거나 띠링 창이 뜨거나 칸이 바뀌면 멈춘다
 
 /**
  * @param {'off'|'hold'|'toggle'} mode
@@ -50,7 +50,6 @@ export function createAssist(mode = 'off') {
       if (!a.running || a.asking) return none;
       if (dinged || blocked || what !== a.what) return stop(); // 띠링이 뜨면 멈춘다. 상황이 바뀌어도 멈춘다 (H2-8)
       if (now - a.last < ASSIST_MS) return none;
-      if (a.mode === 'toggle' && a.count > 0 && a.count % ASSIST_PAUSE === 0) { a.asking = true; return { fire: false, ask: true }; }
       a.last = now; a.count += 1;
       return { fire: true, ask: false };
     },

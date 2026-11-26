@@ -27,19 +27,14 @@ test('"누르고 있기": 누르고 있는 동안 1초에 한 번. 떼면 멈춘
   assert.ok(ASSIST_MS >= 1000);
 });
 
-test('"한 번 눌러 이어 하기": 스무 번마다 멈추고 묻는다. 다시 누르면 멈춘다 (H2-8)', () => {
+test('"한 번 눌러 이어 하기": 묻지 않고 계속 누른다(Z57). 다시 누르면 멈춘다 (H2-8)', () => {
   const a = createAssist('toggle');
   let fires = a.down(1, 'act:mine', 0).fire ? 1 : 0;
-  let asked = null;
-  for (let t = 1000; t <= 60000 && !asked; t += 1000) { const r = a.tick(t, { what: 'act:mine' }); if (r.fire) fires++; if (r.ask) asked = t; }
-  assert.equal(fires, ASSIST_PAUSE);
-  assert.ok(asked, '스무 번 뒤에 묻는다');
-  assert.equal(a.tick(asked + 5000, { what: 'act:mine' }).fire, false, '답할 때까지 기다린다');
-  assert.equal(a.answer(true, asked + 6000).fire, true);
-  for (let t = asked + 7000; t < asked + 7000 + 19 * 1000; t += 1000) assert.equal(a.tick(t, { what: 'act:mine' }).fire, true);
-  assert.equal(a.count, 40);
-  assert.equal(a.tick(asked + 26000, { what: 'act:mine' }).ask, true, '마흔 번째에 또 묻는다');
-  a.answer(false, 0);
+  let asked = false;
+  for (let t = 1000; t <= 60000; t += 1000) { const r = a.tick(t, { what: 'act:mine' }); if (r.fire) fires++; if (r.ask) asked = true; }
+  assert.equal(fires, 61, '1초에 한 번, 쉬지 않고');
+  assert.equal(asked, false, '스무 번마다 묻지 않는다');
+  assert.equal(a.tick(62000, { what: 'act:mine', dinged: true }).fire, false, '띠링 창이 뜨면 멈춘다');
   assert.equal(a.running, false);
   // 돌던 중에 다시 누르면 멈춘다
   const b = createAssist('toggle');
