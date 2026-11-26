@@ -64,6 +64,7 @@ export const RUMORS_ABOUT_ME = [
   { id: 'falls', when: { falls: 3 }, text: '신전지기가 얼굴을 외운 사람이 있대. 벌써 세 번째라나.' },
   { id: 'keeper', when: { keeper: true }, text: '폐허의 큰 문이 열렸다는 말이 돈다. 누가 열었는지는 말이 다 달라.' },
   { id: 'minedays', when: { streak: ['mine', 3] }, text: '광산에서 사흘째 나오지 않는 사람이 있다더라. 조합원도 아닌데.' },
+  { id: 'hitrun', when: { hitRun: true }, text: '들판에서 덤불 뒤에 숨었다가 사람을 치고 달아난 자가 있다. 이름이 \'{name}\'이라던가.' },
 ];
 export const RUMORS_HINT = [
   { stat: 'endure', text: '같은 일만 죽어라 하는 사람한테는 뭔가 붙는다더라. 미련한 건지 대단한 건지.' },

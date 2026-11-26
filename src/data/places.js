@@ -16,7 +16,6 @@ export const PLACES = {
     suggest: [
       { text: '훈련소에 가서 허수아비를 쳐 본다', go: 'training' },
       { text: '광장을 둘러본다', act: 'look' },
-      { text: '쉬면서 사람들 말을 듣는다', act: 'rest' },
     ],
   },
   training: {

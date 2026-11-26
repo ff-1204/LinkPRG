@@ -1,12 +1,12 @@
-// 테스트 도우미: 한 때(아침·낮·밤)를 넘긴다. 낮에는 잠깐 쉬기를 거듭하고, 밤에는 잔다.
-import { dispatch } from '../src/core/game.js';
+// 테스트 도우미: 한 때(아침·낮·밤)를 넘긴다. 낮에는 아무 일 없이 때를 흘리고, 밤에는 잔다.
+import { dispatch, idle } from '../src/core/game.js';
 
 export function passPhase(s) {
   const events = [];
   if (s.phase === 2) return dispatch(s, { type: 'act', id: 'rest' });
   const was = s.phase;
   let guard = 0;
-  while (s.phase === was && guard++ < 50) events.push(...dispatch(s, { type: 'act', id: 'rest' }));
+  while (s.phase === was && guard++ < 50) events.push(...idle(s, 10));
   return events;
 }
 

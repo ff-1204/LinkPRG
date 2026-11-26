@@ -760,10 +760,11 @@ export function start(root, storage = globalThis.localStorage) {
         if (!v) { close(); return; }
         add(body,
           h('p', { class: 'serif', style: 'font-size:1.1rem;line-height:1.8' }, v.text),
+          v.feel ? h('div', {}, `${v.feel.label}: `, h('span', { class: `feel f${v.feel.id}` }, v.feel.text)) : null,
           h('div', { class: 'col-btns' }, v.options.map((o, i) =>
             h('button', { class: `btn ${o.go ? 'go' : ''}`, type: 'button', disabled: !!o.disabled, 'data-autofocus': i === 0 || null, 'data-press': true,
-              onclick: () => { const ev = run({ type: 'choose', id: o.id }, true); if (!ev) return; if (game.choice) rerender(); else close(); } },
-              o.label, o.disabled && o.why ? h('small', { class: 'muted' }, ` (${o.why})`) : null))),
+              onclick: () => { const ev = run({ type: 'choose', id: o.id }, true); if (!ev) return; if (!game.choice) close(); else if (choiceView(game)?.title !== v.title || choiceView(game)?.side !== v.side) { close(); openChoice(); } else rerender(); } },
+              o.label, o.sub ? h('small', { class: 'sub' }, o.sub) : null, o.disabled && o.why ? h('small', { class: 'muted' }, ` (${o.why})`) : null))),
           v.note ? h('p', { class: 'muted', style: 'font-size:.85rem' }, v.note) : null);
       },
       onClose: () => { drawSlots(); refs.slots?.querySelector('button:not([disabled])')?.focus(); },

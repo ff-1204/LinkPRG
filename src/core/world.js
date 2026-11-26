@@ -176,12 +176,13 @@ function rumorTrue(state, when) {
   if (when.first) return !!state.world.firsts[when.first]?.mine;
   if (when.falls) return state.falls >= when.falls;
   if (when.keeper) return !!state.dmem.ruins?.keeper;
+  if (when.hitRun) return !!state.flags.hitRun;
   return false;
 }
 
 /** 소문 게시판이 그릴 것: 나에 대한 소문, 오늘의 귀띔 둘, 세상 이야기 하나. */
 export function rumorsView(state) {
-  const mine = RUMORS_ABOUT_ME.filter((r) => rumorTrue(state, r.when)).map((r) => ({ id: r.id, text: r.text, about: 'me' }));
+  const mine = RUMORS_ABOUT_ME.filter((r) => rumorTrue(state, r.when)).map((r) => ({ id: r.id, text: r.text.replace('{name}', state.name), about: 'me' }));
   const day = state.day;
   const a = hash(state.seed, 'rumor', day) % RUMORS_HINT.length;
   const b = (a + 1 + (hash(state.seed, 'rumor2', day) % (RUMORS_HINT.length - 1))) % RUMORS_HINT.length;
@@ -216,7 +217,7 @@ export function sinceLast(state) {
   const w = state.world;
   const notices = w.notices.slice(w.seen.notices).filter((n) => n.key || n.mine).map((n) => noticeText(state, n));
   const deals = (state.auction?.history || []).slice(w.seen.deals).map((d) => d.text);
-  const rumors = RUMORS_ABOUT_ME.filter((r) => rumorTrue(state, r.when) && !w.seen.rumors.includes(r.id)).map((r) => r.text);
+  const rumors = RUMORS_ABOUT_ME.filter((r) => rumorTrue(state, r.when) && !w.seen.rumors.includes(r.id)).map((r) => r.text.replace('{name}', state.name));
   return { notices, deals, rumors, found: foundCount(state) };
 }
 

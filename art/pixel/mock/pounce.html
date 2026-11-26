@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>먼저 덮치기 시안</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  :root { --cream: #FBF5E6; --paper: #FFFDF6; --sand: #F3E9D2; --line: #E6D9BD; --line2: #CDBE9E; --ink: #3A2A1E; --muted: #6B5443; --deep: #1E140D; --cinnamon: #8A4F2B; --mint: #BFE3D0; --mint-ink: #1F4A3A; --honey: #F2B63C; --serif: 'Gowun Batang', serif; --sans: 'Gowun Dodum', sans-serif; }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--cream); color: var(--ink); font: 16px/1.65 var(--sans); padding: 24px 16px 60px; }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  h1 { font: 700 27px/1.3 var(--serif); margin-bottom: 6px; }
+  h2 { font: 700 20px/1.3 var(--serif); margin: 36px 0 8px; padding-top: 10px; border-top: 2px solid var(--deep); }
+  .note { color: var(--muted); max-width: 50rem; margin-bottom: 10px; }
+  .row { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+  .win { background: var(--cream); border: 3px solid var(--deep); border-radius: 6px; width: min(400px, 100%); box-shadow: 8px 8px 0 rgba(30,20,13,.25); }
+  .wt { padding: 9px 14px; background: var(--sand); border-bottom: 3px solid var(--deep); display: flex; justify-content: space-between; font-weight: 700; font-size: .95rem; }
+  .wt span:last-child { font-weight: 400; }
+  .wb { padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .wb p.t { font: 1.08rem/1.8 var(--serif); }
+  .btn { min-height: 44px; border: 1.5px solid var(--line2); border-radius: 8px; background: var(--paper); font: 1rem var(--sans); text-align: left; padding: 6px 12px; }
+  .btn.go { background: var(--cinnamon); color: #fff; border-color: var(--cinnamon); }
+  .btn small { display: block; font-size: .8rem; opacity: .85; }
+  .feel { display: inline-block; padding: 1px 9px; border-radius: 999px; font-size: .82rem; font-weight: 700; }
+  .f0 { background: var(--mint); color: var(--mint-ink); }
+  .f1 { background: var(--honey); color: #3A2A1E; }
+  .f2 { background: #E9B7A0; color: #4A1E0C; }
+  .wb small.n { color: var(--muted); font-size: .82rem; }
+  .cap { font-size: .85rem; color: var(--muted); margin-top: 6px; }
+  .chat { width: min(400px, 100%); background: var(--paper); border: 2px solid var(--deep); padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .me { align-self: flex-end; background: var(--sand); border-radius: 14px 4px 14px 14px; padding: 6px 12px; font-family: var(--serif); }
+  .room { align-self: center; color: var(--muted); font: .9rem var(--serif); text-align: center; }
+  .sys { align-self: flex-start; background: var(--sand); border-radius: 4px 14px 14px 14px; padding: 6px 12px; }
+  .warn { background: #FBE3C2; }
+  table { border-collapse: collapse; width: 100%; background: var(--paper); font-size: .95rem; }
+  th, td { border-bottom: 1px dashed var(--line2); padding: 7px 9px; text-align: left; vertical-align: top; }
+  th { border-bottom: 2px solid var(--deep); }
+  td.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .lab { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin: 10px 0; }
+  .lab label { display: flex; flex-direction: column; font-size: .85rem; color: var(--muted); gap: 3px; }
+  .lab input[type=number] { width: 80px; min-height: 36px; border: 1px solid var(--line2); border-radius: 6px; padding: 0 8px; font: inherit; background: var(--paper); }
+  .out { font-size: 1.1rem; margin-top: 6px; }
+  .out b { font-size: 1.4rem; }
+  ol { padding-left: 1.3rem; }
+</style></head>
+<body><div class="wrap">
+<h1>먼저 덮치기 시안</h1>
+<p class="note">지금은 "먼저 덮친다"가 늘 성공해서 고를 거리가 없습니다. 덮치다 들킬 수 있게 하고, 숨어서 지켜보기에 쓸모를 줍니다.</p>
+
+<h2>1. 기척 창</h2>
+<p class="note">들킬 확률의 숫자는 보이지 않고, 느낌을 세 단계로 보여 줍니다. 지켜보면 적이 보이고 느낌이 나아집니다.</p>
+<div class="row">
+  <div>
+    <div class="win">
+      <div class="wt"><span>기척을 느꼈다</span><span>민첩 12로 먼저 알아챔</span></div>
+      <div class="wb">
+        <p class="t">가까이에서 무거운 숨소리가 들린다. 아직 이쪽을 모른다.</p>
+        <div>덮치면: <span class="feel f1">들킬지도 모른다</span></div>
+        <button class="btn go">먼저 덮친다<small>들키면 적이 먼저 움직인다</small></button>
+        <button class="btn">숨어서 지켜본다<small>무엇인지 보고, 덮치기가 쉬워진다</small></button>
+        <button class="btn">돌아간다</button>
+        <small class="n">알아채지 못했다면 습격당해 적이 먼저 움직입니다.</small>
+      </div>
+    </div>
+    <p class="cap">처음: 무엇인지 모른다</p>
+  </div>
+  <div>
+    <div class="win">
+      <div class="wt"><span>기척을 느꼈다</span><span>민첩 12로 먼저 알아챔</span></div>
+      <div class="wb">
+        <p class="t">멧돼지다. 레벨 5쯤. 아직 이쪽을 모른다.</p>
+        <div>덮치면: <span class="feel f0">자신 있다</span></div>
+        <button class="btn go">먼저 덮친다<small>들키면 적이 먼저 움직인다</small></button>
+        <button class="btn">돌아간다</button>
+      </div>
+    </div>
+    <p class="cap">지켜본 뒤: 적이 보이고 들킬 확률이 10% 줄었다</p>
+  </div>
+</div>
+<p class="note" style="margin-top:12px">느낌 세 단계: <span class="feel f0">자신 있다</span> 들킬 확률 15% 미만 · <span class="feel f1">들킬지도 모른다</span> 15~35% · <span class="feel f2">들킬 것 같다</span> 35% 넘게</p>
+
+<h2>2. 들켰을 때와 들키지 않았을 때</h2>
+<div class="row">
+  <div class="chat">
+    <div class="room">(들키지 않았다: 지금과 같다)</div>
+    <div class="me">덤불에서 뛰쳐나가 먼저 덮쳤다.</div>
+    <div class="sys">멧돼지에게 18 피해.</div>
+  </div>
+  <div class="chat">
+    <div class="room">(들켰다)</div>
+    <div class="me">덤불에서 뛰쳐나가려는 순간, 마른 가지가 부러졌다.</div>
+    <div class="sys warn">들켰다. 멧돼지가 먼저 움직인다.</div>
+    <div class="sys">멧돼지의 들이받기. 14 피해.</div>
+  </div>
+</div>
+
+<h2>3. 들킬 확률 (추천값)</h2>
+<table>
+  <thead><tr><th>무엇</th><th class="n">들킬 확률</th><th>까닭</th></tr></thead>
+  <tbody>
+    <tr><td>바탕</td><td class="n">25%</td><td>넷 가운데 하나는 들킨다</td></tr>
+    <tr><td>적 레벨이 나보다 높을 때, 1마다</td><td class="n">+5%</td><td>센 놈은 기척에 밝다. 낮으면 1마다 −3%</td></tr>
+    <tr><td>민첩 10을 넘는 1마다</td><td class="n">−1%</td><td>발이 가볍다. 10보다 낮으면 1마다 +1%</td></tr>
+    <tr><td>숨어서 지켜본 뒤</td><td class="n">−10%</td><td>어디로 뛰어들지 안다</td></tr>
+    <tr><td>은신(찾은 사람만) 1마다</td><td class="n">−3%</td><td>숨는 데 익숙하다</td></tr>
+    <tr><td>덫놓이 출신</td><td class="n">−10%</td><td>지금의 "더 아프게 친다"에 더한다</td></tr>
+    <tr><td>가장 낮게 / 가장 높게</td><td class="n">5% / 70%</td><td>늘 되거나 늘 안 되는 일은 없다</td></tr>
+  </tbody>
+</table>
+
+<h2>4. 셈해 보기</h2>
+<div class="lab">
+  <label>내 레벨<input type="number" id="lv" value="3"></label>
+  <label>적 레벨<input type="number" id="ml" value="5"></label>
+  <label>민첩<input type="number" id="agi" value="12"></label>
+  <label>은신<input type="number" id="st" value="0"></label>
+  <label><span><input type="checkbox" id="wa"> 지켜본 뒤</span></label>
+  <label><span><input type="checkbox" id="tr"> 덫놓이</span></label>
+</div>
+<p class="out" id="out"></p>
+
+<h2>5. 기척이 모험가일 때 (새로 더함)</h2>
+<p class="note">들판의 기척 가운데 몇은 짐승이 아니라 같은 들판을 다니는 모험가(가상 유저)입니다. 지켜보면 사람인 줄 알고 그냥 지나칠 수 있습니다. 지켜보지 않고 덮치면 사람을 치게 됩니다.</p>
+<div class="row">
+  <div class="win">
+    <div class="wt"><span>사람이었다</span><span>잘못 덮쳤다</span></div>
+    <div class="wb">
+      <p class="t">덤불에서 뛰쳐나가 내리쳤는데, 비명이 사람 소리다. 약초 바구니를 멘 모험가 '달무리'가 어깨를 감싸 쥐고 주저앉았다.</p>
+      <button class="btn go">사과하고 치료비를 낸다<small>은화 30 (내 레벨 × 10). 그 사람은 고맙다며 일어선다</small></button>
+      <button class="btn">모른 척 달아난다<small>은화는 그대로. 이 마을 명성 −20, 세계 소문에 오른다</small></button>
+      <small class="n">은화가 모자라면 가진 만큼 내고, 명성은 −5.</small>
+    </div>
+  </div>
+  <div class="chat">
+    <div class="room">(달아났을 때, 세계 소문)</div>
+    <div class="sys">소문: 서쪽 숲에서 덤불 뒤에 숨었다가 사람을 치고 달아난 자가 있다. 이름이 '도리미'라던가.</div>
+    <div class="room">(치료비를 냈을 때)</div>
+    <div class="me">은화 30을 건넸다. 몇 번이고 고개를 숙였다.</div>
+    <div class="sys">달무리: 다음엔 보고 덮쳐요. 그래도 손은 매섭네요.</div>
+  </div>
+</div>
+<table style="margin-top:12px">
+  <thead><tr><th>무엇</th><th class="n">값</th><th>까닭</th></tr></thead>
+  <tbody>
+    <tr><td>기척이 모험가일 확률</td><td class="n">그곳 유저 수 × 1%, 많아야 15%</td><td>사람이 많은 들판일수록 잘 마주친다. 밤에는 드물다</td></tr>
+    <tr><td>지켜보면</td><td class="n">사람인 줄 안다</td><td>"말을 건다" 또는 "지나간다". 싸움이 나지 않는다</td></tr>
+    <tr><td>죽는 일</td><td class="n">없다</td><td>덮치는 한 방은 다치게만 한다. 이 게임에는 사람을 죽이는 길이 없다</td></tr>
+    <tr><td>치료비</td><td class="n">내 레벨 × 은화 10</td><td>레벨이 높을수록 더 다치게 했다</td></tr>
+    <tr><td>달아나기</td><td class="n">그 마을 명성 −20, 소문</td><td>돈은 아끼지만 이름이 깎인다</td></tr>
+  </tbody>
+</table>
+
+<h2>6. 정해 주실 것</h2>
+<ol>
+  <li>기척 창 모양(1번): 숫자 대신 느낌 세 단계로 보여 주는 것이 괜찮은지</li>
+  <li>들켰을 때(2번): 공짜 공격 없이 적이 먼저 움직이는 것이 괜찮은지</li>
+  <li>숫자(3번): 바탕 25% 그대로 / 다르게</li>
+  <li>모험가(5번): 넣을지. 넣는다면 죽는 일은 없게 할지, 치료비와 달아날 때의 값이 괜찮은지</li>
+</ol>
+</div>
+<script>
+const $ = (id) => document.getElementById(id);
+function calc() {
+  const diff = (+$('ml').value) - (+$('lv').value);
+  let p = 0.25 + (diff > 0 ? diff * 0.05 : diff * 0.03) - ((+$('agi').value) - 10) * 0.01 - (+$('st').value) * 0.03 - ($('wa').checked ? 0.10 : 0) - ($('tr').checked ? 0.10 : 0);
+  p = Math.min(0.70, Math.max(0.05, p));
+  const feel = p < 0.15 ? ['f0', '자신 있다'] : p <= 0.35 ? ['f1', '들킬지도 모른다'] : ['f2', '들킬 것 같다'];
+  $('out').innerHTML = `들킬 확률 <b>${Math.round(p * 100)}%</b> &nbsp; <span class="feel ${feel[0]}">${feel[1]}</span>`;
+}
+for (const id of ['lv', 'ml', 'agi', 'st', 'wa', 'tr']) $(id).oninput = calc;
+calc();
+</script>
+</body></html>

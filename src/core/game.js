@@ -1,7 +1,7 @@
 // 게임 규칙의 본체. 화면을 모른다. 상태(state)는 그대로 저장되는 순수한 값이다.
 // dispatch(state, action, options)가 상태를 고치고, 그 사이 일어난 일(events)을 돌려준다.
 
-import { seedFrom, pick, chance, int } from './rng.js';
+import { seedFrom, pick, chance, int, roll01 } from './rng.js';
 import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js';
 import { emptyCounters, checkHidden, hiddenById } from './hidden.js';
 import { iGa, eulReul, ro, eunNeun } from './ko.js';
@@ -52,7 +52,7 @@ import { ACTIONS, PLACES, PHASES, PHASE_TICKS, MOVE_TICKS, WILD_ORDER, TOWNS, TO
 import { DUNGEONS } from '../data/dungeon.js';
 import { takeById, addItem } from './inventory.js';
 import {
-  ACTION_LINES, COUNT_WORDS, PHASE_LINES, REST_LINES, INSTRUCTOR, SCARECROW_LINES, USERS,
+  ACTION_LINES, COUNT_WORDS, PHASE_LINES, INSTRUCTOR, SCARECROW_LINES, USERS,
   STRIKE_CHATTER, AFTER_ENDURE_CHATTER, AMBIENT_CHATTER, START_JOURNAL, BATTLE_CHATTER,
 } from '../data/lines.js';
 
@@ -240,9 +240,10 @@ export function slotsNow(state) {
     return inside.slice(0, 5);
   }
   // 말 걸기는 왼쪽 방 목록의 사람 이름을 누른다
-  const list = placeById(state.place).actions.filter((id) => id !== 'talk').map((id) => (ACTIONS[id].open ? { label: ACTIONS[id].label, open: ACTIONS[id].open } : { label: ACTIONS[id].label, action: { type: 'act', id } }));
+  // 쉬기는 밤에만 된다(잠자기·야영). 낮에 피로를 풀려면 주점에서 방을 빌린다
+  const list = placeById(state.place).actions.filter((id) => id !== 'talk' && (id !== 'rest' || state.phase === 2)).map((id) => (ACTIONS[id].open ? { label: ACTIONS[id].label, open: ACTIONS[id].open } : { label: ACTIONS[id].label, action: { type: 'act', id } }));
   for (const x of list) {
-    if (x.action?.type === 'act' && x.action.id === 'rest') x.label = state.phase === 2 ? (placeById(state.place).wild ? '야영' : '잠자기') : canNap(state) ? '낮잠자기' : '잠깐 쉬기';
+    if (x.action?.type === 'act' && x.action.id === 'rest') x.label = placeById(state.place).wild ? '야영' : '잠자기';
     if (x.action?.type === 'act' && x.action.id === 'bread' && state.flags.breadDay === state.day) { x.disabled = true; x.why = '오늘은 이미 받았다'; }
     if (x.action?.type === 'act' && x.action.id === 'room') { x.label = `방 빌리기 (은화 ${INN_FEE})`; if (state.silver < INN_FEE) { x.disabled = true; x.why = '은화가 모자란다'; } }
     if (x.action?.type === 'act' && ACTIONS[x.action.id]?.teach && !knowsWork(state, x.action.id)) x.label = `구경하기 (${ACTIONS[x.action.id].label})`;
@@ -369,6 +370,17 @@ function hunger(state, events, ticks) {
   state.full = Math.max(0, before - drop);
   if (before >= 20 && state.full < 20) pushLine(state, events, { k: 'sys', text: '배가 고프다. 힘이 잘 들어가지 않는다.', tone: 'warn' });
   if (before > 0 && state.full === 0) pushLine(state, events, { k: 'sys', text: '배가 등에 붙었다. 무엇이든 먹어야 한다.', tone: 'warn' });
+  // 허기 (Z35): 포만감이 5 아래로 1 줄 때마다 쓰러질 수 있다. 0에 붙은 뒤에도 줄 때마다 굴린다
+  for (let i = 1; i <= drop && !state.flags.faint; i++) {
+    const v = Math.max(0, before - i);
+    if (v <= FAINT_AT && roll01(`${state.seed}|faint|${state.day}|${state.phase}|${state.tick}|${i}`) < faintChance(v)) state.flags.faint = true;
+  }
+}
+
+export const FAINT_AT = 5;
+/** 포만감 v가 되는 순간 쓰러질 확률: 5에 4%, 1 줄 때마다 4%씩 (0에 24%). */
+export function faintChance(v) {
+  return v <= FAINT_AT ? (FAINT_AT + 1 - v) * 0.04 : 0;
 }
 
 /** 지금 시각. 아침 06~12시, 낮 12~20시, 밤 20~06시. 한 일마다 조금씩 흐른다. */
@@ -387,11 +399,26 @@ function tire(state, events, ticks) {
   const slow = Math.max(0.5, 1 - (state.hidden?.vigil?.value || 0) * 0.03) * (state.flags.slowTire ? 0.9 : 1); // 숯쟁이는 더디게 지친다 // 집념: 버텨 본 몸은 더디게 지친다
   state.tired = Math.min(TIRED_MAX, Math.round((before + ticks * (state.phase === 2 ? TIRE_NIGHT : TIRE_DAY) * slow) * 100) / 100);
   if (before < TIRED_AT && state.tired >= TIRED_AT) pushLine(state, events, { k: 'sys', text: '몸이 무겁다. 눈이 자꾸 감긴다. 밤에 자야 풀린다.', tone: 'warn' });
+  // 졸음 (Z34): 피로가 90을 넘으면 1 오를 때마다 곯아떨어질 수 있다. 100에 가까울수록 잘 그런다
+  for (let n = Math.max(DOZE_AT, Math.floor(before) + 1); n <= Math.floor(state.tired) && n < TIRED_MAX && !state.flags.doze; n++) {
+    if (roll01(`${state.seed}|doze|${state.day}|${state.phase}|${state.tick}|${n}`) < dozeChance(n)) state.flags.doze = true;
+  }
+}
+
+export const DOZE_AT = 90;
+/** 피로 n이 되는 순간 곯아떨어질 확률: 90에 2%, 1 오를 때마다 2%씩 (99에 20%). */
+export function dozeChance(n) {
+  return n >= DOZE_AT ? (n - DOZE_AT + 1) * 0.02 : 0;
 }
 
 /** 피로가 끝까지 찼다. 그 자리에서 곯아떨어져 다음 날 아침이 된다. */
 function passOut(state, events) {
-  pushLine(state, events, { k: 'sys', text: '더는 눈을 뜨고 있을 수 없다. 그 자리에서 곯아떨어졌다.', tone: 'warn' });
+  const starved = !!state.flags.faint && !state.flags.doze && (state.tired || 0) < TIRED_MAX;
+  delete state.flags.doze;
+  delete state.flags.faint;
+  pushLine(state, events, starved
+    ? { k: 'sys', text: '눈앞이 캄캄해졌다. 허기를 못 이기고 그 자리에 쓰러졌다.', tone: 'warn' }
+    : { k: 'sys', text: '더는 눈을 뜨고 있을 수 없다. 그 자리에서 곯아떨어졌다.', tone: 'warn' });
   if (placeById(state.place).wild && state.silver > 0) {
     const lost = Math.max(1, Math.floor(state.silver * 0.05));
     state.silver -= lost;
@@ -403,6 +430,13 @@ function passOut(state, events) {
   state.tired = 30;
   pushLine(state, events, { k: 'me', text: '눈을 뜨니 아침이다. 맨바닥에서 잔 몸이 개운하지 않다.' });
   events.push({ type: 'phase' });
+}
+
+/** 테스트와 도구가 아무 일 없이 때를 흘릴 때 쓴다. 화면에는 이런 길이 없다. 배는 고파지고 피로는 쌓이지 않는다. */
+export function idle(state, ticks) {
+  const events = [];
+  advance(state, events, ticks, true);
+  return events;
 }
 
 function advance(state, events, ticks, quiet = false) {
@@ -712,7 +746,9 @@ export function dispatch(state, action, options = {}) {
     if (t === 'move' || t === 'travel') workedHere(state, events, 'enter');
     else if (fit) workedHere(state, events, 'fit');
   }
-  if ((state.tired || 0) >= TIRED_MAX && !state.battle && !state.choice && !state.dungeon && !state.craft && !state.sculpt && !events.some((e) => e.type === 'fall')) passOut(state, events);
+  if (state.flags.doze && (state.tired || 0) < DOZE_AT) delete state.flags.doze; // 그사이 쉬었다
+  if (state.flags.faint && (state.full > FAINT_AT || !(toiled || t === 'move' || t === 'travel'))) delete state.flags.faint; // 그사이 먹었거나, 누워 쉬던 참이다
+  if (((state.tired || 0) >= TIRED_MAX || state.flags.doze || state.flags.faint) && !state.battle && !state.choice && !state.dungeon && !state.craft && !state.sculpt && !events.some((e) => e.type === 'fall')) passOut(state, events);
   return events;
 }
 
@@ -941,13 +977,7 @@ function strike(state, events, count) {
   }
 }
 
-const NAP_TICKS = 10; // 잠깐 쉬기: 한 시간 반쯤
-const NAP_LINES = ['구석 자리에 엎드려 눈을 붙였다. 잔 부딪는 소리가 멀어진다.', '벽에 기대어 졸았다. 누가 어깨에 겉옷을 덮어 준 것 같다.', '탁자에 팔을 베고 잠깐 잤다. 꿈도 꾸지 않았다.'];
 const INN_FEE = 10; // 방 빌리는 값
-// 낮잠 (Z33): 방을 빌리는 곳(주점, 나루 주막)의 구석 자리에서는 낮에도 눈을 붙인다. 피로가 조금 풀린다. 방을 빌리는 것보다는 덜하다
-export const NAP_TIRED = 30; // 낮잠 한 번에 풀리는 피로
-const NAP_LONG = 20; // 낮잠: 세 시간쯤
-const canNap = (state) => state.phase !== 2 && placeById(state.place).actions.includes('room');
 
 /** 들판에서 쉬거나 자는 사이 덮치는가. 덮치면 싸움이 시작된다. */
 function ambushedAtRest(state, events, weight) {
@@ -981,35 +1011,7 @@ function rentRoom(state, events) {
 }
 
 function rest(state, events) {
-  if (canNap(state)) {
-    pushLine(state, events, { k: 'me', text: pick(state, NAP_LINES) });
-    state.lastAction = null;
-    const max = valueOf(state, 'maxHp');
-    const beforeHp = state.hp;
-    const beforeTired = state.tired || 0;
-    state.tired = Math.max(0, beforeTired - NAP_TIRED);
-    state.hp = Math.min(max, state.hp + Math.round(max * (state.full > 0 ? 0.2 : 0.05)));
-    state.mp = Math.min(valueOf(state, 'maxMp'), state.mp + Math.round(valueOf(state, 'maxMp') * 0.4));
-    const parts = [];
-    if (beforeTired > state.tired) parts.push(`피로 −${beforeTired - state.tired}`);
-    if (state.hp > beforeHp) parts.push(`생명력 +${state.hp - beforeHp}`);
-    pushLine(state, events, { k: 'sys', text: parts.length ? `낮잠을 잤다. ${parts.join(', ')}.` : '낮잠을 잤다.' });
-    advance(state, events, NAP_LONG, true);
-    return;
-  }
-  if (state.phase !== 2) {
-    // 낮에는 잠깐 숨만 돌린다. 생명력이 조금 돌아오지만 피로는 풀리지 않는다
-    pushLine(state, events, { k: 'me', text: pick(state, REST_LINES) });
-    state.lastAction = null;
-    const max = valueOf(state, 'maxHp');
-    const before = state.hp;
-    if (ambushedAtRest(state, events, 1)) return;
-    state.hp = Math.min(max, state.hp + Math.round(max * (state.full > 0 ? 0.08 : 0.03)));
-    state.mp = Math.min(valueOf(state, 'maxMp'), state.mp + Math.round(valueOf(state, 'maxMp') * 0.2));
-    if (state.hp > before) pushLine(state, events, { k: 'sys', text: `생명력 +${state.hp - before}.${state.full > 0 ? '' : ' 배가 고파 잘 낫지 않는다.'}` });
-    advance(state, events, NAP_TICKS, true);
-    return;
-  }
+  if (state.phase !== 2) throw new Error('잠은 밤에 잔다. 낮에는 주점에서 방을 빌린다');
   const rough = !!placeById(state.place).wild;
   pushLine(state, events, { k: 'me', text: rough ? '바람을 막을 만한 데를 찾아 웅크렸다.' : '자리를 펴고 누웠다. 눈을 감자마자 잠이 들었다.' });
   state.lastAction = null;

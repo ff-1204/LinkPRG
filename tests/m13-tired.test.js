@@ -40,17 +40,13 @@ test('피로는 한 일마다 쌓이고, 밤에 깨어 있으면 더 빨리 쌓�
   assert.ok(valueOf(s, 'attack') < atk);
 });
 
-test('쉬기: 낮에는 잠깐 쉬기(피로는 그대로), 밤에는 잠자기(피로가 풀리고 아침이 된다)', () => {
+test('쉬기: 낮에는 쉬는 칸이 없다. 밤에만 잠자기(피로가 풀리고 아침이 된다)', () => {
   const s = fresh();
   const rest = () => slotsNow(s).find((x) => x.action?.id === 'rest');
-  assert.equal(rest().label, '잠깐 쉬기');
-  s.tired = 50; s.hp = 10;
-  const clock = clockOf(s);
-  dispatch(s, { type: 'act', id: 'rest' });
-  assert.equal(s.phase, 0, '잠깐 쉬어서는 때가 넘어가지 않는다');
-  assert.ok(clockOf(s) > clock);
-  assert.equal(s.tired, 50);
-  assert.ok(s.hp > 10);
+  assert.equal(rest(), undefined, '낮에는 잠깐 쉬기가 없다');
+  assert.throws(() => dispatch(s, { type: 'act', id: 'rest' }), /밤에 잔다/);
+  s.tired = 50;
+  assert.ok(clockOf(s));
   s.phase = 2; s.tick = 10;
   assert.equal(rest().label, '잠자기');
   dispatch(s, { type: 'act', id: 'rest' });
@@ -136,8 +132,7 @@ test('그곳에 맞는 일을 할수록 사람이 먼저 말을 걸 확률이 �
   // 확률: 할수록 오른다. 사이가 가까울수록 높다
   assert.ok(Math.abs(speakChance(s, 'instructor', 1) - (SPEAK_BASE[0] + 0.10)) < 1e-9, '땅의 사람은 시작 마을에서 +10%p');
   assert.ok(speakChance(s, 'instructor', 20) > speakChance(s, 'instructor', 5));
-  // 쉬기는 그곳에 맞는 일이 아니다
-  for (let i = 0; i < 5; i++) dispatch(s, { type: 'act', id: 'rest' });
+  // 그곳에 맞는 일을 하기 전에는 말을 걸지 않는다
   assert.equal(spokeToday(s, 'instructor'), false);
   assert.equal(s.flags.workHere.n, 0);
   // 허수아비를 친다. 서른몇 번 안에는 반드시 말을 건다
@@ -213,10 +208,7 @@ test('검토: 신전에서는 들어서면 신전지기가 말을 건다. 말 �
   assert.equal(t.counters.npcs.length, 0, '대꾸하지 않은 사람은 말을 섞은 사람이 아니다');
 });
 
-test('검토: 잠깐 쉬기는 조금만 낫는다. 들판에서 쉬거나 자면 덮칠 수 있고, 맨바닥 잠은 피로가 다 풀리지 않는다', () => {
-  const s = fresh('nap'); s.hp = 10;
-  dispatch(s, { type: 'act', id: 'rest' });
-  assert.ok(s.hp <= 10 + Math.round(bodyView(s).maxHp * 0.08));
+test('검토: 들판에서 자면 덮칠 수 있고, 맨바닥 잠은 피로가 다 풀리지 않는다', () => {
   // 들판의 밤: 여러 씨앗 가운데 덮치는 밤이 있다
   let ambushed = 0, slept = 0;
   for (let i = 0; i < 40; i++) {
@@ -327,17 +319,58 @@ test('태세: 맞받아치기는 힘으로, 피하기는 민첩으로, 모으기
   assert.ok(enemyView(f));
 });
 
-test('주점과 주막에서는 낮에도 낮잠을 잔다. 피로가 30 풀린다. 다른 곳의 낮은 잠깐 쉬기다', async () => {
-  const { createGame, dispatch, slotsNow } = await import('../src/core/game.js');
+
+test('피로 90부터는 1 오를 때마다 곯아떨어질 수 있다. 2%에서 시작해 99에 20%', async () => {
+  const { createGame, dispatch, dozeChance } = await import('../src/core/game.js');
   const { rollDice } = await import('../src/data/origins.js');
-  const s = createGame({ name: '잠', origin: 'bard', rolled: rollDice('same'), seed: 'nap' });
-  s.place = 'tavern'; s.phase = 1; s.tired = 50;
-  const slot = slotsNow(s).find((x) => x.action?.id === 'rest');
-  assert.equal(slot.label, '낮잠자기');
-  dispatch(s, { type: 'act', id: 'rest' });
-  assert.equal(s.tired, 20);
-  s.place = 'plaza'; s.phase = 0;
-  assert.equal(slotsNow(s).find((x) => x.action?.id === 'rest').label, '잠깐 쉬기');
-  s.place = 'tavern'; s.phase = 2;
-  assert.equal(slotsNow(s).find((x) => x.action?.id === 'rest').label, '잠자기');
+  assert.equal(dozeChance(89), 0);
+  assert.equal(dozeChance(90), 0.02);
+  assert.equal(Math.round(dozeChance(99) * 100), 20);
+  // 여러 사람이 89에서 일을 거듭하면, 100에 닿기 전에 곯아떨어지는 사람이 나온다
+  let early = 0, never = 0;
+  for (let k = 0; k < 40; k++) {
+    const s = createGame({ name: '졸', origin: 'bard', rolled: rollDice('same'), seed: `doze${k}` });
+    s.place = 'training'; s.tired = 89; s.phase = 0;
+    let slept = false;
+    for (let i = 0; i < 200 && !slept; i++) {
+      const before = s.tired;
+      const ev = dispatch(s, { type: 'act', id: 'strike' });
+      if (s.log.some((l) => l.text.includes('곯아떨어졌다'))) { slept = true; if (before < 99) early++; }
+      if (ev.some((e) => e.type === 'phase') && s.phase === 0 && s.tired === 30) slept = true;
+    }
+    if (!slept) never++;
+  }
+  assert.ok(early >= 10, `100 전에 곯아떨어진 사람 ${early}`);
+  assert.equal(never, 0);
+  // 89 아래에서는 졸지 않는다
+  const t = createGame({ name: '졸', origin: 'bard', rolled: rollDice('same'), seed: 'awake' });
+  t.place = 'training'; t.tired = 10;
+  for (let i = 0; i < 20; i++) dispatch(t, { type: 'act', id: 'strike' });
+  assert.ok(!t.log.some((l) => l.text.includes('곯아떨어졌다')));
+});
+
+test('포만감 5부터는 1 줄 때마다 허기에 쓰러질 수 있다. 4%에서 시작해 0에 24%', async () => {
+  const { createGame, dispatch, faintChance } = await import('../src/core/game.js');
+  const { rollDice } = await import('../src/data/origins.js');
+  assert.equal(faintChance(6), 0);
+  assert.equal(faintChance(5), 0.04);
+  assert.equal(Math.round(faintChance(0) * 100), 24);
+  let fainted = 0;
+  for (let k = 0; k < 30; k++) {
+    const s = createGame({ name: '허', origin: 'bard', rolled: rollDice('same'), seed: `faint${k}` });
+    s.place = 'training'; s.full = 6; s.tired = 0; s.phase = 0;
+    for (let i = 0; i < 200; i++) {
+      s.tired = 0;
+      dispatch(s, { type: 'act', id: 'strike' });
+      if (s.log.some((l) => l.text.includes('허기를 못 이기고'))) { fainted++; break; }
+    }
+  }
+  assert.ok(fainted >= 25, `쓰러진 사람 ${fainted} / 30`);
+  // 먹으면 없던 일이 된다
+  const t = createGame({ name: '허', origin: 'bard', rolled: rollDice('same'), seed: 'ate' });
+  t.place = 'training'; t.full = 3; t.flags.faint = true;
+  t.full = 50;
+  dispatch(t, { type: 'act', id: 'strike' });
+  assert.ok(!t.log.some((l) => l.text.includes('허기를 못 이기고')));
+  assert.equal(t.flags.faint, undefined);
 });

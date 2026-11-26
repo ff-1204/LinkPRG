@@ -116,7 +116,7 @@ function checkShape(s) {
   for (const [id, q] of Object.entries(s.hq || {})) if (!HIDDENS[id] || !q || !HIDDENS[id].steps.some((st) => st.id === q.step)) bad('모르는 퀘스트');
   const c = s.choice;
   if (c) {
-    const ok = (c.kind === 'sense' && MONSTERS[c.mon]) || (c.kind === 'incident' && (INCIDENTS[c.place] || []).some((x) => x.id === c.id))
+    const ok = ((c.kind === 'sense' || c.kind === 'hurt') && MONSTERS[c.mon]) || (c.kind === 'incident' && (INCIDENTS[c.place] || []).some((x) => x.id === c.id))
       || (c.kind === 'offer' && c.job === 'smith') || (c.kind === 'hq' && HIDDENS[c.id]) || (c.kind === 'hjob' && HIDDEN_JOBS[c.id]) || ['trap', 'door', 'keeper', 'ending'].includes(c.kind) || (c.kind === 'memory' && c.id === 'debtpaper');
     if (!ok) bad('모르는 선택');
   }

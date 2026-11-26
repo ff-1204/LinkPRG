@@ -363,3 +363,10 @@ html.calm .cool i { animation: none !important; }
 .nav > small:not(:first-child):not(.part) { position: relative; margin-top: 10px; }
 .nav > small:not(:first-child):not(.part)::before { content: ''; position: absolute; left: 20px; width: 60%; top: -5px; border-top: 2px solid var(--line2); border-radius: 2px; }
 .cm .num { margin-left: 0; }
+
+/* 먼저 덮치기: 들킬 느낌 (Z36) */
+.feel { display: inline-block; padding: 1px 9px; border-radius: 999px; font-size: .85rem; font-weight: 700; }
+.feel.f0 { background: var(--mint); color: var(--mint-ink); }
+.feel.f1 { background: var(--honey); color: #3A2A1E; }
+.feel.f2 { background: #E9B7A0; color: #4A1E0C; }
+.col-btns .btn small.sub { display: block; font-size: .8rem; font-weight: 400; opacity: .85; }

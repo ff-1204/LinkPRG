@@ -1,7 +1,8 @@
 // 탐색과 랜덤 인카운터, 기척 (E1~E4, R2-3).
 // 탐색 한 번마다 전투·발견·사건·만남·희귀 가운데 하나. 싸울지는 되도록 내가 고른다.
 
-import { next, pick, chance } from './rng.js';
+import { next, pick, chance, roll01 } from './rng.js';
+import { addFame } from './social.js';
 import { pushLine } from './log.js';
 import { weighted, startBattle } from './battle.js';
 import { addItem, countOf, takeById } from './inventory.js';
@@ -109,12 +110,39 @@ function meetMonster(state, events, wild) {
   seen(state, monId);
   if (chance(state, senseChance(state, monId))) {
     state.choice = { kind: 'sense', mon: monId, watched: false };
+    // 기척이 짐승이 아니라 같은 들판을 다니는 모험가일 수도 있다 (Z37)
+    const fights = state.counters.fights || 0;
+    if (roll01(`${state.seed}|person|${state.day}|${state.phase}|${state.tick}|${fights}`) < personChance(state)) {
+      state.choice.person = USERS[Math.floor(roll01(`${state.seed}|personname|${state.day}|${state.tick}`) * USERS.length)];
+    }
     pushLine(state, events, { k: 'room', who: '기척', text: '가까이에서 무언가의 숨소리가 들린다. 아직 이쪽을 모른다.' });
     events.push({ type: 'choice' });
     return;
   }
   startBattle(state, events, monId, { ambush: true });
 }
+
+// ── 먼저 덮치기 (Z36)와 모험가 (Z37) ──
+export const CAUGHT_BASE = 0.25;
+/** 먼저 덮치다 들킬 확률. 적이 셀수록 높고, 민첩·은신·지켜보기·덫놓이로 낮아진다. 5%~70%. */
+export function caughtChance(state, monId, watched) {
+  const diff = monsterDef(monId).level - state.level;
+  const p = CAUGHT_BASE + (diff > 0 ? diff * 0.05 : diff * 0.03) - (state.stats.agi - 10) * 0.01
+    - (state.hidden.stealth?.value || 0) * 0.03 - (watched ? 0.10 : 0) - (state.flags.pounceBonus ? 0.10 : 0);
+  return Math.min(0.70, Math.max(0.05, p));
+}
+/** 들킬 확률의 느낌. 숫자는 보이지 않는다. */
+export function caughtFeel(p) {
+  return p < 0.15 ? { id: 0, text: '자신 있다' } : p <= 0.35 ? { id: 1, text: '들킬지도 모른다' } : { id: 2, text: '들킬 것 같다' };
+}
+/** 기척이 모험가일 확률: 그곳 유저 수 × 1%, 많아야 15%. */
+export function personChance(state) {
+  const users = placeById(state.place).users?.[state.phase] || 0;
+  return Math.min(0.15, users * 0.01);
+}
+export const HURT_FEE = 10; // 치료비: 내 레벨 × 이만큼
+export const RUN_FAME = 20; // 달아나면 깎이는 명성
+const PERSON_DOING = ['약초를 캐고 있다', '덫을 살피고 있다', '그루터기에 앉아 쉬고 있다', '지도를 펼쳐 들고 서 있다'];
 
 function seen(state, monId) {
   const d = state.dex.mon[monId] || (state.dex.mon[monId] = { seen: 0, won: 0, lost: 0 });
@@ -127,14 +155,36 @@ export function choiceView(state) {
   if (!c) return null;
   if (c.kind === 'sense') {
     const m = monsterDef(c.mon);
+    if (c.watched && c.person) {
+      return {
+        kind: 'sense', title: '기척을 느꼈다', side: '사람이었다',
+        text: `사람이다. 모험가 '${c.person}'가 ${PERSON_DOING[c.person.length % PERSON_DOING.length]}.`,
+        note: '지켜본 덕에 잘못 덮치지 않았다.',
+        options: [{ id: 'greet', label: '말을 건다', go: true }, { id: 'leave', label: '지나간다' }],
+      };
+    }
+    const feel = caughtFeel(caughtChance(state, c.mon, c.watched));
     return {
-      kind: 'sense', title: '기척을 느꼈다', side: `민첩 ${state.stats.agi}로 먼저 알아챔`,
+      kind: 'sense', title: '기척을 느꼈다', side: `먼저 알아챔 (민첩 ${state.stats.agi})`,
       text: c.watched ? `${m.name}다. 레벨 ${m.level}쯤. 아직 이쪽을 모른다.` : '가까이에서 무거운 숨소리가 들린다. 아직 이쪽을 모른다.',
+      feel: { label: '덮치면', ...feel },
       note: '알아채지 못했다면 습격당해 적이 먼저 움직입니다.',
       options: [
-        { id: 'pounce', label: '먼저 덮친다', go: true },
-        ...(c.watched ? [] : [{ id: 'watch', label: '숨어서 지켜본다' }]),
+        { id: 'pounce', label: '먼저 덮친다', sub: '들키면 적이 먼저 움직인다', go: true },
+        ...(c.watched ? [] : [{ id: 'watch', label: '숨어서 지켜본다', sub: '무엇인지 보고, 덮치기가 쉬워진다' }]),
         { id: 'leave', label: '돌아간다' },
+      ],
+    };
+  }
+  if (c.kind === 'hurt') {
+    const fee = state.level * HURT_FEE;
+    return {
+      kind: 'hurt', title: '사람이었다', side: '잘못 덮쳤다',
+      text: `덤불에서 뛰쳐나가 내리쳤는데, 비명이 사람 소리다. 모험가 '${c.person}'가 어깨를 감싸 쥐고 주저앉았다.`,
+      note: `은화가 모자라면 가진 만큼 내고, 명성이 5 깎인다.`,
+      options: [
+        { id: 'pay', label: '사과하고 치료비를 낸다', sub: `은화 ${fee} (내 레벨 × ${HURT_FEE})`, go: true },
+        { id: 'run', label: '모른 척 달아난다', sub: `이 근처 마을 명성 −${RUN_FAME}, 소문이 돈다` },
       ],
     };
   }
@@ -178,14 +228,53 @@ export function choose(state, events, id) {
   const c = state.choice;
   if (!c) throw new Error('정할 것이 없습니다');
   if (c.kind === 'memory') return chooseMemory(state, events, id);
+  if (c.kind === 'hurt') {
+    state.choice = null;
+    if (id === 'pay') {
+      const fee = state.level * HURT_FEE;
+      const paid = Math.min(fee, state.silver);
+      state.silver -= paid;
+      pushLine(state, events, { k: 'me', text: `은화 ${paid}을 건넸다. 몇 번이고 고개를 숙였다.` });
+      if (paid < fee) { addFame(state, events, -5); pushLine(state, events, { k: 'sys', text: '가진 것이 모자랐다. 이 근처 마을 명성 −5.', tone: 'warn' }); }
+      pushLine(state, events, { k: 'user', who: `모험가 '${c.person}'`, text: '다음엔 보고 덮쳐요. 그래도 손은 매섭네요.' });
+      return;
+    }
+    if (id === 'run') {
+      addFame(state, events, -RUN_FAME);
+      state.flags.hitRun = { place: state.place, day: state.day };
+      pushLine(state, events, { k: 'me', text: '뒤도 돌아보지 않고 달아났다.' });
+      pushLine(state, events, { k: 'sys', text: `이 근처 마을 명성 −${RUN_FAME}. 누군가는 이 일을 떠들고 다닐 것이다.`, tone: 'warn' });
+      return;
+    }
+    state.choice = c;
+    throw new Error('고를 수 없는 것입니다');
+  }
   if (c.kind === 'sense') {
-    if (id === 'pounce') { state.choice = null; return startBattle(state, events, c.mon, { pounce: true }); }
+    if (id === 'pounce' && c.person) {
+      // 사람을 덮쳤다 (Z37): 다치게만 한다. 죽이는 길은 없다
+      state.choice = { kind: 'hurt', person: c.person, mon: c.mon };
+      events.push({ type: 'choice' });
+      return;
+    }
+    if (id === 'pounce') {
+      state.choice = null;
+      const caught = roll01(`${state.seed}|caught|${c.mon}|${state.counters.fights || 0}|${state.day}|${state.tick}`) < caughtChance(state, c.mon, c.watched);
+      return startBattle(state, events, c.mon, caught ? { caught: true } : { pounce: true });
+    }
+    if (c.person && c.watched && (id === 'greet' || id === 'leave')) {
+      state.choice = null;
+      if (id === 'greet') {
+        pushLine(state, events, { k: 'me', text: '덤불에서 나와 손을 들어 보였다.' });
+        pushLine(state, events, { k: 'user', who: `모험가 '${c.person}'`, text: '아이고 놀라라. 짐승인 줄 알았잖아요. 이 근처엔 멧돼지가 많으니 조심해요.' });
+      } else pushLine(state, events, { k: 'me', text: '방해하지 않고 조용히 지나갔다.' });
+      return;
+    }
     if (id === 'watch' && !c.watched) {
       c.watched = true;
       state.counters.watch += 1;
       const m = monsterDef(c.mon);
       pushLine(state, events, { k: 'me', text: '숨을 죽이고 지켜보았다.' });
-      pushLine(state, events, { k: 'room', text: `${m.name}다. ${m.moves[0].tell}` });
+      pushLine(state, events, { k: 'room', text: c.person ? `짐승이 아니다. 모험가 '${c.person}'다.` : `${m.name}다. ${m.moves[0].tell}` });
       events.push({ type: 'choice' });
       return;
     }

@@ -93,7 +93,7 @@ function damage(state, attack, power, defense) {
   return Math.max(1, Math.round(base * (0.9 + next(state) * 0.2)));
 }
 
-export function startBattle(state, events, monId, { ambush = false, pounce = false } = {}) {
+export function startBattle(state, events, monId, { ambush = false, pounce = false, caught = false } = {}) {
   const m = monsterDef(monId);
   const seenN = (state.counters.fights = (state.counters.fights || 0) + 1);
   const elite = roll01(`${state.seed}|elite|${monId}|${seenN}`) < eliteChance(state, monId);
@@ -112,7 +112,13 @@ export function startBattle(state, events, monId, { ambush = false, pounce = fal
     if (!state.battle) return;
   }
   chooseIntent(state, events);
-  if (ambush) {
+  if (caught) {
+    // 먼저 덮치려다 들켰다 (Z36): 공짜 공격 없이 적이 먼저 움직인다
+    pushLine(state, events, { k: 'me', text: '덤불에서 뛰쳐나가려는 순간, 마른 가지가 부러졌다.' });
+    pushLine(state, events, { k: 'sys', text: `들켰다. ${iGa(m.name)} 먼저 움직인다.`, tone: 'warn' });
+    enemyAct(state, events, false);
+    if (state.battle) endRound(state, events);
+  } else if (ambush) {
     pushLine(state, events, { k: 'sys', text: '기척을 놓쳤다. 적이 먼저 움직인다.' });
     enemyAct(state, events, false);
     if (state.battle) endRound(state, events);
