@@ -1,8 +1,8 @@
 // 환생 (Z32). 쓰러진 뒤 신전에서 눈을 뜨는 대신 다시 태어날 수 있다.
 // 몸은 처음부터 다시지만, 종이 기억한 것(히든 스탯, 다시 일어선 몸으로 오른 스탯, 칭호, 도감), 숙련도의 5%, 보관함은 가지고 간다.
 
-import { HIDDEN } from './hidden.js?v=2de0e46';
-import { xpNeeded, MAX_GRADE } from './skills.js?v=2de0e46';
+import { HIDDEN } from './hidden.js?v=4071dc9';
+import { xpNeeded, MAX_GRADE } from './skills.js?v=4071dc9';
 
 export const SKILL_KEEP = 0.05; // 숙련도의 이만큼을 가지고 간다
 /** 숙련도에 쌓인 경험치 전부. */
@@ -17,7 +17,7 @@ function fromTotal(total) {
   while (grade < MAX_GRADE && xp >= xpNeeded(grade)) { xp -= xpNeeded(grade); grade++; }
   return { grade, xp };
 }
-import { JOBS, HIDDEN_JOBS } from '../data/jobs.js?v=2de0e46';
+import { JOBS, HIDDEN_JOBS } from '../data/jobs.js?v=4071dc9';
 const jobName = (id) => (id ? (JOBS[id] || HIDDEN_JOBS[id])?.name || id : null);
 
 const STATS = ['str', 'agi', 'con', 'wis'];
@@ -48,6 +48,7 @@ export function rebirthCarry(state) {
     titles: (state.titles || []).map((t) => ({ ...t })),
     title: state.title || null,
     world: JSON.parse(JSON.stringify(state.world)),
+    mail: JSON.parse(JSON.stringify(state.mail || { got: [] })), // 우편함은 이어받는다: 같은 편지가 다시 오지 않는다 (Z59)
     dex: JSON.parse(JSON.stringify(state.dex || {})),
     day: state.day,
     phase: state.phase,
@@ -87,6 +88,7 @@ export function applyCarry(state, carry) {
   state.titles = carry.titles.map((t) => ({ ...t }));
   state.title = carry.title && state.titles.some((t) => t.id === carry.title) ? carry.title : null;
   state.world = JSON.parse(JSON.stringify(carry.world));
+  if (carry.mail) state.mail = JSON.parse(JSON.stringify(carry.mail));
   // 도감(본 괴물·물건·곳·짐승·요리)은 남는다. 새 출신이 처음부터 아는 것도 더한다
   for (const [k, v] of Object.entries(carry.dex || {})) state.dex[k] = { ...(state.dex[k] || {}), ...JSON.parse(JSON.stringify(v)) };
   // 날짜는 이어 센다: 같은 날 다시 일어선 몸을 또 쌓지 못한다

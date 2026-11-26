@@ -2,15 +2,17 @@
 // 로그인은 구글의 Google Identity Services(토큰 방식). 서버도 비밀값도 없다. 클라이언트 ID는 공개해도 되는 값이다.
 // 접근 토큰은 이 창의 sessionStorage에만 한 시간쯤 둔다. 지나면 "다시 연결"을 눌러야 한다.
 
-import { createDrive } from './drive.js?v=2de0e46';
-import { syncPlan } from '../core/sync.js?v=2de0e46';
-import { revOf, exportText, importText, parseSave, SLOT_COUNT } from '../core/save.js?v=2de0e46';
+import { createDrive } from './drive.js?v=4071dc9';
+import { syncPlan } from '../core/sync.js?v=4071dc9';
+import { revOf, exportText, importText, parseSave, SLOT_COUNT } from '../core/save.js?v=4071dc9';
 
 export const CLIENT_ID = '782176240387-mi4cvftsmbefiddvd25rul2mvtf09adp.apps.googleusercontent.com';
 const SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
 const GIS = 'https://accounts.google.com/gsi/client';
 const TOKEN_KEY = 'ttiring.cloud.token';
 const WANT_KEY = 'ttiring.cloud'; // 로그인한 적이 있다(토큰은 아니다)
+const LOG_KEY = 'ttiring.cloud.log'; // 이 기기에서 드라이브에 올린 기록. 최근 둘만 둔다 (보기만 한다)
+export const LOG_KEEP = 2;
 
 let gisPromise = null;
 function loadGis() {
@@ -66,7 +68,7 @@ export function createCloud({ storage, session, onChange }) {
   function signOut() {
     if (token && globalThis.google?.accounts?.oauth2) globalThis.google.accounts.oauth2.revoke(token, () => {});
     token = null; exp = 0; remote = {}; offers = {};
-    try { session.removeItem(TOKEN_KEY); storage.removeItem(WANT_KEY); } catch { /* 없다 */ }
+    try { session.removeItem(TOKEN_KEY); storage.removeItem(WANT_KEY); storage.removeItem(LOG_KEY); } catch { /* 없다 */ }
     set('off');
   }
 
@@ -98,9 +100,22 @@ export function createCloud({ storage, session, onChange }) {
     const id = await drive.upload(slot, raw, rev, savedAt, remote[slot]?.id || null);
     remote[slot] = { id, rev, savedAt };
     lastUp = Date.now();
+    // 올린 기록 (최근 둘): 언제, 어느 칸, 누구, 며칠째. 같은 칸을 잇달아 올리면 한 줄로 고친다
+    try {
+      const st = JSON.parse(raw).state || {};
+      const entry = { at: lastUp, slot, name: st.name || '', level: st.level || 1, day: st.day || 1 };
+      const log = readLog().filter((x) => x.slot !== slot);
+      storage.setItem(LOG_KEY, JSON.stringify([entry, ...log].slice(0, LOG_KEEP)));
+    } catch { /* 기록을 못 남겨도 올리기는 됐다 */ }
+  }
+
+  function readLog() {
+    try { const v = JSON.parse(storage.getItem(LOG_KEY) || '[]'); return Array.isArray(v) ? v : []; } catch { return []; }
   }
 
   return {
+    /** 최근에 올린 기록 둘 (보기만 한다. 옛 판을 받는 길은 없다) */
+    get log() { return readLog(); },
     get status() { return status; },
     get message() { return message; },
     get lastUp() { return lastUp; },

@@ -1,16 +1,17 @@
 // 저장의 판(버전)과, 옛 저장을 지금 꼴로 올리는 길.
 // 저장 형식을 바꾸면 SAVE_VERSION을 올리고 여기에 한 단계를 더한다.
 
-import { makeItem } from './inventory.js?v=2de0e46';
-import { valueOf } from './derived.js?v=2de0e46';
-import { worldFields } from './world.js?v=2de0e46';
-import { auctionFields } from './auction.js?v=2de0e46';
+import { makeItem } from './inventory.js?v=4071dc9';
+import { valueOf } from './derived.js?v=4071dc9';
+import { worldFields } from './world.js?v=4071dc9';
+import { auctionFields } from './auction.js?v=4071dc9';
 
-import { endingFields } from './ending.js?v=2de0e46';
-import { MAIN } from '../data/quests.js?v=2de0e46';
-import { ITEMS } from '../data/items.js?v=2de0e46';
-import { ADVANCED } from '../data/jobs.js?v=2de0e46';
-import { nativeWork } from './work.js?v=2de0e46';
+import { endingFields } from './ending.js?v=4071dc9';
+import { MAIN } from '../data/quests.js?v=4071dc9';
+import { ITEMS } from '../data/items.js?v=4071dc9';
+import { ADVANCED } from '../data/jobs.js?v=4071dc9';
+import { nativeWork } from './work.js?v=4071dc9';
+import { deliverMail } from './mail.js?v=4071dc9';
 const ORIGIN_NATIVE = new Proxy({}, { get: (_, id) => nativeWork(id) });
 
 export { worldFields, auctionFields, endingFields };
@@ -139,6 +140,7 @@ function mend(state) {
   if (!Number.isInteger(state.lives)) state.lives = 1;
   if (!Array.isArray(state.pastLives)) state.pastLives = [];
   if (!state.pastHidden) state.pastHidden = {};
+  deliverMail(state); // 우편함 (Z59): 이미 하던 캐릭터에게도 한 번
   if (!Array.isArray(state.learned)) {
     // 배우는 규칙이 생기기 전에 이미 해 본 일은 아는 일로 친다
     state.learned = ['bellows', 'gut', 'rowing', 'haul', 'plane', 'spar'].filter((id) => (state.counters?.act?.[id] || 0) > 0);

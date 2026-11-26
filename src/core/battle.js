@@ -1,24 +1,28 @@
 // 전투 (E5~E9, R2-2). 한 턴에 행동 하나. 적의 다음 행동은 늘 미리 보인다.
 // 방어하면 피해가 절반이고, 돌진류는 막고 되받아친다.
 
-import { next, chance } from './rng.js?v=2de0e46';
-import { pushLine, ding } from './log.js?v=2de0e46';
-import { monsterDef, STATUS } from '../data/monsters.js?v=2de0e46';
-import { itemDef, ITEMS, gradeName } from '../data/items.js?v=2de0e46';
-import { roll01 } from './rng.js?v=2de0e46';
-import { guildPerk } from './guild.js?v=2de0e46';
-import { rollOptions, gearName } from './gear.js?v=2de0e46';
-import { derived, skillBonus } from './derived.js?v=2de0e46';
-import { addItem, removeAt, usable, totalWeight, equip, slotFor, equipPower } from './inventory.js?v=2de0e46';
-import { grantXp } from './reward.js?v=2de0e46';
-import { useSkill, emptySkill, gradeLabel, SKILL_NAMES } from './skills.js?v=2de0e46';
-import { fall } from './fall.js?v=2de0e46';
-import { iGa, eulReul, ro } from './ko.js?v=2de0e46';
-import { branchOf } from './evolve.js?v=2de0e46';
-import { skillsNow, jobXp, adv } from './jobs.js?v=2de0e46';
-import { guardFor, hitCompanion, companionsAct, afterBattle, roleBonus, cross } from './party.js?v=2de0e46';
-import { jobDef } from '../data/jobs.js?v=2de0e46';
-import { BEATS, WEAK_MULT, RESIST_MULT } from '../data/dungeon.js?v=2de0e46';
+import { next, chance } from './rng.js?v=4071dc9';
+import { pushLine, ding } from './log.js?v=4071dc9';
+import { monsterDef, STATUS } from '../data/monsters.js?v=4071dc9';
+import { itemDef, ITEMS, gradeName } from '../data/items.js?v=4071dc9';
+import { roll01 } from './rng.js?v=4071dc9';
+import { guildPerk } from './guild.js?v=4071dc9';
+import { rollOptions, gearName } from './gear.js?v=4071dc9';
+import { derived, skillBonus } from './derived.js?v=4071dc9';
+import { addItem, removeAt, usable, totalWeight, equip, slotFor, equipPower } from './inventory.js?v=4071dc9';
+import { grantXp } from './reward.js?v=4071dc9';
+import { useSkill, emptySkill, gradeLabel, SKILL_NAMES } from './skills.js?v=4071dc9';
+import { fall } from './fall.js?v=4071dc9';
+import { iGa, eulReul, ro } from './ko.js?v=4071dc9';
+import { branchOf } from './evolve.js?v=4071dc9';
+import { skillsNow, jobXp, adv } from './jobs.js?v=4071dc9';
+import { guardFor, hitCompanion, companionsAct, afterBattle, roleBonus, cross } from './party.js?v=4071dc9';
+import { jobDef } from '../data/jobs.js?v=4071dc9';
+import { BEATS, WEAK_MULT, RESIST_MULT } from '../data/dungeon.js?v=4071dc9';
+
+/** 사나움 (Z60): 세계의 날마다 괴물의 생명·공격과 경험치·떨굼 확률이 조금씩 오른다. 끝이 없다. 우두머리·던전도 같다. */
+export const FIERCE_PER = 0.0005;
+export const fierceOf = (day) => 1 + FIERCE_PER * Math.max(0, (day || 1) - 1);
 
 /** 지금 국면이 반영된 괴물 (T22). */
 export const ELITE = { hp: 2.5, attack: 1.3, defense: 2, level: 2, xp: 3, per: 0.005, cap: 0.25 };
@@ -28,6 +32,8 @@ function mdef(b) {
   if (m.phases && b.phase) m = { ...m, ...m.phases[b.phase - 1] };
   // 이름난 개체: 많이 잡은 사냥감 가운데 드물게 나온다. 훨씬 세고, 잡으면 장비를 떨어뜨린다
   if (b.elite) m = { ...m, name: `이름난 ${m.name}`, hp: Math.round(m.hp * ELITE.hp), attack: Math.round(m.attack * ELITE.attack), defense: m.defense + ELITE.defense, level: m.level + ELITE.level, xp: m.xp * ELITE.xp };
+  const f = b.fierce || 1; // 싸움이 시작된 날의 사나움
+  if (f !== 1) m = { ...m, hp: Math.round(m.hp * f), attack: Math.round(m.attack * f), xp: Math.round(m.xp * f), drops: (m.drops || []).map((d) => ({ ...d, p: Math.min(1, d.p * f) })) };
   return m;
 }
 export const foeDef = mdef;
@@ -98,8 +104,11 @@ export function startBattle(state, events, monId, { ambush = false, pounce = fal
   const seenN = (state.counters.fights = (state.counters.fights || 0) + 1);
   const elite = roll01(`${state.seed}|elite|${monId}|${seenN}`) < eliteChance(state, monId);
   // stun·weak·burn: 내 스킬이 적에게 건 것. ward: 내 몸을 감싼 것. streak: 같은 공격을 이어 한 횟수.
-  state.battle = { mon: monId, hp: elite ? Math.round(m.hp * ELITE.hp) : m.hp, turn: 1, intent: null, stun: 0, weak: null, burn: 0, ward: null, streak: 0, phase: 0 };
+  state.battle = { mon: monId, hp: 0, turn: 1, intent: null, stun: 0, weak: null, burn: 0, ward: null, streak: 0, phase: 0 };
   if (elite) state.battle.elite = true;
+  const f = fierceOf(state.day);
+  if (f !== 1) state.battle.fierce = f;
+  state.battle.hp = mdef(state.battle).hp;
   state.status = [];
   state.choice = null;
   state.lastAction = null;
@@ -367,7 +376,7 @@ function endRound(state, events) {
   // 우두머리의 국면 (T22): 생명력이 문턱 아래로 내려가면 바뀐다
   const base = monsterDef(b.mon);
   if (base.phases) {
-    while ((b.phase || 0) < base.phases.length && b.hp <= base.hp * base.phases[b.phase || 0].at) {
+    while ((b.phase || 0) < base.phases.length && b.hp <= Math.round(base.hp * (b.fierce || 1)) * base.phases[b.phase || 0].at) {
       b.phase = (b.phase || 0) + 1;
       pushLine(state, events, { k: 'room', who: '국면이 바뀌었다', text: `${base.phases[b.phase - 1].say} (속성: ${base.phases[b.phase - 1].element})` });
       events.push({ type: 'battle', phase: 'shift', mon: b.mon });
