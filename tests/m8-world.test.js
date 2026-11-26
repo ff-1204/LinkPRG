@@ -178,7 +178,7 @@ test('경매장: 가상 유저의 물건에 입찰한다. 이기면 물건이, �
     const s = fresh('bid' + i);
     s.silver = 5000;
     const lots = lotsToday(s);
-    assert.equal(lots.length, 3);
+    assert.ok(lots.length >= 8 && lots.length <= 9, '하급 5, 중급 3, 상급 0~1');
     assert.deepEqual(lotsToday(s), lots, '같은 날에는 같은 물건이 나온다');
     const lot = lots[0];
     assert.throws(() => dispatch(s, { type: 'auction', op: 'bid', key: lot.key, amount: lot.ask - 1 }), /이상을 불러야/);

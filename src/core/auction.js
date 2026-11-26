@@ -1,20 +1,22 @@
 // 경매장 (N6-1 ~ N6-3). 가상 유저가 입찰하고 한마디씩 남긴다.
 // 입찰은 씨앗과 날짜로 셈한다. 같은 씨앗이면 같은 값에 팔린다.
 
-import { seedFrom } from './rng.js?v=d206204';
-import { gearName } from './gear.js?v=d206204';
-import { pushLine } from './log.js?v=d206204';
-import { itemDef, gradeName } from '../data/items.js?v=d206204';
-import { addItem, removeAt } from './inventory.js?v=d206204';
-import { worth } from './trade.js?v=d206204';
-import { placeById } from '../data/places.js?v=d206204';
-import { standingOf } from './factions.js?v=d206204';
-import { FACTION_REGULAR } from '../data/factions.js?v=d206204';
-import { userBase } from './world.js?v=d206204';
-import { AUCTION_FEE, AUCTION_DAYS, LOT_POOL, LOTS_PER_DAY, BID_SAYS, USER_COUNT } from '../data/world.js?v=d206204';
-import { eulReul, iGa, eunNeun } from './ko.js?v=d206204';
+import { seedFrom } from './rng.js?v=9c14cbd';
+import { gearName } from './gear.js?v=9c14cbd';
+import { pushLine } from './log.js?v=9c14cbd';
+import { ITEMS, itemDef, gradeName } from '../data/items.js?v=9c14cbd';
+import { addItem, removeAt } from './inventory.js?v=9c14cbd';
+import { worth } from './trade.js?v=9c14cbd';
+import { placeById } from '../data/places.js?v=9c14cbd';
+import { standingOf } from './factions.js?v=9c14cbd';
+import { FACTION_REGULAR } from '../data/factions.js?v=9c14cbd';
+import { userBase } from './world.js?v=9c14cbd';
+import { AUCTION_FEE, AUCTION_DAYS, LOT_TIERS, LOT_SKIP, LOT_ASK, LOT_GEAR_MIN, BID_SAYS, USER_COUNT } from '../data/world.js?v=9c14cbd';
+import { eulReul, iGa, eunNeun } from './ko.js?v=9c14cbd';
 
-const hash = (...parts) => seedFrom(parts.join('|'));
+// 끝 글자만 다른 글들도 고르게 흩어지도록 한 번 더 섞는다(전에는 같은 날 물건들의 시작가가 거의 같았다)
+const mix = (h) => { h ^= h >>> 16; h = Math.imul(h, 0x85ebca6b) >>> 0; h ^= h >>> 13; h = Math.imul(h, 0xc2b2ae35) >>> 0; h ^= h >>> 16; return h >>> 0; };
+const hash = (...parts) => mix(seedFrom(parts.join('|')));
 const unit = (...parts) => hash(...parts) / 4294967296;
 const label = (item) => `${item.grade ? `${gradeName(item.grade)} 등급 ` : ''}${gearName(item)}${item.n > 1 ? ` ${item.n}개` : ''}`;
 const fairOf = (item) => worth(item) * item.n;
@@ -28,21 +30,36 @@ export function feeRate(state) {
   return standingOf(state, 'merchants') >= FACTION_REGULAR ? AUCTION_FEE / 2 : AUCTION_FEE;
 }
 
-/** 오늘 가상 유저들이 내놓은 물건. 하루 뒤에 끝난다. */
+/** 경매에 나올 수 있는 것과 그 등급. 장비는 어느 등급으로든 나온다. 나머지는 제 등급으로만. */
+const lotable = Object.entries(ITEMS).filter(([id, d]) => d.kind !== 'quest' && !d.nosell && !d.unknown && (d.price || 0) > 0 && !LOT_SKIP.includes(id));
+export function lotPool(grade) {
+  // 중급부터는 값싼 장비(목검·훈련복·짚신 같은 것)를 내놓지 않는다
+  return lotable.filter(([, d]) => (d.kind === 'gear' ? (d.grade || 0) <= grade && (grade === 0 || d.price >= LOT_GEAR_MIN) : (d.grade || 0) === grade)).map(([id]) => id);
+}
+
+/** 오늘 가상 유저들이 내놓은 물건 (Z66). 하급·중급·상급. 하루 뒤에 끝난다. */
 export function lotsToday(state, day = state.day) {
-  const total = LOT_POOL.reduce((a, x) => a + x.w, 0);
   const out = [];
-  for (let k = 0; k < LOTS_PER_DAY; k++) {
-    let roll = hash(state.seed, 'lot', day, k) % total;
-    let pick = LOT_POOL[0];
-    for (const p of LOT_POOL) { roll -= p.w; if (roll < 0) { pick = p; break; } }
-    const item = { id: pick.id, grade: pick.grade ?? itemDef(pick.id).grade ?? 0, n: pick.n || 1 };
-    const fair = fairOf(item);
-    out.push({
-      key: `${day}-${k}`, item, name: label(item), fair,
-      seller: userBase(state, hash(state.seed, 'seller', day, k) % USER_COUNT).name,
-      ask: Math.max(1, Math.round(fair * (0.5 + unit(state.seed, 'ask', day, k) * 0.4))), ends: day + 1,
-    });
+  for (const t of LOT_TIERS) {
+    if (t.chance != null && unit(state.seed, 'tier', t.id, day) >= t.chance) continue; // 상급은 비는 날이 있다
+    const taken = new Set();
+    for (let k = 0; k < t.n; k++) {
+      const grade = t.top && unit(state.seed, 'top', t.id, day, k) < t.top ? t.grade + 1 : t.grade;
+      const pool = lotPool(grade).filter((id) => !taken.has(id));
+      if (!pool.length) continue;
+      const id = pool[hash(state.seed, 'lot', t.id, day, k) % pool.length];
+      taken.add(id);
+      const def = itemDef(id);
+      // 장비와 귀한 것은 하나, 나머지는 은화 20~60어치 한 묶음(12개까지)
+      const n = def.kind === 'gear' || def.kind === 'etc' ? 1 : Math.min(12, Math.max(1, Math.round((20 + (hash(state.seed, 'n', t.id, day, k) % 41)) / def.price)));
+      const item = { id, grade: def.kind === 'gear' ? grade : def.grade || 0, n };
+      const fair = fairOf(item);
+      out.push({
+        key: `${day}-${t.id}-${k}`, tier: t.id, item, name: label(item), fair,
+        seller: userBase(state, hash(state.seed, 'seller', t.id, day, k) % USER_COUNT).name,
+        ask: Math.max(1, Math.round(fair * (LOT_ASK.from + unit(state.seed, 'ask', t.id, day, k) * LOT_ASK.span))), ends: day + 1,
+      });
+    }
   }
   return out;
 }
@@ -147,7 +164,8 @@ export function auctionView(state) {
   return {
     fee: Math.round(rate * 1000) / 10, feeWhy: rate < AUCTION_FEE ? "상단과 '단골'이라 절반" : '',
     mine: a.mine.map((m) => ({ no: m.no, name: label(m.item), start: m.start, left: m.ends - state.day, top: m.bids.at(-1)?.amount || 0, bids: m.bids.slice(-5).map((b) => ({ who: b.who, amount: b.amount, say: b.say })) })),
-    lots: lotsToday(state).map((l) => ({ key: l.key, name: l.name, seller: l.seller, ask: l.ask, mine: a.bids.find((b) => b.key === l.key)?.amount || 0, desc: itemDef(l.item.id).desc })),
+    tiers: LOT_TIERS.map((t) => ({ id: t.id, name: t.name })),
+    lots: lotsToday(state).map((l) => ({ key: l.key, tier: l.tier, name: l.name, seller: l.seller, ask: l.ask, mine: a.bids.find((b) => b.key === l.key)?.amount || 0, desc: itemDef(l.item.id).desc })),
     bids: a.bids.map((b) => ({ key: b.key, name: b.name, amount: b.amount, left: b.ends - state.day })),
     history: a.history.slice(-20).reverse().map((h) => ({ day: h.day, text: h.text })),
     sellable: state.bag.map((item, index) => ({ index, item, name: label({ ...item, n: itemDef(item.id).kind === 'gear' ? 1 : item.n }), fair: fairOf({ ...item, n: itemDef(item.id).kind === 'gear' ? 1 : item.n }) })).filter((x) => itemDef(x.item.id).kind !== 'quest'),

@@ -1,8 +1,8 @@
 // 계산된 값과 그 셈 (R2-1, R2-2, G2-2). 누르면 셈이 풀려 보인다.
 
-import { equipPower } from './inventory.js?v=d206204';
-import { buffOf, foodBuff, restBuff, graceBuff } from './buffs.js?v=d206204';
-import { ADVANCED } from '../data/jobs.js?v=d206204';
+import { equipPower } from './inventory.js?v=9c14cbd';
+import { buffOf, foodBuff, restBuff, graceBuff } from './buffs.js?v=9c14cbd';
+import { ADVANCED } from '../data/jobs.js?v=9c14cbd';
 
 /** 숙련 보너스: 등급 두 칸마다 1. */
 export function skillBonus(skill) {

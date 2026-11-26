@@ -87,10 +87,19 @@ export const RUMORS_WORLD = [
 export const AUCTION_FEE = 0.05;
 export const AUCTION_DAYS = [1, 3];
 /** 가상 유저가 내놓는 물건의 풀. w: 나올 몫. */
-export const LOT_POOL = [
-  { id: 'redpotion', n: 3, w: 4 }, { id: 'copperore', n: 8, w: 3 }, { id: 'ironore', n: 12, w: 3 },
-  { id: 'ironsword', grade: 1, w: 3 }, { id: 'ironsword', grade: 2, w: 2 }, { id: 'coppersword', grade: 2, w: 2 },
-  { id: 'waterpouch', n: 4, w: 2 }, { id: 'boarhide', n: 4, w: 2 }, { id: 'forgetwater', n: 1, w: 1 },
+/**
+ * 경매장의 오늘 물건 (Z66): 게임 안의 물건에서 날마다 골라 하급·중급·상급으로 나눠 내놓는다.
+ * 하급은 일반, 중급은 고급, 상급은 희귀(열에 하나는 영웅). 장비는 칸에 맞는 등급으로 나온다.
+ * 상급은 사흘에 한 번쯤 비어 있다.
+ */
+export const LOT_TIERS = [
+  { id: 'low', name: '하급', grade: 0, n: 5 },
+  { id: 'mid', name: '중급', grade: 1, n: 3 },
+  { id: 'high', name: '상급', grade: 2, n: 1, chance: 2 / 3, top: 0.1 },
 ];
-export const LOTS_PER_DAY = 3;
+/** 경매에 나오지 않는 것: 하나뿐이거나 열쇠·정체 모를 것. (퀘스트 물건·팔 수 없는 것·값 없는 것은 저절로 빠진다) */
+export const LOT_GEAR_MIN = 20; // 중급·상급에 나오는 장비의 바탕 값 하한
+export const LOT_SKIP = ['mistrod', 'ruinkey', 'oddknife', 'carverknife'];
+/** 시작가: 제값의 60~100% (사용자 요청으로 조금 올림. 전에는 50~90%) */
+export const LOT_ASK = { from: 0.6, span: 0.4 };
 export const BID_SAYS = ['이건 내 거', '어 싸다', '올립니다', '양보 못 함', 'ㅎㅎ 받고 더', '이 가격이면 삼', '누구 작품이지?', '자루에 이름 있네', '끝까지 간다'];

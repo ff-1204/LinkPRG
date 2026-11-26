@@ -206,7 +206,9 @@ html.calm .ico.g4 img { animation: none; }
 @media (prefers-reduced-motion: reduce) { .ico.g4 img { animation: none; } }
 .detail { display: flex; flex-direction: column; gap: 4px; padding: .8rem; border: 1.5px solid var(--line2); border-radius: 10px; background: var(--paper); align-self: start; }
 .warn { color: var(--cinnamon); font-weight: 700; }
-.gearrow { display: flex; align-items: center; gap: .6rem; padding: .3rem 0; border-bottom: 1px dashed var(--line2); min-height: 3rem; }
+.gearrow { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; padding: .3rem 0; border-bottom: 1px dashed var(--line2); min-height: 3rem; }
+.gearrow > .grow { flex: 1 1 10rem; }
+.gearrow > .forgebox { padding-left: calc(3.6rem + .6rem); }
 .gearrow .slotname { width: 3.6rem; color: var(--muted); font-size: .88rem; }
 .maprow { display: flex; align-items: center; gap: .8rem; padding: .5rem .6rem; border: 1.5px solid var(--line2); border-radius: 8px; background: var(--paper); margin-top: .4rem; }
 .maprow.here { border: 2.5px solid var(--cinnamon); }
@@ -562,3 +564,15 @@ html.assist-on .assistline, html.assist-on .assistline:empty { display: block; m
 
 /* 숙련도 효과 (Z62) */
 .sk .eff { grid-column: 2 / -1; font-size: .86rem; color: var(--ink); }
+
+/* 경매장 하급·중급·상급 (Z66) */
+.tierbtns .btn { flex: 1 1 0; }
+
+/* 가방의 착용한 것 (Z68) */
+.it.worn { border-color: var(--mint-line, #2F7A5E); background: var(--cream); }
+.worntag { background: var(--mint, #BFE3D0); color: var(--mint-ink, #1F4A3A); border-color: var(--mint-ink, #1F4A3A); white-space: nowrap; }
+
+/* 의뢰 완료 표시 (Z70) */
+.card.done { border-color: var(--mint-line); background: #F1F8F3; }
+.donetag { background: var(--mint); color: var(--mint-ink); border-color: var(--mint-ink); font-weight: 700; margin-left: 6px; }
+.card .good { color: var(--mint-ink); font-weight: 700; }

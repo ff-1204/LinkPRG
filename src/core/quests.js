@@ -1,29 +1,29 @@
 // 퀘스트 네 갈래를 굴린다 (Q1~Q4, E19~E23, S1).
 // 의뢰(게시판) · 서브(사람이 준다, 선택으로 갈린다) · 히든(조건을 채우면 나타난다) · 메인(장마다 길 여럿)
 
-import { seedFrom, next, chance } from './rng.js?v=d206204';
-import { pushLine, ding } from './log.js?v=d206204';
-import { JOBS, JOB_LIMIT, JOB_DAYS, BOARD_SIZE, SUBS, SUB_ORDER, STAT_CHECKS, HIDDENS, HIDDEN_ORDER, MAIN } from '../data/quests.js?v=d206204';
-import { PEOPLE, REGULAR, PEOPLE_ORDER, BONDS } from '../data/people.js?v=d206204';
-import { itemDef } from '../data/items.js?v=d206204';
-import { monsterDef } from '../data/monsters.js?v=d206204';
-import { placeById, PLACES } from '../data/places.js?v=d206204';
-import { countOf, takeById, addItem } from './inventory.js?v=d206204';
-import { grantXp } from './reward.js?v=d206204';
-import { bondOf, bondBy, addFame, fameOf, grantTitle, checkChance, rollCheck, CHECKS } from './social.js?v=d206204';
-import { SKILL_NAMES, gradeLabel } from './skills.js?v=d206204';
-import { addStanding, standingOf, previewEffects } from './factions.js?v=d206204';
-import { offerHiddenJob } from './jobs.js?v=d206204';
-import { cross } from './party.js?v=d206204';
-import { SEARCH_NEED } from '../data/lines.js?v=d206204';
-import { endingChoices, afterText, ENDINGS } from './ending.js?v=d206204';
-import { HIDDEN_JOBS } from '../data/jobs.js?v=d206204';
-import { iGa, eulReul } from './ko.js?v=d206204';
-import { WILDS } from '../data/wild.js?v=d206204';
-import { rootOf } from '../data/origins.js?v=d206204';
-import { MONSTERS } from '../data/monsters.js?v=d206204';
-import { SHOPS } from '../data/shops.js?v=d206204';
-import { hasTitle } from './titles.js?v=d206204';
+import { seedFrom, next, chance } from './rng.js?v=9c14cbd';
+import { pushLine, ding } from './log.js?v=9c14cbd';
+import { JOBS, JOB_LIMIT, JOB_DAYS, BOARD_SIZE, SUBS, SUB_ORDER, STAT_CHECKS, HIDDENS, HIDDEN_ORDER, MAIN } from '../data/quests.js?v=9c14cbd';
+import { PEOPLE, REGULAR, PEOPLE_ORDER, BONDS } from '../data/people.js?v=9c14cbd';
+import { itemDef } from '../data/items.js?v=9c14cbd';
+import { monsterDef } from '../data/monsters.js?v=9c14cbd';
+import { placeById, PLACES } from '../data/places.js?v=9c14cbd';
+import { countOf, takeById, addItem } from './inventory.js?v=9c14cbd';
+import { grantXp } from './reward.js?v=9c14cbd';
+import { bondOf, bondBy, addFame, fameOf, grantTitle, checkChance, rollCheck, CHECKS } from './social.js?v=9c14cbd';
+import { SKILL_NAMES, gradeLabel } from './skills.js?v=9c14cbd';
+import { addStanding, standingOf, previewEffects } from './factions.js?v=9c14cbd';
+import { offerHiddenJob } from './jobs.js?v=9c14cbd';
+import { cross } from './party.js?v=9c14cbd';
+import { SEARCH_NEED } from '../data/lines.js?v=9c14cbd';
+import { endingChoices, afterText, ENDINGS } from './ending.js?v=9c14cbd';
+import { HIDDEN_JOBS } from '../data/jobs.js?v=9c14cbd';
+import { iGa, eulReul } from './ko.js?v=9c14cbd';
+import { WILDS } from '../data/wild.js?v=9c14cbd';
+import { rootOf } from '../data/origins.js?v=9c14cbd';
+import { MONSTERS } from '../data/monsters.js?v=9c14cbd';
+import { SHOPS } from '../data/shops.js?v=9c14cbd';
+import { hasTitle } from './titles.js?v=9c14cbd';
 
 const FAVOR_STRIKES = 300;
 /** '이웃'이라고 / '깎는 이'라고 */
@@ -60,27 +60,36 @@ export function boardView(state) {
   return boardToday(state).filter((id) => !state.board.gone.includes(id) && !mine.includes(id)).map((id) => {
     const d = JOBS[id];
     const short = state.level < d.minLevel ? `레벨 ${d.minLevel}부터` : state.jobs.length >= JOB_LIMIT ? `의뢰는 ${JOB_LIMIT}개까지` : '';
-    return { id, rank: d.rank, name: d.name, by: d.by, say: d.say, silver: d.silver, xp: d.xp, fame: d.fame, daily: !!d.daily, can: !short, why: short, where: whereOf(d, state) };
+    return { id, rank: d.rank, name: d.name, by: d.by, say: d.say, silver: d.silver, xp: d.xp, fame: d.fame, daily: !!d.daily, can: !short, why: short, where: whereOf(d, state), go: goPlaces(d, state) };
   });
 }
 
 /** 의뢰를 어디서 하면 되는지. 사냥감이 사는 곳, 물건이 나는 곳(모으기·탐색·사냥·가게)을 둘까지 적는다. */
 export function whereOf(d, state = null) {
-  if (d.where) return d.where;
+  return d.where || wherePlaces(d, state).map((x) => x.text).join(', ');
+}
+/** 의뢰의 바로가기 (Z67): 어디서에 적힌 들판으로 가는 길. */
+export function goPlaces(d, state = null) {
+  if (d.where) return [];
+  const ids = [];
+  for (const x of wherePlaces(d, state)) if (x.wild && !ids.includes(x.id)) ids.push(x.id);
+  return ids.map((id) => ({ id, name: PLACES[id].name }));
+}
+function wherePlaces(d, state = null) {
   const out = [];
-  const add = (t) => { if (!out.includes(t)) out.push(t); };
+  const add = (text, id, wild = true) => { if (!out.some((x) => x.text === text)) out.push({ text, id, wild }); };
   // 아직 길을 모르는 곳은 적지 않는다
   const known = (id) => !!PLACES[id] && !(state && PLACES[id].locked && !state.opened.includes(PLACES[id].opensWith || id));
   const wilds = Object.entries(WILDS).filter(([id]) => known(id));
   if (d.kind === 'hunt') {
-    for (const [id, w] of wilds) if (w.monsters?.some((m) => m.id === d.mon)) add(`${PLACES[id].name}에서 사냥`);
+    for (const [id, w] of wilds) if (w.monsters?.some((m) => m.id === d.mon)) add(`${PLACES[id].name}에서 사냥`, id);
   } else if (d.kind === 'bring') {
-    for (const [id, w] of wilds) if (w.gather?.drops.some((x) => x.id === d.item)) add(`${PLACES[id].name}에서 ${w.gather.label}`);
-    for (const [id, w] of wilds) if (w.finds?.some((x) => x.id === d.item)) add(`${PLACES[id].name}에서 탐색`);
-    for (const [id, w] of wilds) for (const m of w.monsters || []) if (MONSTERS[m.id]?.drops?.some((x) => x.id === d.item)) add(`${PLACES[id].name}의 ${MONSTERS[m.id].name} 사냥`);
-    for (const [id, sh] of Object.entries(SHOPS)) if (sh.sells.includes(d.item) && known(id)) add(`${PLACES[id].name}에서 구매`);
+    for (const [id, w] of wilds) if (w.gather?.drops.some((x) => x.id === d.item)) add(`${PLACES[id].name}에서 ${w.gather.label}`, id);
+    for (const [id, w] of wilds) if (w.finds?.some((x) => x.id === d.item)) add(`${PLACES[id].name}에서 탐색`, id);
+    for (const [id, w] of wilds) for (const m of w.monsters || []) if (MONSTERS[m.id]?.drops?.some((x) => x.id === d.item)) add(`${PLACES[id].name}의 ${MONSTERS[m.id].name} 사냥`, id);
+    for (const [id, sh] of Object.entries(SHOPS)) if (sh.sells.includes(d.item) && known(id)) add(`${PLACES[id].name}에서 구매`, id, false);
   }
-  return out.slice(0, 2).join(', ');
+  return out.slice(0, 2);
 }
 
 /** 하고 있는 의뢰 (E21). */
@@ -88,7 +97,7 @@ export function jobsView(state) {
   return state.jobs.map((j) => {
     const d = JOBS[j.id];
     const have = jobProgress(state, j);
-    return { id: j.id, where: whereOf(d, state), rank: d.rank, name: d.name, by: d.by, have, n: d.n, ready: have >= d.n, due: j.due, left: j.due - state.day, silver: d.silver, xp: d.xp, fame: d.fame, what: d.kind === 'bring' ? `${eulReul(itemDef(d.item).name)} 모아 게시판에 낸다` : `${eulReul(monsterDef(d.mon).name)} 잡고 게시판에 알린다` };
+    return { id: j.id, where: whereOf(d, state), go: goPlaces(d, state), rank: d.rank, name: d.name, by: d.by, have, n: d.n, ready: have >= d.n, due: j.due, left: j.due - state.day, silver: d.silver, xp: d.xp, fame: d.fame, what: d.kind === 'bring' ? `${eulReul(itemDef(d.item).name)} 모아 게시판에 낸다` : `${eulReul(monsterDef(d.mon).name)} 잡고 게시판에 알린다` };
   });
 }
 
