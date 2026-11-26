@@ -7,12 +7,12 @@ export const MOVE_TICKS = 5;
 export const PLACES = {
   plaza: {
     id: 'plaza', name: '광장', town: '시작 마을', danger: '안전',
-    room: '분수 옆에 빈 받침대가 하나 있다. 사람들이 오가며 이쪽을 힐끗 본다.',
+    room: '분수를 둘러 받침대 셋이 서 있다. 사람들이 오가며 이쪽을 힐끗 본다.',
     strip: { day: 'strip-plaza-empty', night: 'strip-plaza-empty' },
     stripAlt: '광장. 집 둘, 나무, 분수, 그리고 빈 받침대',
     users: [9, 12, 3],
     board: 'plaza',
-    actions: ['look', 'board', 'rest'],
+    actions: ['look', 'board', 'exhibit', 'rest'], // 3번 칸: 전시 (Z95)
     suggest: [
       { text: '훈련소에 가서 허수아비를 쳐 본다', go: 'training' },
       { text: '광장을 둘러본다', act: 'look' },
@@ -23,8 +23,8 @@ export const PLACES = {
     room: '낡은 허수아비가 줄지어 서 있다. 교관이 팔짱을 끼고 지켜본다.',
     strip: { day: 'strip-train-day', night: 'strip-train-night' },
     stripAlt: '훈련소. 오두막과 허수아비 셋, 나무 둘',
-    users: [5, 4, 1],
-    actions: ['strike', 'talk', 'rest'],
+    users: [5, 4, 1], merc: true, // 용병은 훈련소에서 교관이 소개한다 (Z94)
+    actions: ['strike', 'merc', 'talk', 'rest'],
   },
   temple: {
     id: 'temple', name: '신전', town: '시작 마을', danger: '안전',
@@ -70,7 +70,7 @@ export const PLACES = {
     actions: ['cook', 'trim', 'shop', 'bread', 'talk'], // 4번 칸: 빵 받기 (Z92)
   },
   tavern: {
-    id: 'tavern', name: '주점', town: '시작 마을', danger: '안전', storage: true, merc: true,
+    id: 'tavern', name: '주점', town: '시작 마을', danger: '안전', storage: true, // 용병 고용은 훈련소로 옮겼다 (Z94)
     room: '나무 탁자에 잔 자국이 겹겹이다. 안쪽 벽에 자물쇠 달린 보관함이 줄지어 있다.',
     strip: { day: 'strip-tavern-day', night: 'strip-tavern-night' },
     stripAlt: '주점. 간판이 걸린 집과 술통 둘',
@@ -172,7 +172,7 @@ export const PLACES = {
     id: 'guild', name: '모험가 회관', town: '소리재', part: '가운뎃동네', danger: '안전', board: 'guild', merc: true,
     room: '벽 하나가 통째로 게시판이다. 쪽지에 적힌 숫자가 윗마을과 자릿수부터 다르다.',
     strip: { day: 'strip-tavern-day', night: 'strip-tavern-night' }, stripAlt: '모험가 회관. 간판이 걸린 큰 집과 통 둘',
-    users: [22, 30, 14], actions: ['spar', 'board', 'talk'],
+    users: [22, 30, 14], actions: ['spar', 'board', 'merc', 'talk'], // 용병 칸은 훈련소와 같은 창 (Z94)
   },
   archive: {
     id: 'archive', name: '서고', town: '소리재', part: '윗동네', danger: '안전',
@@ -243,6 +243,8 @@ export const ACTIONS = {
   sculpt: { id: 'sculpt', label: '조각', ticks: 0, open: 'sculpt' },
   cook: { id: 'cook', label: '요리', ticks: 0, open: 'cook' },
   advance: { id: 'advance', label: '2차 전직', ticks: 0, open: 'advance' },
+  merc: { id: 'merc', label: '용병', ticks: 0, open: 'merc' },
+  exhibit: { id: 'exhibit', label: '전시', ticks: 0, open: 'exhibit' },
   // 곳마다 하는 일 (Z23): 훈련소의 치기처럼, 한 번 누르면 한 번 하고 그 숙련도가 오른다. 어려움은 그곳(level)이 정한다
   bellows: { id: 'bellows', label: '풀무질', skill: 'smithing', ticks: 1, chore: true, teach: true },
   spin: { id: 'spin', label: '실 잣기', skill: 'leather', ticks: 1, chore: true, teach: true },

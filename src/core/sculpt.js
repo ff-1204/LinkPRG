@@ -1,21 +1,21 @@
 // 조각과 작품 (N2, X1, X3-3). 칼질 마흔 번을 손으로. 본 것만 깎는다.
 // 등급은 마지막 칼질에서 갈린다. 그 전에는 그림으로도 글로도 알 수 없다.
 
-import { next } from './rng.js?v=fc38b0e';
-import { pushLine, ding } from './log.js?v=fc38b0e';
-import { countOf, takeById } from './inventory.js?v=fc38b0e';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=fc38b0e';
-import { itemDef } from '../data/items.js?v=fc38b0e';
-import { bondOf, bondBy, addFame } from './social.js?v=fc38b0e';
-import { jobXp } from './jobs.js?v=fc38b0e';
-import { REGULAR, PEOPLE } from '../data/people.js?v=fc38b0e';
-import { placeById } from '../data/places.js?v=fc38b0e';
+import { next } from './rng.js?v=c0f458e';
+import { pushLine, ding } from './log.js?v=c0f458e';
+import { countOf, takeById } from './inventory.js?v=c0f458e';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=c0f458e';
+import { itemDef } from '../data/items.js?v=c0f458e';
+import { bondOf, bondBy, addFame } from './social.js?v=c0f458e';
+import { jobXp } from './jobs.js?v=c0f458e';
+import { REGULAR, PEOPLE } from '../data/people.js?v=c0f458e';
+import { placeById } from '../data/places.js?v=c0f458e';
 import {
   CUTS, WORK_GRADES, WORK_BASE, WORK_PUSH, WORK_NEEDS, SCULPT_DIFFICULTY, CUT_MARKS, CUT_LINES,
   SUBJECTS, SUBJECT_ORDER, ADMIRE, WORK_PRICE, WORK_FAME,
-} from '../data/works.js?v=fc38b0e';
-import { iGa, eulReul } from './ko.js?v=fc38b0e';
-import { buffOf, xpBoost } from './buffs.js?v=fc38b0e';
+} from '../data/works.js?v=c0f458e';
+import { iGa, eulReul } from './ko.js?v=c0f458e';
+import { buffOf, xpBoost } from './buffs.js?v=c0f458e';
 
 export { buffOf };
 
@@ -171,13 +171,15 @@ export function admire(state, events, no) {
   events.push({ type: 'buff' });
 }
 
-/** 광장의 빈 받침대에 세운다. 다음 날부터 구경꾼이 늘고 명성이 오른다 (X3-3). */
+export const PEDESTALS = 3; // 광장 분수를 둘러 받침대 셋 (Z95)
+const onPlaza = (state) => state.works.filter((x) => x.where === 'plaza');
+
+/** 광장의 빈 받침대에 세운다. 다음 날부터 구경꾼이 늘고 명성이 오른다 (X3-3, Z95). */
 export function placeWork(state, events, no) {
   const w = workOf(state, no);
   mustHold(w);
   if (state.place !== 'plaza') throw new Error('광장의 받침대에 세웁니다');
-  const old = state.works.find((x) => x.where === 'plaza');
-  if (old) { old.where = 'bag'; pushLine(state, events, { k: 'me', text: `받침대에 있던 ${eulReul(workName(old))} 내려 가방에 넣었다.` }); }
+  if (onPlaza(state).length >= PEDESTALS) throw new Error('빈 받침대가 없습니다. 하나를 먼저 내립니다');
   w.where = 'plaza';
   w.placedDay = state.day;
   w.famed = !!w.famed; // 명성은 작품마다 한 번만 오른다
@@ -186,16 +188,39 @@ export function placeWork(state, events, no) {
   events.push({ type: 'art' });
 }
 
-/** 받침대에 선 작품(없으면 null). 장소 띠와 "이 방" 글이 쓴다. */
+/** 받침대에서 내려 가방에 넣는다. 받은 명성은 그대로이고, 다시 세워도 또 오르지 않는다 (Z95). */
+export function unplaceWork(state, events, no) {
+  const w = workOf(state, no);
+  if (w.where !== 'plaza') throw new Error('받침대에 선 작품이 아닙니다');
+  if (state.place !== 'plaza') throw new Error('광장에 가야 내릴 수 있습니다');
+  w.where = 'bag';
+  pushLine(state, events, { k: 'me', text: `받침대에서 ${eulReul(workName(w))} 내려 가방에 넣었다.` });
+  events.push({ type: 'statue' });
+  events.push({ type: 'art' });
+}
+
+/** 전시 창이 그릴 것 (Z95). */
+export function exhibitView(state) {
+  const shown = onPlaza(state).map((w) => ({
+    no: w.no, name: workName(w), grade: w.grade, since: w.placedDay, famed: !!w.famed, fame: WORK_FAME[w.grade],
+    admire: ADMIRE[w.grade] ? ADMIRE[w.grade].text : '',
+  }));
+  const bag = state.works.filter((w) => w.where === 'bag').map((w) => ({ no: w.no, name: workName(w), grade: w.grade, famed: !!w.famed }));
+  return { shown, empty: Math.max(0, PEDESTALS - shown.length), bag, max: PEDESTALS };
+}
+
+/** 받침대에 선 작품 가운데 등급이 가장 높은 것(없으면 null). 장소 띠와 "이 방" 글이 쓴다. */
 export function statueOf(state) {
-  const w = state.works.find((x) => x.where === 'plaza');
+  const w = onPlaza(state).reduce((a, x) => (!a || x.grade > a.grade ? x : a), null);
   return w ? { no: w.no, name: workName(w), grade: w.grade, subject: w.subject, art: SUBJECTS[w.subject].art || null, since: w.placedDay } : null;
 }
 
 /** 날이 바뀔 때 부른다. 세운 다음 날 한 번 명성이 오른다. */
 export function statueDay(state, events) {
-  const w = state.works.find((x) => x.where === 'plaza');
-  if (!w || w.famed || state.day <= w.placedDay) return;
+  for (const w of onPlaza(state)) famedOnce(state, events, w);
+}
+function famedOnce(state, events, w) {
+  if (w.famed || state.day <= w.placedDay) return;
   w.famed = true;
   const fame = WORK_FAME[w.grade];
   pushLine(state, events, { k: 'room', text: `광장의 ${workName(w)} 앞에 사람들이 모여 있다는 말이 들린다.` });

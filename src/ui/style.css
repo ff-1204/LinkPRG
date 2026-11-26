@@ -604,3 +604,10 @@ h3.benchlv { font: 700 1rem var(--sans); color: var(--cinnamon); margin: .6rem 0
 .asplit .ascroll { max-height: 26rem; overflow-y: auto; }
 .asplit .it.sel { border-color: var(--cinnamon); background: var(--sand); }
 @media (max-width: 640px) { .asplit { grid-template-columns: 1fr; } }
+
+/* 전시 받침대 (Z95) */
+.peds { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.ped { border: 1.5px solid var(--line2); border-radius: 8px; background: var(--paper); padding: 10px; text-align: center; min-height: 120px; display: flex; flex-direction: column; justify-content: space-between; gap: 6px; }
+.ped.empty { border-style: dashed; }
+.ped .row-btns { justify-content: center; }
+@media (max-width: 640px) { .peds { grid-template-columns: 1fr; } }

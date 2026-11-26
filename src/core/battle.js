@@ -1,29 +1,29 @@
 // 전투 (E5~E9, R2-2). 한 턴에 행동 하나. 적의 다음 행동은 늘 미리 보인다.
 // 방어하면 피해가 절반이고, 돌진류는 막고 되받아친다.
 
-import { next, chance } from './rng.js?v=fc38b0e';
-import { pushLine, ding } from './log.js?v=fc38b0e';
-import { monsterDef, STATUS } from '../data/monsters.js?v=fc38b0e';
-import { itemDef, ITEMS, gradeName } from '../data/items.js?v=fc38b0e';
-import { roll01 } from './rng.js?v=fc38b0e';
-import { guildPerk } from './guild.js?v=fc38b0e';
-import { rollOptions, gearName } from './gear.js?v=fc38b0e';
-import { derived, skillBonus } from './derived.js?v=fc38b0e';
-import { addItem, removeAt, usable, totalWeight, equip, slotFor, equipPower } from './inventory.js?v=fc38b0e';
-import { grantXp } from './reward.js?v=fc38b0e';
-import { useSkill, emptySkill, gradeLabel, SKILL_NAMES } from './skills.js?v=fc38b0e';
-import { fall } from './fall.js?v=fc38b0e';
-import { iGa, eulReul, ro } from './ko.js?v=fc38b0e';
-import { branchOf } from './evolve.js?v=fc38b0e';
-import { skillsNow, jobXp, adv } from './jobs.js?v=fc38b0e';
-import { guardFor, hitCompanion, companionsAct, afterBattle, roleBonus, cross } from './party.js?v=fc38b0e';
-import { jobDef } from '../data/jobs.js?v=fc38b0e';
-import { BEATS, WEAK_MULT, RESIST_MULT } from '../data/dungeon.js?v=fc38b0e';
-import { HUNGRY, DUEL, DUEL_MOVES, BANDIT, BANDIT_MOVES } from '../data/wild.js?v=fc38b0e';
-import { addFame } from './social.js?v=fc38b0e';
-import { giveMurder, MURDER, giveGrace, GRACE } from './buffs.js?v=fc38b0e';
-import { applyDish } from './cook.js?v=fc38b0e';
-import { DISHES } from '../data/cooking.js?v=fc38b0e';
+import { next, chance } from './rng.js?v=c0f458e';
+import { pushLine, ding } from './log.js?v=c0f458e';
+import { monsterDef, STATUS } from '../data/monsters.js?v=c0f458e';
+import { itemDef, ITEMS, gradeName } from '../data/items.js?v=c0f458e';
+import { roll01 } from './rng.js?v=c0f458e';
+import { guildPerk } from './guild.js?v=c0f458e';
+import { rollOptions, gearName } from './gear.js?v=c0f458e';
+import { derived, skillBonus } from './derived.js?v=c0f458e';
+import { addItem, removeAt, usable, totalWeight, equip, slotFor, equipPower } from './inventory.js?v=c0f458e';
+import { grantXp } from './reward.js?v=c0f458e';
+import { useSkill, emptySkill, gradeLabel, SKILL_NAMES } from './skills.js?v=c0f458e';
+import { fall } from './fall.js?v=c0f458e';
+import { iGa, eulReul, ro } from './ko.js?v=c0f458e';
+import { branchOf } from './evolve.js?v=c0f458e';
+import { skillsNow, jobXp, adv } from './jobs.js?v=c0f458e';
+import { guardFor, hitCompanion, companionsAct, afterBattle, roleBonus, cross } from './party.js?v=c0f458e';
+import { jobDef } from '../data/jobs.js?v=c0f458e';
+import { BEATS, WEAK_MULT, RESIST_MULT } from '../data/dungeon.js?v=c0f458e';
+import { HUNGRY, DUEL, DUEL_MOVES, BANDIT, BANDIT_MOVES } from '../data/wild.js?v=c0f458e';
+import { addFame } from './social.js?v=c0f458e';
+import { giveMurder, MURDER, giveGrace, GRACE } from './buffs.js?v=c0f458e';
+import { applyDish } from './cook.js?v=c0f458e';
+import { DISHES } from '../data/cooking.js?v=c0f458e';
 
 /** 사나움 (Z60): 세계의 날마다 괴물의 생명·공격과 경험치·떨굼 확률이 조금씩 오른다. 끝이 없다. 우두머리·던전도 같다. */
 export const FIERCE_PER = 0.0005;

@@ -1,19 +1,19 @@
 // 경매장 (N6-1 ~ N6-3). 가상 유저가 입찰하고 한마디씩 남긴다.
 // 입찰은 씨앗과 날짜로 셈한다. 같은 씨앗이면 같은 값에 팔린다.
 
-import { seedFrom } from './rng.js?v=fc38b0e';
-import { gearName } from './gear.js?v=fc38b0e';
-import { pushLine } from './log.js?v=fc38b0e';
-import { ITEMS, itemDef, gradeName } from '../data/items.js?v=fc38b0e';
-import { addItem, removeAt } from './inventory.js?v=fc38b0e';
-import { worth } from './trade.js?v=fc38b0e';
-import { placeById } from '../data/places.js?v=fc38b0e';
-import { standingOf } from './factions.js?v=fc38b0e';
-import { FACTION_REGULAR } from '../data/factions.js?v=fc38b0e';
-import { userBase } from './world.js?v=fc38b0e';
-import { MASK_LOT, AUCTION_FEE, AUCTION_DAYS, LOT_TIERS, LOT_SKIP, LOT_ASK, LOT_GEAR_MIN, BID_SAYS, USER_COUNT } from '../data/world.js?v=fc38b0e';
-import { eulReul, iGa, eunNeun } from './ko.js?v=fc38b0e';
-import { grantTitle } from './social.js?v=fc38b0e';
+import { seedFrom } from './rng.js?v=c0f458e';
+import { gearName } from './gear.js?v=c0f458e';
+import { pushLine } from './log.js?v=c0f458e';
+import { ITEMS, itemDef, gradeName } from '../data/items.js?v=c0f458e';
+import { addItem, removeAt } from './inventory.js?v=c0f458e';
+import { worth } from './trade.js?v=c0f458e';
+import { placeById } from '../data/places.js?v=c0f458e';
+import { standingOf } from './factions.js?v=c0f458e';
+import { FACTION_REGULAR } from '../data/factions.js?v=c0f458e';
+import { userBase } from './world.js?v=c0f458e';
+import { MASK_LOT, AUCTION_FEE, AUCTION_DAYS, LOT_TIERS, LOT_SKIP, LOT_ASK, LOT_GEAR_MIN, BID_SAYS, USER_COUNT } from '../data/world.js?v=c0f458e';
+import { eulReul, iGa, eunNeun } from './ko.js?v=c0f458e';
+import { grantTitle } from './social.js?v=c0f458e';
 
 // 끝 글자만 다른 글들도 고르게 흩어지도록 한 번 더 섞는다(전에는 같은 날 물건들의 시작가가 거의 같았다)
 const mix = (h) => { h ^= h >>> 16; h = Math.imul(h, 0x85ebca6b) >>> 0; h ^= h >>> 13; h = Math.imul(h, 0xc2b2ae35) >>> 0; h ^= h >>> 16; return h >>> 0; };

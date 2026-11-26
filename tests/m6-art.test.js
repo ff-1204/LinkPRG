@@ -155,10 +155,10 @@ test('걸작을 광장에 세우면 다음 날 명성이 오르고, 띠와 "이 
   dispatch(s, { type: 'move', to: 'artguild' });
   const ev = dispatch(s, { type: 'move', to: 'plaza' });
   assert.ok(ev.some((e) => e.type === 'line' && e.line.k === 'room' && e.line.text.includes('걸작 토끼상')));
-  // 다른 것을 세우면 먼저 것은 가방으로 돌아온다
+  // 받침대는 셋. 띠에는 가장 높은 등급이 선다 (Z95)
   s.works.push({ no: 2, subject: 'rabbit', grade: 4, day: 2, where: 'bag', maker: '가을' });
   dispatch(s, { type: 'work', op: 'place', no: 2 });
-  assert.equal(worksView(s)[0].where, 'bag');
+  assert.equal(worksView(s)[0].where, 'plaza', '먼저 것도 그대로 서 있다');
   assert.equal(statueOf(s).name, '대작 토끼상');
 });
 
@@ -224,7 +224,9 @@ test('동료 영입: 사이가 단골 이상인 미루에게 청한다. 파티�
   assert.ok(v.wants);
   assert.ok(!peopleHere(s).some((p) => p.id === 'miru'), '함께 다니는 사람은 그 자리에 없다');
   assert.throws(() => dispatch(s, { type: 'party', op: 'ask', npc: 'miru' }), /여기에 없|이미 함께/);
-  // 용병: 하루 은화 60
+  // 용병: 하루 은화 60. 훈련소에서 구한다 (Z94)
+  assert.throws(() => dispatch(s, { type: 'party', op: 'hire' }), /훈련소/);
+  s.place = 'training';
   assert.throws(() => dispatch(s, { type: 'party', op: 'hire' }), /은화 60/);
   s.silver = 100;
   dispatch(s, { type: 'party', op: 'hire' });
@@ -348,13 +350,13 @@ test('세운 작품의 명성은 작품마다 한 번만 오른다', () => {
   const s = fresh('fameonce');
   s.place = 'plaza';
   s.works.push({ no: 1, subject: 'rabbit', grade: 3, day: 1, where: 'bag', maker: '가을' }, { no: 2, subject: 'rabbit', grade: 3, day: 1, where: 'bag', maker: '가을' });
-  for (let d = 0; d < 6; d++) { dispatch(s, { type: 'work', op: 'place', no: (d % 2) + 1 }); for (let i = 0; i < 3; i++) passPhase(s); s.full = 80; }
+  for (let d = 0; d < 6; d++) { const no = (d % 2) + 1; for (const w of s.works) if (w.where === 'plaza' && w.no !== no) dispatch(s, { type: 'work', op: 'unplace', no: w.no }); if (s.works[no - 1].where === 'bag') dispatch(s, { type: 'work', op: 'place', no }); for (let i = 0; i < 3; i++) passPhase(s); s.full = 80; }
   assert.equal(fameOf(s), 16);
 });
 
 test('용병은 구할 때 첫날 삯을 낸다. 그날 헤어져도 돌려받지 못한다', () => {
   const s = fresh('merc');
-  s.place = 'tavern'; s.silver = 130;
+  s.place = 'training'; s.silver = 130;
   dispatch(s, { type: 'party', op: 'hire' });
   assert.equal(s.silver, 70);
   dispatch(s, { type: 'party', op: 'dismiss', id: 'gaon' });

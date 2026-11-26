@@ -1,14 +1,14 @@
 // 동료와 파티 (T20, T21, T25~T28, H1-1~H1-4). 파티는 나와 동료 둘까지.
 
-import { chance } from './rng.js?v=fc38b0e';
-import { pushLine, ding } from './log.js?v=fc38b0e';
-import { COMPANIONS, PARTY_MAX, CROSS_LIMIT, MERC_FEE, ROLE_BONUS, GUARD_RATE, ROLES, ROWS, PLANS } from '../data/companions.js?v=fc38b0e';
-import { SUBJECTS, ALIVE_COST } from '../data/works.js?v=fc38b0e';
-import { REGULAR, PEOPLE } from '../data/people.js?v=fc38b0e';
-import { bondOf } from './social.js?v=fc38b0e';
-import { placeById } from '../data/places.js?v=fc38b0e';
-import { workName } from './sculpt.js?v=fc38b0e';
-import { iGa, eulReul, waGwa } from './ko.js?v=fc38b0e';
+import { chance } from './rng.js?v=c0f458e';
+import { pushLine, ding } from './log.js?v=c0f458e';
+import { COMPANIONS, PARTY_MAX, CROSS_LIMIT, MERC_FEE, MERC_ORDER, ROLE_BONUS, GUARD_RATE, ROLES, ROWS, PLANS } from '../data/companions.js?v=c0f458e';
+import { SUBJECTS, ALIVE_COST } from '../data/works.js?v=c0f458e';
+import { REGULAR, PEOPLE } from '../data/people.js?v=c0f458e';
+import { bondOf } from './social.js?v=c0f458e';
+import { placeById } from '../data/places.js?v=c0f458e';
+import { workName } from './sculpt.js?v=c0f458e';
+import { iGa, eulReul, waGwa } from './ko.js?v=c0f458e';
 
 const def = (c) => COMPANIONS[c.id];
 
@@ -20,7 +20,7 @@ function join(state, events, id, extra = {}) {
   state.party.push(c);
   pushLine(state, events, { k: 'room', text: d.join });
   ding(state, events, { level: 3, kind: 'companion', title: `동료 ${iGa(`'${d.name}'`)} 생겼습니다`, big: d.name, body: `${d.what}. ${ROLES[d.role]}, ${ROWS[d.row]}. 바라는 것: ${d.wants}.` });
-  state.journal.push({ day: state.day, phase: state.phase, place: state.place, text: `${iGa(d.name)} 따라나섰다. 이제 혼자 걷지 않는다.`, note: `${d.name}${waGwa(d.name)} 함께한 날` });
+  state.journal.push({ day: state.day, phase: state.phase, place: state.place, text: `${iGa(d.name)} 따라나섰다. 이제 혼자 걷지 않는다.`, note: `${waGwa(d.name)} 함께한 날` });
   events.push({ type: 'party' });
   return c;
 }
@@ -34,15 +34,31 @@ export function askToJoin(state, events, personId) {
   return join(state, events, d.id);
 }
 
-/** 용병을 고용한다. 하루 은화 60. 날이 바뀔 때 낸다 (T28). */
-export function hireMerc(state, events) {
-  if (!placeById(state.place).merc) throw new Error('용병은 주점이나 모험가 회관에서 구합니다');
-  if (state.silver < MERC_FEE) throw new Error(`하루 삯 은화 ${MERC_FEE}은 가지고 있어야 합니다`);
+const feeOf = (d) => d.fee || MERC_FEE;
+
+/** 용병을 고용한다. 삯은 용병마다 다르고 날이 바뀔 때 낸다 (T28). 시작 마을에서는 훈련소에서 구한다 (Z94). */
+export function hireMerc(state, events, id = 'gaon') {
+  if (!placeById(state.place).merc) throw new Error('용병은 훈련소나 모험가 회관에서 구합니다');
+  const d = COMPANIONS[id];
+  if (!d || d.way !== 'merc') throw new Error('모르는 용병입니다');
+  const fee = feeOf(d);
+  if (state.silver < fee) throw new Error(`하루 삯 은화 ${fee}은 가지고 있어야 합니다`);
   if (state.party.length >= PARTY_MAX) throw new Error(`동료는 ${PARTY_MAX}명까지입니다`);
-  if (state.party.some((c) => c.id === 'gaon')) throw new Error('이미 함께 있습니다');
-  state.silver -= MERC_FEE; // 첫날 삯은 먼저 낸다. 그날 헤어져도 돌려받지 못한다
-  pushLine(state, events, { k: 'me', text: `첫날 삯 은화 ${MERC_FEE}을 건넸다.` });
-  return join(state, events, 'gaon', { paidDay: state.day });
+  if (state.party.some((c) => c.id === id)) throw new Error('이미 함께 있습니다');
+  state.silver -= fee; // 첫날 삯은 먼저 낸다. 그날 헤어져도 돌려받지 못한다
+  pushLine(state, events, { k: 'me', text: `첫날 삯 은화 ${fee}을 건넸다.` });
+  return join(state, events, id, { paidDay: state.day });
+}
+
+/** 용병 창이 그릴 것 (Z94). */
+export function mercView(state) {
+  return MERC_ORDER.map((id) => {
+    const d = COMPANIONS[id];
+    const fee = feeOf(d);
+    const joined = state.party.some((c) => c.id === id);
+    const why = joined ? '함께 있다' : state.party.length >= PARTY_MAX ? `동료는 ${PARTY_MAX}명까지` : state.silver < fee ? '은화가 모자란다' : '';
+    return { id, name: d.name, what: d.what, role: ROLES[d.role], row: ROWS[d.row], hp: d.hp, attack: d.attack, element: d.element, fee, joined, can: !why, why };
+  });
 }
 
 /** 작품에 생명을 불어넣는다. 예술을 조금 잃는다 (N2-3, T28). */
@@ -93,7 +109,7 @@ export function setRow(state, events, id, row) {
   const c = state.party.find((x) => x.id === id);
   if (!c) throw new Error('함께 있지 않습니다');
   if (!ROWS[row]) throw new Error('모르는 줄입니다');
-  if (row === 'back' && def(c).role !== 'healer') throw new Error('뒷줄에는 활·마법·치유를 하는 이만 섭니다');
+  if (row === 'back' && def(c).role !== 'healer' && !def(c).back) throw new Error('뒷줄에는 활·마법·치유를 하는 이만 섭니다');
   c.row = row;
   pushLine(state, events, { k: 'me', text: `${eulReul(def(c).name)} ${ROWS[row]}에 세웠다.` });
   events.push({ type: 'party' });
@@ -108,7 +124,7 @@ export function partyView(state) {
       hp: c.hp, maxHp: maxHpOf(c), down: c.down, attack: d.attack, heal: d.heal || 0,
       plan: c.plan, plans: PLANS[d.role], wants: d.wants, crossed: c.crossed, limit: CROSS_LIMIT,
       bond: c.bond, bondName: c.bond >= 40 ? '믿는 사이' : c.bond >= 15 ? '익숙한 사이' : '서먹한 사이',
-      canBack: d.role === 'healer', fee: d.way === 'merc' ? MERC_FEE : 0,
+      canBack: d.role === 'healer' || !!d.back, fee: d.way === 'merc' ? feeOf(d) : 0,
     };
   });
 }
@@ -148,7 +164,8 @@ export function partyDay(state, events) {
   for (const c of [...state.party]) {
     if (def(c).way !== 'merc') continue;
     if (c.paidDay != null && state.day <= c.paidDay + 1) continue; // 첫날 삯은 구할 때 냈다
-    if (state.silver >= MERC_FEE) { state.silver -= MERC_FEE; pushLine(state, events, { k: 'sys', text: `${def(c).name}에게 하루 삯 은화 ${MERC_FEE}을 냈다.` }); }
+    const fee = feeOf(def(c));
+    if (state.silver >= fee) { state.silver -= fee; pushLine(state, events, { k: 'sys', text: `${def(c).name}에게 하루 삯 은화 ${fee}을 냈다.` }); }
     else cross(state, events, 'unpaid');
   }
   if (state.full === 0) cross(state, events, 'hungry');

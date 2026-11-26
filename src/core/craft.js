@@ -2,21 +2,21 @@
 // 쇠는 식는다. 얼마나 늦었는지는 화면이 재서 알려 주고(late), 규칙은 그 값만 본다.
 // 그래서 같은 씨앗과 같은 입력이면 늘 같은 결과가 나온다.
 
-import { next } from './rng.js?v=fc38b0e';
-import { rollOptions } from './gear.js?v=fc38b0e';
-import { pushLine, ding } from './log.js?v=fc38b0e';
-import { countOf, takeById, addItem } from './inventory.js?v=fc38b0e';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=fc38b0e';
-import { itemDef, GRADES } from '../data/items.js?v=fc38b0e';
-import { RECIPES, RECIPE_ORDER, GRADE_BASE, PUSH, HAMMER_LINES, HAMMER_MARKS, recipeById, STITCH_LINES, JEWEL_LINES, COOK_STIR, BRANCHES, BRANCH_ORDER, CRAFT_LV, ORDER_OF } from '../data/recipes.js?v=fc38b0e';
-import { branchOf } from './evolve.js?v=fc38b0e';
-import { placeById } from '../data/places.js?v=fc38b0e';
-import { DISHES } from '../data/cooking.js?v=fc38b0e';
-import { applyDish } from './cook.js?v=fc38b0e';
-import { iGa, eulReul } from './ko.js?v=fc38b0e';
-import { jobXp } from './jobs.js?v=fc38b0e';
-import { jobDef } from '../data/jobs.js?v=fc38b0e';
-import { hasTitle } from './titles.js?v=fc38b0e';
+import { next } from './rng.js?v=c0f458e';
+import { rollOptions } from './gear.js?v=c0f458e';
+import { pushLine, ding } from './log.js?v=c0f458e';
+import { countOf, takeById, addItem } from './inventory.js?v=c0f458e';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=c0f458e';
+import { itemDef, GRADES } from '../data/items.js?v=c0f458e';
+import { RECIPES, RECIPE_ORDER, GRADE_BASE, PUSH, HAMMER_LINES, HAMMER_MARKS, recipeById, STITCH_LINES, JEWEL_LINES, COOK_STIR, BRANCHES, BRANCH_ORDER, CRAFT_LV, ORDER_OF } from '../data/recipes.js?v=c0f458e';
+import { branchOf } from './evolve.js?v=c0f458e';
+import { placeById } from '../data/places.js?v=c0f458e';
+import { DISHES } from '../data/cooking.js?v=c0f458e';
+import { applyDish } from './cook.js?v=c0f458e';
+import { iGa, eulReul } from './ko.js?v=c0f458e';
+import { jobXp } from './jobs.js?v=c0f458e';
+import { jobDef } from '../data/jobs.js?v=c0f458e';
+import { hasTitle } from './titles.js?v=c0f458e';
 
 export const WORK_XP = 1.5; // 일하는 직업이 맞으면 그 숙련도가 빨리 오른다 (T7)
 export const TANNER_XP = 1.2; // 무두장이 출신은 가죽 숙련도가 조금 빨리 오른다 (Z71)

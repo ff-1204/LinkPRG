@@ -3,7 +3,8 @@
 
 export const PARTY_MAX = 2;
 export const CROSS_LIMIT = 3;
-export const MERC_FEE = 60; // 용병은 하루 은화 60
+export const MERC_FEE = 60; // 가온의 하루 삯. 용병마다 fee가 따로 있다 (Z94)
+export const MERC_ORDER = ['gaon', 'windbow', 'stoneshield']; // 훈련소에서 교관이 소개하는 용병 (Z94)
 export const ROLE_BONUS = 0.05; // 막는 사람·때리는 사람·고치는 사람이 고루 있으면 모든 판정 +5% (T26)
 export const GUARD_RATE = 0.7; // '나를 먼저'인 앞줄 동료가 대신 맞아 줄 확률
 
@@ -44,10 +45,22 @@ export const COMPANIONS = {
     join: '"저, 저도 가도 돼요? 신전에서는 종소리가 어디서 나는지 아무도 안 알려 줘요."', leave: '"저는 여기까지만 갈게요." 미루가 고개를 숙이고 돌아섰다.',
   },
   gaon: {
-    id: 'gaon', name: '가온', what: '용병', way: 'merc', role: 'striker', row: 'front',
+    id: 'gaon', name: '가온', what: '용병', way: 'merc', fee: 60, role: 'striker', row: 'front',
     hp: 110, attack: 16, element: '땅',
     wants: '날마다 삯을 받는 것', hates: 'unpaid', hateSay: '',
     join: '"하루 은화 육십. 선불은 아니고, 날이 바뀔 때 받겠소."', leave: '"삯이 없으면 칼도 없소." 가온이 짐을 챙겨 떠났다.',
+  },
+  windbow: {
+    id: 'windbow', name: '바람결', what: '활 쏘는 용병', way: 'merc', fee: 70, role: 'striker', row: 'back', back: true,
+    hp: 80, attack: 13, element: '바람',
+    wants: '날마다 삯을 받는 것', hates: 'unpaid', hateSay: '',
+    join: '"하루 은화 일흔. 화살값은 내가 대지. 날이 바뀔 때 받겠어."', leave: '"삯 없는 활은 당기지 않아." 바람결이 활을 메고 떠났다.',
+  },
+  stoneshield: {
+    id: 'stoneshield', name: '돌방패', what: '방패 든 용병', way: 'merc', fee: 80, role: 'guard', row: 'front',
+    hp: 150, attack: 8, element: '땅',
+    wants: '날마다 삯을 받는 것', hates: 'unpaid', hateSay: '',
+    join: '"하루 은화 여든. 내 뒤에 서 있으면 된다."', leave: '"삯이 끊기면 방패도 내린다." 돌방패가 등을 돌렸다.',
   },
   stonerabbit: {
     id: 'stonerabbit', name: '돌토끼', what: '생명을 얻은 조각', way: 'work', role: 'guard', row: 'front',

@@ -1,69 +1,69 @@
 // 화면 본체. 규칙(core)을 불러 상태를 고치고, 상태를 그린다.
 // 시안 번호: 화면 틀 D1~D6, 캐릭터 만들기 T1~T3, 상태·스킬 창 G2, 저장·설정 G4, 도움말 H2, 그림 X1·X3.
 
-import { h, pixel, fill, add } from './dom.js?v=fc38b0e';
-import { createWindows } from './windows.js?v=fc38b0e';
-import { loadSettings, saveSettings, applySettings, SETTING_GROUPS } from './settings.js?v=fc38b0e';
-import { playDing } from './sound.js?v=fc38b0e';
-import { HELP } from './help.js?v=fc38b0e';
+import { h, pixel, fill, add } from './dom.js?v=c0f458e';
+import { createWindows } from './windows.js?v=c0f458e';
+import { loadSettings, saveSettings, applySettings, SETTING_GROUPS } from './settings.js?v=c0f458e';
+import { playDing } from './sound.js?v=c0f458e';
+import { HELP } from './help.js?v=c0f458e';
 import {
   createGame, dispatch, usersHere, whenLabel, isNight, scarecrowStage, DING_LEVELS,
   slotsNow, mapView, bodyView, clockOf, enemyView, choiceView, craftView,
-} from '../core/game.js?v=fc38b0e';
-import { recipeList, craftLvView } from '../core/craft.js?v=fc38b0e';
-import { wealthFeel } from '../core/explore.js?v=fc38b0e';
-import { ORDER_OF, BRANCHES, BRANCH_ORDER } from '../data/recipes.js?v=fc38b0e';
-import { jobDef as jobDefOf } from '../data/jobs.js?v=fc38b0e';
-import { evolveView, pendingEvolves, branchOf } from '../core/evolve.js?v=fc38b0e';
-import { shopView, storeView } from '../core/trade.js?v=fc38b0e';
-import { peopleHere, bondName, helloOf, spokeToday, titleView, peopleDex, fameOf, fameRank } from '../core/social.js?v=fc38b0e';
-import { offersOf, subView, boardView, jobsView, questBook, mainView, hiddenView } from '../core/quests.js?v=fc38b0e';
-import { SUBS } from '../data/quests.js?v=fc38b0e';
-import { jobChoices, jobName, skillsNow, canChooseJob, hiddenJobTraces, advanceView } from '../core/jobs.js?v=fc38b0e';
-import { factionView, leanName } from '../core/factions.js?v=fc38b0e';
-import { sculptMenu, sculptView, worksView, statueOf } from '../core/sculpt.js?v=fc38b0e';
+} from '../core/game.js?v=c0f458e';
+import { recipeList, craftLvView } from '../core/craft.js?v=c0f458e';
+import { wealthFeel } from '../core/explore.js?v=c0f458e';
+import { ORDER_OF, BRANCHES, BRANCH_ORDER } from '../data/recipes.js?v=c0f458e';
+import { jobDef as jobDefOf } from '../data/jobs.js?v=c0f458e';
+import { evolveView, pendingEvolves, branchOf } from '../core/evolve.js?v=c0f458e';
+import { shopView, storeView } from '../core/trade.js?v=c0f458e';
+import { peopleHere, bondName, helloOf, spokeToday, titleView, peopleDex, fameOf, fameRank } from '../core/social.js?v=c0f458e';
+import { offersOf, subView, boardView, jobsView, questBook, mainView, hiddenView } from '../core/quests.js?v=c0f458e';
+import { SUBS } from '../data/quests.js?v=c0f458e';
+import { jobChoices, jobName, skillsNow, canChooseJob, hiddenJobTraces, advanceView } from '../core/jobs.js?v=c0f458e';
+import { factionView, leanName } from '../core/factions.js?v=c0f458e';
+import { sculptMenu, sculptView, worksView, statueOf, exhibitView } from '../core/sculpt.js?v=c0f458e';
 
-import { buffRows } from '../core/buffs.js?v=fc38b0e';
-import { partyView } from '../core/party.js?v=fc38b0e';
-import { WORK_GRADES } from '../data/works.js?v=fc38b0e';
-import { REGULAR, BONDS } from '../data/people.js?v=fc38b0e';
-import { bondOf } from '../core/social.js?v=fc38b0e';
-import { MERC_FEE, PARTY_MAX } from '../data/companions.js?v=fc38b0e';
-import { roomView, dungeonMap } from '../core/dungeon.js?v=fc38b0e';
-import { noticesView, ranking, rumorsView, sinceLast, markSeen } from '../core/world.js?v=fc38b0e';
-import { auctionView } from '../core/auction.js?v=fc38b0e';
-import { RANKS } from '../data/world.js?v=fc38b0e';
-import { townRooms, BOAT_NEEDS, BOAT_FEE, OFFER_FEE, countOf, regenRate } from '../core/game.js?v=fc38b0e';
-import { townOf } from '../core/social.js?v=fc38b0e';
-import { DUNGEONS } from '../data/dungeon.js?v=fc38b0e';
-import { FAME, TITLES, PEOPLE } from '../data/people.js?v=fc38b0e';
-import { RECIPES } from '../data/recipes.js?v=fc38b0e';
-import { ITEMS } from '../data/items.js?v=fc38b0e';
-import { GRADES } from '../data/items.js?v=fc38b0e';
-import { bagView, tabCounts, previewEquip, iconOf, itemPower, itemWeight, slotFor, equipWeight } from '../core/inventory.js?v=fc38b0e';
-import { BAG_TABS, EQUIP_SLOTS, itemDef, gradeName } from '../data/items.js?v=fc38b0e';
-import { monsterDef } from '../data/monsters.js?v=fc38b0e';
-import { originById, dealOrigins, ROOTS, ORIGIN_GRADES, STAT_NAMES, STAT_USES, rollDice, DICE_TOTAL, DICE_MIN, DICE_FREE_AT } from '../data/origins.js?v=fc38b0e';
-import { placeById, PLACES, TOWN_ORDER, PHASES, ACTIONS, PHASE_TICKS } from '../data/places.js?v=fc38b0e';
-import { SKILL_NAMES, gradeLabel, progress, skillEffect } from '../core/skills.js?v=fc38b0e';
-import { hiddenSlots, foundCount, hiddenTotal, hiddenById } from '../core/hidden.js?v=fc38b0e';
-import { rebirthCarry, rebirthLoss } from '../core/rebirth.js?v=fc38b0e';
-import { createCloud } from './cloud.js?v=fc38b0e';
-import { mailView, unreadMail } from '../core/mail.js?v=fc38b0e';
-import { shadowView, BLESSERS } from '../core/fall.js?v=fc38b0e';
-import { ringView, afterText } from '../core/ending.js?v=fc38b0e';
-import { derived, formula, valueOf } from '../core/derived.js?v=fc38b0e';
-import { saveTo, loadFrom, listSlots, clearSlot, exportText, importText, shouldAutosave, revOf, SaveConflict } from '../core/save.js?v=fc38b0e';
-import { createPressGuard, keyDecision, slotIndex } from '../core/press.js?v=fc38b0e';
-import { createAssist, assistable } from '../core/assist.js?v=fc38b0e';
-import { STANCES, stanceOf, wisResist } from '../core/battle.js?v=fc38b0e';
-import { gearName, optionLines, maxDur, repairCost, enhanceView, mendHere } from '../core/gear.js?v=fc38b0e';
-import { guildView, DONATE } from '../core/guild.js?v=fc38b0e';
-import { DRINK_HOSTS } from '../core/social.js?v=fc38b0e';
-import { TEACHERS, learnableHere, KNOWN_BOND } from '../core/work.js?v=fc38b0e';
-import { rootOf } from '../data/origins.js?v=fc38b0e';
-import { recordError, readErrors, clearErrors } from '../core/errors.js?v=fc38b0e';
-import { ro, iGa, waGwa, eulReul, eunNeun } from '../core/ko.js?v=fc38b0e';
+import { buffRows } from '../core/buffs.js?v=c0f458e';
+import { partyView, mercView } from '../core/party.js?v=c0f458e';
+import { WORK_GRADES } from '../data/works.js?v=c0f458e';
+import { REGULAR, BONDS } from '../data/people.js?v=c0f458e';
+import { bondOf } from '../core/social.js?v=c0f458e';
+import { MERC_FEE, PARTY_MAX } from '../data/companions.js?v=c0f458e';
+import { roomView, dungeonMap } from '../core/dungeon.js?v=c0f458e';
+import { noticesView, ranking, rumorsView, sinceLast, markSeen } from '../core/world.js?v=c0f458e';
+import { auctionView } from '../core/auction.js?v=c0f458e';
+import { RANKS } from '../data/world.js?v=c0f458e';
+import { townRooms, BOAT_NEEDS, BOAT_FEE, OFFER_FEE, countOf, regenRate } from '../core/game.js?v=c0f458e';
+import { townOf } from '../core/social.js?v=c0f458e';
+import { DUNGEONS } from '../data/dungeon.js?v=c0f458e';
+import { FAME, TITLES, PEOPLE } from '../data/people.js?v=c0f458e';
+import { RECIPES } from '../data/recipes.js?v=c0f458e';
+import { ITEMS } from '../data/items.js?v=c0f458e';
+import { GRADES } from '../data/items.js?v=c0f458e';
+import { bagView, tabCounts, previewEquip, iconOf, itemPower, itemWeight, slotFor, equipWeight } from '../core/inventory.js?v=c0f458e';
+import { BAG_TABS, EQUIP_SLOTS, itemDef, gradeName } from '../data/items.js?v=c0f458e';
+import { monsterDef } from '../data/monsters.js?v=c0f458e';
+import { originById, dealOrigins, ROOTS, ORIGIN_GRADES, STAT_NAMES, STAT_USES, rollDice, DICE_TOTAL, DICE_MIN, DICE_FREE_AT } from '../data/origins.js?v=c0f458e';
+import { placeById, PLACES, TOWN_ORDER, PHASES, ACTIONS, PHASE_TICKS } from '../data/places.js?v=c0f458e';
+import { SKILL_NAMES, gradeLabel, progress, skillEffect } from '../core/skills.js?v=c0f458e';
+import { hiddenSlots, foundCount, hiddenTotal, hiddenById } from '../core/hidden.js?v=c0f458e';
+import { rebirthCarry, rebirthLoss } from '../core/rebirth.js?v=c0f458e';
+import { createCloud } from './cloud.js?v=c0f458e';
+import { mailView, unreadMail } from '../core/mail.js?v=c0f458e';
+import { shadowView, BLESSERS } from '../core/fall.js?v=c0f458e';
+import { ringView, afterText } from '../core/ending.js?v=c0f458e';
+import { derived, formula, valueOf } from '../core/derived.js?v=c0f458e';
+import { saveTo, loadFrom, listSlots, clearSlot, exportText, importText, shouldAutosave, revOf, SaveConflict } from '../core/save.js?v=c0f458e';
+import { createPressGuard, keyDecision, slotIndex } from '../core/press.js?v=c0f458e';
+import { createAssist, assistable } from '../core/assist.js?v=c0f458e';
+import { STANCES, stanceOf, wisResist } from '../core/battle.js?v=c0f458e';
+import { gearName, optionLines, maxDur, repairCost, enhanceView, mendHere } from '../core/gear.js?v=c0f458e';
+import { guildView, DONATE } from '../core/guild.js?v=c0f458e';
+import { DRINK_HOSTS } from '../core/social.js?v=c0f458e';
+import { TEACHERS, learnableHere, KNOWN_BOND } from '../core/work.js?v=c0f458e';
+import { rootOf } from '../data/origins.js?v=c0f458e';
+import { recordError, readErrors, clearErrors } from '../core/errors.js?v=c0f458e';
+import { ro, iGa, waGwa, eulReul, eunNeun } from '../core/ko.js?v=c0f458e';
 
 const SCARECROW_ALT = ['멀쩡한 허수아비', '짚이 빠지기 시작한 허수아비', '한쪽으로 기운 허수아비', '터져서 짚이 흩날리는 허수아비'];
 const SCARECROW_SAY = ['아직 멀쩡하다', '짚이 빠지기 시작했다', '한쪽으로 기울었다', '터졌다. 기둥만 남았다'];
@@ -702,6 +702,8 @@ export function start(root, storage = globalThis.localStorage) {
     if (s.open === 'jewel') return openBench('jewel');
     if (s.open === 'talk') return openTalk();
     if (s.open === 'sculpt') return openSculpt();
+    if (s.open === 'merc') return openMerc();
+    if (s.open === 'exhibit') return openExhibit();
     if (s.open === 'auction') return openAuction();
     if (s.open === 'boat') return openBoat();
     if (s.open === 'advance') return openAdvance();
@@ -1494,6 +1496,47 @@ export function start(root, storage = globalThis.localStorage) {
     });
   }
 
+  // ── 용병 (Z94): 훈련소에서 교관이 소개한다 ──
+  function openMerc() {
+    wins.open({
+      title: '용병', size: 'mid', side: placeById(game.place).name,
+      render(body, { rerender }) {
+        const list = mercView(game);
+        add(body, h('p', { class: 'muted', style: 'font-size:.9rem' }, `${game.place === 'training' ? '교관' : '접수대'}이 쓸 만한 이를 소개한다. 삯은 날이 바뀔 때마다 낸다. 첫날 삯은 먼저 낸다. 동료는 ${PARTY_MAX}명까지.`),
+          h('div', { class: 'col-btns' }, list.map((m, i) => h('div', { class: 'detail', style: 'align-self:stretch' },
+            h('div', { style: 'display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap' }, h('b', { class: 'serif', style: 'font-size:1.15rem' }, m.name), h('span', {}, `하루 은화 ${m.fee}`)),
+            h('span', { class: 'muted', style: 'font-size:.9rem' }, `${m.row}, ${m.role} · 생명력 ${m.hp}, 공격 ${m.attack}, ${m.element}`),
+            h('button', { class: `btn ${m.can ? 'go' : ''}`, type: 'button', disabled: !m.can, 'data-autofocus': (m.can && !list.slice(0, i).some((x) => x.can)) || null, onclick: () => { if (run({ type: 'party', op: 'hire', id: m.id }, true)) rerender(); } }, m.can ? '고용' : m.why)))));
+      },
+      onClose: () => { drawNav(); refs.slots?.querySelector('button:not([disabled])')?.focus(); },
+    });
+  }
+
+  // ── 전시 (Z95): 광장 분수를 둘러 받침대 셋 ──
+  function openExhibit() {
+    let picking = false;
+    wins.open({
+      title: '전시', size: 'wide', side: '광장',
+      render(body, { rerender, close }) {
+        const v = exhibitView(game);
+        const act = (action) => { const ev = run(action, true); if (!ev) return; picking = false; if (game.choice) close(); else rerender(); };
+        const when = (w) => w.famed ? `${w.since}일째부터. 명성을 받았다` : w.since >= game.day ? `오늘 세움. 내일 명성 +${w.fame}` : `명성 +${w.fame}`;
+        add(body, h('p', { class: 'muted', style: 'font-size:.9rem' }, `분수를 둘러 받침대 셋. 작품은 세운 다음 날 한 번 마을 명성을 올린다(작품마다 한 번). 세운 작품 앞에서 감상할 수 있다.`),
+          h('div', { class: 'peds' },
+            v.shown.map((w) => h('div', { class: 'ped' }, h('b', { class: 'serif' }, w.name), h('small', { class: 'muted' }, when(w)),
+              h('div', { class: 'row-btns' },
+                h('button', { class: 'btn', type: 'button', disabled: !w.admire, title: w.admire ? `${w.admire} (하루)` : '어디가 틀렸는지만 보인다', onclick: () => act({ type: 'work', op: 'admire', no: w.no }) }, '감상'),
+                h('button', { class: 'btn', type: 'button', onclick: () => act({ type: 'work', op: 'unplace', no: w.no }) }, '내리기')))),
+            Array.from({ length: v.empty }, (_, i) => h('div', { class: 'ped empty' }, h('span', { class: 'muted' }, '빈 받침대'),
+              h('button', { class: 'btn go', type: 'button', disabled: !v.bag.length, 'data-autofocus': i === 0 || null, title: v.bag.length ? null : '가방에 작품이 없다', onclick: () => { picking = true; rerender(); } }, '작품 세우기')))),
+          picking ? h('div', { class: 'detail' }, h('b', {}, '세울 작품'),
+            h('div', { class: 'col-btns' }, v.bag.map((w, i) => h('button', { class: 'btn', type: 'button', 'data-autofocus': i === 0 || null, onclick: () => act({ type: 'work', op: 'place', no: w.no }) }, w.famed ? `${w.name} (명성은 이미 받음)` : w.name)),
+              h('button', { class: 'btn', type: 'button', onclick: () => { picking = false; rerender(); } }, '그만두기'))) : null);
+      },
+      onClose: () => { drawStrip(); drawBook(); refs.slots?.querySelector('button:not([disabled])')?.focus(); },
+    });
+  }
+
   // ── 작품 (N2-2, N2-5) ──
   function openWorks() {
     let picked = null;
@@ -1517,7 +1560,8 @@ export function start(root, storage = globalThis.localStorage) {
             sel.admire ? h('div', { class: 'rowx' }, h('span', {}, '감상하면'), h('span', {}, `${sel.admire} (하루)`)) : null,
             sel.held || sel.where === 'plaza' ? h('div', { class: 'col-btns', style: 'margin-top:6px' },
               h('button', { class: 'btn go', type: 'button', disabled: sel.where === 'plaza' && game.place !== 'plaza', onclick: () => act({ type: 'work', op: 'admire', no: sel.no }) }, '감상'),
-              sel.held ? h('button', { class: 'btn', type: 'button', disabled: game.place !== 'plaza', onclick: () => act({ type: 'work', op: 'place', no: sel.no }) }, game.place === 'plaza' ? '광장에 전시' : '광장의 받침대에 세운다 (광장에서)') : null,
+              sel.held ? h('button', { class: 'btn', type: 'button', disabled: game.place !== 'plaza' || !exhibitView(game).empty, onclick: () => act({ type: 'work', op: 'place', no: sel.no }) }, game.place !== 'plaza' ? '광장의 받침대에 세운다 (광장에서)' : exhibitView(game).empty ? '광장에 전시' : '빈 받침대가 없다') : null,
+              sel.where === 'plaza' ? h('button', { class: 'btn', type: 'button', disabled: game.place !== 'plaza', onclick: () => act({ type: 'work', op: 'unplace', no: sel.no }) }, '받침대에서 내리기') : null,
               sel.held ? here.filter((p) => p.id !== 'trapped').map((p) => h('button', { class: 'btn', type: 'button', onclick: () => act({ type: 'work', op: 'gift', no: sel.no, npc: p.id }) }, `${p.name}에게 선물`)) : null,
               sel.held ? h('button', { class: 'btn', type: 'button', disabled: placeById(game.place).wild, onclick: () => act({ type: 'work', op: 'sell', no: sel.no }) }, `판다 (은화 ${sel.price})`) : null,
               sel.held ? h('button', { class: 'btn', type: 'button', disabled: !sel.canAlive || game.party.length >= PARTY_MAX, onclick: () => act({ type: 'work', op: 'alive', no: sel.no }) }, sel.aliveLabel) : null,
@@ -1538,7 +1582,7 @@ export function start(root, storage = globalThis.localStorage) {
       render(body, { rerender }) {
         const list = partyView(game);
         add(body, h('div', { class: 'rowx' }, h('span', {}, '파티'), h('span', {}, `${list.length} / ${PARTY_MAX}`)));
-        if (!list.length) { add(body, h('p', {}, '함께 다니는 이가 없다.'), h('p', { class: 'muted' }, `동료를 얻는 길은 셋이다. 사이가 '${BONDS[REGULAR].name}' 이상인 사람에게 청하기, 주점에서 용병 구하기(하루 은화 ${MERC_FEE}), 그리고 하나 더.`)); return; }
+        if (!list.length) { add(body, h('p', {}, '함께 다니는 이가 없다.'), h('p', { class: 'muted' }, `동료를 얻는 길은 셋이다. 사이가 '${BONDS[REGULAR].name}' 이상인 사람에게 청하기, 훈련소에서 용병 구하기(하루 은화 ${MERC_FEE}부터), 그리고 하나 더.`)); return; }
         const c = list.find((x) => x.id === tabId) || list[0];
         tabId = c.id;
         const act = (action) => { if (run(action, true)) rerender(); };
@@ -1904,8 +1948,7 @@ export function start(root, storage = globalThis.localStorage) {
               shopView(game) && shopView(game).keeper === p.name ? h('button', { class: 'btn', type: 'button', onclick: () => { close(); openShop(); } }, '상점') : null,
               who === 'miru' ? h('button', { class: 'btn', type: 'button', disabled: bondOf(game, 'miru') < REGULAR || game.party.length >= PARTY_MAX, title: bondOf(game, 'miru') < REGULAR ? `사이가 '${BONDS[REGULAR].name}' 이상이어야 한다` : null, onclick: () => act({ type: 'party', op: 'ask', npc: 'miru' }) }, bondOf(game, 'miru') < REGULAR ? `영입 ('${BONDS[REGULAR].name}'부터)` : '영입') : null,
               TEACHERS[game.place] === who && learnableHere(game).length ? h('button', { class: 'btn', type: 'button', disabled: bondOf(game, who) < KNOWN_BOND, title: bondOf(game, who) < KNOWN_BOND ? '낯익은 사이부터 청할 수 있다' : null, onclick: () => act({ type: 'learn', npc: who }) }, bondOf(game, who) < KNOWN_BOND ? `${ACTIONS[learnableHere(game)[0]].label}을 거들고 싶다 (낯익은 사이부터)` : `${ACTIONS[learnableHere(game)[0]].label}을 거들게 해 달라고 청한다`) : null,
-              rootOf(game.origin) === 'bard' && DRINK_HOSTS.includes(who) ? h('button', { class: 'btn', type: 'button', disabled: game.flags.drinkDay === game.day, title: game.flags.drinkDay === game.day ? '오늘은 이미 얻어 마셨다' : null, onclick: () => act({ type: 'drink', npc: who }) }, game.flags.drinkDay === game.day ? '오늘은 이미 한 잔' : '한 잔 얻어 마신다') : null,
-              who === 'keeper' && !game.party.some((c) => c.id === 'gaon') ? h('button', { class: 'btn', type: 'button', disabled: game.silver < MERC_FEE || game.party.length >= PARTY_MAX, onclick: () => act({ type: 'party', op: 'hire' }) }, `용병 고용 (하루 은화 ${MERC_FEE})`) : null)],
+              rootOf(game.origin) === 'bard' && DRINK_HOSTS.includes(who) ? h('button', { class: 'btn', type: 'button', disabled: game.flags.drinkDay === game.day, title: game.flags.drinkDay === game.day ? '오늘은 이미 얻어 마셨다' : null, onclick: () => act({ type: 'drink', npc: who }) }, game.flags.drinkDay === game.day ? '오늘은 이미 한 잔' : '한 잔 얻어 마신다') : null)], // 용병 고용은 훈련소 칸으로 옮겼다 (Z94)
           spokeToday(game, who) ? null : h('p', { class: 'muted', style: 'font-size:.88rem' }, '아직 말을 걸어오지 않았다. 이곳에서 할 일을 하다 보면 먼저 말을 건다.'),
           h('div', { class: 'talklog', 'aria-live': 'polite' }, game.log.slice(-3).map((l) => h('p', { class: 'muted', style: 'font-size:.9rem' }, l.who ? `${l.who}: ${l.text}` : l.text))));
       },
