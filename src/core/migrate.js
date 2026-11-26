@@ -24,7 +24,7 @@ export function bodyFields() {
     bag: [makeItem('riceball', { n: 3 })],
     equip: { weapon: null, off: null, head: null, body: makeItem('trainwear'), hand: null, feet: makeItem('sandals'), ring1: null, ring2: null },
     status: [], battle: null, choice: null,
-    weak: null, relic: null, falls: 0,
+    shadow: 0, shadowPray: 0, relic: null, falls: 0,
     tension: {}, calm: 0,
     dex: { mon: {}, items: {}, places: {}, animals: {}, dishes: {} },
   };
@@ -127,6 +127,18 @@ function mend(state) {
   if (!['hold', 'clash', 'dodge', 'focus'].includes(state.stance)) state.stance = 'hold';
   if (state.guild === undefined) state.guild = null;
   if (!state.lore || !Array.isArray(state.lore.hints)) state.lore = { hints: [] };
+  if (!state.tough) state.tough = { str: 0, agi: 0, con: 0, wis: 0 };
+  if (!state.toughGained) state.toughGained = { str: 0, agi: 0, con: 0, wis: 0 };
+  // 하루 쇠약은 죽음의 그림자가 되었다 (Z31): 아직 쇠약하던 사람은 한 겹을 안고 온다
+  if (!Number.isInteger(state.shadow)) {
+    const w = state.weak;
+    state.shadow = w && !(state.day > w.day || (state.day === w.day && state.phase >= w.phase)) ? 1 : 0;
+    state.shadowPray = 0;
+  }
+  delete state.weak;
+  if (!Number.isInteger(state.lives)) state.lives = 1;
+  if (!Array.isArray(state.pastLives)) state.pastLives = [];
+  if (!state.pastHidden) state.pastHidden = {};
   if (!Array.isArray(state.learned)) {
     // 배우는 규칙이 생기기 전에 이미 해 본 일은 아는 일로 친다
     state.learned = ['bellows', 'gut', 'rowing', 'haul', 'plane', 'spar'].filter((id) => (state.counters?.act?.[id] || 0) > 0);

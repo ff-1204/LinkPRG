@@ -43,7 +43,9 @@ import { monsterDef } from '../data/monsters.js';
 import { originById, dealOrigins, ROOTS, ORIGIN_GRADES, STAT_NAMES, STAT_USES, rollDice, DICE_TOTAL, DICE_MIN, DICE_FREE_AT } from '../data/origins.js';
 import { placeById, PLACES, TOWN_ORDER, PHASES, ACTIONS } from '../data/places.js';
 import { SKILL_NAMES, gradeLabel, progress } from '../core/skills.js';
-import { hiddenSlots, foundCount, hiddenTotal } from '../core/hidden.js';
+import { hiddenSlots, foundCount, hiddenTotal, hiddenById } from '../core/hidden.js';
+import { rebirthCarry, rebirthLoss } from '../core/rebirth.js';
+import { shadowView, BLESSERS } from '../core/fall.js';
 import { ringView, afterText } from '../core/ending.js';
 import { derived, formula, valueOf } from '../core/derived.js';
 import { saveTo, loadFrom, listSlots, clearSlot, exportText, importText, shouldAutosave, revOf, SaveConflict } from '../core/save.js';
@@ -180,7 +182,8 @@ export function start(root, storage = globalThis.localStorage) {
   }
 
   // ── 캐릭터 만들기 (T1~T3) ───────────────────────────────
-  function showCreate(n) {
+  function showCreate(n, carry = null) {
+    const before = carry ? game : null; // 환생을 그만두면 돌아갈 삶
     // 출신은 엎어진 패 다섯 장 가운데 한 장을 뒤집어 정한다 (Z25). 뒤집기 전에는 무엇인지, 어떤 등급인지 알 수 없다
     const salt = Date.now();
     const hand = dealOrigins(`${salt}|deal`); // 이 화면에서 깔린 패. 다시 깔지 않는다
@@ -199,11 +202,12 @@ export function start(root, storage = globalThis.localStorage) {
     };
     const draw = () => {
       const o = origin ? originById(origin) : { stats: {}, story: '', grade: 0, root: null };
-      const stats = Object.fromEntries(Object.keys(STAT_NAMES).map((k) => [k, rolled[k] + (o.stats[k] || 0)]));
+      const stats = Object.fromEntries(Object.keys(STAT_NAMES).map((k) => [k, rolled[k] + (o.stats[k] || 0) + (carry?.toughGained[k] || 0)]));
       const bonus = Object.values(o.stats || {}).reduce((a, b) => a + b, 0); // 출신이 더해 준 스탯. 합계에 넣어 보여 준다
       const free = rolls >= DICE_FREE_AT; // 끝까지 굴린 사람은 손으로 옮긴다
       fill(root,h('div', { class: 'create' },
         h('main', {},
+          carry ? pastPanel(carry) : null,
           h('h1', {}, '당신은 어떤 사람이었습니까'),
           h('p', { class: 'muted', style: 'max-width:40rem' }, '패를 뒤집어 보고 한 장을 고르십시오. 고른 것이 당신의 지난날입니다. 시작할 때의 작은 차이와, 사람들이 당신을 대하는 첫마디를 정합니다.'),
           h('div', { class: 'hand', role: 'group', 'aria-label': '출신 패 다섯 장' }, hand.map((id, i) => {
@@ -224,9 +228,9 @@ export function start(root, storage = globalThis.localStorage) {
           h('p', { class: 'err', role: 'alert' }, error),
           h('div', { class: 'namebox' },
             h('label', {}, '이름', h('input', { type: 'text', maxlength: 12, value: name, autocomplete: 'off', oninput: (e) => { name = e.target.value; } })),
-            h('button', { class: 'btn', type: 'button', onclick: showTitle }, '돌아가기'),
+            h('button', { class: 'btn', type: 'button', onclick: before ? () => { game = before; showGame(); } : showTitle }, carry ? '환생을 그만둔다' : '돌아가기'),
             h('button', { class: 'btn go', type: 'button', style: 'min-height:3.1rem;padding:0 2rem;font-size:1.05rem', onclick: () => {
-              try { if (!origin) throw new Error('패를 뒤집어 한 장을 골라 주세요'); if (pool > 0) throw new Error(`남은 점수 ${pool}점을 스탯에 넣어 주세요`); game = createGame({ name, origin, rolled }); slot = n; saveRev = saveTo(storage, slot, game); showGame(); }
+              try { if (!origin) throw new Error('패를 뒤집어 한 장을 골라 주세요'); if (pool > 0) throw new Error(`남은 점수 ${pool}점을 스탯에 넣어 주세요`); game = createGame({ name, origin, rolled, carry }); slot = n; saveRev = saveTo(storage, slot, game); showGame(); }
               catch (e) { error = e.message; draw(); root.querySelector('.namebox input')?.focus(); }
             } }, '시작 마을로'))),
         h('aside', {},
@@ -247,6 +251,20 @@ export function start(root, storage = globalThis.localStorage) {
     };
     draw();
     root.querySelector('.hand button')?.focus();
+  }
+
+  /** 환생하는 사람에게 보이는 지난 삶에서 가져온 것 (Z32). */
+  function pastPanel(carry) {
+    const found = Object.entries(carry.hidden).map(([id, x]) => `${hiddenById(id)?.name} ${x.value}`);
+    const raised = Object.entries(carry.toughGained).filter(([, v]) => v > 0).map(([k, v]) => `${STAT_NAMES[k]} +${v}`);
+    return h('section', { class: 'pastlife', 'aria-label': '지난 삶에서 가져온 것' },
+      h('h2', { class: 'serif' }, `지난 삶에서 가져온 것 (${carry.lives}번째 삶)`),
+      found.length ? h('div', { class: 'rowx' }, h('span', {}, '히든 스탯'), h('b', {}, found.join(', '))) : null,
+      raised.length ? h('div', { class: 'rowx' }, h('span', {}, '다시 일어선 몸'), h('b', {}, `${raised.join(', ')} (주사위 위에 더해진다)`)) : null,
+      carry.titles.length ? h('div', { class: 'rowx' }, h('span', {}, '칭호'), h('span', {}, carry.titles.map((t) => TITLES[t.id]?.name || t.id).join(', '))) : null,
+      h('div', { class: 'rowx' }, h('span', {}, '도감'), h('span', {}, '그대로 남는다')),
+      carry.seedSilver ? h('div', { class: 'rowx' }, h('span', {}, '종잣돈'), h('b', {}, `은화 ${carry.seedSilver} (출신이 가진 것에 더해진다)`)) : null,
+      carry.pastLives.map((p) => h('div', { class: 'rowx' }, h('span', {}, '지난 삶'), h('span', {}, `'${p.name}' — ${p.job || '무직'}, 레벨 ${p.level}, ${p.day}일째에 쓰러졌다`))));
   }
 
   // ── 게임 화면 (D1~D6) ───────────────────────────────────
@@ -308,7 +326,7 @@ export function start(root, storage = globalThis.localStorage) {
       meter('피로', b.tired, null, b.tiredOut ? 'low' : ''),
       meter('경험치', b.xp, b.xpNeed),
       h('span', { class: `meter ${b.over ? 'low' : ''}` }, h('span', {}, '무게 ', h('b', {}, b.weight), ` / ${b.carry}${b.over ? ' 넘침' : ''}`)),
-      b.weak ? h('span', { class: 'tagx' }, '쇠약') : null,
+      b.shadow ? h('span', { class: 'tagx' }, `그림자 ${b.shadow}겹`) : null,
       b.hungry ? h('span', { class: 'tagx' }, '굶주림') : null,
       b.tiredOut ? h('span', { class: 'tagx' }, '피로') : null,
       b.status.map((x) => h('span', { class: 'tagx' }, `${x.name} ${x.turns}턴`)),
@@ -683,18 +701,57 @@ export function start(root, storage = globalThis.localStorage) {
       title: '쓰러졌다', dark: true, over: wins.isOpen(), notice: true,
       render(body, { close }) {
         const lost = [info.silver ? `은화 ${info.silver}` : null, ...info.items.map((x) => `${x.name} ${x.n}`)].filter(Boolean);
+        const sh = info.shadow;
         add(body,
-          h('span', { class: 'big' }, '신전에서 눈을 떴다'),
-          h('div', { class: 'rowx' }, h('span', {}, '그대로인 것'), h('span', {}, '레벨, 숙련도, 찬 장비')),
+          h('span', { class: 'big' }, '숨이 끊어질 듯하다'),
           h('div', { class: 'rowx' }, h('span', {}, '두고 온 것'), h('span', {}, lost.length ? lost.join(', ') : '없음')),
           info.lostOld ? h('p', { class: 'warn' }, '먼저 두고 온 것은 이제 찾을 수 없다.') : null,
           info.keptOld ? h('p', {}, `먼저 ${PLACES[info.keptOld].name}에 두고 온 것은 아직 그 자리에 있다.`) : null,
           info.relicPlace ? h('p', {}, `두고 온 것은 ${PLACES[info.relicPlace].name}의 그 자리에 하루 동안 남는다. 찾으러 가면 되찾는다.`) : null,
-          h('div', { class: 'rowx' }, h('span', {}, '몸 상태'), h('span', {}, '하루 동안 쇠약 (공격력·방어력이 줄어든다)')),
+          sh ? h('div', { class: 'rowx' }, h('span', {}, '죽음의 그림자'), h('span', {}, sh.from === sh.to ? `${sh.to}겹 (가장 짙다, 공격·방어 −${sh.cut}%)` : `${sh.from}겹 → ${sh.to}겹 (공격·방어 −${sh.cut}%)`)) : null,
           h('div', { class: 'rowx' }, h('span', {}, '쓰러진 횟수'), h('span', {}, `${game.falls}번째`)),
-          h('button', { class: 'btn go', type: 'button', 'data-autofocus': true, style: 'min-height:3rem;font-size:1rem', onclick: close }, '일어나기'));
+          info.tough ? [
+            h('div', { class: 'rowx toughrow' }, h('span', {}, '다시 일어선 몸'), h('b', {}, Object.entries(info.tough.gained).map(([k, v]) => `${STAT_NAMES[k]} +${v.toFixed(2)}`).join(', '))),
+            h('div', { class: 'rowx' }, h('span', {}, '쌓인 것'), h('span', {}, Object.entries(info.tough.acc).map(([k, v]) => `${STAT_NAMES[k]} ${v.toFixed(2)}`).join(' · '))),
+            info.tough.raised.length ? h('p', {}, `쌓인 것이 차서 ${info.tough.raised.map((k) => `${STAT_NAMES[k]} +1`).join(', ')}.`) : null] : null,
+          h('div', { class: 'col-btns' },
+            h('button', { class: 'btn go', type: 'button', 'data-autofocus': true, style: 'min-height:3rem;font-size:1rem', onclick: close }, '신전에서 눈을 뜬다', h('small', {}, ' 지금의 삶을 이어 간다. 그림자는 신전에서 축복을 받거나 기도를 해서 걷어 낸다.')),
+            h('button', { class: 'btn', type: 'button', style: 'min-height:3rem;font-size:1rem', onclick: openRebirth }, '환생한다', h('small', {}, ' 몸은 처음부터 다시. 종이 기억한 것만 가지고 간다. 한 번 더 묻는다.'))));
       },
       onClose: () => refs.slots?.querySelector('button:not([disabled])')?.focus(),
+    });
+  }
+
+  // ── 환생 확인 창 (Z32) ──
+  function openRebirth() {
+    const carry = rebirthCarry(game);
+    const loss = rebirthLoss(game);
+    wins.open({
+      title: '환생', dark: true, over: true,
+      render(body, { close }) {
+        const found = Object.entries(carry.hidden).map(([id, x]) => `${hiddenById(id)?.name} ${x.value}`);
+        const raised = Object.entries(carry.toughGained).filter(([, v]) => v > 0).map(([k, v]) => `${STAT_NAMES[k]} +${v}`);
+        add(body,
+          h('p', { class: 'serif', style: 'font-size:1.05rem;line-height:1.8' }, '몸은 흙으로 돌아간다. 종은 네가 끝까지 해낸 것들을 기억한다. 그것만 안고 다시 태어난다.'),
+          h('span', { class: 'h' }, '가지고 가는 것'),
+          found.length ? h('div', { class: 'rowx' }, h('span', {}, '히든 스탯'), h('span', {}, `${found.join(', ')} (지금 값 그대로)`)) : null,
+          h('div', { class: 'rowx' }, h('span', {}, '다시 일어선 몸으로 오른 스탯'), h('span', {}, raised.length ? raised.join(', ') : '없음')),
+          h('div', { class: 'rowx' }, h('span', {}, '칭호'), h('span', {}, carry.titles.length ? `${carry.titles.length}개 모두` : '없음')),
+          h('div', { class: 'rowx' }, h('span', {}, '도감'), h('span', {}, '본 괴물·물건·곳·짐승·요리')),
+          carry.seedSilver ? h('div', { class: 'rowx' }, h('span', {}, '종잣돈'), h('span', {}, `은화 ${carry.seedSilver} (가진 은화의 10%)`)) : null,
+          h('div', { class: 'rowx' }, h('span', {}, '환생한 횟수'), h('span', {}, `${carry.lives}번째 삶`)),
+          h('span', { class: 'h' }, '내려놓는 것'),
+          h('div', { class: 'rowx' }, h('span', {}, '레벨과 숙련도'), h('span', {}, `레벨 ${loss.level}, 숙련도 ${loss.skills}가지`)),
+          h('div', { class: 'rowx' }, h('span', {}, '직업'), h('span', {}, loss.job || '무직')),
+          h('div', { class: 'rowx' }, h('span', {}, '가진 것'), h('span', {}, `물건, 장비, 은화 ${loss.silver}, 보관함`)),
+          h('div', { class: 'rowx' }, h('span', {}, '사람'), h('span', {}, loss.guild ? '사람들과의 사이, 길드' : '사람들과의 사이')),
+          h('div', { class: 'rowx' }, h('span', {}, '메인 이야기'), h('span', {}, `${loss.chapter}장까지의 진행`)),
+          h('div', { class: 'rowx' }, h('span', {}, '죽음의 그림자'), h('span', {}, '걷힌다')),
+          h('p', { class: 'warn' }, '되돌릴 수 없습니다. 새 삶을 시작하면 이 저장 칸에 덮어씌워집니다.'),
+          h('div', { class: 'row-btns' },
+            h('button', { class: 'btn go', type: 'button', 'data-autofocus': true, onclick: close }, '그만둔다'),
+            h('button', { class: 'btn', type: 'button', onclick: () => { wins.closeAll(); showCreate(slot, carry); } }, '다 내려놓고 환생한다')));
+      },
     });
   }
 
@@ -1094,9 +1151,9 @@ export function start(root, storage = globalThis.localStorage) {
       h('div', { class: 'rowx' }, h('span', {}, '포만감'), h('span', {}, `${b.full} / 100${b.hungry ? ' (굶주림)' : ''}`)),
       h('div', { class: 'rowx' }, h('span', {}, '경험치'), h('span', {}, `${b.xp} / ${b.xpNeed}`)),
       b.sense ? h('div', { class: 'rowx' }, h('span', {}, '기척 (조용할수록 싸움이 가깝다)'), h('span', {}, `${b.sense}칸 / 5칸`)) : null,
-      b.weak || b.hungry || b.status.length || buffRows(game).length ? h('span', { class: 'h' }, '걸린 효과') : null,
+      b.shadow || b.hungry || b.status.length || buffRows(game).length ? h('span', { class: 'h' }, '걸린 효과') : null,
       buffRows(game).map((r) => h('div', { class: 'rowx' }, h('span', {}, `${r.kind}: ${r.name}`), h('span', {}, `${r.text}. ${r.until.day}일째 ${PHASES[r.until.phase]}까지`))),
-      b.weak ? h('div', { class: 'rowx' }, h('span', {}, '쇠약'), h('span', {}, `${game.weak.day}일째 ${PHASES[game.weak.phase]}까지`)) : null,
+      b.shadow ? h('div', { class: 'rowx' }, h('span', {}, `죽음의 그림자 ${b.shadow}겹`), h('span', {}, `공격·방어 −${shadowView(game).cut}%. 신전에서 축복을 받거나 기도로 걷어 낸다 (${shadowView(game).pray} / ${shadowView(game).need})`)) : null,
       b.hungry ? h('div', { class: 'rowx' }, h('span', {}, '굶주림'), h('span', {}, '먹으면 풀린다')) : null,
       b.status.map((x) => h('div', { class: 'rowx' }, h('span', {}, x.name), h('span', {}, `${x.turns}턴. ${x.say}`))),
     ];
@@ -1580,14 +1637,25 @@ export function start(root, storage = globalThis.localStorage) {
                 h('button', { class: 'it', type: 'button', onclick: () => { giving = false; act({ type: 'gift', npc: who, index: game.bag.indexOf(it) }); } }, icon(it), h('span', { class: 'grow' }, h('b', {}, gearName(it)), h('small', {}, ` ${gradeName(it.grade)}`)), h('span', {}, it.n > 1 ? `${it.n}개 중 하나` : ''))))
                 : h('p', { class: 'muted' }, '건넬 것이 없다.'),
               h('button', { class: 'btn', type: 'button', onclick: () => { giving = false; rerender(); } }, '그만두기'))
-            : h('div', { class: 'row-btns' },
+            : [BLESSERS.includes(who) && game.shadow > 0 ? (() => {
+              const v = shadowView(game);
+              return h('div', { class: 'detail' }, h('b', {}, '축복'),
+                h('span', { class: 'serif' }, '"그림자가 짙구먼. 돈으로 걷어 낼 수도 있고, 여기 앉아 오래 빌어도 걷히지."'),
+                h('div', { class: 'rowx' }, h('span', {}, '죽음의 그림자'), h('b', {}, `${v.n}겹 · 공격·방어 −${v.cut}%`)),
+                h('div', { class: 'rowx' }, h('span', {}, '축복 (모두 걷어 냄)'), h('span', {}, `은화 ${v.fee} = ${v.n}겹 × 레벨 ${game.level} × 5`)),
+                h('div', { class: 'rowx' }, h('span', {}, '기도로 걷어 내기 (한 겹씩)'), h('span', {}, `다음 한 겹까지 기도 ${v.pray} / ${v.need}`)),
+                h('div', { class: 'row-btns' },
+                  h('button', { class: 'btn go', type: 'button', disabled: game.silver < v.fee, title: game.silver < v.fee ? '은화가 모자란다' : null, onclick: () => act({ type: 'bless', npc: who }) }, `은화 ${v.fee}을 바치고 축복을 받는다`),
+                  h('button', { class: 'btn', type: 'button', onclick: () => { close(); refs.slots?.querySelector('[data-act="pray"], button')?.focus(); } }, '기도하러 간다')));
+            })() : null,
+            h('div', { class: 'row-btns' },
               h('button', { class: 'btn go', type: 'button', 'data-autofocus': spokeToday(game, who) || null, 'data-press': true, disabled: !spokeToday(game, who), title: spokeToday(game, who) ? null : '아직 말을 걸어오지 않았다', onclick: () => act({ type: 'talk', npc: who }) }, '대화'),
               h('button', { class: 'btn', type: 'button', onclick: () => { giving = true; rerender(); } }, '선물'),
               shopView(game) && shopView(game).keeper === p.name ? h('button', { class: 'btn', type: 'button', onclick: () => { close(); openShop(); } }, '상점') : null,
               who === 'miru' ? h('button', { class: 'btn', type: 'button', disabled: bondOf(game, 'miru') < REGULAR || game.party.length >= PARTY_MAX, title: bondOf(game, 'miru') < REGULAR ? `사이가 '${BONDS[REGULAR].name}' 이상이어야 한다` : null, onclick: () => act({ type: 'party', op: 'ask', npc: 'miru' }) }, bondOf(game, 'miru') < REGULAR ? `영입 ('${BONDS[REGULAR].name}'부터)` : '영입') : null,
               TEACHERS[game.place] === who && learnableHere(game).length ? h('button', { class: 'btn', type: 'button', disabled: bondOf(game, who) < KNOWN_BOND, title: bondOf(game, who) < KNOWN_BOND ? '낯익은 사이부터 청할 수 있다' : null, onclick: () => act({ type: 'learn', npc: who }) }, bondOf(game, who) < KNOWN_BOND ? `${ACTIONS[learnableHere(game)[0]].label}을 거들고 싶다 (낯익은 사이부터)` : `${ACTIONS[learnableHere(game)[0]].label}을 거들게 해 달라고 청한다`) : null,
               rootOf(game.origin) === 'bard' && DRINK_HOSTS.includes(who) ? h('button', { class: 'btn', type: 'button', disabled: game.flags.drinkDay === game.day, title: game.flags.drinkDay === game.day ? '오늘은 이미 얻어 마셨다' : null, onclick: () => act({ type: 'drink', npc: who }) }, game.flags.drinkDay === game.day ? '오늘은 이미 한 잔' : '한 잔 얻어 마신다') : null,
-              who === 'keeper' && !game.party.some((c) => c.id === 'gaon') ? h('button', { class: 'btn', type: 'button', disabled: game.silver < MERC_FEE || game.party.length >= PARTY_MAX, onclick: () => act({ type: 'party', op: 'hire' }) }, `용병 고용 (하루 은화 ${MERC_FEE})`) : null),
+              who === 'keeper' && !game.party.some((c) => c.id === 'gaon') ? h('button', { class: 'btn', type: 'button', disabled: game.silver < MERC_FEE || game.party.length >= PARTY_MAX, onclick: () => act({ type: 'party', op: 'hire' }) }, `용병 고용 (하루 은화 ${MERC_FEE})`) : null)],
           spokeToday(game, who) ? null : h('p', { class: 'muted', style: 'font-size:.88rem' }, '아직 말을 걸어오지 않았다. 이곳에서 할 일을 하다 보면 먼저 말을 건다.'),
           h('div', { class: 'talklog', 'aria-live': 'polite' }, game.log.slice(-3).map((l) => h('p', { class: 'muted', style: 'font-size:.9rem' }, l.who ? `${l.who}: ${l.text}` : l.text))));
       },

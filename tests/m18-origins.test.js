@@ -111,7 +111,7 @@ test('덤이 실제로 듣는다', () => {
   const h = make('herbkid'); h.full = 10;
   dispatch(h, { type: 'use', index: h.bag.findIndex((x) => x.id === 'riceball') });
   assert.equal(h.full, 10 + 36);
-  // 묘지기: 쇠약이 한 때 만에 풀린다
+  // 묘지기: 기도 20번에 그림자 한 겹이 걷힌다
   const g = make('gravekeeper');
   assert.equal(g.flags.weakFast, true);
 });

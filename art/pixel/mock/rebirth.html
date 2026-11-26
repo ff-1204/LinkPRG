@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>죽음과 환생 시안</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  :root { --cream: #FBF4E4; --paper: #FFFDF6; --sand: #F3E8D3; --ink: #3A2A1E; --muted: #6B5A4A; --cin: #8B4E2B; --honey: #F2B438; --mint: #DDF0E6; --mint-ink: #1F5A44; --line: #E2D2B4; --deep: #3A2A1E; --dim: #6B5446; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px 16px 70px; background: var(--cream); color: var(--ink); font: 16px/1.65 "Gowun Dodum", "Malgun Gothic", sans-serif; }
+  .wrap { max-width: 980px; margin: 0 auto; }
+  h1 { font: 700 28px/1.3 "Gowun Batang", serif; margin: 0 0 6px; }
+  h2 { font: 700 21px/1.3 "Gowun Batang", serif; margin: 42px 0 6px; padding-top: 12px; border-top: 2px solid var(--deep); }
+  .note { color: var(--muted); max-width: 52rem; }
+  .flow { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 12px 0; font-size: 14.5px; }
+  .flow span { background: var(--paper); border: 1px solid var(--line); border-radius: 999px; padding: 3px 12px; }
+  .flow i { font-style: normal; color: var(--muted); }
+  .win { max-width: 520px; border: 3px solid var(--deep); background: var(--paper); box-shadow: 8px 8px 0 rgba(58, 42, 30, .22); margin-top: 12px; }
+  .win.dark { background: var(--deep); color: var(--cream); }
+  .win .hd { display: flex; justify-content: space-between; padding: 10px 14px; border-bottom: 2px solid var(--deep); font-weight: 700; background: var(--sand); }
+  .win.dark .hd { background: var(--deep); border-bottom-color: var(--dim); }
+  .win .bd { padding: 14px; display: flex; flex-direction: column; gap: 6px; }
+  .big { font: 700 24px/1.3 "Gowun Batang", serif; margin-bottom: 4px; }
+  .rowx { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px dashed var(--line); font-size: 15px; }
+  .dark .rowx { border-bottom-color: var(--dim); }
+  .shadow { background: rgba(0, 0, 0, .25); border: 1px solid #9A8270; border-radius: 6px; padding: 8px 10px; }
+  .shadow b { color: #F6C9A0; }
+  .tough { background: rgba(242, 180, 56, .18); border: 1px solid var(--honey); border-radius: 6px; padding: 8px 10px; }
+  .tough b { color: var(--honey); }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+  .choice { border-radius: 8px; padding: 12px; min-height: 120px; display: flex; flex-direction: column; gap: 4px; border: 2px solid var(--honey); background: var(--honey); color: var(--deep); text-align: left; font: inherit; cursor: pointer; }
+  .choice.alt { background: transparent; color: var(--cream); border-color: #B9A08C; }
+  .choice b { font: 700 18px/1.3 "Gowun Batang", serif; }
+  .choice small { font-size: 13px; line-height: 1.5; }
+  .lists { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .lists ul { margin: 4px 0 0; padding-left: 18px; font-size: 14.5px; }
+  .keep { border: 2px solid var(--mint-ink); background: var(--mint); border-radius: 8px; padding: 10px 12px; }
+  .keep b { color: var(--mint-ink); }
+  .lose { border: 2px dashed var(--cin); border-radius: 8px; padding: 10px 12px; }
+  .lose b { color: var(--cin); }
+  .btns { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+  .go { min-height: 46px; padding: 0 20px; border: 0; border-radius: 6px; background: var(--cin); color: #fff; font: inherit; }
+  .ghost { min-height: 46px; padding: 0 16px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); font: inherit; }
+  .warnline { color: var(--cin); font-size: 14px; }
+  .bar { height: 10px; background: var(--sand); border-radius: 999px; overflow: hidden; border: 1px solid var(--line); }
+  .bar i { display: block; height: 100%; background: var(--mint-ink); }
+  .hand { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 8px; }
+  .hand div { aspect-ratio: 3 / 4; border: 2px solid var(--deep); border-radius: 8px; background: repeating-linear-gradient(45deg, var(--sand), var(--sand) 8px, var(--line) 8px, var(--line) 16px); display: flex; align-items: center; justify-content: center; font: 700 20px "Gowun Batang", serif; color: var(--muted); }
+  .past { background: var(--sand); border: 2px solid var(--deep); border-radius: 10px; padding: 12px 14px; margin-top: 12px; max-width: 760px; }
+  .past b.t { font: 700 17px/1.3 "Gowun Batang", serif; display: block; margin-bottom: 4px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 8px; }
+  .tags span { border: 1px solid var(--cin); color: var(--cin); border-radius: 999px; padding: 0 10px; font-size: 13.5px; background: var(--paper); }
+  .tags span.on { background: var(--cin); color: #fff; }
+  table { border-collapse: collapse; width: 100%; background: var(--paper); font-size: 14.5px; margin-top: 8px; }
+  th, td { border-bottom: 1px dashed var(--line); padding: 7px 9px; text-align: left; vertical-align: top; }
+  th { border-bottom: 2px solid var(--deep); }
+  td.n { text-align: right; }
+  @media (max-width: 640px) { .two, .lists { grid-template-columns: 1fr; } }
+</style></head>
+<body><div class="wrap">
+<h1>죽음과 환생 시안</h1>
+<p class="note">쓰러지면 두 길 가운데 하나를 고릅니다. <b>신전에서 눈을 뜨면</b> 지금의 삶을 이어 가지만 죽음의 그림자가 한 겹 쌓이고, 신전에서 돈을 내 축복을 받거나 기도를 해서 걷어 냅니다. <b>환생하면</b> 몸은 처음부터 다시지만, 종이 기억한 것(히든 스탯과 다시 일어선 몸)은 가지고 갑니다.</p>
+<div class="flow"><span>쓰러짐</span><i>→</i><span>신전에서 눈을 뜬다 (그림자 +1겹)</span><i>→</i><span>축복(은화) 또는 기도로 걷어 냄</span></div>
+<div class="flow"><span>쓰러짐</span><i>→</i><span>환생한다</span><i>→</i><span>한 번 더 묻는다</span><i>→</i><span>패 다섯 장, 주사위, 새 이름</span><i>→</i><span>남은 것을 안고 광장에서</span></div>
+
+<h2>1. 쓰러진 창: 두 갈래</h2>
+<p class="note">지금의 쓰러진 창에 그림자 줄과 두 단추가 생깁니다. "하루 쇠약"은 없어지고 그림자로 바뀝니다.</p>
+<div class="win dark">
+  <div class="hd"><span>쓰러졌다</span><span>4번째</span></div>
+  <div class="bd">
+    <span class="big">숨이 끊어질 듯하다</span>
+    <div class="rowx"><span>두고 온 것</span><span>은화 12, 멧돼지 가죽 2</span></div>
+    <div class="rowx shadow"><span>죽음의 그림자</span><b>3겹 → 4겹 (공격·방어 −20%)</b></div>
+    <div class="rowx tough"><span>다시 일어선 몸</span><b>힘 +0.13, 민첩 +0.10, 체력 +0.11, 지혜 +0.08</b></div>
+    <div class="two">
+      <button class="choice" type="button"><b>신전에서 눈을 뜬다</b><small>지금의 삶을 이어 간다. 그림자는 신전에서 축복을 받거나 기도를 해서 걷어 낸다.</small></button>
+      <button class="choice alt" type="button"><b>환생한다</b><small>몸은 처음부터 다시. 종이 기억한 것만 가지고 간다. 한 번 더 묻는다.</small></button>
+    </div>
+  </div>
+</div>
+
+<h2>2. 환생 확인 창</h2>
+<p class="note">되돌릴 수 없는 일이라 한 번 더 묻습니다. 무엇이 남고 무엇이 사라지는지 숫자로 보여 줍니다. 첫 단추는 "그만둔다"에 초점이 갑니다.</p>
+<div class="win">
+  <div class="hd"><span>환생</span><span>닫기</span></div>
+  <div class="bd">
+    <p style="font:17px/1.7 'Gowun Batang',serif;margin:0">몸은 흙으로 돌아간다. 종은 네가 끝까지 해낸 것들을 기억한다. 그것만 안고 다시 태어난다.</p>
+    <div class="lists">
+      <div class="keep"><b>가지고 가는 것</b><ul><li>히든 스탯 3가지 (지금 값 그대로)</li><li>다시 일어선 몸으로 오른 스탯: 힘 +2, 체력 +1</li><li>칭호 하나 (새 삶에서 고른다)</li><li>환생한 횟수: 2번째 삶</li></ul></div>
+      <div class="lose"><b>내려놓는 것</b><ul><li>레벨 14, 숙련도 모두</li><li>직업 "기사", 생산 직업</li><li>물건, 장비, 은화 340, 보관함</li><li>사람들과의 사이, 길드</li><li>메인 이야기 3장까지의 진행</li></ul></div>
+    </div>
+    <p class="warnline">되돌릴 수 없습니다. 이 저장 칸에 새 삶이 덮어씌워집니다.</p>
+    <div class="btns"><button class="ghost" type="button">그만둔다</button><button class="go" type="button">다 내려놓고 환생한다</button></div>
+  </div>
+</div>
+
+<h2>3. 새 삶의 시작</h2>
+<p class="note">만들기 화면이 다시 열립니다. 패 다섯 장과 주사위는 처음과 같습니다. 위쪽에 "지난 삶에서 가져온 것"이 보이고, 가져갈 칭호를 하나 고릅니다.</p>
+<div class="past">
+  <b class="t">지난 삶에서 가져온 것 (2번째 삶)</b>
+  <div class="rowx"><span>히든 스탯</span><span>인내 2, 근성 1, 집념 1</span></div>
+  <div class="rowx"><span>다시 일어선 몸</span><span>힘 +2, 체력 +1 (주사위 위에 더해진다)</span></div>
+  <div style="margin-top:8px">가져갈 칭호 하나</div>
+  <div class="tags"><span class="on">허수아비의 벗</span><span>세 번 일어난 이</span><span>마을의 단골</span></div>
+  <div class="rowx" style="border:0"><span>지난 삶</span><span class="muted">"서진" — 기사, 레벨 14, 22일을 살았다</span></div>
+</div>
+<p style="font:700 20px 'Gowun Batang',serif;margin:18px 0 0">당신은 어떤 사람이었습니까</p>
+<div class="hand"><div>?</div><div>?</div><div>?</div><div>?</div><div>?</div></div>
+
+<h2>4. 신전: 그림자를 걷어 내기</h2>
+<p class="note">시작 마을 신전, 나루 사당, 소리재 큰 신전 어디서든 됩니다. 신전 칸에 "축복을 받는다"가 생기고, 기도는 지금의 "기도" 칸을 그대로 씁니다.</p>
+<div class="win">
+  <div class="hd"><span>축복</span><span>신전지기</span></div>
+  <div class="bd">
+    <p style="font:17px/1.7 'Gowun Batang',serif;margin:0">"그림자가 짙구먼. 돈으로 걷어 낼 수도 있고, 여기 앉아 오래 빌어도 걷히지."</p>
+    <div class="rowx shadow" style="background:var(--sand);border-color:var(--line)"><span>죽음의 그림자</span><b style="color:var(--cin)">4겹 · 공격·방어 −20%</b></div>
+    <div class="rowx"><span>축복 (모두 걷어 냄)</span><span>은화 280 <small class="muted">= 4겹 × 레벨 14 × 5</small></span></div>
+    <div class="rowx" style="flex-direction:column;align-items:stretch;gap:4px"><span>기도로 걷어 내기 (한 겹씩)</span><div class="bar"><i style="width:40%"></i></div><small class="muted">다음 한 겹까지 기도 12 / 30</small></div>
+    <div class="btns"><button class="go" type="button">은화 280을 바치고 축복을 받는다</button><button class="ghost" type="button">기도하러 간다</button></div>
+  </div>
+</div>
+
+<h2>5. 숫자 (추천값)</h2>
+<table>
+  <thead><tr><th>무엇</th><th>값</th><th>까닭</th></tr></thead>
+  <tbody>
+    <tr><td>그림자 한 겹</td><td>공격·방어 −5%</td><td>한 번 쓰러진 것은 견딜 만하게</td></tr>
+    <tr><td>그림자 최대</td><td>6겹 (−30%)</td><td>그 너머는 환생을 고르게 되는 선</td></tr>
+    <tr><td>축복 값</td><td>겹 수 × 레벨 × 은화 5</td><td>레벨이 높을수록 비싸다. 레벨 5에 한 겹이면 25</td></tr>
+    <tr><td>기도로 걷기</td><td>기도 30번에 한 겹</td><td>돈 없는 사람의 길. 기도 숙련도도 오른다</td></tr>
+    <tr><td>두고 온 것</td><td>지금처럼(은화 10%, 물건은 그 자리에 하루)</td><td>그대로</td></tr>
+    <tr><td>다시 일어선 몸</td><td>지금처럼(센 놈 30%, 하루 한 번)</td><td>환생하면 날짜를 이어 세어 같은 날 또 쌓지 못한다</td></tr>
+  </tbody>
+</table>
+
+<h2>6. 정해 주실 것</h2>
+<ol>
+  <li>두 갈래 쓰러진 창, 환생 확인 창, 새 삶의 시작, 신전 화면이 이대로 괜찮은지</li>
+  <li>숫자(5번 표)가 괜찮은지</li>
+  <li>남는 것과 사라지는 것: 칭호를 하나만 가져가는 것이 괜찮은지. 도감(본 괴물·물건)도 남길지</li>
+  <li>환생해도 같은 세계인지: 가상 유저와 세계 공지는 이어지고, 메인 이야기와 마을 사람들은 처음부터. 지금 시안은 이렇게 했습니다</li>
+</ol>
+</div></body></html>

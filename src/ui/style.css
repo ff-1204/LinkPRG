@@ -348,3 +348,9 @@ html.calm .cool i { animation: none !important; }
 .og4 small, .og4 .tagx { color: #3A2A1E !important; border-color: #3A2A1E !important; font-weight: 700; }
 .og4 .muted { color: #3A2A1E !important; }
 @media (max-width: 760px) { .hand { gap: .35rem; } .card5 b { font-size: .85rem; } .card5 .mark { font-size: 1.5rem; } }
+
+.toughrow { background: rgba(242, 180, 56, .18); border: 1px solid var(--honey); border-radius: 6px; padding: 8px 10px !important; }
+.toughrow b { color: var(--honey); }
+
+.pastlife { background: rgba(242, 180, 56, .14); border: 1px solid var(--honey); border-radius: 8px; padding: 10px 14px; margin-bottom: 1rem; max-width: 40rem; }
+.pastlife h2 { font-size: 1.1rem; margin: 0 0 4px; }

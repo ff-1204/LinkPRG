@@ -38,7 +38,8 @@ import { bondOf as bondOfNpc } from './social.js';
 import { drink } from './social.js';
 import { makeItem, equip as equipItem, unequip as unequipItem, discard as discardItem, totalWeight, countOf } from './inventory.js';
 import { xpToNext } from './level.js';
-import { tickFall, recoverRelic, isWeak } from './fall.js';
+import { tickFall, recoverRelic, bless, prayShadow } from './fall.js';
+import { applyCarry } from './rebirth.js';
 import { startBattle, battleAct, fleeChance, intentOf, eat, weighted, STANCES, stanceOf, foeDef } from './battle.js';
 import { repair, enhance } from './gear.js';
 import { joinGuild, leaveGuild, donate, guildHook } from './guild.js';
@@ -63,7 +64,7 @@ export const DING_LEVELS = ['', '흔함', '귀함', '아주 귀함', '가장 귀
 const CHATTER_RATE = { low: 0.01, mid: 0.03, high: 0.07 };
 
 /** 새 게임을 만든다. */
-export function createGame({ name, origin, spent, seed, rolled }) {
+export function createGame({ name, origin, spent, seed, rolled, carry }) {
   const trimmed = String(name || '').trim();
   if (!trimmed) throw new Error('이름을 적어 주세요');
   if (trimmed.length > 12) throw new Error('이름은 열두 자까지입니다');
@@ -113,6 +114,12 @@ export function createGame({ name, origin, spent, seed, rolled }) {
     ...endingFields(),
   };
   if (state.flags.templeKnown) state.factions.temple = 10; // 신전 고아는 신전과 낯익다
+  state.lives = 1; // 몇 번째 삶인가 (Z32)
+  state.pastLives = [];
+  state.pastHidden = {}; // 지난 삶들에서 쌓은 히든 횟수
+  state.tough = { str: 0, agi: 0, con: 0, wis: 0 }; // 다시 일어선 몸: 쌓인 몫 (Z30)
+  state.toughGained = { str: 0, agi: 0, con: 0, wis: 0 }; // 다시 일어선 몸으로 오른 스탯
+  if (carry) applyCarry(state, carry); // 환생: 종이 기억한 것을 안고 온다
   state.hp = valueOf(state, 'maxHp');
   state.mp = valueOf(state, 'maxMp');
   for (const [id, grade] of Object.entries(o.skills || {})) state.skills[id] = { ...emptySkill(), grade };
@@ -127,13 +134,14 @@ export function createGame({ name, origin, spent, seed, rolled }) {
   state.learned = nativeWork(origin); // 출신이 처음부터 할 줄 아는 일
   // 첫 장면 (Z27)
   const scene = START_SCENES[origin];
-  state.journal.push({ day: 1, phase: 0, place: 'plaza', text: scene ? scene.journal : START_JOURNAL[o.root || origin] });
+  state.journal.push({ day: state.day, phase: state.phase, place: 'plaza', text: scene ? scene.journal : START_JOURNAL[o.root || origin], note: carry ? `${carry.lives}번째 삶` : null });
   pushLine(state, [], { k: 'room', text: PLACES.plaza.room });
   for (const [k, text] of scene?.lines || []) pushLine(state, [], { k, text });
+  if (carry) pushLine(state, [], { k: 'sys', text: `다시 태어났다. ${carry.lives}번째 삶. 종이 지난 삶에서 해낸 것들을 기억한다.` });
   // 등급의 맛 (Z25 ④)
   if (o.grade >= 3) pushLine(state, [], { k: 'user', who: "지나가던 유저 '밤비노'", text: o.grade >= 4 ? '방금 시작한 사람 출신 봤음? 저거 진짜 처음 봄' : '방금 시작한 사람 출신 봤음? 저거 잘 안 나오는 건데' });
   if (o.grade >= 4) {
-    state.world.notices.push({ day: 1, phase: 0, who: trimmed, mine: true, text: `'${trimmed}'님이 드문 지난날(${ORIGIN_GRADES[o.grade].name})을 안고 시작했습니다` });
+    state.world.notices.push({ day: state.day, phase: state.phase, who: trimmed, mine: true, text: `'${trimmed}'님이 드문 지난날(${ORIGIN_GRADES[o.grade].name})을 안고 시작했습니다` });
     state.flags.legendNight = true;
   }
   return state;
@@ -284,7 +292,7 @@ export function bodyView(state) {
     hp: state.hp, maxHp: valueOf(state, 'maxHp'), mp: state.mp, maxMp: valueOf(state, 'maxMp'),
     full: state.full, xp: state.xp, xpNeed: xpToNext(state.level),
     weight, carry, over: weight > carry,
-    hungry: isHungry(state), weak: isWeak(state),
+    hungry: isHungry(state), shadow: state.shadow || 0,
     tired: Math.round(state.tired || 0), tiredOut: isTired(state),
     status: state.status.map((x) => ({ id: x.id, name: STATUS[x.id].name, turns: x.turns, say: STATUS[x.id].say })),
     sense: placeById(state.place).wild ? senseBars(state) : 0,
@@ -499,6 +507,10 @@ export function dispatch(state, action, options = {}) {
   }
   else if (t === 'drink') drink(state, events, action.npc);
   else if (t === 'learn') askToLearn(state, events, action.npc, bondOfNpc);
+  else if (t === 'bless') {
+    if (placeById(state.place).id !== PEOPLE[action.npc]?.place) throw new Error('여기에 없습니다');
+    bless(state, events, action.npc);
+  }
   else if (t === 'stance') {
     if (!STANCES[action.id]) throw new Error('모르는 태세입니다');
     if (state.battle) throw new Error('싸우는 중에는 태세를 바꿀 수 없습니다');
@@ -692,6 +704,7 @@ export function dispatch(state, action, options = {}) {
   }
   afterCounters(state, events);
   memoryHook(state, events, t, action);
+  if (t === 'act' && action.id === 'pray') prayShadow(state, events);
   if (!state.battle && !state.dungeon && !state.choice) {
     // 그곳에 맞는 일: 그 방의 행동(쉬기 빼고), 망치질, 칼질, 사고팔기, 요리, 바치기
     const fit = (t === 'act' && !ACTIONS[action.id]?.rest && !ACTIONS[action.id]?.open) || ['hammer', 'cut', 'buy', 'sell', 'cook', 'offer', 'enhance', 'repair'].includes(t);

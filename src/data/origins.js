@@ -57,7 +57,7 @@ const RAW = [
   ['squire', 'fallen', 3, '기사의 종자', { str: 2, con: 2 }, '낡은 방패를 들고, 막기 숙련도 초급 3으로 시작', '기사의 갑옷을 닦고 방패를 들어 주었다. 기사는 떠났고 방패만 남았다.', { skills: { guard: 2 }, items: [['oldshield', 1]], flags: { anyShield: true } }],
   // 신전의 사람
   ['orphan', 'orphan', 0, '신전 고아', {}, '쓰러졌을 때 두고 오는 돈이 절반', '신전 마루에서 자랐다. 종소리에 일어나고 종소리에 잠들었다. 그 소리가 어디서 나는지는 한 번도 묻지 않았다.', { flags: { halfDrop: true } }],
-  ['gravekeeper', 'orphan', 0, '묘지기', { con: 2 }, '쇠약이 빨리 풀린다', '신전 뒤뜰의 무덤을 돌보았다. 쓰러진 이들 곁에서 일어나는 법을 배웠다.', { flags: { weakFast: true } }],
+  ['gravekeeper', 'orphan', 0, '묘지기', { con: 2 }, '기도로 그림자가 빨리 걷힌다', '신전 뒤뜰의 무덤을 돌보았다. 쓰러진 이들 곁에서 일어나는 법을 배웠다.', { flags: { weakFast: true } }],
   ['pilgrim', 'orphan', 1, '순례자', { con: 1, wis: 1 }, '신전의 빵을 하루에 둘 받는다', '신전에서 신전으로 걸었다. 어느 문을 두드리면 빵이 나오는지 안다.', { flags: { bread2: true } }],
   ['scribe', 'orphan', 2, '필경 견습', { wis: 3 }, '서고에서 감정 숙련도가 두 배로 오른다', '신전의 책을 베껴 썼다. 뜻을 모르는 글자도 틀리지 않고 옮길 수 있다.', { flags: { fastSearch: true } }],
   ['ringerkid', 'orphan', 4, '종지기의 아이', { str: 1, agi: 1, con: 1, wis: 2 }, '모든 숙련도가 5% 빨리 오른다', '종루 아래에서 자랐다. 종이 사라진 날에도 이 아이만은 소리를 들었다고 한다.', { flags: { allSkill5: true } }],

@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>쓰러지면 단단해진다 시안</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  :root { --cream: #FBF4E4; --paper: #FFFDF6; --sand: #F3E8D3; --ink: #3A2A1E; --muted: #6B5A4A; --cin: #8B4E2B; --honey: #F2B438; --mint: #DDF0E6; --mint-ink: #1F5A44; --line: #E2D2B4; --deep: #3A2A1E; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px 16px 70px; background: var(--cream); color: var(--ink); font: 16px/1.65 "Gowun Dodum", "Malgun Gothic", sans-serif; }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  h1 { font: 700 28px/1.3 "Gowun Batang", serif; margin: 0 0 6px; }
+  h2 { font: 700 21px/1.3 "Gowun Batang", serif; margin: 40px 0 6px; padding-top: 12px; border-top: 2px solid var(--deep); }
+  .note { color: var(--muted); max-width: 50rem; }
+  .win { max-width: 460px; border: 3px solid var(--deep); background: var(--deep); color: var(--cream); box-shadow: 8px 8px 0 rgba(58, 42, 30, .25); }
+  .win .hd { display: flex; justify-content: space-between; padding: 10px 14px; border-bottom: 2px solid #6B5446; font-weight: 700; }
+  .win .bd { padding: 14px; display: flex; flex-direction: column; gap: 6px; }
+  .win .big { font: 700 24px/1.3 "Gowun Batang", serif; margin-bottom: 4px; }
+  .rowx { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px dashed #6B5446; font-size: 15px; }
+  .rowx.new { background: rgba(242, 180, 56, .18); border: 1px solid var(--honey); border-radius: 6px; padding: 8px 10px; }
+  .rowx.new b { color: var(--honey); }
+  .ok { margin-top: 8px; min-height: 46px; border: 0; border-radius: 6px; background: var(--honey); color: var(--deep); font: 700 16px "Gowun Dodum", sans-serif; }
+  .chat { max-width: 460px; background: var(--paper); border: 2px solid var(--deep); padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; margin-top: 14px; }
+  .sys { align-self: flex-start; background: var(--honey); border-radius: 4px 14px 14px 14px; padding: 7px 12px; font-weight: 700; }
+  .sys small { display: block; font-weight: 400; font-size: 12px; }
+  .me { align-self: flex-end; background: var(--sand); border: 1px solid var(--line); border-radius: 14px 4px 14px 14px; padding: 7px 12px; font-family: "Gowun Batang", serif; }
+  .room { align-self: center; color: var(--muted); font: 14px/1.5 "Gowun Batang", serif; text-align: center; }
+  table { border-collapse: collapse; width: 100%; background: var(--paper); font-size: 14.5px; margin-top: 8px; }
+  th, td { border-bottom: 1px dashed var(--line); padding: 7px 9px; text-align: left; vertical-align: top; }
+  th { border-bottom: 2px solid var(--deep); }
+  td.n { text-align: right; font-variant-numeric: tabular-nums; }
+  .warn { background: #FBE3C2; border-left: 4px solid var(--cin); padding: 10px 14px; max-width: 50rem; }
+  .opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-top: 10px; }
+  .opt { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .opt.rec { border: 2px solid var(--cin); }
+  .opt b.t { font: 700 17px/1.3 "Gowun Batang", serif; display: block; margin-bottom: 4px; }
+  .tag { display: inline-block; font-size: 12px; padding: 0 8px; border-radius: 999px; background: var(--cin); color: #fff; margin-left: 6px; vertical-align: 2px; }
+  .lab { display: flex; gap: 14px; flex-wrap: wrap; align-items: end; margin: 10px 0; }
+  .lab label { display: flex; flex-direction: column; font-size: 13.5px; color: var(--muted); gap: 3px; }
+  input[type=number] { width: 90px; min-height: 38px; border: 1px solid var(--line); border-radius: 6px; padding: 0 8px; font: inherit; background: var(--paper); }
+</style></head>
+<body><div class="wrap">
+<h1>쓰러지면 단단해진다 시안</h1>
+<p class="note">이 게임에는 죽음이 없고 "쓰러짐"이 있습니다. 쓰러지면 신전에서 눈을 뜨고, 은화 일부와 물건을 그 자리에 두고 오고, 하루 동안 쇠약해집니다. 여기에 "쓰러질 때마다 지금 스탯의 1%만큼 몸이 단단해진다"를 더하는 시안입니다.</p>
+
+<h2>1. 쓰러진 창</h2>
+<p class="note">맨 아래 꿀빛 줄이 새로 생깁니다. 1%는 소수라서 스탯마다 조금씩 쌓아 두고, 한 칸(1)이 차면 그 스탯이 오릅니다.</p>
+<div class="win">
+  <div class="hd"><span>쓰러졌다</span><span>닫기</span></div>
+  <div class="bd">
+    <span class="big">신전에서 눈을 떴다</span>
+    <div class="rowx"><span>그대로인 것</span><span>레벨, 숙련도, 찬 장비</span></div>
+    <div class="rowx"><span>두고 온 것</span><span>은화 12, 멧돼지 가죽 2</span></div>
+    <div class="rowx"><span>몸 상태</span><span>하루 동안 쇠약</span></div>
+    <div class="rowx"><span>쓰러진 횟수</span><span>4번째</span></div>
+    <div class="rowx new"><span>다시 일어선 몸</span><b>힘 +0.13, 민첩 +0.10, 체력 +0.11, 지혜 +0.08</b></div>
+    <div class="rowx"><span>쌓인 것</span><span>힘 0.52 · 민첩 0.40 · 체력 0.44 · 지혜 0.32</span></div>
+    <button class="ok" type="button">일어나기</button>
+  </div>
+</div>
+<div class="chat">
+  <div class="room">(쌓인 것이 1을 넘은 날)</div>
+  <div class="me">몸을 일으켰다. 어제보다 무릎이 덜 떨린다.</div>
+  <div class="sys"><small>귀함:</small>띠링! 다시 일어선 몸 — 힘 +1</div>
+</div>
+
+<h2>2. 얼마나 쌓이나</h2>
+<p class="note">지금 스탯의 1%입니다. 스탯이 높을수록 많이 쌓이고, 오른 스탯이 다음 1%를 키웁니다. 아래에 시작 스탯을 넣어 보세요.</p>
+<div class="lab">
+  <label>힘<input type="number" id="s0" value="12"></label>
+  <label>민첩<input type="number" id="s1" value="10"></label>
+  <label>체력<input type="number" id="s2" value="11"></label>
+  <label>지혜<input type="number" id="s3" value="8"></label>
+</div>
+<table><thead><tr><th>쓰러진 횟수</th><th class="n">힘</th><th class="n">민첩</th><th class="n">체력</th><th class="n">지혜</th><th>네 스탯에 합쳐 오른 것</th></tr></thead><tbody id="sim"></tbody></table>
+<p class="note">레벨업 한 번에 받는 점수는 3입니다. 시작 스탯이 위와 같으면 쓰러짐 열다섯 번쯤이 레벨업 한 번과 비슷합니다. 스탯이 높아질수록 빨라집니다.</p>
+
+<h2>3. 걸리는 점</h2>
+<div class="warn">
+  <p><b>일부러 쓰러지는 길이 열립니다.</b> 쓰러지는 값은 은화 10%, 하루 쇠약, 두고 온 물건이 전부라 싼 편입니다. 레벨 1짜리 쥐를 상대로 맨몸으로 쓰러지기를 되풀이하면 힘들이지 않고 스탯이 오릅니다.</p>
+  <p>또 앞서 "쓰러지기만 해도 쌓이는 투지"를 막으신 적이 있습니다(지키는 것 10번 "거저 주지 않는다"). 그래서 쓰러짐을 보상으로 만들되, <b>버티다 쓰러진 것만</b> 인정하는 조건이 필요하다고 봅니다.</p>
+</div>
+
+<h2>4. 어떤 쓰러짐을 인정할까</h2>
+<div class="opts">
+  <div class="opt rec"><b class="t">가. 센 놈에게 덤볐다 쓰러지면<span class="tag">추천</span></b>쓰러뜨린 적의 레벨이 내 레벨 이상일 때만 쌓인다. 하루 한 번까지. 버거운 상대에게 도전한 사람의 몫이 된다. 쥐에게 일부러 쓰러지는 길은 막힌다.</div>
+  <div class="opt"><b class="t">나. 끝까지 버텼다 쓰러지면</b>그 싸움에서 적에게 준 피해가 적 생명력의 절반을 넘었을 때만. 하루 한 번까지. 싸움을 포기하지 않은 사람의 몫.</div>
+  <div class="opt"><b class="t">다. 쓰러질 때마다 무조건</b>조건 없이 1%. 하루 한 번까지만. 가장 단순하지만 일부러 쓰러지는 길이 반쯤 열린다.</div>
+</div>
+
+<h2>5. 정해 주실 것</h2>
+<ol>
+  <li>쓰러진 창의 모양(1번)이 이대로 괜찮은지</li>
+  <li>어떤 쓰러짐을 인정할지: 가 / 나 / 다 (가와 나를 둘 다 걸 수도 있습니다)</li>
+  <li>쌓는 몫: 1% 그대로 / 다르게</li>
+  <li>새 캐릭터로 다시 시작할 때(죽은 캐릭터의 스탯 일부를 물려받는 "환생")를 뜻하셨다면 말씀해 주세요. 지금 이 게임에는 캐릭터가 죽어 사라지는 일이 없어서, 쓰러짐으로 읽었습니다.</li>
+</ol>
+</div>
+<script>
+const $ = (id) => document.getElementById(id);
+function sim() {
+  let s = [0, 1, 2, 3].map((i) => +$('s' + i).value || 0);
+  const base = s.slice();
+  const acc = [0, 0, 0, 0];
+  const rows = [];
+  for (let n = 1; n <= 50; n++) {
+    for (let i = 0; i < 4; i++) { acc[i] += s[i] * 0.01; while (acc[i] >= 1) { acc[i] -= 1; s[i] += 1; } }
+    if ([1, 5, 10, 20, 30, 50].includes(n)) rows.push(`<tr><td>${n}번</td>${s.map((v, i) => `<td class="n">${v}${v > base[i] ? ` <small>(+${v - base[i]})</small>` : ''}</td>`).join('')}<td>${s.reduce((a, b) => a + b, 0) - base.reduce((a, b) => a + b, 0)}</td></tr>`);
+  }
+  $('sim').innerHTML = rows.join('');
+}
+for (let i = 0; i < 4; i++) $('s' + i).oninput = sim;
+sim();
+</script>
+</body></html>

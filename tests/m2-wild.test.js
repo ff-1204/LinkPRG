@@ -8,7 +8,7 @@ import { addItem, countOf, totalWeight, previewEquip, bagView, tabCounts, equipP
 import { xpToNext, gainXp } from '../src/core/level.js';
 import { startBattle, fleeChance, intentOf } from '../src/core/battle.js';
 import { battleChance, senseChance, choiceView } from '../src/core/explore.js';
-import { fall, isWeak } from '../src/core/fall.js';
+import { fall } from '../src/core/fall.js';
 import { derived, valueOf, formula } from '../src/core/derived.js';
 import { migrate } from '../src/core/migrate.js';
 import { saveTo, loadFrom, parseSave } from '../src/core/save.js';
@@ -416,8 +416,8 @@ test('쓰러지면 신전에서 깨어난다. 돈 10%와 재료 절반을 두고
   assert.deepEqual(f.info.items, [{ name: '철광석', n: 3 }]);
   assert.equal(f.info.silver, 5);
   assert.equal(s.hp, Math.ceil(valueOf(s, 'maxHp') * 0.3));
-  assert.ok(isWeak(s));
-  assert.ok(formula(derived(s).find((d) => d.id === 'attack')).includes('쇠약'));
+  assert.equal(s.shadow, 1);
+  assert.ok(formula(derived(s).find((d) => d.id === 'attack')).includes('죽음의 그림자'));
   assert.ok(s.journal.at(-1).text.includes('신전'));
   assert.equal(s.dex.mon.boar.lost, 1);
 });
@@ -441,7 +441,7 @@ test('유품은 쓰러진 그 자리에서 하루 안에 찾을 수 있다', () 
   assert.throws(() => dispatch(s, { type: 'relic' }), /유품이 없/);
 });
 
-test('하루가 지나면 유품은 사라지고 쇠약은 풀린다', () => {
+test('하루가 지나면 유품은 사라진다. 그림자는 때가 지나도 걷히지 않는다', () => {
   const s = fresh('late');
   s.place = 'forest';
   s.silver = 100;
@@ -449,7 +449,7 @@ test('하루가 지나면 유품은 사라지고 쇠약은 풀린다', () => {
   assert.equal(s.silver, 90);
   for (let i = 0; i < 3; i++) passPhase(s);
   assert.equal(s.relic, null);
-  assert.ok(!isWeak(s));
+  assert.equal(s.shadow, 1);
   assert.equal(s.silver, 90);
 });
 

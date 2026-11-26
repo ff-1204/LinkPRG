@@ -101,6 +101,14 @@ export function createWindows(root) {
       else show(spec);
     },
     close,
+    /** 뜬 창, 가려진 창, 줄 선 창을 모두 걷는다 (화면이 바뀔 때). */
+    closeAll() {
+      queue.length = 0;
+      under.length = 0;
+      current = null;
+      veil.hidden = true;
+      veil.replaceChildren();
+    },
     isOpen: () => !!current,
     pending: () => queue.length,
   };

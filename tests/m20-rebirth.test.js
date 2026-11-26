@@ -1,0 +1,119 @@
+// 죽음의 그림자(Z31)와 환생(Z32)
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { createGame, dispatch } from '../src/core/game.js';
+import { rollDice } from '../src/data/origins.js';
+import { fall, SHADOW_MAX, shadowView } from '../src/core/fall.js';
+import { rebirthCarry } from '../src/core/rebirth.js';
+import { derived } from '../src/core/derived.js';
+import { valueOf as hiddenValue, hiddenById } from '../src/core/hidden.js';
+import { grantTitle } from '../src/core/social.js';
+import { parseSave } from '../src/core/save.js';
+import { SAVE_VERSION } from '../src/core/migrate.js';
+
+const make = (origin = 'bard', seed = 'rb') => createGame({ name: '환', origin, rolled: rollDice('same'), seed });
+const atk = (s) => derived(s).find((d) => d.id === 'attack').value;
+
+test('쓰러질 때마다 그림자가 한 겹 쌓인다. 한 겹에 공격·방어 −5%, 여섯 겹까지', () => {
+  const s = make();
+  s.stats.str = 40;
+  const base = atk(s);
+  const info = fall(s, [], '');
+  assert.deepEqual([info.shadow.from, info.shadow.to], [0, 1]);
+  assert.equal(atk(s), base - Math.round(base * 0.05));
+  for (let i = 0; i < 9; i++) fall(s, [], '');
+  assert.equal(s.shadow, SHADOW_MAX);
+  assert.equal(atk(s), base - Math.round(base * 0.30));
+});
+
+test('축복: 겹 × 레벨 × 은화 5를 내면 모두 걷힌다. 신전지기 앞에서만', () => {
+  const s = make();
+  s.level = 4;
+  fall(s, [], ''); fall(s, [], '');
+  assert.equal(shadowView(s).fee, 2 * 4 * 5);
+  s.silver = 39;
+  assert.throws(() => dispatch(s, { type: 'bless', npc: 'priest' }), /모자랍니다/);
+  s.silver = 100;
+  assert.throws(() => dispatch(s, { type: 'bless', npc: 'highpriest' }), /여기에 없습니다/);
+  dispatch(s, { type: 'bless', npc: 'priest' });
+  assert.equal(s.shadow, 0);
+  assert.equal(s.silver, 60);
+  assert.throws(() => dispatch(s, { type: 'bless', npc: 'priest' }), /그림자가 없습니다/);
+});
+
+test('기도 30번에 한 겹이 걷힌다. 묘지기는 20번', () => {
+  const s = make();
+  fall(s, [], ''); fall(s, [], '');
+  for (let i = 0; i < 29; i++) { s.tired = 0; dispatch(s, { type: 'act', id: 'pray' }); }
+  assert.equal(s.shadow, 2);
+  s.tired = 0; dispatch(s, { type: 'act', id: 'pray' });
+  assert.equal(s.shadow, 1);
+  const g = make('gravekeeper', 'gk');
+  fall(g, [], '');
+  for (let i = 0; i < 20; i++) { g.tired = 0; dispatch(g, { type: 'act', id: 'pray' }); }
+  assert.equal(g.shadow, 0);
+});
+
+test('환생: 히든 스탯, 다시 일어선 몸으로 오른 스탯, 칭호 모두, 도감을 안고 다시 태어난다', () => {
+  const s = make('bard', 'old');
+  s.counters.nearDeath = 7; // 투지 1
+  dispatch(s, { type: 'move', to: 'training' });
+  const fightDef = hiddenById('fight');
+  s.hidden.fight = { value: hiddenValue(fightDef, s), half: true };
+  s.toughGained = { str: 2, agi: 0, con: 1, wis: 0 };
+  grantTitle(s, [], 'scarecrow', '허수아비를 많이 쳤다');
+  grantTitle(s, [], 'neighbor', '단골');
+  s.title = 'neighbor';
+  s.dex.mon.rat = { seen: 3, won: 3, lost: 0 };
+  s.level = 9; s.silver = 300; s.day = 22; s.phase = 1;
+  fall(s, [], '');
+  const carry = rebirthCarry(s);
+  const n = createGame({ name: '새', origin: 'farmer', rolled: rollDice('same'), seed: 'new', carry });
+  const plain = createGame({ name: '새', origin: 'farmer', rolled: rollDice('same'), seed: 'new' });
+  assert.equal(n.lives, 2);
+  assert.equal(n.pastLives[0].name, '환');
+  assert.equal(n.pastLives[0].level, 9);
+  assert.equal(n.level, 1);
+  assert.equal(carry.seedSilver, Math.floor(s.silver * 0.1), '쓰러진 뒤 가진 은화의 10%');
+  assert.equal(n.silver, plain.silver + carry.seedSilver, '종잣돈이 출신의 은화에 더해진다');
+  assert.equal(n.shadow, 0, '그림자는 가지고 가지 않는다');
+  assert.equal(n.stats.str, plain.stats.str + 2);
+  assert.equal(n.stats.con, plain.stats.con + 1);
+  assert.equal(n.hidden.fight.value, 1);
+  assert.equal(hiddenValue(fightDef, n), 1, '지난 삶의 횟수가 이어 세어진다');
+  n.counters.nearDeath = 5; // 새 삶에서 더 하면 지난 몫 위에 쌓인다
+  assert.ok(hiddenValue(fightDef, n) >= 2);
+  assert.deepEqual(n.titles.map((t) => t.id).sort(), ['neighbor', 'scarecrow']);
+  assert.equal(n.title, 'neighbor');
+  assert.equal(n.dex.mon.rat.seen, 3);
+  assert.equal(n.day, 22, '날짜는 이어 센다');
+  assert.equal(n.flags.toughDay, 22, '같은 날 다시 일어선 몸을 또 쌓지 못한다');
+  assert.equal(Object.keys(n.people).length, Object.keys(plain.people).length, '사람들과의 사이는 처음부터');
+  // 다시 환생하면 지난 삶이 늘어난다
+  const third = createGame({ name: '셋', origin: 'bard', rolled: rollDice('same'), seed: 'n3', carry: rebirthCarry(n) });
+  assert.equal(third.lives, 3);
+  assert.equal(third.pastLives.length, 2);
+  assert.equal(third.stats.str, make().stats.str + 2);
+});
+
+test('통찰은 도감으로도 세니, 도감을 가지고 가도 두 번 세지 않는다', () => {
+  const s = make('bard', 'ins');
+  for (let i = 0; i < 60; i++) s.dex.items['x' + i] = { seen: 1 };
+  const def = hiddenById('insight');
+  const before = hiddenValue(def, s);
+  const n = createGame({ name: '새', origin: 'bard', rolled: rollDice('same'), seed: 'n', carry: rebirthCarry(s) });
+  assert.equal(hiddenValue(def, n), before);
+});
+
+test('옛 저장의 하루 쇠약은 그림자 한 겹이 된다', () => {
+  const s = make();
+  const old = JSON.parse(JSON.stringify(s));
+  delete old.shadow; delete old.shadowPray; delete old.lives; delete old.pastLives; delete old.pastHidden; delete old.toughGained;
+  old.weak = { day: s.day + 1, phase: 0 };
+  const up = parseSave(JSON.stringify({ v: SAVE_VERSION, rev: 1, savedAt: 1, state: old })).state;
+  assert.equal(up.shadow, 1);
+  assert.equal(up.weak, undefined);
+  assert.equal(up.lives, 1);
+  const old2 = JSON.parse(JSON.stringify(old)); old2.weak = null; delete old2.shadow;
+  assert.equal(parseSave(JSON.stringify({ v: SAVE_VERSION, rev: 1, savedAt: 1, state: old2 })).state.shadow, 0);
+});

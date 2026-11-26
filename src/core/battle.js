@@ -383,7 +383,9 @@ function lose(state, events) {
   if (b) state.dex.mon[b.mon] = { ...(state.dex.mon[b.mon] || { seen: 0, won: 0 }), lost: (state.dex.mon[b.mon]?.lost || 0) + 1 };
   events.push({ type: 'battle', phase: 'lose', mon: b?.mon });
   afterBattle(state, events, false);
-  fall(state, events, m ? `${m.name}에게 졌다.` : '');
+  // 다시 일어선 몸 (Z30): 나보다 레벨이 같거나 높은 적의 생명력을 30% 넘게 깎고 쓰러졌는가
+  const dealt = b && m ? Math.max(0, 1 - b.hp / m.hp) : 0;
+  fall(state, events, m ? `${m.name}에게 졌다.` : '', m ? { foeLevel: m.level, dealt } : null);
 }
 
 /**

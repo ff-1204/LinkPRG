@@ -21,15 +21,12 @@ export function isTired(state) {
   return (state.tired || 0) >= TIRED_AT;
 }
 
-function weakNow(state) {
-  const w = state.weak;
-  return !!w && !(state.day > w.day || (state.day === w.day && state.phase >= w.phase));
+/** 굶주림과 그림자의 벌. 근성이 있으면 조금 덜하다. */
+function gritCut(state) {
+  return Math.max(0, 1 - (state.hidden?.grit?.value || 0) * 0.05);
 }
-
-/** 굶주림과 쇠약의 벌. 근성이 있으면 조금 덜하다. */
 function penaltyRate(state) {
-  const grit = state.hidden?.grit?.value || 0;
-  return Math.max(0, 0.10 * (1 - grit * 0.05));
+  return 0.10 * gritCut(state);
 }
 
 /**
@@ -67,7 +64,7 @@ export function derived(state) {
     const sum = d.parts.reduce((a, p) => a + p.value, 0);
     if (d.id === 'attack' || d.id === 'defense') {
       if (isHungry(state)) d.parts.push({ label: `굶주림 ${Math.round(sum * rate)}`, value: -Math.round(sum * rate) });
-      if (weakNow(state)) d.parts.push({ label: `쇠약 ${Math.round(sum * rate)}`, value: -Math.round(sum * rate) });
+      if (state.shadow > 0) { const cut = Math.round(sum * state.shadow * 0.05 * gritCut(state)); d.parts.push({ label: `죽음의 그림자 ${state.shadow}겹 ${cut}`, value: -cut }); }
       if (isTired(state)) d.parts.push({ label: `피로 ${Math.round(sum * 0.1)}`, value: -Math.round(sum * 0.1) });
     }
     d.value = d.parts.reduce((a, p) => a + p.value, 0);

@@ -1,0 +1,73 @@
+// 환생 (Z32). 쓰러진 뒤 신전에서 눈을 뜨는 대신 다시 태어날 수 있다.
+// 몸은 처음부터 다시지만, 종이 기억한 것(히든 스탯, 다시 일어선 몸으로 오른 스탯, 칭호, 도감)과 은화의 10%(종잣돈)는 가지고 간다.
+
+import { HIDDEN } from './hidden.js';
+import { JOBS, HIDDEN_JOBS } from '../data/jobs.js';
+const jobName = (id) => (id ? (JOBS[id] || HIDDEN_JOBS[id])?.name || id : null);
+
+const STATS = ['str', 'agi', 'con', 'wis'];
+export const SEED_RATE = 0.10; // 가진 은화의 이만큼을 종잣돈으로 가지고 간다
+const dexEntries = (s) => Object.values(s.dex || {}).reduce((n, v) => n + (v && typeof v === 'object' ? Object.keys(v).length : 0), 0);
+
+/** 지금의 삶에서 가지고 갈 것. 상태는 고치지 않는다. */
+export function rebirthCarry(state) {
+  const pastHidden = {};
+  for (const def of HIDDEN) {
+    let n = def.count(state) + (state.pastHidden?.[def.id] || 0);
+    // 통찰은 도감 칸 수로도 센다. 도감은 가지고 가니 그 몫은 빼 두어야 두 번 세지 않는다
+    if (def.id === 'insight') n = Math.max(0, n - Math.floor(dexEntries(state) * 0.6));
+    if (n > 0) pastHidden[def.id] = n;
+  }
+  const hidden = {};
+  for (const [id, slot] of Object.entries(state.hidden || {})) if (slot && slot.value > 0) hidden[id] = { value: slot.value, half: true };
+  const toughGained = Object.fromEntries(STATS.map((k) => [k, state.toughGained?.[k] || 0]));
+  return {
+    lives: (state.lives || 1) + 1,
+    seedSilver: Math.floor((state.silver || 0) * SEED_RATE),
+    pastLives: [...(state.pastLives || []), { name: state.name, job: jobName(state.job), level: state.level, day: state.day }],
+    pastHidden,
+    hidden,
+    toughGained,
+    tough: Object.fromEntries(STATS.map((k) => [k, state.tough?.[k] || 0])),
+    titles: (state.titles || []).map((t) => ({ ...t })),
+    title: state.title || null,
+    world: JSON.parse(JSON.stringify(state.world)),
+    dex: JSON.parse(JSON.stringify(state.dex || {})),
+    day: state.day,
+    phase: state.phase,
+  };
+}
+
+/** 내려놓는 것 (확인 창에 보인다). */
+export function rebirthLoss(state) {
+  return {
+    level: state.level,
+    skills: Object.keys(state.skills || {}).length,
+    job: jobName(state.job),
+    silver: state.silver - Math.floor((state.silver || 0) * SEED_RATE),
+    chapter: state.main?.chapter || 1,
+    people: Object.keys(state.people || {}).length,
+    guild: !!state.guild,
+  };
+}
+
+/** 새로 만든 상태에 지난 삶의 것을 얹는다 (createGame이 부른다). */
+export function applyCarry(state, carry) {
+  state.lives = carry.lives;
+  state.silver += carry.seedSilver || 0; // 종잣돈
+  state.pastLives = carry.pastLives.map((x) => ({ ...x }));
+  state.pastHidden = { ...carry.pastHidden };
+  state.hidden = Object.fromEntries(Object.entries(carry.hidden).map(([id, s]) => [id, { ...s }]));
+  state.toughGained = { ...carry.toughGained };
+  state.tough = { ...carry.tough };
+  for (const k of STATS) state.stats[k] += carry.toughGained[k] || 0;
+  state.titles = carry.titles.map((t) => ({ ...t }));
+  state.title = carry.title && state.titles.some((t) => t.id === carry.title) ? carry.title : null;
+  state.world = JSON.parse(JSON.stringify(carry.world));
+  // 도감(본 괴물·물건·곳·짐승·요리)은 남는다. 새 출신이 처음부터 아는 것도 더한다
+  for (const [k, v] of Object.entries(carry.dex || {})) state.dex[k] = { ...(state.dex[k] || {}), ...JSON.parse(JSON.stringify(v)) };
+  // 날짜는 이어 센다: 같은 날 다시 일어선 몸을 또 쌓지 못한다
+  state.day = carry.day;
+  state.phase = carry.phase;
+  state.flags.toughDay = carry.day;
+}

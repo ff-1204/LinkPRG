@@ -6,7 +6,6 @@ import assert from 'node:assert/strict';
 import { createGame, dispatch, slotsNow, enemyView, mapView } from '../src/core/game.js';
 import { addItem, countOf, previewEquip } from '../src/core/inventory.js';
 import { valueOf } from '../src/core/derived.js';
-import { isWeak } from '../src/core/fall.js';
 
 /** 사람이 하듯 한 번에 하나씩 누른다. 예고가 돌진류면 막고, 아니면 친다. */
 function fightOn(s, log) {
@@ -84,7 +83,7 @@ test('하람: 욕심내다 쓰러지고, 신전에서 깨어 유품을 찾으러
   }
   assert.ok(fell, '결국 쓰러진다');
   assert.equal(s.place, 'temple');
-  assert.ok(isWeak(s));
+  assert.ok(s.shadow >= 1, '죽음의 그림자가 쌓였다');
   assert.equal(fell.info.relicPlace, 'forest');
   const lostBranches = branches - countOf(s, 'oakbranch');
   assert.ok(countOf(s, 'oakbranch') <= branches);

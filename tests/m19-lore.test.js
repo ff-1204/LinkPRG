@@ -164,3 +164,36 @@ test('옛 저장에는 들은 말이 없다. 읽으면 빈 채로 올라온다',
   assert.deepEqual(up.lore, { hints: [] });
   assert.ok(addItem);
 });
+
+// ── 다시 일어선 몸 (Z30) ──
+test('센 놈의 생명력을 30% 넘게 깎고 쓰러지면 지금 스탯의 1%가 쌓인다. 하루 한 번. 1이 차면 스탯이 오른다', () => {
+  const lose = (s, mon, hpLeft) => {
+    s.place = 'forest'; s.hp = 1; s.stats.agi = 1;
+    s.battle = { mon, hp: hpLeft, turn: 1, intent: null, stun: 0, weak: null, burn: 0, ward: null, streak: 0, phase: 0 };
+    let ev = [];
+    for (let i = 0; i < 30 && s.battle; i++) { s.hp = 1; ev = dispatch(s, { type: 'battle', choice: 'defend' }); }
+    return ev.find((e) => e.type === 'fall')?.info;
+  };
+  // 멧돼지(레벨 5)에게 레벨 1이 덤벼 절반을 깎고 쓰러진다
+  const s = make('farmer', 'tough');
+  const str = s.stats.str;
+  const info = lose(s, 'boar', 30);
+  assert.ok(info, '쓰러졌다');
+  assert.ok(info.tough, '다시 일어선 몸이 쌓였다');
+  assert.equal(info.tough.gained.str, Math.round(str * 0.01 * 100) / 100);
+  assert.equal(s.tough.str, info.tough.gained.str);
+  // 같은 날 또 쓰러지면 쌓이지 않는다
+  assert.equal(lose(s, 'boar', 30)?.tough ?? null, null);
+  // 다음 날에는 다시 쌓인다. 쌓인 것이 1을 넘으면 스탯이 오른다
+  s.day += 1; s.tough.str = 0.95;
+  const before = s.stats.str;
+  const next = lose(s, 'boar', 30);
+  assert.ok(next.tough.raised.includes('str'));
+  assert.equal(s.stats.str, before + 1);
+  // 거의 못 깎았으면(30% 아래) 쌓이지 않는다
+  const t = make('farmer', 'tough2');
+  assert.equal(lose(t, 'boar', 58)?.tough ?? null, null);
+  // 나보다 약한 적에게 쓰러지면 쌓이지 않는다
+  const u = make('farmer', 'tough3'); u.level = 10;
+  assert.equal(lose(u, 'rat', 1)?.tough ?? null, null);
+});
