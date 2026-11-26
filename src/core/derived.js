@@ -1,0 +1,81 @@
+// 계산된 값과 그 셈 (R2-1, R2-2, G2-2). 누르면 셈이 풀려 보인다.
+
+import { equipPower } from './inventory.js';
+import { buffOf, foodBuff } from './buffs.js';
+import { ADVANCED } from '../data/jobs.js';
+
+/** 숙련 보너스: 등급 두 칸마다 1. */
+export function skillBonus(skill) {
+  return skill ? Math.floor(skill.grade / 2) : 0;
+}
+
+export const HUNGRY_BELOW = 20;
+
+export function isHungry(state) {
+  return (state.full ?? 100) < HUNGRY_BELOW;
+}
+
+export const TIRED_AT = 70; // 이만큼 쌓이면 지친다
+export const TIRED_MAX = 100; // 여기서 곯아떨어진다
+export function isTired(state) {
+  return (state.tired || 0) >= TIRED_AT;
+}
+
+function weakNow(state) {
+  const w = state.weak;
+  return !!w && !(state.day > w.day || (state.day === w.day && state.phase >= w.phase));
+}
+
+/** 굶주림과 쇠약의 벌. 근성이 있으면 조금 덜하다. */
+function penaltyRate(state) {
+  const grit = state.hidden?.grit?.value || 0;
+  return Math.max(0, 0.10 * (1 - grit * 0.05));
+}
+
+/**
+ * @returns {{id:string,name:string,value:number,parts:Array<{label:string,value:number}>}[]}
+ */
+export function derived(state) {
+  const s = state.stats;
+  const strikeBonus = skillBonus(state.skills.strike);
+  const levelHp = (state.level - 1) * 10;
+  const gear = state.equip ? equipPower(state) : { attack: 0, defense: 0 };
+  const list = [
+    { id: 'attack', name: '공격력', parts: [{ label: `힘 ${s.str}`, value: s.str }, { label: `무기 ${gear.attack}`, value: gear.attack }, { label: `치기 숙련 ${strikeBonus}`, value: strikeBonus }] },
+    { id: 'defense', name: '방어력', parts: [{ label: `체력 ${s.con}의 절반`, value: Math.floor(s.con / 2) }, { label: `방어구 ${gear.defense}`, value: gear.defense }] },
+    { id: 'maxHp', name: '최대 생명력', parts: [{ label: '기본 50', value: 50 }, { label: `체력 ${s.con} × 5`, value: s.con * 5 }, { label: `레벨업 ${levelHp}`, value: levelHp }] },
+    { id: 'maxMp', name: '최대 마나', parts: [{ label: `지혜 ${s.wis} × 3`, value: s.wis * 3 }] },
+    { id: 'carry', name: '무게 한도', parts: [{ label: '기본 30', value: 30 }, { label: `힘 ${s.str} × 2.5`, value: Math.floor(s.str * 2.5) }] },
+  ];
+  // 음식과 감상의 힘 (N2-2, N3-5)
+  const food = state.buffs ? foodBuff(state) : null;
+  const seen = state.buffs ? buffOf(state) : null;
+  const addTo = (id, label, value) => { if (value) list.find((d) => d.id === id).parts.push({ label, value }); };
+  if (food) { addTo('attack', `${food.name} ${food.attack}`, food.attack); addTo('defense', `${food.name} ${food.defense}`, food.defense); addTo('maxHp', `${food.name} ${food.hp}`, food.hp); }
+  if (seen) addTo('maxHp', `${seen.name} ${seen.hp}`, seen.hp);
+  if (gear.hp) addTo('maxHp', `장비 옵션 ${gear.hp}`, gear.hp);
+  if (gear.mp) addTo('maxMp', `장비 옵션 ${gear.mp}`, gear.mp);
+  const adv2 = ADVANCED[state.job2];
+  if (adv2?.hp) addTo('maxHp', `${adv2.name} ${adv2.hp}`, adv2.hp);
+  const rate = penaltyRate(state);
+  for (const d of list) {
+    const sum = d.parts.reduce((a, p) => a + p.value, 0);
+    if (d.id === 'attack' || d.id === 'defense') {
+      if (isHungry(state)) d.parts.push({ label: `굶주림 ${Math.round(sum * rate)}`, value: -Math.round(sum * rate) });
+      if (weakNow(state)) d.parts.push({ label: `쇠약 ${Math.round(sum * rate)}`, value: -Math.round(sum * rate) });
+      if (isTired(state)) d.parts.push({ label: `피로 ${Math.round(sum * 0.1)}`, value: -Math.round(sum * 0.1) });
+    }
+    d.value = d.parts.reduce((a, p) => a + p.value, 0);
+  }
+  return list;
+}
+
+export function valueOf(state, id) {
+  return derived(state).find((d) => d.id === id).value;
+}
+
+/** "힘 12 + 치기 숙련 3" 같은 셈 글. 0인 줄은 뺀다. */
+export function formula(d) {
+  const parts = d.parts.filter((p) => p.value !== 0);
+  return parts.map((p, i) => (i === 0 ? p.label : `${p.value < 0 ? '−' : '+'} ${p.label}`)).join(' ');
+}

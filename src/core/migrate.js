@@ -1,0 +1,140 @@
+// 저장의 판(버전)과, 옛 저장을 지금 꼴로 올리는 길.
+// 저장 형식을 바꾸면 SAVE_VERSION을 올리고 여기에 한 단계를 더한다.
+
+import { makeItem } from './inventory.js';
+import { valueOf } from './derived.js';
+import { worldFields } from './world.js';
+import { auctionFields } from './auction.js';
+
+import { endingFields } from './ending.js';
+import { MAIN } from '../data/quests.js';
+import { ADVANCED } from '../data/jobs.js';
+
+export { worldFields, auctionFields, endingFields };
+
+export const SAVE_VERSION = 11;
+
+/** M2에서 생긴 몸·가방·전투 칸. 새 게임과 옛 저장이 같은 것을 쓴다. */
+export function bodyFields() {
+  return {
+    hp: 0, mp: 0, full: 80, xp: 0, hungerTick: 0,
+    bag: [makeItem('riceball', { n: 3 })],
+    equip: { weapon: null, off: null, head: null, body: makeItem('trainwear'), hand: null, feet: makeItem('sandals'), ring1: null, ring2: null },
+    status: [], battle: null, choice: null,
+    weak: null, relic: null, falls: 0,
+    tension: {}, calm: 0,
+    dex: { mon: {}, items: {}, places: {}, animals: {}, dishes: {} },
+  };
+}
+
+/** M3에서 생긴 제작·진화·일하는 직업·보관함 칸. */
+export function makerFields() {
+  return { craft: null, made: 0, evolve: {}, evolveSeen: {}, work: null, workAsk: 3, store: {}, storeDebt: 0 };
+}
+
+/** M4에서 생긴 사람·명성·칭호·퀘스트 칸. */
+export function townFields() {
+  return {
+    people: {}, fame: {}, titles: [], title: null, lean: 0,
+    jobs: [], jobsDone: 0, board: { day: 0, gone: [] },
+    quests: {}, hq: {}, main: { chapter: 1, done: [], called: null, soldRare: false }, opened: [],
+  };
+}
+
+/** M5에서 생긴 직업·세력 칸. */
+export function jobFields() {
+  return { jobAsked: false, hjobs: {}, quick: null, factions: {}, job2: null };
+}
+
+/** M6에서 생긴 조각·요리·동료 칸. */
+export function artFields() {
+  return { sculpt: null, works: [], buffs: {}, cookHints: [], cookFails: [], party: [] };
+}
+
+/** M7에서 생긴 던전 칸. dungeon: 지금 안에 있는 던전. dmem: 나가도 남는 것(지도, 연 문, 챙긴 보물). */
+export function dungeonFields() {
+  return { dungeon: null, dmem: {} };
+}
+
+const STEPS = {
+  // 10 → 11: 피로가 생겼다. 조각은 조각칼이 있어야 한다. 이미 깎아 본 사람은 칼을 하나 쥐고 시작한다.
+  10(state) {
+    state.tired = 0;
+    if ((state.works || []).length || state.sculpt) state.bag.push(makeItem('chisel'));
+  },
+  // 9 → 10: 끝과, 끝난 뒤의 일이 생겼다.
+  9(state) {
+    Object.assign(state, endingFields());
+  },
+  // 8 → 9: 2차 전직이 생겼다.
+  8(state) {
+    state.job2 = null;
+  },
+  // 7 → 8: 가상 유저의 세계(공지, 최초 발견, 소문)와 경매장이 생겼다.
+  7(state) {
+    Object.assign(state, worldFields(), auctionFields());
+    state.world.today.day = state.day;
+  },
+  // 6 → 7: 던전, 속성, 우두머리가 생겼다.
+  6(state) {
+    Object.assign(state, dungeonFields());
+    if (state.battle) state.battle.phase = 0;
+  },
+  // 5 → 6: 조각과 작품, 요리, 버프, 동료가 생겼다.
+  5(state) {
+    Object.assign(state, artFields());
+    state.dex.animals = {};
+    state.dex.dishes = {};
+  },
+  // 4 → 5: 직업 고르기, 히든 직업, 세력이 생겼다.
+  4(state) {
+    Object.assign(state, jobFields());
+    if (state.flags.templeKnown) state.factions.temple = 10;
+  },
+  // 3 → 4: 사람들과의 사이, 명성, 칭호, 퀘스트 네 갈래, 도감이 생겼다.
+  3(state) {
+    Object.assign(state, townFields());
+    state.dex.items = {};
+    state.dex.places = {};
+  },
+  // 2 → 3: 제작, 스킬 진화, 일하는 직업, 보관함이 생겼다.
+  2(state) {
+    Object.assign(state, makerFields());
+  },
+  // 1 → 2: 몸 상태, 가방, 장비, 전투가 생겼다.
+  1(state) {
+    Object.assign(state, bodyFields());
+    if ((state.counters?.act?.strike || 0) > 0) {
+      state.equip.weapon = makeItem('woodsword');
+      state.flags.gotSword = true;
+    }
+    state.hp = valueOf(state, 'maxHp');
+    state.mp = valueOf(state, 'maxMp');
+  },
+};
+
+/** 옛 상태를 지금 판으로 올린다. 이미 지금 판이면 그대로다. */
+/** 판이 같아도 어긋날 수 있는 것을 바로잡는다. 여러 번 돌려도 같다. */
+function mend(state) {
+  // 끝낸 장이 여는 길: 그 장을 끝낸 뒤에 길이 생긴 경우(2장 → 나루)가 있다
+  if (state.main && Array.isArray(state.main.done) && Array.isArray(state.opened)) {
+    for (const d of state.main.done) for (const id of (MAIN[d && d.chapter]?.opens || [])) if (!state.opened.includes(id)) state.opened.push(id);
+  }
+  if (state.counters && !Number.isFinite(state.counters.tiredWork)) state.counters.tiredWork = 0;
+  if (!['hold', 'clash', 'dodge', 'focus'].includes(state.stance)) state.stance = 'hold';
+  if (state.guild === undefined) state.guild = null;
+  // 히든 직업으로 갈아탄 뒤에 남은 2차 전직
+  if (state.job2 && ADVANCED[state.job2] && ADVANCED[state.job2].from !== state.job) state.job2 = null;
+}
+
+export function migrate(state) {
+  let v = Number.isInteger(state.v) ? state.v : 1;
+  if (v > SAVE_VERSION) throw new Error(`저장 파일의 판(${v})이 지금 판(${SAVE_VERSION})보다 새것입니다`);
+  while (v < SAVE_VERSION) {
+    STEPS[v](state);
+    v += 1;
+    state.v = v;
+  }
+  mend(state);
+  return state;
+}
