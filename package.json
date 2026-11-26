@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "LinkPRG (띠링) — 글과 대화방으로 하는 혼자용 RPG",
+  "description": "LinkPRG — 글과 대화방으로 하는 혼자용 RPG",
   "scripts": {
     "test": "node --test tests/",
     "serve": "node tools/serve.js"

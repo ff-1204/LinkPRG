@@ -55,6 +55,10 @@ export function derived(state) {
   if (seen) addTo('maxHp', `${seen.name} ${seen.hp}`, seen.hp);
   if (gear.hp) addTo('maxHp', `장비 옵션 ${gear.hp}`, gear.hp);
   if (gear.mp) addTo('maxMp', `장비 옵션 ${gear.mp}`, gear.mp);
+  // 곳마다 하는 일로 쌓은 숙련 (Z23): 기도는 마나, 나르기는 무게 한도, 지구력은 생명력
+  addTo('maxMp', `기도 숙련 ${skillBonus(state.skills.pray)}`, skillBonus(state.skills.pray));
+  addTo('carry', `나르기 숙련 ${skillBonus(state.skills.haul)}`, skillBonus(state.skills.haul));
+  addTo('maxHp', `지구력 숙련 ${skillBonus(state.skills.stamina) * 2}`, skillBonus(state.skills.stamina) * 2);
   const adv2 = ADVANCED[state.job2];
   if (adv2?.hp) addTo('maxHp', `${adv2.name} ${adv2.hp}`, adv2.hp);
   const rate = penaltyRate(state);

@@ -2,6 +2,7 @@
 // 입찰은 씨앗과 날짜로 셈한다. 같은 씨앗이면 같은 값에 팔린다.
 
 import { seedFrom } from './rng.js';
+import { gearName } from './gear.js';
 import { pushLine } from './log.js';
 import { itemDef, gradeName } from '../data/items.js';
 import { addItem, removeAt } from './inventory.js';
@@ -15,7 +16,7 @@ import { eulReul, iGa, eunNeun } from './ko.js';
 
 const hash = (...parts) => seedFrom(parts.join('|'));
 const unit = (...parts) => hash(...parts) / 4294967296;
-const label = (item) => `${item.grade ? `${gradeName(item.grade)} 등급 ` : ''}${itemDef(item.id).name}${item.n > 1 ? ` ${item.n}개` : ''}`;
+const label = (item) => `${item.grade ? `${gradeName(item.grade)} 등급 ` : ''}${gearName(item)}${item.n > 1 ? ` ${item.n}개` : ''}`;
 const fairOf = (item) => worth(item) * item.n;
 
 function atAuction(state) {

@@ -5,7 +5,7 @@ import { next, chance } from './rng.js';
 import { pushLine, ding } from './log.js';
 import { monsterDef, STATUS } from '../data/monsters.js';
 import { itemDef, ITEMS, gradeName } from '../data/items.js';
-import { seedFrom } from './rng.js';
+import { roll01 } from './rng.js';
 import { guildPerk } from './guild.js';
 import { rollOptions, gearName } from './gear.js';
 import { derived, skillBonus } from './derived.js';
@@ -45,8 +45,8 @@ function dropGear(state, events) {
   const n = (state.counters.elites = (state.counters.elites || 0) + 1);
   const pool = Object.entries(ITEMS).filter(([, d]) => d.kind === 'gear' && !d.tool && !d.job && (d.attack || d.defense) && d.price).map(([id]) => id);
   if (!pool.length) return;
-  const id = pool[seedFrom(`${state.seed}|drop|${n}`) % pool.length];
-  let roll = (seedFrom(`${state.seed}|dropgrade|${n}`) / 4294967296) * 100;
+  const id = pool[Math.floor(roll01(`${state.seed}|drop|${n}`) * pool.length)];
+  let roll = roll01(`${state.seed}|dropgrade|${n}`) * 100;
   let grade = 0;
   for (let i = 0; i < DROP_GRADES.length; i++) { grade = i; roll -= DROP_GRADES[i]; if (roll < 0) break; }
   const item = rollOptions(state, addItem(state, id, 1, { grade }), `drop|${n}`);
@@ -80,7 +80,7 @@ export function hasStatus(state, id) {
 export function fleeChance(state) {
   const m = mdef(state.battle);
   const over = totalWeight(state) > val(state, 'carry') ? 0.2 : 0;
-  return odds(0.5 + (state.stats.agi - m.agi) * 0.03 - over + roleBonus(state) + (adv(state).flee || 0), 0.05, 0.95);
+  return clamp(0.5 + (state.stats.agi - m.agi) * 0.03 - over + roleBonus(state) + (adv(state).flee || 0), 0.05, 0.95);
 }
 
 function critChance(a, b) {
@@ -96,7 +96,7 @@ function damage(state, attack, power, defense) {
 export function startBattle(state, events, monId, { ambush = false, pounce = false } = {}) {
   const m = monsterDef(monId);
   const seenN = (state.counters.fights = (state.counters.fights || 0) + 1);
-  const elite = seedFrom(`${state.seed}|elite|${monId}|${seenN}`) / 4294967296 < eliteChance(state, monId);
+  const elite = roll01(`${state.seed}|elite|${monId}|${seenN}`) < eliteChance(state, monId);
   // stun·weak·burn: 내 스킬이 적에게 건 것. ward: 내 몸을 감싼 것. streak: 같은 공격을 이어 한 횟수.
   state.battle = { mon: monId, hp: elite ? Math.round(m.hp * ELITE.hp) : m.hp, turn: 1, intent: null, stun: 0, weak: null, burn: 0, ward: null, streak: 0, phase: 0 };
   if (elite) state.battle.elite = true;
@@ -279,6 +279,7 @@ function enemyAct(state, events, defended, guard = null, stance = null) {
       b.edge = { plus: Math.floor(state.stats.agi / 2) + skillBonus(state.skills.evade) };
       pushLine(state, events, { k: 'me', text: `${eulReul(move.name)} 흘려보냈다. 빈틈이 보인다.` });
       if (b.weak && --b.weak.turns <= 0) b.weak = null;
+      if (b.ward && --b.ward.turns <= 0) { b.ward = null; pushLine(state, events, { k: 'sys', text: '몸을 감싸던 것이 걷혔다.' }); }
       return;
     }
     pushLine(state, events, { k: 'me', text: '피하려 했지만 늦었다.' });
@@ -294,7 +295,7 @@ function enemyAct(state, events, defended, guard = null, stance = null) {
   if (stance === 'focus') stanceUp(state, events, 'focus', m);
   // '나를 먼저'인 앞줄 동료가 대신 맞아 준다 (T21)
   const shield = state.party.length ? guardFor(state) : null;
-  if (shield) { hitCompanion(state, events, shield, dmg); return; }
+  if (shield) { if (clashWon) b.clashHit = true; hitCompanion(state, events, shield, dmg); return; }
   if (defended) { dmg = Math.max(1, Math.round(dmg * (1 - guardCut(state)))); guardUp(state, events, m); }
   if (guard?.cut) dmg = Math.max(1, Math.round(dmg * (1 - guard.cut)));
   if (b.ward) {
@@ -447,7 +448,7 @@ export function battleAct(state, events, choice, arg) {
     if (guard) return; // 막는 스킬은 턴 머리에 이미 썼다
     state.mp -= sk.mp;
     pushLine(state, events, { k: 'me', text: `${sk.name}. ${sk.say}` });
-    const charge = b.focus || 0; // 모은 횟수(둘까지)
+    const charge = sk.dmg || sk.heal ? b.focus || 0 : 0; // 모은 횟수(둘까지). 피해도 회복도 없는 스킬에는 쓰이지 않고 남는다
     const boost = 1 + charge;
     const plus = charge ? Math.floor(state.stats.wis / 2) + skillBonus(state.skills.focus) : 0;
     if (charge) { b.focus = 0; pushLine(state, events, { k: 'sys', text: `모아 둔 것이 터진다. 위력 ${boost}배.` }); }
@@ -474,6 +475,7 @@ export function battleAct(state, events, choice, arg) {
     if (sk) return cast();
     if (choice === 'attack') hitEnemy(state, events, 1, usable(state.equip.weapon) ? '내리쳤다.' : '맨주먹을 휘둘렀다.');
     else if (choice === 'defend') {
+      if (prepared) return; // 턴 머리에 이미 채비했다
       const id = stanceOf(state).id;
       if (id === 'hold') pushLine(state, events, { k: 'me', text: '자세를 낮추고 막을 채비를 했다.' });
       else if (id === 'clash') pushLine(state, events, { k: 'me', text: '물러서지 않고 마주 칠 채비를 했다.' });
@@ -508,13 +510,16 @@ export function battleAct(state, events, choice, arg) {
     };
     companionsAct(state, events, strike, val(state, 'maxHp'), { hp: b.hp, maxHp: m.hp });
   };
+  // 태세는 턴이 시작될 때 잡는다. 적이 더 빨라도 "채비했다"가 먼저 적히고, 모은 것도 맞기 전에 쌓인다
+  let prepared = false;
+  if (stance) { mine(); prepared = true; }
   if (state.stats.agi >= m.agi) {
-    mine();
+    if (!prepared) mine();
     friends();
     if (state.battle) enemyAct(state, events, defended, guard, stance);
   } else {
     enemyAct(state, events, defended, guard, stance);
-    if (state.hp > 0 && state.battle) { mine(); friends(); }
+    if (state.hp > 0 && state.battle) { if (!prepared) mine(); friends(); }
   }
   if (state.battle && b.clashHit) {
     b.clashHit = false;

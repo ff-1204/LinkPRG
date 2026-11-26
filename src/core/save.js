@@ -206,5 +206,5 @@ export function importText(storage, slot, raw) {
 
 /** 이 일들이 일어났으면 저절로 저장할 때다: 방을 옮김, 띠링, 때가 바뀜, 싸움의 시작과 끝, 쓰러짐, 정할 것이 생김, 장비를 바꿈. */
 export function shouldAutosave(events) {
-  return events.some((e) => ['move', 'ding', 'phase', 'battle', 'fall', 'choice', 'gear', 'craft', 'trade', 'evolve', 'quest', 'social', 'check', 'job', 'sculpt', 'cook', 'party', 'statue', 'buff', 'room', 'world', 'auction', 'ending'].includes(e.type));
+  return events.some((e) => ['guild', 'stance', 'enhance', 'move', 'ding', 'phase', 'battle', 'fall', 'choice', 'gear', 'craft', 'trade', 'evolve', 'quest', 'social', 'check', 'job', 'sculpt', 'cook', 'party', 'statue', 'buff', 'room', 'world', 'auction', 'ending'].includes(e.type));
 }

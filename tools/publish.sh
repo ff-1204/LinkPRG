@@ -14,7 +14,7 @@ find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
 rm -rf .claude
 cp "$KEEP" README.md
 touch .nojekyll
-sed -i 's/"name": "ttiring"/"name": "linkprg"/; s/"description": "띠링 (가제) — /"description": "LinkPRG (띠링) — /' package.json
+sed -i 's/"name": "ttiring"/"name": "linkprg"/; s/"description": "띠링 (가제) — /"description": "LinkPRG — /' package.json
 node --test tests/ 2>&1 | grep -E "^ℹ (pass|fail)"
 git add -A
 git -c user.name="ff-1204" -c user.email="ff-1204@users.noreply.github.com" commit -q -m "$MSG"

@@ -6,7 +6,7 @@ export const MAX_GRADE = RANKS.length * LEVELS_PER_RANK - 1; // 0부터 44까지
 
 /** 숙련도 이름. 행동 id → 보이는 이름. */
 export const SKILL_NAMES = {
-  strike: '치기', guard: '막기', smash: '강타', evade: '회피', focus: '집중', mining: '채광', fishing: '낚시', gathering: '채집',
+  strike: '치기', guard: '막기', smash: '강타', evade: '회피', focus: '집중', pray: '기도', haul: '나르기', stamina: '지구력', mining: '채광', fishing: '낚시', gathering: '채집',
   smithing: '대장', sculpting: '조각', cooking: '요리', appraise: '감정', lockpick: '자물쇠',
 };
 

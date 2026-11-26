@@ -1,6 +1,6 @@
 // 사람들과의 사이, 명성, 칭호, 대화 판정 (E25~E28, G3-1, T10~T14).
 
-import { next, pick, seedFrom } from './rng.js';
+import { next, pick, roll01 } from './rng.js';
 import { pushLine, ding } from './log.js';
 import { PEOPLE, PEOPLE_ORDER, BONDS, GIFT, TALK_POINT, FAME, TITLES, personById } from '../data/people.js';
 import { itemDef } from '../data/items.js';
@@ -124,7 +124,7 @@ export function workedHere(state, events, kind = 'fit') {
   const w = state.flags.workHere;
   if (!w || w.place !== state.place || w.day !== state.day) state.flags.workHere = { place: state.place, day: state.day, n: 0 };
   const x = state.flags.workHere;
-  const idle = !placeById(state.place).actions.some((act) => !ACTIONS[act].open && !ACTIONS[act].rest && !ACTIONS[act].service);
+  const idle = !placeById(state.place).actions.some((act) => !ACTIONS[act].open && !ACTIONS[act].rest && !ACTIONS[act].service && !ACTIONS[act].chore);
   if (kind === 'enter') {
     for (const p of here) if (!spokeToday(state, p.id) && (idle || bondOf(state, p.id) >= FRIEND)) speak(state, events, p);
     return;
@@ -139,7 +139,7 @@ export function workedHere(state, events, kind = 'fit') {
   }
   for (const p of here) {
     if (spokeToday(state, p.id)) continue;
-    const roll = seedFrom(`${state.seed}|speak|${state.day}|${state.place}|${p.id}|${x.n}`) / 4294967296;
+    const roll = roll01(`${state.seed}|speak|${state.day}|${state.place}|${p.id}|${x.n}`);
     if (roll < speakChance(state, p.id, x.n)) { speak(state, events, p); break; } // 한 번에 한 사람만
   }
 }

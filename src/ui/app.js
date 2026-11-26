@@ -40,7 +40,7 @@ import { GRADES } from '../data/items.js';
 import { bagView, tabCounts, previewEquip, iconOf, itemPower, itemWeight, slotFor, equipWeight } from '../core/inventory.js';
 import { BAG_TABS, EQUIP_SLOTS, itemDef, gradeName } from '../data/items.js';
 import { monsterDef } from '../data/monsters.js';
-import { ORIGINS, originById, buildStats, START_POINTS, STAT_NAMES, STAT_USES, rollDice, DICE_TOTAL, DICE_MIN, DICE_FREE_AT } from '../data/origins.js';
+import { ORIGINS, originById, STAT_NAMES, STAT_USES, rollDice, DICE_TOTAL, DICE_MIN, DICE_FREE_AT } from '../data/origins.js';
 import { placeById, PLACES, TOWN_ORDER, PHASES } from '../data/places.js';
 import { SKILL_NAMES, gradeLabel, progress } from '../core/skills.js';
 import { hiddenSlots, foundCount, hiddenTotal } from '../core/hidden.js';
@@ -87,7 +87,7 @@ export function start(root, storage = globalThis.localStorage) {
     fill(root,h('main', { class: 'title' },
       // 꾸밈 그림: 같은 숲의 낮과 밤. 알려 주는 것이 없어 대체 글은 비운다. 그림을 끄면 나오지 않는다
       settings.art ? h('img', { class: 'px titleart', src: 'title.png', alt: '', width: 1200, height: 630 }) : null,
-      h('h1', {}, '띠링'),
+      h('h1', {}, 'LinkPRG'),
       h('p', { class: 'tag' }, '이 세계에서는 무언가를 끝까지 해낸 사람에게 종소리가 들린다.'),
       // 읽을 수 없는 칸을 묻지 않고 덮어쓰지 않도록, "시작"은 늘 빈 칸으로 간다.
       used.length || !firstEmpty ? null : h('button', { class: 'btn go', type: 'button', style: 'min-width:12rem;font-size:1.1rem', 'data-autofocus': true, onclick: () => showCreate(firstEmpty.slot) }, '시작'),
@@ -181,7 +181,7 @@ export function start(root, storage = globalThis.localStorage) {
     let origin = ORIGINS[0].id;
     // 스탯은 주사위로 정한다. 마음에 들 때까지 몇 번이든 굴린다
     const salt = Date.now();
-    let rolls = 1;
+    let rolls = 0; // 단추를 누른 횟수. 처음 주어진 눈은 세지 않는다
     let rolled = rollDice(`${salt}|${rolls}`);
     let pool = 0; // 백 번 굴린 뒤: 스탯에서 덜어 내 아직 다시 넣지 않은 점수
     let name = '';
@@ -219,9 +219,9 @@ export function start(root, storage = globalThis.localStorage) {
             free ? h('button', { class: 'pm', type: 'button', 'aria-label': `${STAT_NAMES[key]} 내리기`, disabled: rolled[key] <= DICE_MIN, onclick: () => { rolled = { ...rolled, [key]: rolled[key] - 1 }; pool += 1; draw(); refocus(`${STAT_NAMES[key]} 내리기`); } }, '−') : null,
             free ? h('button', { class: 'pm', type: 'button', 'aria-label': `${STAT_NAMES[key]} 올리기`, disabled: pool <= 0, onclick: () => { rolled = { ...rolled, [key]: rolled[key] + 1 }; pool -= 1; draw(); refocus(`${STAT_NAMES[key]} 올리기`); } }, '+') : null,
           )),
-          h('button', { class: 'btn go', type: 'button', 'data-press': true, 'aria-label': `주사위 굴리기. 지금 힘 ${stats.str}, 민첩 ${stats.agi}, 체력 ${stats.con}, 지혜 ${stats.wis}`, style: 'min-height:3rem;margin:.6rem 0', onclick: () => { rolls += 1; rolled = rollDice(`${salt}|${rolls}`); pool = 0; if (rolls === DICE_FREE_AT) error = ''; draw(); refocus('주사위'); } }, '주사위 굴리기'),
-          free ? h('p', { class: 'serif', role: 'status', style: 'color:var(--cinnamon)' }, '오래 굴린 손이다. 이제 눈을 손으로 옮길 수 있다. −로 덜어 +로 넣는다.') : null,
-          h('p', { class: 'muted', style: 'font-size:.85rem' }, '합계는 늘 같다. 어떻게 나뉘느냐만 달라진다. 몇 번이든 굴릴 수 있다.'),
+          h('button', { class: 'btn go', type: 'button', 'data-press': true, disabled: free, 'aria-label': `주사위 굴리기. 지금 힘 ${stats.str}, 민첩 ${stats.agi}, 체력 ${stats.con}, 지혜 ${stats.wis}`, style: 'min-height:3rem;margin:.6rem 0', onclick: () => { rolls += 1; rolled = rollDice(`${salt}|${rolls}`); pool = 0; if (rolls === DICE_FREE_AT) error = ''; draw(); if (rolls >= DICE_FREE_AT) root.querySelector('.create .pm:not([disabled])')?.focus(); else refocus('주사위'); } }, '주사위 굴리기'),
+          free ? h('p', { class: 'serif', role: 'status', style: 'color:var(--cinnamon)' }, '주사위가 닳았다. 더는 구르지 않는다. 이제 눈을 손으로 옮긴다. −로 덜어 +로 넣는다.') : null,
+          free ? null : h('p', { class: 'muted', style: 'font-size:.85rem' }, '합계는 늘 같다. 어떻게 나뉘느냐만 달라진다.'),
           h('span', { class: 'h' }, '이 사람은'),
           h('p', { class: 'serif', style: 'font-size:1.05rem;line-height:1.8' }, o.story),
           h('p', { class: 'muted', style: 'margin-top:auto;font-size:.88rem' }, '직업은 레벨 5에 고릅니다. 지금은 누구나 무직입니다.'))));
@@ -784,9 +784,9 @@ export function start(root, storage = globalThis.localStorage) {
         const act = (action) => { if (run(action, true)) rerender(); };
         const b = bodyView(game);
         const row = (item, n, label, one, all) => h('div', { class: 'traderow' },
-          icon(item), h('span', { class: 'grow' }, h('b', {}, itemDef(item.id).name), h('small', {}, ` ${gradeName(item.grade)}${n > 1 ? `, ${n}개` : ''}`)),
-          h('button', { class: 'btn sm', type: 'button', 'aria-label': `${itemDef(item.id).name} ${gradeName(item.grade)} 하나 ${label}`, onclick: one }, label),
-          n > 1 ? h('button', { class: 'btn sm', type: 'button', 'aria-label': `${itemDef(item.id).name} ${gradeName(item.grade)} ${n}개 모두 ${label}`, onclick: all }, '모두') : null);
+          icon(item), h('span', { class: 'grow' }, h('b', {}, gearName(item)), h('small', {}, ` ${gradeName(item.grade)}${n > 1 ? `, ${n}개` : ''}`)),
+          h('button', { class: 'btn sm', type: 'button', 'aria-label': `${gearName(item)} ${gradeName(item.grade)} 하나 ${label}`, onclick: one }, label),
+          n > 1 ? h('button', { class: 'btn sm', type: 'button', 'aria-label': `${gearName(item)} ${gradeName(item.grade)} ${n}개 모두 ${label}`, onclick: all }, '모두') : null);
         add(body,
           h('p', { class: 'muted', style: 'font-size:.9rem' }, `맡긴 것이 있는 날만 하루에 은화 ${v.fee}. 쓰러져도 맡긴 것은 잃지 않는다. 보관함은 마을마다 따로다.`),
           v.debt ? h('p', { class: 'warn', role: 'alert' }, `밀린 보관 삯이 은화 ${v.debt} 있다. 찾을 때 먼저 치른다.`) : null,
@@ -836,7 +836,7 @@ export function start(root, storage = globalThis.localStorage) {
   let bagSort = 'new';
   const SORTS = [['new', '최신순'], ['grade', '등급'], ['weight', '무게'], ['name', '이름']];
   const gradeCls = (item) => `g${item.grade || 0}`;
-  const icon = (item, size = 32) => (settings.art ? h('span', { class: `ico ${gradeCls(item)}` }, pixel(iconOf(item), `${itemDef(item.id).name} 그림`, size, size)) : null);
+  const icon = (item, size = 32) => (settings.art ? h('span', { class: `ico ${gradeCls(item)}` }, pixel(iconOf(item), `${gearName(item)} 그림`, size, size)) : null);
   const durText = (item) => (item.dur == null ? '' : `내구도 ${item.dur} / ${maxDur(item)}${item.dur === 0 ? ' (못 씀)' : item.dur < 10 ? ' (곧 못 씀)' : ''}`);
 
   function openBag(startTab) {
@@ -949,7 +949,7 @@ export function start(root, storage = globalThis.localStorage) {
               item ? h('span', { class: 'grow' }, h('b', {}, gearName(item)), h('small', {}, ` ${gradeName(item.grade)}`), h('br'),
                 h('small', { class: item.dur < 10 ? 'warn' : 'muted' }, `${[itemPower(item).attack ? `공격 ${itemPower(item).attack}` : '', itemPower(item).defense ? `방어 ${itemPower(item).defense}` : ''].filter(Boolean).join(', ')}. ${durText(item)}`))
                 : h('span', { class: 'grow muted' }, '비어 있음'),
-              item ? h('button', { class: 'btn sm', type: 'button', disabled: fighting, 'aria-label': `${itemDef(item.id).name} 벗기`, onclick: () => { if (run({ type: 'unequip', slot: sl.id }, true)) rerender(); } }, '해제') : null,
+              item ? h('button', { class: 'btn sm', type: 'button', disabled: fighting, 'aria-label': `${gearName(item)} 벗기`, onclick: () => { if (run({ type: 'unequip', slot: sl.id }, true)) rerender(); } }, '해제') : null,
               item ? forgeRows(item, { slot: sl.id }, (a) => { if (run(a, true)) rerender(); }, true) : null);
           }),
           h('span', { class: 'h' }, '합계'),
@@ -1558,7 +1558,7 @@ export function start(root, storage = globalThis.localStorage) {
           giving
             ? h('div', { class: 'detail' }, h('b', {}, '무엇을 건넬까'), h('span', { class: 'muted', style: 'font-size:.85rem' }, '좋아하는지 싫어하는지는 줘 봐야 안다. 알아낸 것은 도감에 적힌다.'),
               game.bag.filter((it) => itemDef(it.id).kind !== 'quest').length ? h('div', { class: 'items' }, game.bag.filter((it) => itemDef(it.id).kind !== 'quest').map((it) =>
-                h('button', { class: 'it', type: 'button', onclick: () => { giving = false; act({ type: 'gift', npc: who, index: game.bag.indexOf(it) }); } }, icon(it), h('span', { class: 'grow' }, h('b', {}, itemDef(it.id).name), h('small', {}, ` ${gradeName(it.grade)}`)), h('span', {}, it.n > 1 ? `${it.n}개 중 하나` : ''))))
+                h('button', { class: 'it', type: 'button', onclick: () => { giving = false; act({ type: 'gift', npc: who, index: game.bag.indexOf(it) }); } }, icon(it), h('span', { class: 'grow' }, h('b', {}, gearName(it)), h('small', {}, ` ${gradeName(it.grade)}`)), h('span', {}, it.n > 1 ? `${it.n}개 중 하나` : ''))))
                 : h('p', { class: 'muted' }, '건넬 것이 없다.'),
               h('button', { class: 'btn', type: 'button', onclick: () => { giving = false; rerender(); } }, '그만두기'))
             : h('div', { class: 'row-btns' },

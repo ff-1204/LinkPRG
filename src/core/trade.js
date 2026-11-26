@@ -9,6 +9,7 @@ import { seedFrom } from './rng.js';
 import { discountOf as socialDiscount } from './social.js';
 import { placeById } from '../data/places.js';
 import { guildPerk } from './guild.js';
+import { gearName } from './gear.js';
 import { eulReul, iGa } from './ko.js';
 
 export const SELL_RATE = 0.4;
@@ -20,7 +21,9 @@ export function worth(item) {
   const def = itemDef(item.id);
   // 적힌 값은 그 물건의 바탕 등급일 때의 값이다. 그보다 높으면 그만큼 비싸다.
   const mult = (GRADE_MULT[item.grade || 0] || 1) / (GRADE_MULT[def.grade || 0] || 1);
-  return Math.max(1, Math.round((def.price || 1) * mult));
+  // 강화 하나에 값 +5%, 옵션 하나에 +10%. 강화에 든 것보다는 늘 적게 오른다(강화해 팔아 남기는 길이 없게)
+  const extra = 1 + (item.plus || 0) * 0.05 + (item.opt || []).length * 0.1;
+  return Math.max(1, Math.round((def.price || 1) * mult * extra));
 }
 
 /**
@@ -33,7 +36,7 @@ export function buyPrice(state, id) {
   if (shop?.daily) base = Math.max(1, Math.round(base * (DAILY_SWING[0] + (seedFrom(`${state.seed}|price|${state.day}|${id}`) / 4294967296) * DAILY_SWING[1])));
   const cut = discountOf(state);
   const rate = cut.rate + guildPerk(state, 'social'); // 등불 모임
-  return { base, now: rate > 0 && base >= 5 ? Math.max(1, Math.floor(base * (1 - rate))) : base, why: cut.why };
+  return { base, now: rate > 0 && base >= 5 ? Math.max(1, Math.floor(base * (1 - rate))) : base, why: [cut.why, guildPerk(state, 'social') > 0 ? '길드의 덕' : ''].filter(Boolean).join(', ') };
 }
 
 /** 값이 깎이는 까닭: 가게 사람과의 사이, 마을의 명성, 단 칭호, 일하는 직업 (E25). */
@@ -59,7 +62,7 @@ export function shopView(state) {
   return {
     keeper: shop.keeper, hello: shop.hello, daily: !!shop.daily,
     goods: shop.sells.map((id) => ({ id, name: itemDef(id).name, desc: itemDef(id).desc, ...buyPrice(state, id) })),
-    mine: state.bag.map((item, index) => ({ index, item, name: itemDef(item.id).name, grade: gradeName(item.grade), n: item.n, each: sellPrice(item, state) })).filter((x) => x.each > 0),
+    mine: state.bag.map((item, index) => ({ index, item, name: gearName(item), grade: gradeName(item.grade), n: item.n, each: sellPrice(item, state) })).filter((x) => x.each > 0),
   };
 }
 
@@ -85,7 +88,7 @@ export function sell(state, events, index, n = 1) {
   if (each <= 0) throw new Error('퀘스트 물건은 팔 수 없습니다');
   // 메인 1장 '만드는 길': 제 손으로 만든 희귀 등급 이상을 마을 사람에게 판다
   if (item.maker === state.name && item.grade >= 2) state.main.soldRare = true;
-  const name = itemDef(item.id).name;
+  const name = gearName(item);
   const grade = item.grade ? `${gradeName(item.grade)} 등급 ` : '';
   removeAt(state, index, n);
   state.silver += each * n;
@@ -112,7 +115,7 @@ const stacks = (a, b) => itemDef(a.id).kind !== 'gear' && a.id === b.id && a.gra
 export function storeView(state) {
   const box = boxOf(state);
   return {
-    items: box.items.map((item, index) => ({ index, item, name: itemDef(item.id).name, grade: gradeName(item.grade), n: item.n })),
+    items: box.items.map((item, index) => ({ index, item, name: gearName(item), grade: gradeName(item.grade), n: item.n })),
     silver: box.silver, weight: storeWeight(box), cap: STORE_CAP, fee: STORE_FEE, debt: state.storeDebt || 0,
     busy: box.items.length > 0 || box.silver > 0,
   };
@@ -152,7 +155,7 @@ export function withdraw(state, events, index, n = 1) {
   if (item.n === 0) box.items.splice(index, 1);
   if (itemDef(item.id).kind === 'gear') state.bag.push({ ...item, n: 1 });
   else addItem(state, item.id, n, { grade: item.grade, maker: item.maker });
-  pushLine(state, events, { k: 'me', text: `${itemDef(item.id).name} ${n}개를 찾았다.` });
+  pushLine(state, events, { k: 'me', text: `${gearName(item)} ${n}개를 찾았다.` });
   events.push({ type: 'trade' });
 }
 

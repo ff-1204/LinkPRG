@@ -265,6 +265,14 @@ export function bodyView(state) {
   };
 }
 
+const STANCE_HINTS = {
+  hold: { charge: '큰 피해. 방어하면 막고 반격합니다.', wait: '틈입니다.', other: '방어하면 덜 받습니다.' },
+  clash: { charge: '큰 피해. 맞받아쳐 이기면 꺾고 칩니다.', wait: '틈입니다. 맞받아치면 그냥 한 대 칩니다.', other: '맞받아쳐 이기면 절반만 받고 방어를 무시해 칩니다.' },
+  dodge: { charge: '큰 피해. 피하면 맞지 않습니다.', wait: '틈입니다. 피할 것이 오지 않습니다.', other: '피하면 맞지 않고 다음 공격이 급소에 들어갑니다.' },
+  focus: { charge: '큰 피해. 모으는 동안은 그대로 맞습니다.', wait: '틈입니다. 모으기 좋습니다.', other: '모으는 동안은 그대로 맞습니다.' },
+};
+const stanceHint = (state, kind) => { const h = STANCE_HINTS[stanceOf(state).id] || STANCE_HINTS.hold; return h[kind] || h.other; };
+
 /** 싸우는 상대와 예고된 다음 행동 (E7). */
 export function enemyView(state) {
   const b = state.battle;
@@ -275,7 +283,7 @@ export function enemyView(state) {
   return {
     id: b.mon, elite: !!b.elite, name: m.name, level: m.level, hp: b.hp, maxHp: m.hp, turn: b.turn, element: m.element || '', boss: !!m.boss, stage: base.phases ? (b.phase || 0) + 1 : 0, stages: base.phases ? base.phases.length + 1 : 0,
     next: move ? { name: move.name, tell: move.tell, kind: move.kind } : null,
-    hint: !move ? '' : move.kind === 'charge' ? '큰 피해. 방어하면 막고 반격합니다.' : move.kind === 'wait' ? '틈입니다.' : '방어하면 절반만 받습니다.',
+    hint: !move ? '' : stanceHint(state, move.kind),
   };
 }
 
@@ -372,6 +380,7 @@ function advance(state, events, ticks, quiet = false) {
   }
 }
 
+const CHORE_LEVEL = { '시작 마을': 1, 나루: 6, 소리재: 12 };
 const HUNGRY_WORK = 30; // 굶은 날로 치려면 그날 굶은 채 한 일의 수
 
 function nextPhase(state, events) {
@@ -418,7 +427,7 @@ function afterCounters(state, events) {
 function foundReason(state, id) {
   if (id === 'endure') {
     const [actId, n] = Object.entries(state.counters.act).sort((a, b) => b[1] - a[1])[0];
-    const what = actId === 'strike' ? '허수아비를' : eulReul(ACTIONS[actId]?.label || actId);
+    const what = actId === 'strike' ? '허수아비를' : eulReul(ACTIONS[actId]?.label || SKILL_NAMES[actId] || (actId === 'enhance' ? '강화' : '같은 일'));
     return `${what} ${n}번 ${actId === 'strike' ? '쳤습니다' : '했습니다'}`;
   }
   return '';
@@ -451,6 +460,8 @@ export function dispatch(state, action, options = {}) {
   else if (t === 'repair') repair(state, events, action.slot ? { slot: action.slot } : { index: action.index });
   else if (t === 'enhance') { enhance(state, events, action.slot ? { slot: action.slot } : { index: action.index }); advance(state, events, 2); }
   else if (t === 'guild') {
+    if (state.battle) throw new Error('싸우는 중에는 할 수 없습니다');
+    if (state.dungeon) throw new Error('던전 안에서는 할 수 없습니다');
     if (action.op === 'join') joinGuild(state, events, action.id);
     else if (action.op === 'leave') leaveGuild(state, events);
     else if (action.op === 'donate') donate(state, events);
@@ -460,6 +471,7 @@ export function dispatch(state, action, options = {}) {
     if (!STANCES[action.id]) throw new Error('모르는 태세입니다');
     if (state.battle) throw new Error('싸우는 중에는 태세를 바꿀 수 없습니다');
     state.stance = action.id;
+    events.push({ type: 'stance' });
     pushLine(state, events, { k: 'me', text: `싸울 때의 태세를 '${STANCES[action.id].name}'로 잡았다.` });
   }
   else if (t === 'travel') travel(state, events, action.to);
@@ -849,7 +861,9 @@ function act(state, events, id, options) {
   if (def.skill) {
     const skill = state.skills[def.skill] || (state.skills[def.skill] = emptySkill());
     const endure = state.hidden.endure?.value || 0;
-    const result = useSkill(skill, def.difficulty, (repeated ? 1 + endure * 0.01 + (state.title === 'scarecrow' ? 0.02 : 0) : 1) * jobXp(state, def.skill, repeated));
+    // 곳마다 하는 일은 그곳의 수준이 어려움이다(먼 마을일수록 많이 오른다)
+    const difficulty = def.chore ? (CHORE_LEVEL[placeById(state.place).town] ?? 1) : def.difficulty;
+    const result = useSkill(skill, difficulty, (repeated ? 1 + endure * 0.01 + (state.title === 'scarecrow' ? 0.02 : 0) : 1) * jobXp(state, def.skill, repeated));
     if (result.leveled) {
       ding(state, events, {
         level: result.rankUp ? 2 : 1,

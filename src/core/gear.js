@@ -1,6 +1,6 @@
 // 장비의 이름, 수리, 강화, 옵션 (Z17~Z19). 템은 두드리고 고치고 키운 만큼 세진다.
 
-import { seedFrom } from './rng.js';
+import { roll01 } from './rng.js';
 import { pushLine, ding } from './log.js';
 import { itemDef } from '../data/items.js';
 import { countOf, takeById } from './inventory.js';
@@ -53,7 +53,7 @@ export function optionSum(item) {
 }
 
 export function maxDur(item) {
-  return item.max ?? itemDef(item.id).dur ?? 0;
+  return Math.max(item.max ?? itemDef(item.id).dur ?? 0, item.dur ?? 0);
 }
 
 /**
@@ -68,7 +68,7 @@ export function rollOptions(state, item, salt) {
   const pool = Object.keys(AFFIXES).filter((id) => AFFIXES[id].on === 'any' || AFFIXES[id].on === kindOf(def));
   item.opt = [];
   for (let i = 0; i < n && pool.length; i++) {
-    const id = pool.splice(seedFrom(`${state.seed}|opt|${salt}|${i}`) % pool.length, 1)[0];
+    const id = pool.splice(Math.floor(roll01(`${state.seed}|opt|${salt}|${i}`) * pool.length), 1)[0];
     const a = AFFIXES[id];
     const key = ['attack', 'defense', 'hp', 'mp', 'crit', 'dur'].find((k) => a[k]);
     const v = a[key][item.grade - 1];
@@ -139,7 +139,7 @@ export function enhance(state, events, loc) {
   const skill = state.skills.smithing || (state.skills.smithing = emptySkill());
   const up = useSkill(skill, 2 + v.plus * 2, 1);
   if (up.leveled) ding(state, events, { level: up.rankUp ? 2 : 1, title: `${SKILL_NAMES.smithing} 숙련도가 ${iGa(gradeLabel(up.grade))} 되었습니다` });
-  const roll = seedFrom(`${state.seed}|plus|${tries}`) / 4294967296;
+  const roll = roll01(`${state.seed}|plus|${tries}`);
   if (roll < v.chance) {
     item.plus = v.plus + 1;
     pushLine(state, events, { k: 'me', text: `쇠가 맑게 울렸다. ${gearName(item)}.` });

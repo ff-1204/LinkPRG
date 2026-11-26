@@ -1,7 +1,7 @@
 // 길드 (Z21). 가상 유저들의 길드에 들어가 한 일만큼 기여도를 쌓는다.
 // 기여도는 계급이 되고, 계급은 길드마다 다른 덕을 준다. 길드끼리는 날마다 순위를 다툰다.
 
-import { seedFrom } from './rng.js';
+import { roll01 } from './rng.js';
 import { pushLine, ding } from './log.js';
 import { iGa, eulReul } from './ko.js';
 
@@ -35,7 +35,7 @@ export function guildPerk(state, kind) {
 export function guildBoard(state) {
   return GUILD_ORDER.map((id) => {
     const g = GUILDS[id];
-    const wobble = seedFrom(`${state.seed}|guild|${id}|${state.day}`) % 80;
+    const wobble = Math.floor(roll01(`${state.seed}|guild|${id}|${state.day}`) * 80);
     return { id, name: g.name, score: g.base + g.grow * state.day + wobble + (state.guild?.id === id ? state.guild.contrib : 0), mine: state.guild?.id === id };
   }).sort((a, b) => b.score - a.score).map((x, i) => ({ ...x, place: i + 1 }));
 }
@@ -111,5 +111,9 @@ export function guildHook(state, events, action) {
     else if (e.type === 'enhance' && e.ok) contribute(state, events, e.plus, 'craft');
     else if (e.type === 'jobdone') contribute(state, events, 5, 'social');
   }
-  if (action.type === 'gift' || action.type === 'talk') contribute(state, events, 1, 'social');
+  if (action.type === 'gift' || action.type === 'talk') {
+    const g = state.flags.guildTalk && state.flags.guildTalk.day === state.day ? state.flags.guildTalk : (state.flags.guildTalk = { day: state.day, ids: [] });
+    const key = `${action.type}:${action.npc}`;
+    if (!g.ids.includes(key)) { g.ids.push(key); contribute(state, events, 1, 'social'); }
+  }
 }

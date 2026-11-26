@@ -8,6 +8,7 @@ import { auctionFields } from './auction.js';
 
 import { endingFields } from './ending.js';
 import { MAIN } from '../data/quests.js';
+import { ITEMS } from '../data/items.js';
 import { ADVANCED } from '../data/jobs.js';
 
 export { worldFields, auctionFields, endingFields };
@@ -123,6 +124,10 @@ function mend(state) {
   if (state.counters && !Number.isFinite(state.counters.tiredWork)) state.counters.tiredWork = 0;
   if (!['hold', 'clash', 'dodge', 'focus'].includes(state.stance)) state.stance = 'hold';
   if (state.guild === undefined) state.guild = null;
+  if (state.guild && (!['fang', 'anvil', 'lantern'].includes(state.guild.id) || !Number.isFinite(state.guild.contrib))) state.guild = null;
+  // 만들 때 내구도가 늘어난 옛 장비: 그 값이 최대치다
+  const gear = [...(state.bag || []), ...Object.values(state.equip || {})];
+  for (const it of gear) if (it && it.dur != null && it.max == null && ITEMS[it.id] && it.dur > (ITEMS[it.id].dur || 0)) it.max = it.dur;
   // 히든 직업으로 갈아탄 뒤에 남은 2차 전직
   if (state.job2 && ADVANCED[state.job2] && ADVANCED[state.job2].from !== state.job) state.job2 = null;
 }
