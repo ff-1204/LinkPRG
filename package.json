@@ -1,6 +1,6 @@
 {
   "name": "linkprg",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "description": "LinkPRG — 글과 대화방으로 하는 혼자용 RPG",
