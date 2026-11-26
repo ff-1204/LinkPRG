@@ -1,19 +1,20 @@
 // 던전 (T15~T19). 층과 방을 방 목록으로 옮겨 다닌다. 지나온 방만 지도에 그려진다.
 // 나가면 지도와 연 문·챙긴 보물은 남고, 괴물과 쉼터는 다시 찬다.
 
-import { next } from './rng.js?v=6b46da7';
-import { pushLine, ding } from './log.js?v=6b46da7';
-import { DUNGEONS, REST_HEAL, KEEPER } from '../data/dungeon.js?v=6b46da7';
-import { STAT_NAMES } from '../data/origins.js?v=6b46da7';
-import { itemDef } from '../data/items.js?v=6b46da7';
-import { monsterDef } from '../data/monsters.js?v=6b46da7';
-import { addItem, countOf, takeById } from './inventory.js?v=6b46da7';
-import { startBattle } from './battle.js?v=6b46da7';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=6b46da7';
-import { valueOf } from './derived.js?v=6b46da7';
-import { jobXp, adv } from './jobs.js?v=6b46da7';
-import { partyRest } from './party.js?v=6b46da7';
-import { iGa, eulReul, ro } from './ko.js?v=6b46da7';
+import { next } from './rng.js?v=b684693';
+import { pushLine, ding } from './log.js?v=b684693';
+import { DUNGEONS, REST_HEAL, KEEPER } from '../data/dungeon.js?v=b684693';
+import { STAT_NAMES } from '../data/origins.js?v=b684693';
+import { itemDef } from '../data/items.js?v=b684693';
+import { monsterDef } from '../data/monsters.js?v=b684693';
+import { addItem, countOf, takeById } from './inventory.js?v=b684693';
+import { startBattle } from './battle.js?v=b684693';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=b684693';
+import { valueOf } from './derived.js?v=b684693';
+import { jobXp, adv } from './jobs.js?v=b684693';
+import { partyRest } from './party.js?v=b684693';
+import { iGa, eulReul, ro } from './ko.js?v=b684693';
+import { hasTitle } from './titles.js?v=b684693';
 
 const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
 const defOf = (state) => DUNGEONS[state.dungeon.id];
@@ -215,7 +216,7 @@ export function dungeonChoiceView(state) {
 
 /** 문지기에게 말이 통할 확률: 매력과 떠돌이 악사의 말솜씨. 문지기의 고집은 14. */
 export function tellChance(state) {
-  return clamp(0.5 + (10 + (state.hidden.charm?.value || 0) * 2 - 14) * 0.05 + (state.flags.persuade10 ? 0.10 : 0) + (state.title === 'helper' ? 0.05 : 0), 0.05, 0.95);
+  return clamp(0.5 + (10 + (state.hidden.charm?.value || 0) * 2 - 14) * 0.05 + (state.flags.persuade10 ? 0.10 : 0) + (hasTitle(state, 'helper') ? 0.05 : 0), 0.05, 0.95);
 }
 
 function goBack(state, events) {

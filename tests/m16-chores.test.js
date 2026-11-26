@@ -15,8 +15,11 @@ const chores = Object.values(ACTIONS).filter((a) => a.chore);
 test('마을의 곳마다 손으로 거듭할 일이 하나씩 있다. 칸은 다섯을 넘지 않는다', () => {
   const none = [];
   for (const p of Object.values(PLACES)) {
-    const shown = p.actions.filter((id) => id !== 'talk'); // 말 걸기는 칸이 아니라 방 목록에 있다
-    assert.ok(shown.length <= 5, `${p.name}: 칸 ${shown.length}`);
+    // 말 걸기는 칸이 아니라 장소 판에 있다. 잠자기는 밤에만, 신전의 치료는 낮에만 보인다
+    for (const night of [false, true]) {
+      const shown = p.actions.filter((id) => id !== 'talk' && (id !== 'rest' || night) && (id !== 'heal' || !night));
+      assert.ok(shown.length <= 5, `${p.name}: ${night ? '밤' : '낮'} 칸 ${shown.length}`);
+    }
     if (p.wild) continue;
     const work = p.actions.filter((id) => ACTIONS[id] && !ACTIONS[id].open && !ACTIONS[id].rest && !ACTIONS[id].service);
     if (!work.length) none.push(p.name);

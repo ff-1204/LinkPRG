@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>지혜와 상태이상 내성 시안</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  :root { --cream: #FBF5E6; --paper: #FFFDF6; --sand: #F3E9D2; --line: #E6D9BD; --line2: #CDBE9E; --ink: #3A2A1E; --muted: #6B5443; --deep: #1E140D; --cinnamon: #8A4F2B; --mint: #BFE3D0; --mint-ink: #1F4A3A; --mint-line: #2F7A5E; --honey: #F2B63C; --serif: 'Gowun Batang', serif; --sans: 'Gowun Dodum', sans-serif; }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--cream); color: var(--ink); font: 16px/1.65 var(--sans); padding: 24px 16px 60px; word-break: keep-all; }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  h1 { font: 700 27px/1.3 var(--serif); margin-bottom: 6px; }
+  h2 { font: 700 20px/1.3 var(--serif); margin: 34px 0 8px; padding-top: 10px; border-top: 2px solid var(--deep); }
+  .note { color: var(--muted); max-width: 52rem; margin-bottom: 10px; }
+  table { border-collapse: collapse; width: 100%; background: var(--paper); font-size: .95rem; }
+  th, td { border-bottom: 1px dashed var(--line2); padding: 7px 9px; text-align: left; vertical-align: top; }
+  th { border-bottom: 2px solid var(--deep); }
+  td.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .new { background: rgba(191, 227, 208, .45); }
+  .row { display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start; }
+  .chat { width: min(420px, 100%); background: var(--paper); border: 2px solid var(--deep); padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .sys { align-self: flex-start; background: var(--sand); border-radius: 4px 14px 14px 14px; padding: 6px 12px; }
+  .mint { background: var(--mint); color: var(--mint-ink); border: 1px solid var(--mint-line); }
+  .warn { background: #FBE3C2; }
+  .room { align-self: center; color: var(--muted); font: .88rem var(--serif); text-align: center; }
+  .npc { align-self: flex-start; background: var(--paper); border: 1px solid var(--line); border-radius: 4px 14px 14px 14px; padding: 6px 12px; font-family: var(--serif); }
+  .pg { width: min(360px, 100%); background: var(--paper); border: 1.5px solid var(--cinnamon); border-radius: 10px; padding: 14px; font-family: var(--serif); display: flex; flex-direction: column; gap: 2px; }
+  .pg .h { font: 700 .85rem var(--sans); color: var(--muted); margin-top: 6px; }
+  .rowx { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px dashed var(--line2); padding: 5px 0; font-size: .95rem; }
+  .rowx.new { padding: 5px 8px; border: 1px solid var(--mint-line); border-radius: 6px; }
+  .opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+  .opt { background: var(--paper); border: 1px solid var(--line2); border-radius: 10px; padding: 12px 14px; }
+  .opt.rec { border: 2px solid var(--cinnamon); }
+  .opt b.t { font: 700 16px var(--serif); display: block; margin-bottom: 4px; }
+  .tag { display: inline-block; font-size: 12px; padding: 0 8px; border-radius: 999px; background: var(--cinnamon); color: #fff; margin-left: 6px; vertical-align: 2px; }
+  .lab { display: flex; gap: 14px; align-items: end; margin: 10px 0; flex-wrap: wrap; }
+  .lab label { display: flex; flex-direction: column; font-size: .85rem; color: var(--muted); gap: 3px; }
+  .lab input { width: 90px; min-height: 36px; border: 1px solid var(--line2); border-radius: 6px; padding: 0 8px; font: inherit; background: var(--paper); }
+  ol { padding-left: 1.3rem; }
+</style></head>
+<body><div class="wrap">
+<h1>지혜와 상태이상 내성 시안</h1>
+<p class="note">지금 지혜는 마나와 스킬 위력에만 쓰입니다. 그래서 몸으로 싸우는 사람에게는 쓸모가 적습니다. 지혜가 높으면 출혈·중독·화상·기절에 덜 걸리게 해서, 어떤 길로 가든 쓸모가 있게 합니다.</p>
+
+<h2>1. 스탯이 하는 일</h2>
+<table>
+  <thead><tr><th>스탯</th><th>지금</th><th>바꾸면</th></tr></thead>
+  <tbody>
+    <tr><td>힘</td><td>공격력, 무게</td><td>그대로</td></tr>
+    <tr><td>민첩</td><td>선공, 회피, 기척, 자연 회복</td><td>그대로</td></tr>
+    <tr><td>체력</td><td>생명력, 방어력</td><td>그대로</td></tr>
+    <tr class="new"><td>지혜</td><td>마나, 스킬 위력</td><td><b>마나, 스킬 위력, 상태이상 내성</b></td></tr>
+  </tbody>
+</table>
+<p class="note" style="margin-top:6px">만들기 화면의 스탯 설명도 "지혜: 마나, 스킬 위력, 상태이상 내성"으로 바뀝니다.</p>
+
+<h2>2. 얼마나 막나</h2>
+<div class="opts">
+  <div class="opt rec"><b class="t">가. 덜 걸리고, 걸려도 짧게<span class="tag">추천</span></b>지혜 1마다 2%씩 덜 걸린다(많아야 60%). 지혜 20부터는 걸려도 1턴 짧다. 다만 1턴짜리(기절)는 줄지 않는다.</div>
+  <div class="opt"><b class="t">나. 덜 걸리기만</b>지혜 1마다 2%씩 덜 걸린다(많아야 60%). 걸리면 지금처럼 간다.</div>
+  <div class="opt"><b class="t">다. 걸려도 짧게만</b>걸리는 확률은 그대로. 지혜 10마다 1턴 짧다(1턴은 남는다).</div>
+</div>
+<p class="note" style="margin-top:8px">공포는 지금처럼 히든 스탯 담력이 맡습니다. 지혜는 몸에 드는 것(출혈·중독·화상)과 머리가 멍해지는 것(기절)을 막습니다.</p>
+
+<h2>3. 셈해 보기 (가)</h2>
+<div class="lab"><label>지혜<input type="number" id="wis" value="10" min="0"></label></div>
+<table>
+  <thead><tr><th>적의 공격</th><th>상태이상</th><th class="n">지금</th><th class="n">바꾸면</th></tr></thead>
+  <tbody id="tb"></tbody>
+</table>
+
+<h2>4. 화면</h2>
+<div class="row">
+  <div class="chat">
+    <div class="room">(막았을 때)</div>
+    <div class="sys">박쥐가 귀를 찢는 소리를 냈다.</div>
+    <div class="sys mint">정신을 붙들었다. 기절하지 않았다.</div>
+    <div class="room">(걸렸지만 짧을 때, 지혜 20 이상)</div>
+    <div class="sys warn">상태이상 '중독'. 4턴 동안 매 턴 2 피해를 입습니다. (지혜로 1턴 짧게)</div>
+  </div>
+  <div class="pg">
+    <span class="h">몸 상태</span>
+    <div class="rowx"><span>생명력</span><b>105 / 105</b></div>
+    <div class="rowx"><span>자연 회복</span><span>한 때에 약 15%</span></div>
+    <div class="rowx new"><span>상태이상 내성</span><span>20% 덜 걸림 (지혜 10)</span></div>
+  </div>
+</div>
+<p class="note" style="margin-top:8px">막았을 때는 매번 한 줄이 뜹니다. 너무 자주 보이면 줄일 수 있습니다.</p>
+
+<h2>5. 정해 주실 것</h2>
+<ol>
+  <li>방식: 가(덜 걸리고 짧게) / 나(덜 걸리기만) / 다(짧게만)</li>
+  <li>숫자: 지혜 1마다 2%, 많아야 60% 그대로 / 다르게</li>
+  <li>막았을 때 대화방에 한 줄 띄우기: 띄운다 / 안 띄운다</li>
+</ol>
+</div>
+<script>
+const MOVES = [['숲 늑대 물어뜯기', '출혈', 3, .4], ['동굴 박쥐 비명', '기절', 1, .35], ['돌거미 독니', '중독', 5, .5], ['갈대 뱀 물기', '중독', 4, .5], ['성난 멧돼지 들이받기', '출혈', 3, .35], ['바위 매 발톱', '출혈', 3, .4]];
+function draw() {
+  const w = Math.max(0, +document.getElementById('wis').value || 0);
+  const cut = Math.min(.6, w * .02);
+  document.getElementById('tb').innerHTML = MOVES.map(([n, st, t, c]) => {
+    const p = c * (1 - cut); const t2 = w >= 20 && t > 1 ? t - 1 : t;
+    return `<tr><td>${n}</td><td>${st}</td><td class="n">${Math.round(c * 100)}%, ${t}턴</td><td class="n"><b>${Math.round(p * 100)}%</b>, ${t2}턴</td></tr>`;
+  }).join('');
+}
+document.getElementById('wis').oninput = draw; draw();
+</script>
+</body></html>

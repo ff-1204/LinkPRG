@@ -3,7 +3,7 @@
 export const START_POINTS = 5;
 export const BASE_STATS = { str: 10, agi: 9, con: 10, wis: 7 };
 export const STAT_NAMES = { str: '힘', agi: '민첩', con: '체력', wis: '지혜' };
-export const STAT_USES = { str: '공격력, 무게', agi: '선공, 회피, 기척', con: '생명력, 방어력', wis: '마나, 스킬 위력' };
+export const STAT_USES = { str: '공격력, 무게', agi: '선공, 회피, 기척', con: '생명력, 방어력', wis: '마나, 스킬 위력, 상태이상 내성' };
 
 /**
  * 뿌리 여섯 (Z25). 같은 뿌리의 출신은 사람들이 대하는 말과 퀘스트에서 열리는 대답, 일지의 첫 글을 함께 쓴다.

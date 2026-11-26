@@ -1,24 +1,24 @@
 // 전투 (E5~E9, R2-2). 한 턴에 행동 하나. 적의 다음 행동은 늘 미리 보인다.
 // 방어하면 피해가 절반이고, 돌진류는 막고 되받아친다.
 
-import { next, chance } from './rng.js?v=6b46da7';
-import { pushLine, ding } from './log.js?v=6b46da7';
-import { monsterDef, STATUS } from '../data/monsters.js?v=6b46da7';
-import { itemDef, ITEMS, gradeName } from '../data/items.js?v=6b46da7';
-import { roll01 } from './rng.js?v=6b46da7';
-import { guildPerk } from './guild.js?v=6b46da7';
-import { rollOptions, gearName } from './gear.js?v=6b46da7';
-import { derived, skillBonus } from './derived.js?v=6b46da7';
-import { addItem, removeAt, usable, totalWeight, equip, slotFor, equipPower } from './inventory.js?v=6b46da7';
-import { grantXp } from './reward.js?v=6b46da7';
-import { useSkill, emptySkill, gradeLabel, SKILL_NAMES } from './skills.js?v=6b46da7';
-import { fall } from './fall.js?v=6b46da7';
-import { iGa, eulReul, ro } from './ko.js?v=6b46da7';
-import { branchOf } from './evolve.js?v=6b46da7';
-import { skillsNow, jobXp, adv } from './jobs.js?v=6b46da7';
-import { guardFor, hitCompanion, companionsAct, afterBattle, roleBonus, cross } from './party.js?v=6b46da7';
-import { jobDef } from '../data/jobs.js?v=6b46da7';
-import { BEATS, WEAK_MULT, RESIST_MULT } from '../data/dungeon.js?v=6b46da7';
+import { next, chance } from './rng.js?v=b684693';
+import { pushLine, ding } from './log.js?v=b684693';
+import { monsterDef, STATUS } from '../data/monsters.js?v=b684693';
+import { itemDef, ITEMS, gradeName } from '../data/items.js?v=b684693';
+import { roll01 } from './rng.js?v=b684693';
+import { guildPerk } from './guild.js?v=b684693';
+import { rollOptions, gearName } from './gear.js?v=b684693';
+import { derived, skillBonus } from './derived.js?v=b684693';
+import { addItem, removeAt, usable, totalWeight, equip, slotFor, equipPower } from './inventory.js?v=b684693';
+import { grantXp } from './reward.js?v=b684693';
+import { useSkill, emptySkill, gradeLabel, SKILL_NAMES } from './skills.js?v=b684693';
+import { fall } from './fall.js?v=b684693';
+import { iGa, eulReul, ro } from './ko.js?v=b684693';
+import { branchOf } from './evolve.js?v=b684693';
+import { skillsNow, jobXp, adv } from './jobs.js?v=b684693';
+import { guardFor, hitCompanion, companionsAct, afterBattle, roleBonus, cross } from './party.js?v=b684693';
+import { jobDef } from '../data/jobs.js?v=b684693';
+import { BEATS, WEAK_MULT, RESIST_MULT } from '../data/dungeon.js?v=b684693';
 
 /** 지금 국면이 반영된 괴물 (T22). */
 export const ELITE = { hp: 2.5, attack: 1.3, defense: 2, level: 2, xp: 3, per: 0.005, cap: 0.25 };
@@ -195,16 +195,40 @@ function hurt(state, events, dmg) {
   if (usable(armor)) armor.dur -= 1;
 }
 
+// ── 지혜와 상태이상 내성 (Z52) ──
+export const WIS_RESIST = ['bleed', 'poison', 'burn', 'stun']; // 공포는 담력이 맡는다
+export const RESIST_PER = 0.02, RESIST_MAX = 0.6, SHORTEN_AT = 20;
+/** 지혜가 덜 걸리게 하는 몫: 지혜 1마다 2%, 많아야 60%. */
+export function wisResist(state) {
+  return Math.min(RESIST_MAX, (state.stats.wis || 0) * RESIST_PER);
+}
+const RESISTED = {
+  bleed: '상처가 깊지 않았다. 피가 곧 멎었다.',
+  poison: '독이 퍼지기 전에 숨을 골랐다. 중독되지 않았다.',
+  burn: '불길을 털어 냈다. 화상을 입지 않았다.',
+  stun: '정신을 붙들었다. 기절하지 않았다.',
+};
+
 function applyStatus(state, events, st) {
   if (!st) return;
   // 담력: 공포에 덜 걸린다
   const nerve = st.id === 'fear' ? (state.hidden.nerve?.value || 0) * 0.05 : 0;
-  if (!chance(state, Math.max(0, st.chance - nerve))) return;
+  const base = Math.max(0, st.chance - nerve);
+  const wis = WIS_RESIST.includes(st.id);
+  const p = wis ? base * (1 - wisResist(state)) : base;
+  const r = next(state); // 굴림은 한 번 (지혜가 있어도 없어도 같은 수의 난수를 쓴다)
+  if (r >= p) {
+    if (wis && r < base) pushLine(state, events, { k: 'sys', tone: 'mint', text: RESISTED[st.id] });
+    return;
+  }
+  // 지혜 20부터는 걸려도 1턴 짧다. 1턴짜리는 그대로
+  const short = wis && (state.stats.wis || 0) >= SHORTEN_AT && st.turns > 1;
+  const turns = short ? st.turns - 1 : st.turns;
   const had = state.status.find((s) => s.id === st.id);
-  if (had) had.turns = Math.max(had.turns, st.turns);
-  else state.status.push({ id: st.id, turns: st.turns, fresh: true });
+  if (had) had.turns = Math.max(had.turns, turns);
+  else state.status.push({ id: st.id, turns, fresh: true });
   const def = STATUS[st.id];
-  pushLine(state, events, { k: 'sys', text: `상태이상 '${def.name}'. ${st.turns}턴 동안 ${def.say}.`, tone: 'warn' });
+  pushLine(state, events, { k: 'sys', text: `상태이상 '${def.name}'. ${turns}턴 동안 ${def.say}.${short ? ' (지혜로 1턴 짧게)' : ''}`, tone: 'warn' });
 }
 
 /** 전투 태세. stat: 기대는 스탯, skill: 그렇게 싸울수록 오르는 숙련도. */

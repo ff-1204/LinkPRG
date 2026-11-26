@@ -1,16 +1,17 @@
 // 상점과 보관함 (E24, E25, E28, H1-5, H1-6, R2-4).
 // 돈은 은화 한 가지. 팔 때는 값의 40%. 등급이 높으면 값도 높다.
 
-import { pushLine } from './log.js?v=6b46da7';
-import { itemDef, GRADE_MULT, gradeName } from '../data/items.js?v=6b46da7';
-import { addItem, removeAt, itemWeight } from './inventory.js?v=6b46da7';
-import { SHOPS, DAILY_SWING } from '../data/shops.js?v=6b46da7';
-import { seedFrom } from './rng.js?v=6b46da7';
-import { discountOf as socialDiscount } from './social.js?v=6b46da7';
-import { placeById } from '../data/places.js?v=6b46da7';
-import { guildPerk } from './guild.js?v=6b46da7';
-import { gearName } from './gear.js?v=6b46da7';
-import { eulReul, iGa } from './ko.js?v=6b46da7';
+import { pushLine } from './log.js?v=b684693';
+import { itemDef, GRADE_MULT, gradeName } from '../data/items.js?v=b684693';
+import { addItem, removeAt, itemWeight } from './inventory.js?v=b684693';
+import { SHOPS, DAILY_SWING } from '../data/shops.js?v=b684693';
+import { seedFrom } from './rng.js?v=b684693';
+import { discountOf as socialDiscount } from './social.js?v=b684693';
+import { placeById } from '../data/places.js?v=b684693';
+import { guildPerk } from './guild.js?v=b684693';
+import { gearName } from './gear.js?v=b684693';
+import { eulReul, iGa } from './ko.js?v=b684693';
+import { hasTitle } from './titles.js?v=b684693';
 
 export const SELL_RATE = 0.4;
 export const STORE_CAP = 200;
@@ -48,7 +49,7 @@ export function discountOf(state) {
 export function sellPrice(item, state = null) {
   if (itemDef(item.id).kind === 'quest' || itemDef(item.id).nosell) return 0; // 거저 받은 것은 팔 수 없다
   // '이름을 새긴 이'는 제 손으로 만든 것을 더 받고 판다
-  const mine = state && state.title === 'maker' && item.maker === state.name ? 1.1 : 1;
+  const mine = state && hasTitle(state, 'maker') && item.maker === state.name ? 1.1 : 1;
   const hide = state && state.flags.hideSeller && /hide/.test(item.id) ? 1.3 : 1; // 무두장이는 가죽 값을 더 받는다
   return Math.max(1, Math.floor(worth(item) * SELL_RATE * mine * hide));
 }

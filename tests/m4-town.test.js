@@ -482,7 +482,7 @@ test('칭호: 하나만 달고 마을에서만 바꾼다. 못 얻은 것은 ???�
   const before = buyPrice(s, 'redpotion').now;
   dispatch(s, { type: 'title', id: 'regular' });
   assert.equal(s.title, 'regular');
-  assert.ok(buyPrice(s, 'redpotion').now < before, '달면 값이 싸진다');
+  assert.equal(buyPrice(s, 'redpotion').now, before, '효과는 얻을 때부터 붙어 있다. 다는 것은 보이는 것뿐 (Z51)');
   s.place = 'forest';
   assert.throws(() => dispatch(s, { type: 'title', id: null }), /마을에서만/);
   s.place = 'store';

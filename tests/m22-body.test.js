@@ -201,3 +201,60 @@ test('자연 회복: 싸우지 않는 동안 민첩이 높을수록 생명력이
   s.full = 50; s.battle = { mon: 'rat' };
   assert.equal(regenRate(s), 0, '싸우는 중에는 멈춘다');
 });
+
+test('신전의 치료: 하루 한 번 공짜로 생명력이 다 차고 상태이상이 풀린다. 낮에만 (Z50)', async () => {
+  const { slotsNow } = await import('../src/core/game.js');
+  const { derived } = await import('../src/core/derived.js');
+  const s = make('heal'); s.place = 'temple'; s.phase = 0; s.silver = 7;
+  s.hp = 3; s.status = [{ id: 'bleed', turns: 3 }];
+  const slot = () => slotsNow(s).find((x) => x.action?.id === 'heal');
+  assert.ok(slot() && !slot().disabled);
+  dispatch(s, { type: 'act', id: 'heal' });
+  assert.equal(s.hp, derived(s).find((d) => d.id === 'maxHp').value);
+  assert.equal(s.status.length, 0);
+  assert.equal(s.silver, 7, '공짜');
+  assert.equal(slot().disabled, true, '오늘은 이미 받았다');
+  assert.throws(() => dispatch(s, { type: 'act', id: 'heal' }), /이미/);
+  s.day += 1; s.phase = 2;
+  assert.equal(slot(), undefined, '밤에는 치료 칸 대신 잠자기');
+  s.phase = 0; s.place = 'shrine';
+  assert.ok(slot() && !slot().disabled, '다음 날, 나루 사당에서도');
+});
+
+test('칭호의 효과는 얻은 것 모두 늘 붙는다. 달지 않아도 (Z51)', async () => {
+  const { grantTitle } = await import('../src/core/social.js');
+  const { buyPrice } = await import('../src/core/trade.js');
+  const s = make('titles'); s.place = 'store';
+  const p0 = buyPrice(s, 'redpotion').now;
+  grantTitle(s, [], 'regular', 'x');
+  assert.equal(s.title, null, '달지 않았다');
+  assert.ok(buyPrice(s, 'redpotion').now < p0);
+});
+
+test('지혜가 높으면 출혈·중독·화상·기절에 덜 걸리고, 지혜 20부터는 걸려도 1턴 짧다. 공포는 그대로 (Z52)', async () => {
+  const { wisResist } = await import('../src/core/battle.js');
+  const s = make('wis');
+  s.stats.wis = 0; assert.equal(wisResist(s), 0);
+  s.stats.wis = 10; assert.ok(Math.abs(wisResist(s) - 0.2) < 1e-9);
+  s.stats.wis = 99; assert.equal(wisResist(s), 0.6, '많아야 60%');
+  // 돌거미의 독니(중독 50%, 5턴)를 여러 번 맞는다: 지혜가 높을수록 덜 걸리고, 걸려도 4턴
+  const hits = (wis) => {
+    let got = 0, turns = new Set(), resisted = 0;
+    for (let k = 0; k < 120; k++) {
+      const t = make('wis' + k); t.stats.wis = wis; t.stats.con = 60; t.place = 'forest';
+      t.battle = { mon: 'spider', hp: 9999, turn: 1, intent: 'fang', stun: 0, weak: null, burn: 0, ward: null, streak: 0, phase: 0 };
+      try { dispatch(t, { type: 'battle', choice: 'attack' }); } catch { continue; }
+      const p = t.status.find((x) => x.id === 'poison');
+      if (p) { got++; turns.add(p.turns); }
+      if (t.log.some((l) => l.text.includes('중독되지 않았다'))) resisted++;
+    }
+    return { got, turns, resisted };
+  };
+  const low = hits(0), high = hits(25);
+  assert.ok(high.got < low.got, `지혜 25 ${high.got} < 지혜 0 ${low.got}`);
+  assert.ok(high.resisted > 0, '막으면 한 줄이 뜬다');
+  assert.equal(low.resisted, 0);
+  // 턴이 끝날 때 한 번 줄어 있다: 5턴이면 4, 짧아지면 3
+  assert.ok([...low.turns].includes(4));
+  for (const n of high.turns) assert.ok(n <= 3, '지혜 20부터 1턴 짧게');
+});

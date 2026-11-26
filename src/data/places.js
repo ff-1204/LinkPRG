@@ -32,7 +32,7 @@ export const PLACES = {
     strip: { day: 'strip-temple-day', night: 'strip-temple-night' },
     stripAlt: '신전. 돌기둥과 높은 창, 작은 종탑',
     users: [3, 4, 1],
-    actions: ['pray', 'blessing', 'bread', 'talk', 'rest'],
+    actions: ['pray', 'blessing', 'heal', 'bread', 'talk', 'rest'],
   },
   forge: {
     id: 'forge', name: '대장간', town: '시작 마을', danger: '안전',
@@ -128,7 +128,7 @@ export const PLACES = {
     id: 'shrine', name: '작은 사당', town: '나루', danger: '안전',
     room: '강을 보고 선 돌 사당. 초 몇 자루가 바람에 눕는다. 종은 없고, 종 걸던 고리만 있다.',
     strip: { day: 'strip-temple-day', night: 'strip-temple-night' }, stripAlt: '작은 사당. 돌기둥과 작은 탑',
-    users: [2, 3, 1], actions: ['pray', 'blessing', 'offer', 'talk', 'rest'],
+    users: [2, 3, 1], actions: ['pray', 'blessing', 'heal', 'offer', 'talk', 'rest'],
   },
   underbridge: {
     id: 'underbridge', name: '다리 밑', town: '나루', danger: '안전', nightOnly: true,
@@ -165,7 +165,7 @@ export const PLACES = {
     id: 'grandtemple', name: '큰 신전', town: '소리재', part: '윗동네', danger: '안전',
     room: '기둥이 숲 같다. 여기서는 종소리를 신의 목소리라 가르친다. 하지만 이 신전에도 종은 없다.',
     strip: { day: 'strip-temple-day', night: 'strip-temple-night' }, stripAlt: '큰 신전. 돌기둥과 높은 창, 작은 탑',
-    users: [12, 16, 5], actions: ['pray', 'blessing', 'bread', 'offer', 'talk', 'rest'],
+    users: [12, 16, 5], actions: ['pray', 'blessing', 'heal', 'bread', 'offer', 'talk', 'rest'],
   },
   belltower: {
     id: 'belltower', name: '종루', town: '소리재', part: '윗동네', danger: '안전',
@@ -235,6 +235,7 @@ export const ACTIONS = {
   spar: { id: 'spar', label: '대련', skill: 'guard', ticks: 1, chore: true, teach: true },
   stairs: { id: 'stairs', label: '계단 오르기', skill: 'stamina', ticks: 1, chore: true },
   bread: { id: 'bread', label: '빵 받기', ticks: 1, special: 'bread', service: true },
+  heal: { id: 'heal', label: '치료받기', ticks: 2, special: 'heal', service: true }, // 신전·사당: 하루 한 번 공짜로 상처를 돌본다. 낮에만 (Z50)
   blessing: { id: 'blessing', label: '축복받기', ticks: 0, special: 'blessing', service: true }, // 신전·사당: 그림자가 있으면 걷고, 없으면 가호를 받는다 (Z43)
   room: { id: 'room', label: '방 빌리기', ticks: 0, special: 'room', service: true }, // 주점·주막·여인숙: 값을 내고 제대로 잔다. 낮에도 된다 // 신전에서 하루에 하나
   search: { id: 'search', label: '기록을 찾는다', ticks: 5, special: 'search' },

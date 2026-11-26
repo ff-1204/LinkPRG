@@ -79,10 +79,12 @@ test('직업 스킬은 레벨 5, 10, 15, 20에 하나씩 열리고, 단축 칸�
   assert.throws(() => dispatch(s, { type: 'battle', choice: 'skill', index: 'ember' }), /쓸 수 없는 스킬/);
   lv(s, 10);
   assert.deepEqual(skillsNow(s).map((x) => x.open), [true, true, false, false]);
+  // 스킬이 둘 이상이면 싸우는 중에 고른다 (사용자 요청)
+  assert.equal(slotsNow(s)[1].label, '스킬');
+  assert.equal(slotsNow(s)[1].open, 'skillpick');
   dispatch(s, { type: 'quick', id: 'cleave' });
-  assert.equal(slotsNow(s)[1].label, '내려찍기 (마나 6)');
   s.mp = 2;
-  assert.ok(slotsNow(s)[1].disabled);
+  assert.ok(slotsNow(s)[1].disabled, '어느 스킬도 쓸 마나가 없으면 꺼진다');
   assert.throws(() => dispatch(s, { type: 'battle', choice: 'skill', index: 'cleave' }), /마나가 모자랍니다/);
   for (const id of JOB_ORDER) { assert.equal(JOBS[id].skills.length, SKILL_LEVELS.length); assert.equal(ITEMS[JOBS[id].gear].job, id); for (const sk of JOBS[id].skills) assert.ok(sk.name && sk.text && sk.say && sk.mp > 0); }
 });

@@ -86,11 +86,10 @@ test('덕수 4·5·6: 생선을 선물해 낯익은 사이가 되고, 의뢰를 
   assert.equal(countOf(s, 'oldrod'), 1);
   travel(s, 'plaza');
   go(s, 'store');
+  const p0 = buyPrice(s, 'redpotion').now;
   dispatch(s, { type: 'quest', op: 'choose', id: 'rod', choice: 'return' });
   assert.equal(titleView(s).find((t) => t.got).name, '마을의 단골');
-  const p0 = buyPrice(s, 'redpotion').now;
-  dispatch(s, { type: 'title', id: 'regular' });
-  assert.ok(buyPrice(s, 'redpotion').now < p0);
+  assert.ok(buyPrice(s, 'redpotion').now < p0, '칭호를 얻으면 달지 않아도 값이 싸진다 (Z51)');
 });
 
 test('서진 5·6: 300번 친 뒤 교관에게 말을 걸자 히든 퀘스트가 뜨고, 숲에서 멧돼지를 잡는다', () => {
@@ -142,16 +141,18 @@ test('하람 6·8: 폐허 입구에서 갇힌 이를 풀어 주자 명성이 오
   dispatch(s, { type: 'greet', npc: 'trapped' });
   dispatch(s, { type: 'quest', op: 'accept', id: 'trapped' });
   const fame = fameOf(s);
+  travel(s, 'plaza');
+  const p0 = checkChance(s, 'persuade', 'keeper');
+  travel(s, 'ruins');
   const view = subView(s, 'trapped');
   assert.equal(view.step.choices.length, 4);
   dispatch(s, { type: 'quest', op: 'choose', id: 'trapped', choice: 'lever' });
   assert.equal(fameOf(s), fame + 10);
   assert.ok(s.titles.some((t) => t.id === 'helper'));
-  // 8단계: 마을로 돌아와 칭호를 단다. 설득이 쉬워진다
+  // 8단계: 마을로 돌아오면 설득이 쉬워져 있다. 칭호의 효과는 얻은 것 모두 늘 붙는다 (Z51)
   travel(s, 'plaza');
-  const p0 = checkChance(s, 'persuade', 'keeper');
-  dispatch(s, { type: 'title', id: 'helper' });
   assert.ok(checkChance(s, 'persuade', 'keeper') > p0);
+  dispatch(s, { type: 'title', id: 'helper' });
   go(s, 'tavern');
   assert.ok(helloOf(s, 'keeper'));
 });

@@ -1,16 +1,17 @@
 // 사람들과의 사이, 명성, 칭호, 대화 판정 (E25~E28, G3-1, T10~T14).
 
-import { next, pick, roll01 } from './rng.js?v=6b46da7';
-import { pushLine, ding } from './log.js?v=6b46da7';
-import { PEOPLE, PEOPLE_ORDER, BONDS, GIFT, TALK_POINT, FAME, TITLES, personById, REGULAR, CALLS } from '../data/people.js?v=6b46da7';
-import { itemDef } from '../data/items.js?v=6b46da7';
-import { removeAt } from './inventory.js?v=6b46da7';
-import { placeById, ACTIONS } from '../data/places.js?v=6b46da7';
-import { COMPANIONS, ROLE_BONUS } from '../data/companions.js?v=6b46da7';
-import { iGa, eulReul, ro, eunNeun } from './ko.js?v=6b46da7';
-import { TALKS } from '../data/talks.js?v=6b46da7';
-import { rootOf } from '../data/origins.js?v=6b46da7';
-import { smithMemory } from './memories.js?v=6b46da7';
+import { next, pick, roll01 } from './rng.js?v=b684693';
+import { pushLine, ding } from './log.js?v=b684693';
+import { PEOPLE, PEOPLE_ORDER, BONDS, GIFT, TALK_POINT, FAME, TITLES, personById, REGULAR, CALLS } from '../data/people.js?v=b684693';
+import { itemDef } from '../data/items.js?v=b684693';
+import { removeAt } from './inventory.js?v=b684693';
+import { placeById, ACTIONS } from '../data/places.js?v=b684693';
+import { COMPANIONS, ROLE_BONUS } from '../data/companions.js?v=b684693';
+import { iGa, eulReul, ro, eunNeun } from './ko.js?v=b684693';
+import { TALKS } from '../data/talks.js?v=b684693';
+import { rootOf } from '../data/origins.js?v=b684693';
+import { smithMemory } from './memories.js?v=b684693';
+import { hasTitle } from './titles.js?v=b684693';
 
 const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
 
@@ -243,7 +244,7 @@ export function talk(state, events, id) {
   pushLine(state, events, { k: 'npc', who: p.name, text: callsInTalk(state, id) ? withName(state, id, line.text) : line.text, tone: line.kind === 'hint' || line.kind === 'close' ? 'mint' : undefined });
   if (r.talked !== state.day) {
     r.talked = state.day;
-    addPoints(state, events, id, TALK_POINT + (state.title === 'neighbor' ? 1 : 0));
+    addPoints(state, events, id, TALK_POINT + (hasTitle(state, 'neighbor') ? 1 : 0));
   }
   events.push({ type: 'social' });
 }
@@ -367,8 +368,7 @@ export function discountOf(state, keeperId = null) {
   if (keeperId && bondOf(state, keeperId) > 0) { const b = BONDS[bondOf(state, keeperId)]; rate += b.cut; why.push(b.name); }
   const fame = FAME[fameRank(state, townOf(state))];
   if (fame.cut) { rate += fame.cut; why.push(fame.name); }
-  const title = state.title && TITLES[state.title];
-  if (title?.cut && place.town === '시작 마을') { rate += title.cut; why.push(title.name); }
+  for (const t of state.titles || []) { const title = TITLES[t.id]; if (title?.cut && place.town === '시작 마을') { rate += title.cut; why.push(title.name); } }
   if (state.work === 'smith' && state.place === 'forge') { rate += 0.1; why.push('대장간 식구'); }
   return { rate: Math.min(0.5, rate), why: why.join(', ') };
 }
@@ -401,7 +401,7 @@ export function checkChance(state, kind, npcId) {
   let chance = 0.5 + (myScore(state, kind) - p.stats[c.theirs]) * 0.05 + teamBonus(state);
   if (kind === 'persuade') {
     if (state.flags.persuade10) chance += 0.10;
-    if (state.title === 'helper') chance += 0.05;
+    if (hasTitle(state, 'helper')) chance += 0.05;
   }
   if (kind === 'threat') chance += (state.hidden.nerve?.value || 0) * 0.01;
   if (kind === 'trick' && state.flags.trick10) chance += 0.10; // 약장수의 조수

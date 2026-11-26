@@ -173,7 +173,7 @@ test('태윤: 넘치는 재료를 맡기고, 열두 번씩 두드려 대장장�
   const index = s.bag.findIndex((x) => x.id === 'ironsword' && x.grade === 4);
   const sword = s.bag[index];
   assert.equal(sword.maker, '태윤');
-  assert.equal(sword.dur, Math.round(80 * 0.8), '날 벼리기는 내구도를 깎는다');
+  assert.equal(sword.dur, Math.round(Math.round(80 * 0.8) * 1.1), '날 벼리기는 내구도를 깎고, 전설을 두드린 자 칭호가 곧바로 10% 늘린다 (Z51)');
   const before = valueOf(s, 'attack');
   const pv = previewEquip(s, index);
   // 전설에는 옵션이 셋 붙는다. 날카로운 옵션이 있으면 그만큼 더 세다
