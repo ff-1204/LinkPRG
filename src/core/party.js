@@ -1,23 +1,30 @@
 // 동료와 파티 (T20, T21, T25~T28, H1-1~H1-4). 파티는 나와 동료 둘까지.
 
-import { chance } from './rng.js?v=6d96d3a';
-import { pushLine, ding } from './log.js?v=6d96d3a';
-import { COMPANIONS, PARTY_MAX, CROSS_LIMIT, MERC_FEE, MERC_ORDER, ROLE_BONUS, GUARD_RATE, ROLES, ROWS, PLANS } from '../data/companions.js?v=6d96d3a';
-import { SUBJECTS, ALIVE_COST } from '../data/works.js?v=6d96d3a';
-import { REGULAR, PEOPLE } from '../data/people.js?v=6d96d3a';
-import { bondOf } from './social.js?v=6d96d3a';
-import { placeById } from '../data/places.js?v=6d96d3a';
-import { workName } from './sculpt.js?v=6d96d3a';
-import { iGa, eulReul, waGwa } from './ko.js?v=6d96d3a';
+import { chance } from './rng.js?v=327d747';
+import { pushLine, ding } from './log.js?v=327d747';
+import { tentsHere } from '../data/anvil.js?v=327d747';
+import { COMPANIONS, CROSS_LIMIT, MERC_FEE, MERC_ORDER, ROLE_BONUS, GUARD_RATE, ROLES, ROWS, PLANS, BAND_MERCS, FULL_PARTY, fullRoles, mercBand, mercsAt, partyMax } from '../data/companions.js?v=327d747';
+import { drumBuff } from './buffs.js?v=327d747';
+import { PLACES } from '../data/places.js?v=327d747';
+import { SUBJECTS, ALIVE_COST } from '../data/works.js?v=327d747';
+import { REGULAR, PEOPLE } from '../data/people.js?v=327d747';
+import { bondOf } from './social.js?v=327d747';
+import { placeById } from '../data/places.js?v=327d747';
+import { workName } from './sculpt.js?v=327d747';
+import { iGa, eulReul, waGwa } from './ko.js?v=327d747';
 
 const def = (c) => COMPANIONS[c.id];
 
 function join(state, events, id, extra = {}) {
-  if (state.party.length >= PARTY_MAX) throw new Error(`동료는 ${PARTY_MAX}명까지입니다`);
+  if (state.party.length >= partyMax(state)) throw new Error(`동료는 ${partyMax(state)}명까지입니다`);
   if (state.party.some((c) => c.id === id)) throw new Error('이미 함께 있습니다');
   const d = COMPANIONS[id];
+  // 천막의 미루는 아래에서 올라온 그 미루다 (CM-C): 둘이 함께 설 수는 없고, 들인 적이 있는 사람으로 적힌다
+  if (state.party.some((c) => c.id !== id && COMPANIONS[c.id].name === d.name)) throw new Error('이미 함께 있습니다');
+  if (d.name === COMPANIONS.miru.name) state.flags.hadMiru = true;
   const c = { id, hp: d.hp, row: d.row, plan: PLANS[d.role][0].id, crossed: 0, bond: 0, down: false, day: state.day, ...extra };
   state.party.push(c);
+  if (d.way === 'person') state.flags[`had${d.id[0].toUpperCase()}${d.id.slice(1)}`] = true; // 들인 적이 있는 사람 (GD-G5: hadMiru)
   pushLine(state, events, { k: 'room', text: d.join });
   ding(state, events, { level: 3, kind: 'companion', title: `동료 ${iGa(`'${d.name}'`)} 생겼습니다`, big: d.name, body: `${d.what}. ${ROLES[d.role]}, ${ROWS[d.row]}. 바라는 것: ${d.wants}.` });
   state.journal.push({ day: state.day, phase: state.phase, place: state.place, text: `${iGa(d.name)} 따라나섰다. 이제 혼자 걷지 않는다.`, note: `${waGwa(d.name)} 함께한 날` });
@@ -37,14 +44,18 @@ export function askToJoin(state, events, personId) {
 const feeOf = (d) => d.fee || MERC_FEE;
 
 /** 용병을 고용한다. 삯은 용병마다 다르고 날이 바뀔 때 낸다 (T28). 시작 마을에서는 훈련소에서 구한다 (Z94). */
-export function hireMerc(state, events, id = 'gaon') {
+export function hireMerc(state, events, id) {
   if (!placeById(state.place).merc) throw new Error('용병은 훈련소나 모험가 회관에서 구합니다');
+  id = id || mercsAt(placeById(state.place), state)[0];
   const d = COMPANIONS[id];
   if (!d || d.way !== 'merc') throw new Error('모르는 용병입니다');
+  // 구간 용병은 제 거점에서만 구한다. 지금 용병 셋은 훈련소와 모험가 회관에서 (JD-C3)
+  if (!mercsAt(placeById(state.place), state).includes(id)) throw new Error(d.home ? `${d.name}${d.name.charCodeAt(d.name.length - 1) >= 0xac00 && (d.name.charCodeAt(d.name.length - 1) - 0xac00) % 28 ? '은' : '는'} ${PLACES[d.home].name}에서 구합니다` : '그 용병은 훈련소나 모험가 회관에서 구합니다');
   const fee = feeOf(d);
   if (state.silver < fee) throw new Error(`하루 삯 은화 ${fee}은 가지고 있어야 합니다`);
-  if (state.party.length >= PARTY_MAX) throw new Error(`동료는 ${PARTY_MAX}명까지입니다`);
+  if (state.party.length >= partyMax(state)) throw new Error(`동료는 ${partyMax(state)}명까지입니다`);
   if (state.party.some((c) => c.id === id)) throw new Error('이미 함께 있습니다');
+  if (state.caravan?.load?.escort?.id === id) throw new Error('짐의 호위로 나가 있습니다'); // 닿을 때까지 곁에 없다 (GD-D5)
   state.silver -= fee; // 첫날 삯은 먼저 낸다. 그날 헤어져도 돌려받지 못한다
   pushLine(state, events, { k: 'me', text: `첫날 삯 은화 ${fee}을 건넸다.` });
   return join(state, events, id, { paidDay: state.day });
@@ -52,13 +63,55 @@ export function hireMerc(state, events, id = 'gaon') {
 
 /** 용병 창이 그릴 것 (Z94). */
 export function mercView(state) {
-  return MERC_ORDER.map((id) => {
+  return mercsAt(placeById(state.place), state).map((id) => {
     const d = COMPANIONS[id];
     const fee = feeOf(d);
     const joined = state.party.some((c) => c.id === id);
-    const why = joined ? '함께 있다' : state.party.length >= PARTY_MAX ? `동료는 ${PARTY_MAX}명까지` : state.silver < fee ? '은화가 모자란다' : '';
-    return { id, name: d.name, what: d.what, role: ROLES[d.role], row: ROWS[d.row], hp: d.hp, attack: d.attack, element: d.element, fee, joined, can: !why, why };
+    const away = state.caravan?.load?.escort?.id === id; // 상단의 짐을 호위하러 나갔다 (GD-D5)
+    const why = joined ? '함께 있다' : away ? '호위로 나가 있다' : state.party.length >= partyMax(state) ? `동료는 ${partyMax(state)}명까지` : state.silver < fee ? '은화가 모자란다' : '';
+    return { id, name: d.title ? `${d.title} ${d.name}` : d.name, what: d.what, role: ROLES[d.role], row: ROWS[d.row], hp: d.hp, attack: d.attack, element: d.element, text: d.text || '', fee, joined, can: !why, why };
   });
+}
+
+/**
+ * 용병 창 아래의 일행 줄 (GD-C0): "일행 (2 / 2)"와, 자리가 찼는데 이곳의 북 치는 이가 곁에 없을 때의 한 줄.
+ * 북 치는 이가 없는 거점에서는 null이다(그 전의 용병 창은 그대로다).
+ */
+export function mercSeats(state) {
+  const g = Object.values(BAND_MERCS).find((x) => x.place === state.place);
+  if (!g?.bard) return null;
+  const max = partyMax(state), full = state.party.length >= max, has = state.party.some((c) => c.id === g.bard);
+  return { n: state.party.length, max, note: full && !has ? `${eulReul(COMPANIONS[g.bard].name)} 들이려면 한 사람을 보내야 한다.` : '' };
+}
+
+/** 용병 창의 머리말에 쓸, 이곳에서 용병을 소개하는 이. */
+export const mercHost = (state) => Object.values(BAND_MERCS).find((g) => g.place === state.place)?.by || (state.place === 'training' ? '교관이' : '접수대가');
+
+/**
+ * 용병 창 아래에 보일 다른 거점의 용병들 (JD-C1, JD-F5). 가 본 거점의 것만 나온다.
+ * 이곳보다 앞 구간의 용병은 여기까지 따라오지 않고, 뒤 구간의 용병은 그 거점에서 구한다.
+ */
+export function mercElsewhere(state) {
+  const here = placeById(state.place), hereBand = here.band || (here.town === '시작 마을' ? 1 : 2);
+  const seen = (id) => !!state.dex?.places?.[id];
+  const groups = [];
+  if (hereBand > 2 && (seen('training') || seen('guild'))) groups.push({ band: 2, names: MERC_ORDER.map((id) => COMPANIONS[id].name) });
+  for (const g of Object.values(BAND_MERCS)) if (g.place !== here.id && seen(g.place)) groups.push({ band: g.band, names: (g.tents ? tentsHere(state) : g.order).map((id) => COMPANIONS[id].name), at: PLACES[g.place].name }); // 천막에는 내가 푼 길의 사람만 (CM-C)
+  return groups.map((g) => ({ names: g.names.join(' · '), why: g.band < hereBand ? '여기까지 따라오지 않는다' : `${g.at}에서 구한다` }));
+}
+
+/**
+ * 용병은 제 구간까지만 따라온다 (JD-C3): 지금 용병 셋은 소리재까지, 구간 용병은 제 거점의 구간까지.
+ * 그보다 뒤 구간의 곳에 닿으면 그 자리에서 헤어진다. 벌은 없다.
+ */
+export function mercsStay(state, events, destBand) {
+  for (let i = state.party.length - 1; i >= 0; i--) {
+    const d = def(state.party[i]);
+    if (d.way !== 'merc' || mercBand(d) >= destBand) continue;
+    state.party.splice(i, 1);
+    pushLine(state, events, { k: 'room', text: `${iGa(d.name)} 걸음을 멈췄다. "내 일은 여기까지요. 저 너머는 저쪽 사람을 쓰시오." 삯을 셈하고 돌아섰다.` });
+    events.push({ type: 'party' });
+  }
 }
 
 /** 작품에 생명을 불어넣는다. 예술을 조금 잃는다 (N2-3, T28). */
@@ -69,7 +122,7 @@ export function giveLife(state, events, no) {
   const id = SUBJECTS[w.subject].alive;
   if (!id) throw new Error('이 작품은 깨어나지 않습니다');
   if (w.grade < 1) throw new Error('졸작은 깨어나지 않습니다');
-  if (state.party.length >= PARTY_MAX) throw new Error(`동료는 ${PARTY_MAX}명까지입니다`);
+  if (state.party.length >= partyMax(state)) throw new Error(`동료는 ${partyMax(state)}명까지입니다`);
   if (state.party.some((c) => c.id === id)) throw new Error('같은 것이 이미 곁에 있습니다');
   pushLine(state, events, { k: 'me', text: `${workName(w)}에 두 손을 얹고 숨을 불어넣었다. 손끝에서 무언가 빠져나간다.` });
   w.where = 'alive';
@@ -120,20 +173,28 @@ export function partyView(state) {
   return state.party.map((c) => {
     const d = def(c);
     return {
-      id: c.id, name: d.name, what: d.what, role: ROLES[d.role], row: c.row, rowName: ROWS[c.row], element: d.element,
-      hp: c.hp, maxHp: maxHpOf(c), down: c.down, attack: d.attack, heal: d.heal || 0,
+      id: c.id, name: d.title ? `${d.title} ${d.name}` : d.name, what: d.what, role: ROLES[d.role], row: c.row, rowName: ROWS[c.row], element: d.element,
+      hp: c.hp, maxHp: maxHpOf(c), down: c.down || c.out === state.day, attack: d.attack, heal: d.heal || 0,
       plan: c.plan, plans: PLANS[d.role], wants: d.wants, crossed: c.crossed, limit: CROSS_LIMIT,
       bond: c.bond, bondName: c.bond >= 40 ? '믿는 사이' : c.bond >= 15 ? '익숙한 사이' : '서먹한 사이',
-      canBack: d.role === 'healer' || !!d.back, fee: d.way === 'merc' ? feeOf(d) : 0,
+      canBack: d.role === 'healer' || !!d.back, fee: d.way === 'merc' ? feeOf(d) : 0, text: d.role === 'bard' ? d.text : '',
     };
   });
 }
 
-/** 막는 사람·때리는 사람·고치는 사람이 고루 있으면 모든 판정 +5% (T26). 나는 직업에 따라 센다. */
+/** 고루 갖춘 일행 (T26, BM-C2): 막는 사람·때리는 사람에 고치는 사람 또는 북돋는 이가 있으면 모든 판정 +5%. 나는 직업에 따라 센다. */
 export function roleBonus(state) {
-  const mine = state.job === 'priest' ? 'healer' : state.job === 'warrior' ? 'guard' : 'striker';
-  const roles = new Set([mine, ...state.party.map((c) => def(c).role)]);
-  return roles.size >= 3 ? ROLE_BONUS : 0;
+  return fullRoles(state.job, state.party) ? ROLE_BONUS : 0;
+}
+/** 일행 창의 "고루 갖춘 일행" 줄 (BM-C0). 고루 갖추지 못했으면 null: 줄이 생기지 않는다. */
+export function fullPartyView(state) {
+  const roles = fullRoles(state.job, state.party);
+  return roles ? { name: FULL_PARTY, roles: roles.map((r) => ROLES[r]).join(' · '), text: `모든 판정 +${Math.round(ROLE_BONUS * 100)}%` } : null;
+}
+/** 일행 창의 "하루에 나가는 삯" 줄 (BM-C0): 삯을 받는 이의 수와 그 합. 없으면 null. */
+export function partyFees(state) {
+  const paid = state.party.filter((c) => def(c).way === 'merc');
+  return paid.length ? { n: paid.length, silver: paid.reduce((a, c) => a + feeOf(def(c)), 0) } : null;
 }
 
 /** 바라는 것을 거슬렀다. 세 번이면 떠난다 (T27, H1-3). */
@@ -173,12 +234,14 @@ export function partyDay(state, events) {
 
 // ── 싸움 속의 동료 (T21) ──
 
-const active = (state) => state.party.filter((c) => !c.down);
+// out: 호위 싸움에서 쓰러진 날 (JD-C5). 그날은 싸움에도 호위에도 못 쓴다. 자고 나면 낫는다
+const active = (state) => state.party.filter((c) => !c.down && c.out !== state.day);
 
 /** 적이 나 대신 칠 동료(없으면 null): '나를 먼저'인 앞줄의 막는 사람이 대신 맞아 준다. */
 export function guardFor(state) {
   const g = active(state).find((c) => def(c).role === 'guard' && c.row === 'front' && planOf(state, c) === 'mefirst');
-  return g && chance(state, GUARD_RATE) ? g : null;
+  // 구간 용병의 막는 이는 맞을 것의 35%를 대신 맞는다 (LV-H3). 지금 동료는 그대로 70%
+  return g && chance(state, def(g).guardRate ?? GUARD_RATE) ? g : null;
 }
 
 /** '알아서'는 사이가 좋을수록 잘한다: 좋은 수를 둘 확률. 아니면 머뭇거린다. */
@@ -197,8 +260,10 @@ function autoPlan(state, c) {
   return role === 'healer' ? 'half' : role === 'guard' ? 'mefirst' : 'together';
 }
 
-/** 동료가 대신 맞았다. */
+/** 동료가 대신 맞았다. 북소리가 울리는 동안은 일행도 덜 다친다 (GD-C0: 일행 모두의 방어력). */
 export function hitCompanion(state, events, c, dmg) {
+  const drum = drumBuff(state);
+  if (drum) dmg = Math.max(1, Math.round(dmg / (1 + drum.rate)));
   c.hp = Math.max(0, c.hp - dmg);
   pushLine(state, events, { k: 'room', text: `${iGa(def(c).name)} 앞을 막아섰다. 대신 ${dmg} 피해.` });
   if (c.hp <= 0) { c.down = true; pushLine(state, events, { k: 'sys', text: `${iGa(def(c).name)} 쓰러졌다. 싸움이 끝나면 일어난다.`, tone: 'warn' }); }
@@ -214,6 +279,7 @@ export function companionsAct(state, events, strike, myMaxHp, foe) {
   for (const c of active(state)) {
     if (!state.battle) return;
     const d = def(c);
+    if (d.role === 'bard') continue; // 북 치는 이는 싸우지 않는다 (GD-C0)
     const plan = planOf(state, c);
     if (plan === 'idle') { pushLine(state, events, { k: 'room', text: `${iGa(d.name)} 머뭇거린다.` }); continue; }
     if (plan === 'hold') continue;
@@ -246,5 +312,5 @@ export function afterBattle(state, events, won) {
 
 /** 쉬면 동료도 낫는다. */
 export function partyRest(state) {
-  for (const c of state.party) { c.down = false; c.hp = maxHpOf(c); }
+  for (const c of state.party) { c.down = false; delete c.out; c.hp = maxHpOf(c); }
 }

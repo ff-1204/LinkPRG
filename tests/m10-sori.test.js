@@ -80,7 +80,7 @@ test('모험가 회관: C 난이도부터의 의뢰가 붙고 용병을 구한�
   // 고갯길
   for (const m of ['rockhawk', 'passbear']) assert.ok(MONSTERS[m].level >= 15);
   dispatch(s, { type: 'move', to: 'bigmarket' });
-  s.level = 18; // 다섯 레벨 넘게 높으면 달아나 버린다
+  s.level = 18;
   travel(s, 'pass');
   const seen = new Set();
   let n = 0;

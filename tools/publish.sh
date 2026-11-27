@@ -21,7 +21,14 @@ rm -rf .claude
 cp "$KEEP" README.md
 touch .nojekyll
 sed -i 's/"name": "ttiring"/"name": "linkprg"/; s/"description": "띠링 (가제) — /"description": "LinkPRG — /' package.json
-node --test tests/ 2>&1 | grep -E "^ℹ (pass|fail)"
+# 시험이 하나라도 깨지면 올리지 않는다. 깨져도 공개 사본에는 아직 커밋도 push도 하지 않았다
+TESTLOG="$PUB/../publish-test.log"
+if node --test tests/ > "$TESTLOG" 2>&1; then
+  grep -E "^ℹ (pass|fail)" "$TESTLOG" || true; rm -f "$TESTLOG"
+else
+  grep -E "^(✖|ℹ (pass|fail))" "$TESTLOG" || tail -20 "$TESTLOG"
+  echo "시험이 깨졌다. 올리지 않는다 (기록: $TESTLOG)"; exit 1
+fi
 # 파일 주소에 판 번호를 붙인다(F5만으로 새 파일을 받게). 시험은 붙이기 전에 돌렸다
 node "$SRC/tools/bust.mjs" "$PUB" "$SHA"
 git add -A

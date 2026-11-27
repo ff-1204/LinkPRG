@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head><body style="margin:0">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>잿골 화면 시안</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap">
+<style>
+/* 배치: 게임과 같은 크림 한 가지 모습(일부러 한 테마). 위에서 아래로 번호 붙은 장, 화면 그림은 휴대폰 틀 안에 */
+:root { --cream: #FBF5E6; --paper: #FFFDF6; --sand: #F3E9D2; --line: #E6D9BD; --line2: #CDBE9E; --ink: #3A2A1E; --muted: #6B5443; --deep: #1E140D; --cinnamon: #8A4F2B; --mint: #BFE3D0; --mint-ink: #1F4A3A; --mint-line: #2F7A5E; --honey: #F2B63C; --honey-soft: #FBE7B4; --frost: #DCE9EE; --frost-ink: #23414C; --serif: 'Gowun Batang', 'Noto Serif KR', serif; --sans: 'Gowun Dodum', 'Noto Sans KR', system-ui, sans-serif; }
+* { box-sizing: border-box; }
+body { background: var(--cream); color: var(--ink); font: 16px/1.65 var(--sans); padding-block: 24px 60px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.wrap { max-width: 940px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
+h1 { font: 700 27px/1.3 var(--serif); margin: 0; }
+h2 { font: 700 20px/1.3 var(--serif); margin: 28px 0 2px; padding-top: 10px; border-top: 2px solid var(--deep); }
+h3 { font: 700 16px/1.4 var(--serif); margin: 10px 0 0; }
+p { margin: 0; }
+.note { color: var(--muted); max-width: 54rem; }
+.id { display: inline-block; font: 700 .76rem/1 var(--sans); color: var(--cinnamon); border: 1px solid var(--cinnamon); border-radius: 4px; padding: 3px 6px; margin-right: 6px; vertical-align: 2px; }
+.row { display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start; }
+.opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+.opt { background: var(--paper); border: 1px solid var(--line2); border-radius: 10px; padding: 12px 14px; min-width: 0; }
+.opt.rec { border: 2px solid var(--cinnamon); }
+.opt b.t { font: 700 16px var(--serif); display: block; margin-bottom: 4px; }
+.tag { display: inline-block; font-size: 12px; padding: 0 8px; border-radius: 999px; background: var(--cinnamon); color: #fff; margin-left: 6px; vertical-align: 2px; }
+.new { background: var(--honey-soft); border-radius: 3px; padding: 0 5px; font-size: .78rem; white-space: nowrap; }
+/* 휴대폰 틀 */
+.phone { width: min(370px, 100%); background: var(--paper); border: 2px solid var(--deep); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
+.top { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 12px 4px; background: var(--cream); font-family: var(--serif); }
+.top b { font-size: 1.02rem; } .top span { font-size: .8rem; color: var(--muted); }
+.stats { display: grid; gap: 6px; padding: 4px 12px 8px; border-bottom: 1px solid var(--line); background: var(--cream); }
+.stats.c4 { grid-template-columns: repeat(4, 1fr); } .stats.c5 { grid-template-columns: repeat(5, 1fr); }
+.st { font-size: .7rem; color: var(--muted); display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.st b { color: var(--ink); font-size: .8rem; }
+.st i { display: block; height: 5px; border-radius: 3px; background: var(--sand); overflow: hidden; }
+.st i i { height: 100%; background: var(--cinnamon); }
+.st.cold i i { background: #5E8FA3; } .st.cold.low { color: var(--frost-ink); } .st.cold.low b { color: var(--frost-ink); }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; padding: 6px 12px 0; }
+.chip { font-size: .72rem; border-radius: 999px; padding: 1px 9px; border: 1px solid var(--line2); background: var(--paper); }
+.chip.frost { background: var(--frost); border-color: #7FA6B5; color: var(--frost-ink); }
+.chat { padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
+.me { align-self: flex-end; background: var(--sand); border-radius: 14px 4px 14px 14px; padding: 6px 12px; font-family: var(--serif); max-width: 88%; }
+.rm { align-self: center; color: var(--muted); font: .88rem/1.5 var(--serif); text-align: center; }
+.sys { align-self: flex-start; background: var(--sand); border-radius: 4px 14px 14px 14px; padding: 6px 12px; max-width: 88%; font-size: .92rem; }
+.sys.frost { background: var(--frost); color: var(--frost-ink); border: 1px solid #7FA6B5; }
+.sys.mint { background: var(--mint); color: var(--mint-ink); border: 1px solid var(--mint-line); }
+.who { font-size: .75rem; color: var(--muted); margin-bottom: -5px; }
+.npc { align-self: flex-start; background: var(--paper); border: 1px solid var(--line); border-radius: 4px 14px 14px 14px; padding: 6px 12px; font-family: var(--serif); max-width: 88%; }
+.slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 8px 12px 12px; border-top: 1px solid var(--line); background: var(--cream); }
+.sl { min-height: 50px; border: 1.5px solid var(--line2); border-radius: 9px; background: var(--paper); font-size: .78rem; font-weight: 700; padding: 4px 7px; line-height: 1.3; min-width: 0; }
+.sl small { display: block; font-weight: 400; color: var(--muted); font-size: .68rem; }
+.sl.go { border-color: var(--cinnamon); }
+.cap { font-size: .88rem; color: var(--muted); max-width: 370px; margin-top: 6px; }
+.pg { width: min(370px, 100%); background: var(--paper); border: 1.5px solid var(--cinnamon); border-radius: 10px; padding: 14px 16px; font-family: var(--serif); display: flex; flex-direction: column; gap: 4px; }
+.pg .h { font: 700 .85rem var(--sans); color: var(--muted); margin-top: 6px; }
+.pg .ttl { font: 700 1.1rem/1.3 var(--serif); }
+.rowx { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px dashed var(--line2); padding: 5px 0; font-size: .93rem; }
+.rowx span:last-child { text-align: right; color: var(--muted); font-family: var(--sans); font-size: .84rem; }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 560px; background: var(--paper); font-size: .92rem; }
+th, td { border-bottom: 1px dashed var(--line2); padding: 7px 9px; text-align: left; vertical-align: top; }
+th { border-bottom: 2px solid var(--deep); font-size: .82rem; white-space: nowrap; }
+td:first-child { white-space: nowrap; }
+ol, ul { margin: 0; padding-left: 1.3rem; }
+.ask { background: var(--paper); border: 2px solid var(--cinnamon); border-radius: 10px; padding: 14px 16px; }
+</style>
+
+<div class="wrap">
+<h1>잿골 화면 시안 (레벨 41~50)</h1>
+<p class="note">로드맵 M17 "이긴 자에게만"에서 새로 생기는 화면과 글입니다. 고를 것은 모두 추천안으로 정해 그렸습니다(맨 아래). 몬스터, 잿쇠 장비, 잿불 게 구이의 자료는 이미 들어가 있습니다. 화면 틀은 지금 게임 그대로이고, 다섯째 눈금 칸은 흰마루·소금벌과 같은 자리를 씁니다.</p>
+
+<h2><span class="id">A</span>가는 길과 곳</h2>
+<div class="scroll"><table>
+  <tr><th>번호</th><th>곳</th><th>무엇</th><th>단축 칸</th></tr>
+  <tr><td>A1</td><td>저울목 → 잿골</td><td>7장을 끝내면 저울목 어귀에 "잿골로 오른다"가 생긴다. 반나절 길</td><td>—</td></tr>
+  <tr><td>A2</td><td><b>가마골 어귀</b> <span class="new">새로</span></td><td>불 뿜는 산 아래 골짜기. 굴뚝마다 연기가 오르고 재가 눈처럼 내린다</td><td>둘러보기 · 말 걸기 · 쉬기</td></tr>
+  <tr><td>A3</td><td><b>겨루기 마당</b></td><td>골짜기 한복판의 둥근 마당. 높은 대에 검 한 자루가 걸려 있다</td><td>겨루기 · 구경 · 말 걸기</td></tr>
+  <tr><td>A4</td><td><b>큰 대장간</b></td><td>모루가 열둘. 이긴 사람들의 무기만 짓는다. 잿쇠를 다룬다</td><td>만들기 · 상점 · 고치기 · 강화</td></tr>
+  <tr><td>A5</td><td><b>풀무 골목</b></td><td>진 사람들이 사는 골목. 집집마다 풀무 자루가 문 앞에 서 있다</td><td>풀무질 · 말 걸기 · 게시판</td></tr>
+  <tr><td>A6</td><td><b>잿물 주막</b></td><td>재를 걸러 낸 물로 밥을 짓는다. 이긴 사람과 진 사람의 자리가 따로 있다</td><td>방 빌리기 · 보관함 · 요리 · 소문</td></tr>
+  <tr><td>A7</td><td><b>비늘 가게</b></td><td>도마뱀 비늘을 꿰어 옷을 짓는 집. 쇠가 못 버티는 곳에 입고 간다</td><td>바느질 · 상점 · 용병</td></tr>
+  <tr><td>A8</td><td>재 비탈 (사냥터)</td><td>잿빛 도마뱀(41), 불똥 박쥐(43). 도마뱀 비늘</td><td>탐색 · 캐기 · 숫돌</td></tr>
+  <tr><td>A9</td><td>쇳물 내 (사냥터)</td><td>쇳물 게(46), 재투성이 검꾼(48). 잿쇠, 게살</td><td>탐색 · 캐기 · 숫돌</td></tr>
+  <tr><td>A10</td><td>식지 않는 가마 (던전)</td><td>가마 안 다섯 칸. 맨 안쪽에 벼린 종의 망치(50)</td><td>지금 던전과 같음</td></tr>
+</table></div>
+
+<h2><span class="id">B</span>열기</h2>
+<p class="note">잿골의 규칙은 열기입니다. 몸이 아니라 쇠가 버티지 못합니다. 그래서 다섯째 칸에는 새 눈금 대신 지금 있는 숫자인 <b>장비 내구도</b>가 올라옵니다.</p>
+<div class="row">
+  <div>
+    <div class="phone">
+      <div class="top"><b>재 비탈</b><span>58일째 낮 · 위험 보통</span></div>
+      <div class="stats c5">
+        <div class="st"><span>생명 <b>770</b></span><i><i style="width:94%"></i></i></div>
+        <div class="st"><span>마나 <b>90</b></span><i><i style="width:100%"></i></i></div>
+        <div class="st"><span>포만 <b>62</b></span><i><i style="width:62%"></i></i></div>
+        <div class="st"><span>피로 <b>27</b></span><i><i style="width:27%"></i></i></div>
+        <div class="st cold"><span>장비 <b>71</b>%</span><i><i style="width:71%"></i></i></div>
+      </div>
+      <div class="chat">
+        <div class="rm">재가 발목까지 쌓였다. 밟으면 속이 아직 붉다. 손에 쥔 쇠가 저 혼자 따뜻해진다.</div>
+        <div class="me">재 더미를 헤치며 둘레를 살폈다.</div>
+        <div class="sys">발견: 재 속에서 도마뱀 비늘 3장을 주웠다.</div>
+      </div>
+      <div class="slots">
+        <button class="sl go">1<br>탐색</button>
+        <button class="sl">2<br>캐기</button>
+        <button class="sl">3<br>숫돌<small>가방에 3개</small></button>
+        <button class="sl">4<br>쉬기</button>
+      </div>
+    </div>
+    <p class="cap">B1 잿골 들판. "장비" 칸은 찬 쇠 장비 가운데 가장 많이 닳은 것의 내구도입니다. 누르면 장비 창이 열립니다.</p>
+  </div>
+  <div>
+    <div class="phone">
+      <div class="top"><b>쇳물 내</b><span>58일째 밤 · 위험 높음</span></div>
+      <div class="stats c5">
+        <div class="st"><span>생명 <b>604</b></span><i><i style="width:74%"></i></i></div>
+        <div class="st"><span>마나 <b>51</b></span><i><i style="width:57%"></i></i></div>
+        <div class="st"><span>포만 <b>49</b></span><i><i style="width:49%"></i></i></div>
+        <div class="st"><span>피로 <b>55</b></span><i><i style="width:55%"></i></i></div>
+        <div class="st cold low"><span>장비 <b>18</b>%</span><i><i style="width:18%"></i></i></div>
+      </div>
+      <div class="chips"><span class="chip frost">무른 쇠: 소금강 검이 곧 부러진다</span><span class="chip">달궈진 쇠: 강화 +10%p (22번 남음)</span></div>
+      <div class="chat">
+        <div class="sys">쇳물 게를 쓰러뜨렸다. 경험치 +460.</div>
+        <div class="sys mint">검이 벌겋게 달았다. 식기 전에 모루에 올리면 잘 먹는다.</div>
+        <div class="sys frost">소금강 검의 내구도가 18%다. 열기에 쇠가 무르다.</div>
+      </div>
+      <div class="slots">
+        <button class="sl go">1<br>탐색</button>
+        <button class="sl">2<br>캐기</button>
+        <button class="sl">3<br>숫돌<small>내구도 +20</small></button>
+        <button class="sl">4<br>쉬기</button>
+      </div>
+    </div>
+    <p class="cap">B2 쇠가 닳았을 때와, 싸움에서 이겨 무기가 달았을 때.</p>
+  </div>
+</div>
+<h3><span class="id">B3</span>열기의 숫자</h3>
+<div class="scroll"><table>
+  <tr><th>무엇</th><th>숫자</th></tr>
+  <tr><td>쇠 장비</td><td>잿골 들판(재 비탈, 쇳물 내, 가마 안)에서는 내구도가 두 배로 닳는다</td></tr>
+  <tr><td>가죽·비늘 장비</td><td>그대로 닳는다. 도마뱀 비늘 장비는 잿골에서 내구도가 절반만 닳는다</td></tr>
+  <tr><td>무른 쇠 (20% 아래)</td><td>이름표와 대화방 한 줄로 알린다. 0이 되면 지금처럼 못 쓰게 된다</td></tr>
+  <tr><td>숫돌 <span class="new">새 물건</span></td><td>들판에서 쇠 장비 하나의 내구도 +20. 큰 대장간에서 은화 60. 한 번 쓰면 없어진다</td></tr>
+  <tr><td>달궈진 쇠</td><td>잿골 들판에서 싸움을 이기면 든 무기가 30번 움직이는 동안 달아 있다. 그 사이 큰 대장간에서 그 무기를 강화하면 성공 확률 +10%p, 고치는 값 절반</td></tr>
+  <tr><td>잿쇠 장비</td><td>이 구간에서 짓는 잿쇠 장비는 열기에 닳지 않는다(보통으로 닳는다). 앞 구간 쇠 장비를 들고 온 사람이 겪는 규칙이다</td></tr>
+</table></div>
+<p class="note">따라가 보기: 소금강 검(내구도 160)을 들고 재 비탈에서 싸우면 여덟 판쯤에 20% 아래로 내려갑니다. 숫돌 셋이면 한 번 나가서 열다섯 판을 합니다. 잿쇠 검을 지으면 이 걱정이 사라지므로, 잿골의 첫 목표는 "잿쇠로 갈아타기"가 됩니다.</p>
+
+<h2><span class="id">C</span>겨루기 마당</h2>
+<div class="row">
+  <div>
+    <div class="phone">
+      <div class="top"><b>겨루기 마당</b><span>59일째 낮 · 안전</span></div>
+      <div class="chat">
+        <div class="rm">둥근 마당 둘레에 사람들이 빽빽하다. 높은 대에 검 한 자루가 걸려 있다. 누가 이길 때마다 그 검이 운다.</div>
+        <div class="who">심판 노을</div>
+        <div class="npc">오늘 상대는 '쇠못'이오. 레벨 44쯤. 죽이지는 않소. 지면 풀무 골목에서 사흘이오.</div>
+        <div class="me">마당에 들어섰다.</div>
+      </div>
+      <div class="slots">
+        <button class="sl go">1<br>겨루기<small>오늘 1번 남음</small></button>
+        <button class="sl">2<br>구경</button>
+        <button class="sl">3<br>말 걸기</button>
+        <button class="sl">4<br>—</button>
+      </div>
+    </div>
+    <p class="cap">C1 겨루기 마당. 하루에 한 번, 내 레벨 언저리의 가상 유저와 일대일로 싸웁니다.</p>
+  </div>
+  <div style="max-width:420px">
+    <p><span class="id">C2</span>싸움은 지금 "모험가와 싸우기"의 틀을 그대로 씁니다. 다만 죽지 않고, 살인의 추억도 붙지 않습니다.</p>
+    <p style="margin-top:8px"><span class="id">C3</span>이기면: 명성과 은화(그 구간 하루 벌이의 절반), 그리고 대에 걸린 검이 울어 띠링이 한 번 옵니다. 열 번 이기면 큰 대장간의 주인이 내 무기를 지어 주겠다고 나섭니다(서브 퀘스트가 열림).</p>
+    <p style="margin-top:8px"><span class="id">C4</span>지면: 풀무 골목에서 풀무질 서른 번을 해야 마당에 다시 설 수 있습니다. 은화나 물건은 잃지 않습니다. 풀무질은 일로 치고 대장 숙련도가 오릅니다.</p>
+    <p style="margin-top:8px"><span class="id">C5</span>구경: 다른 사람들의 겨루기를 봅니다. 한 번 볼 때마다 그날 상대의 버릇 하나가 대화방에 적힙니다("쇠못은 세 번째에 크게 휘두른다").</p>
+  </div>
+</div>
+
+<h2><span class="id">D</span>8장 벼린 종: 글</h2>
+<div class="row">
+  <div class="pg">
+    <span class="h">메인 퀘스트 · 8장</span>
+    <span class="ttl">벼린 종</span>
+    <p>가마골 사람들은 종을 녹여 검을 지었다. 검은 마당의 높은 대에 걸려 있고, 누가 이길 때만 운다. 진 사람은 풀무 골목으로 내려가 평생 남의 불을 분다. 끝까지 한 것은 셈에 들지 않는다. 이긴 것만 든다.</p>
+    <span class="h">푸는 길</span>
+    <div class="rowx"><span>꺾는 길</span><span>식지 않는 가마의 망치를 쓰러뜨린다</span></div>
+    <div class="rowx"><span>지어 보이는 길</span><span>영웅 등급 이상의 잿쇠 무기를 지어 대에 건다</span></div>
+    <div class="rowx"><span>불을 끄는 길</span><span>풀무 골목 다섯 사람과 '단골' 사이가 되고 풀무질을 삼백 번 한다</span></div>
+    <span class="h">끝내면</span>
+    <div class="rowx"><span>열리는 길</span><span>안개늪으로 내려가는 길</span></div>
+  </div>
+  <div>
+    <div class="phone">
+      <div class="top"><b>풀무 골목</b><span>59일째 밤 · 안전</span></div>
+      <div class="chat">
+        <div class="rm">좁은 골목에 풀무 소리만 난다. 문마다 풀무 자루가 하나씩 서 있다. 아무도 고개를 들지 않는다.</div>
+        <div class="who">풀무꾼 다래</div>
+        <div class="npc">마당에서 왔어? 나도 거기 섰었어. 딱 한 번 졌지.</div>
+        <div class="npc">풀무질은 내가 이 골짜기에서 제일 잘해. 이십 년 했으니까. 그런데 그건 안 울려. 저 검은 이긴 것만 세거든.</div>
+        <div class="me">풀무 자루를 잡아 보았다.</div>
+      </div>
+      <div class="slots">
+        <button class="sl go">1<br>풀무질</button>
+        <button class="sl">2<br>말 걸기</button>
+        <button class="sl">3<br>게시판</button>
+        <button class="sl">4<br>—</button>
+      </div>
+    </div>
+    <p class="cap">D1 풀무꾼과 처음 만날 때. 이 장의 물음은 "이긴 것만 해낸 것인가"입니다.</p>
+  </div>
+</div>
+<div class="scroll"><table>
+  <tr><th>번호</th><th>무엇</th><th>글 (처음 값)</th></tr>
+  <tr><td>D2</td><td>잿골에 오를 때</td><td>소금이 끝나자 재가 시작됐다. 산이 낮게 으르렁거리고, 골짜기 아래에서 쇠 치는 소리와 함성이 번갈아 올라온다. 함성이 터질 때마다 무언가 길게 운다. 종소리와 닮았는데, 날이 서 있다.</td></tr>
+  <tr><td>D3</td><td>망치를 꺾은 끝</td><td>망치가 부러지자 가마의 불이 처음으로 낮아졌다. 마당의 검이 대에서 떨어져 땅에 꽂혔다. 한 번 울고, 금이 갔다. 금 사이로 종의 빛이 보였다.</td></tr>
+  <tr><td>D4</td><td>지어 보인 끝</td><td>내가 지은 것을 대에 걸자 옛 검이 먼저 울었다. 이긴 사람이 없는데. 대장간 주인이 망치를 내려놓았다. "저건 누굴 이긴 게 아닌데. 끝까지 두드린 거지."</td></tr>
+  <tr><td>D5</td><td>불을 끈 끝</td><td>풀무 골목의 풀무가 한꺼번에 멎었다. 열두 모루의 불이 식었다. 마당이 조용해지자 다래가 풀무 자루를 한 번 더 밀었다. 그러자 검이 울었다. 이십 년 만에, 그 사람을 위해서.</td></tr>
+  <tr><td>D6</td><td>서브: 풀무꾼의 팔</td><td>다래의 어깨가 나갔다. 사흘 동안 풀무질을 대신 해 준다(하루 서른 번). 끝나면 풀무 요령 하나를 배운다.</td></tr>
+  <tr><td>D7</td><td>서브: 식은 가마</td><td>골목 끝의 작은 가마가 꺼졌다. 쇳물 내에서 식지 않은 재 다섯 줌을 날라 불씨를 살린다. 가는 동안 식으면 처음부터다.</td></tr>
+</table></div>
+<p class="note">히든 퀘스트 "지고도 다시 온 사람"(같은 우두머리에게 열 번 지고 다시 선다)은 조건이 화면 어디에도 나오지 않습니다.</p>
+
+<h2><span class="id">E</span>화면에 나오는 말</h2>
+<div class="scroll"><table>
+  <tr><th>자리</th><th>쓸 말</th><th>근거</th></tr>
+  <tr><td>눈금 칸</td><td>장비</td><td>지금 게임의 "장비" 창 이름</td></tr>
+  <tr><td>이름표</td><td>무른 쇠 · 달궈진 쇠</td><td>Claude가 지음</td></tr>
+  <tr><td>단축 칸</td><td>숫돌 · 겨루기 · 구경 · 풀무질</td><td>풀무질은 지금 있는 일. 나머지는 Claude가 지음</td></tr>
+  <tr><td>곳</td><td>가마골 어귀 · 겨루기 마당 · 큰 대장간 · 풀무 골목 · 잿물 주막 · 비늘 가게 · 재 비탈 · 쇳물 내 · 식지 않는 가마</td><td>Claude가 지음 (식지 않는 가마만 앞 시안에서 확정)</td></tr>
+  <tr><td>사람</td><td>심판 노을 · 풀무꾼 다래</td><td>Claude가 지음</td></tr>
+  <tr><td>물건</td><td>숫돌</td><td>Claude가 지음</td></tr>
+</table></div>
+
+<h2><span class="id">F</span>아직 없을 때의 모습</h2>
+<ul>
+  <li>F1 잿골: 7장을 끝내기 전에는 지도, 소문, 저울목의 단축 칸 어디에도 나오지 않습니다(숨김).</li>
+  <li>F2 장비 칸과 무른 쇠: 잿골 밖에서는 다섯째 칸이 없습니다. 숫돌도 잿골에서만 팔고, 다른 지역에서는 쓸 수는 있지만 단축 칸에 나오지 않습니다.</li>
+  <li>F3 달궈진 쇠: 처음 달았을 때 대화방 한 줄로 알립니다. 그 전에는 도움말에도 없습니다(숨김).</li>
+  <li>F4 겨루기 열 번 뒤의 서브 퀘스트: 열리기 전에는 퀘스트 창에 없습니다(숨김).</li>
+</ul>
+
+<div class="ask">
+  <h3 style="margin-top:0">추천대로 정한 것</h3>
+  <ol>
+    <li>열기는 새 눈금을 만들지 않고 장비 내구도를 다섯째 칸에 올려 보입니다.</li>
+    <li>"달궈진 채로 벼리면 등급 확률이 오른다"(앞 시안)는 "달궈진 무기를 강화하면 성공 확률 +10%p, 고치는 값 절반"으로 바꿨습니다. 만들기는 새 물건을 짓는 일이라 손에 든 무기가 단 것과 이어지지 않아서입니다.</li>
+    <li>겨루기에서 지면 잃는 것은 없고 풀무질 서른 번을 해야 다시 섭니다. 이야기(진 사람은 풀무를 민다)를 한 번 겪게 하되 벌로 깎지는 않습니다.</li>
+    <li>숫돌은 새 물건입니다(은화 60, 내구도 +20).</li>
+    <li>방 값은 구간에 맞춰 80입니다.</li>
+  </ol>
+  <p class="note" style="margin-top:8px">이 시안에 없는 것: 던전의 방 배치(지금 폐허와 같은 틀), 곳의 띠 그림, 구간 용병(M19). 고칠 곳은 번호(B3, C4처럼)로 짚어 주세요.</p>
+</div>
+</div>
+
+</body></html>

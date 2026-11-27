@@ -1,20 +1,22 @@
 // 던전 (T15~T19). 층과 방을 방 목록으로 옮겨 다닌다. 지나온 방만 지도에 그려진다.
 // 나가면 지도와 연 문·챙긴 보물은 남고, 괴물과 쉼터는 다시 찬다.
 
-import { next } from './rng.js?v=6d96d3a';
-import { pushLine, ding } from './log.js?v=6d96d3a';
-import { DUNGEONS, REST_HEAL, KEEPER } from '../data/dungeon.js?v=6d96d3a';
-import { STAT_NAMES } from '../data/origins.js?v=6d96d3a';
-import { itemDef } from '../data/items.js?v=6d96d3a';
-import { monsterDef } from '../data/monsters.js?v=6d96d3a';
-import { addItem, countOf, takeById } from './inventory.js?v=6d96d3a';
-import { startBattle } from './battle.js?v=6d96d3a';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=6d96d3a';
-import { valueOf } from './derived.js?v=6d96d3a';
-import { jobXp, adv } from './jobs.js?v=6d96d3a';
-import { partyRest } from './party.js?v=6d96d3a';
-import { iGa, eulReul, ro } from './ko.js?v=6d96d3a';
-import { hasTitle } from './titles.js?v=6d96d3a';
+import { next } from './rng.js?v=327d747';
+import { pushLine, ding } from './log.js?v=327d747';
+import { DUNGEONS, REST_HEAL, KEEPER } from '../data/dungeon.js?v=327d747';
+import { STAT_NAMES } from '../data/origins.js?v=327d747';
+import { itemDef } from '../data/items.js?v=327d747';
+import { monsterDef } from '../data/monsters.js?v=327d747';
+import { addItem, countOf, takeById } from './inventory.js?v=327d747';
+import { startBattle } from './battle.js?v=327d747';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=327d747';
+import { valueOf } from './derived.js?v=327d747';
+import { jobXp, adv } from './jobs.js?v=327d747';
+import { partyRest } from './party.js?v=327d747';
+import { iGa, eulReul, ro } from './ko.js?v=327d747';
+import { hasTitle } from './titles.js?v=327d747';
+import { fillBreath } from './sunken.js?v=327d747';
+import { ECHO, ECHO_LINES } from '../data/quests.js?v=327d747';
 
 const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
 const defOf = (state) => DUNGEONS[state.dungeon.id];
@@ -43,8 +45,8 @@ export function pickChance(state, need) {
 function resolved(state, id = state.dungeon.room) {
   const r = roomOf(state, id);
   const mem = memOf(state);
-  if (r.kind === 'fight') return !!state.dungeon.cleared[id];
-  if (r.kind === 'boss') return !!mem.keeper;
+  if (r.kind === 'fight') return !!state.dungeon.cleared[id] || (!!r.post && !!mem.done[id]); // 교대를 알린 자리는 비어 있다 (JD-D)
+  if (r.kind === 'boss') return !!mem.keeper || !!r.still;
   if (r.kind === 'trap' || r.kind === 'door') return !!mem.done[id];
   return true;
 }
@@ -58,7 +60,7 @@ export function enterDungeon(state, events, id) {
   state.dungeon = { id, room: d.start, prev: null, cleared: {}, rested: {}, alert: false };
   state.lastAction = null;
   const mem = memOf(state);
-  pushLine(state, events, { k: 'me', text: `${d.name} 안으로 내려갔다.${mem.seen.length ? ' 지난번에 그린 지도가 손에 있다.' : ''}` });
+  pushLine(state, events, { k: 'me', text: `${d.enterSay || `${d.name} 안으로 내려갔다.`}${mem.seen.length ? ' 지난번에 그린 지도가 손에 있다.' : ''}` });
   arrive(state, events);
   events.push({ type: 'move', to: state.place });
 }
@@ -80,6 +82,11 @@ function arrive(state, events) {
   if (!mem.seen.includes(dg.room)) mem.seen.push(dg.room);
   pushLine(state, events, { k: 'room', who: `${defOf(state).floors[r.floor]}, ${r.name}`, text: r.text });
   events.push({ type: 'room', room: dg.room });
+  // 혼자 자리를 지키는 근위병 (JD-D 풀어 주는 길): 들어서면 먼저 정한다. 교대를 알린 자리에는 다시 서지 않는다
+  if (r.kind === 'fight' && r.post) {
+    if (!mem.done[dg.room] && !dg.cleared[dg.room]) { state.choice = { kind: 'post', room: dg.room }; events.push({ type: 'choice' }); }
+    return;
+  }
   if (r.kind === 'fight' && !dg.cleared[dg.room]) {
     const ambush = dg.alert;
     dg.alert = false;
@@ -88,7 +95,10 @@ function arrive(state, events) {
     return;
   }
   if ((r.kind === 'trap' || r.kind === 'door') && !mem.done[dg.room]) { state.choice = { kind: r.kind, room: dg.room }; events.push({ type: 'choice' }); return; }
-  if (r.kind === 'boss' && !mem.keeper) { state.choice = { kind: 'keeper', room: dg.room }; events.push({ type: 'choice' }); return; }
+  if (r.kind === 'boss' && !mem.keeper && r.ask) { state.choice = { kind: 'keeper', room: dg.room }; events.push({ type: 'choice' }); return; }
+  // 말이 통하지 않는 우두머리는 들어서면 바로 싸운다 (얼음 종루의 파수꾼)
+  // 먼저 치지 않는 우두머리(still)는 곁에 설 수 있다: 싸움은 내가 건다 (가라앉는 오솔길의 종지기, AN-D)
+  if (r.kind === 'boss' && !mem.keeper && !r.still) { startBattle(state, events, r.mon); return; }
   if (r.kind === 'treasure' && !mem.done[dg.room]) {
     mem.done[dg.room] = true;
     for (const [id, n] of r.loot.items) addItem(state, id, n);
@@ -131,7 +141,7 @@ export function roomView(state) {
       const blocked = !seen && !resolved(state);
       // 방향 (사용자 피드백: 어디쯤인지 모르겠다): 다른 층이면 아래층·위층, 같은 층이면 칸의 자리로 동서남북
       const dx = x.pos[0] - r.pos[0], dy = x.pos[1] - r.pos[1];
-      const dir = x.floor !== r.floor ? (x.floor > r.floor ? '아래로' : '위로') : Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? '동' : dx < 0 ? '서' : '') : (dy > 0 ? '남' : '북');
+      const dir = x.floor !== r.floor ? ((x.floor > r.floor) !== !!d.up ? '아래로' : '위로') : Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? '동' : dx < 0 ? '서' : '') : (dy > 0 ? '남' : '북');
       return { id, name: seen ? x.name : '가 보지 않은 곳', dir, floor: x.floor !== r.floor ? d.floors[x.floor] : '', seen, can: !locked && !blocked, why: locked ? '잠겨 있다' : blocked ? '이 방의 일을 넘어야 한다' : '' };
     }),
   };
@@ -160,8 +170,10 @@ export function restInRoom(state, events) {
   state.hp = Math.min(max, state.hp + Math.round(max * REST_HEAL));
   state.mp = valueOf(state, 'maxMp');
   partyRest(state);
-  pushLine(state, events, { k: 'me', text: '불을 피우고 등을 기댔다. 눈을 조금 붙였다.' });
-  pushLine(state, events, { k: 'sys', text: `생명력 +${state.hp - before}. 마나가 찼다. 여기서는 더 쉴 수 없다.` });
+  // 공기가 고인 쉼터 (JD-A11): 물 아래의 궁에서는 불을 피우지 못한다. 대신 숨이 가득 찬다
+  if (roomOf(state).air) fillBreath(state);
+  pushLine(state, events, { k: 'me', text: roomOf(state).air ? '고인 공기에 머리를 내밀고 서까래를 잡았다. 한참 숨을 골랐다.' : '불을 피우고 등을 기댔다. 눈을 조금 붙였다.' });
+  pushLine(state, events, { k: 'sys', text: `생명력 +${state.hp - before}. 마나가 찼다.${roomOf(state).air ? ' 숨이 가득 찼다.' : ''} 여기서는 더 쉴 수 없다.` });
   events.push({ type: 'room', room: dg.room });
 }
 
@@ -195,6 +207,17 @@ export function dungeonChoiceView(state) {
       ],
     };
   }
+  if (c.kind === 'post') {
+    return {
+      kind: 'post', title: '근위병 앞에서', side: monsterDef(r.mon).name, text: r.text,
+      note: `근위병은 먼저 치지 않는다. 자리만 지킨다. 교대를 알린 근위병: ${relievedPosts(state)}.`,
+      options: [
+        { id: 'relieve', label: `교대를 알린다 (설득 판정, 성공 ${pct(relieveChance(state))}%)`, go: true },
+        { id: 'fight', label: '쓰러뜨린다' },
+        { id: 'back', label: '돌아간다' },
+      ],
+    };
+  }
   // 문지기
   const mem = memOf(state);
   const night = state.phase === 2;
@@ -219,6 +242,16 @@ export function tellChance(state) {
   return clamp(0.5 + (10 + (state.hidden.charm?.value || 0) * 2 - 14) * 0.05 + (state.flags.persuade10 ? 0.10 : 0) + (hasTitle(state, 'helper') ? 0.05 : 0), 0.05, 0.95);
 }
 
+/** 가라앉은 근위병에게 교대를 알릴 때 말이 통할 확률 (JD-D): 문지기 설득과 같은 셈이고, 근위병의 고집은 15다. */
+export function relieveChance(state) {
+  return clamp(0.5 + (10 + (state.hidden.charm?.value || 0) * 2 - ECHO.stubborn) * 0.05 + (state.flags.persuade10 ? 0.10 : 0) + (hasTitle(state, 'helper') ? 0.05 : 0), 0.05, 0.95);
+}
+/** 교대를 알린 근위병의 수. */
+export function relievedPosts(state) {
+  const d = DUNGEONS[ECHO.dungeon], mem = state.dmem?.[ECHO.dungeon];
+  return mem ? Object.keys(mem.done).filter((id) => d.rooms[id]?.post && mem.done[id]).length : 0;
+}
+
 function goBack(state, events) {
   const dg = state.dungeon;
   state.choice = null;
@@ -229,11 +262,13 @@ function goBack(state, events) {
 
 function passKeeper(state, events, path, say) {
   const mem = memOf(state);
+  const d = defOf(state);
   mem.keeper = path;
-  state.flags.keeperAlive = path !== 'beat';
+  if (d.id === 'ruins') state.flags.keeperAlive = path !== 'beat'; // 폐허의 문지기가 살아 있는가 (4장, 끝 '맡는다')
   state.choice = null;
   if (say) pushLine(state, events, { k: 'room', text: say });
-  pushLine(state, events, { k: 'sys', text: '큰 문이 열렸다. 아래로 내려가는 계단이 보인다.' });
+  const open = d.openSay ?? '큰 문이 열렸다. 아래로 내려가는 계단이 보인다.';
+  if (open) pushLine(state, events, { k: 'sys', text: open });
   events.push({ type: 'room', room: state.dungeon?.room });
 }
 
@@ -282,6 +317,28 @@ export function dungeonChoose(state, events, id) {
       return;
     }
     throw new Error('고를 수 없는 것입니다');
+  }
+  if (c.kind === 'post') {
+    if (id === 'fight') { state.choice = null; pushLine(state, events, { k: 'me', text: '무기를 들었다. 갑옷이 검을 뽑는다. 물이 쏟아진다.' }); startBattle(state, events, r.mon, { solo: true }); return; }
+    if (id !== 'relieve') throw new Error('고를 수 없는 것입니다');
+    const need = Math.round(relieveChance(state) * 100);
+    const roll = 1 + Math.floor(next(state) * 100);
+    const ok = roll <= need;
+    pushLine(state, events, { k: 'me', text: ECHO_LINES.relieve });
+    pushLine(state, events, { k: 'sys', who: '판정', text: `설득 ${ok ? '성공' : '실패'}. 주사위 ${roll}, ${need} 이하면 성공. (근위병의 고집 ${ECHO.stubborn})` });
+    events.push({ type: 'check', kind: 'persuade', ok, roll, need });
+    state.choice = null;
+    if (ok) {
+      mem.done[c.room] = true;
+      pushLine(state, events, { k: 'room', text: ECHO_LINES.relieved[relievedPosts(state) % ECHO_LINES.relieved.length] });
+      pushLine(state, events, { k: 'sys', text: `교대를 알린 근위병 ${relievedPosts(state)} / ${ECHO.posts}.`, tone: 'mint' });
+      events.push({ type: 'room', room: c.room });
+      return;
+    }
+    // 통하지 않으면 근위병이 먼저 친다
+    pushLine(state, events, { k: 'room', text: ECHO_LINES.refused });
+    startBattle(state, events, r.mon, { solo: true, ambush: true });
+    return;
   }
   if (c.kind === 'keeper') {
     const closed = mem.keeperClosed || (mem.keeperClosed = []);
@@ -344,8 +401,8 @@ export function dungeonHook(state, events) {
   const mem = memOf(state);
   const won = events.find((e) => e.type === 'battle' && e.phase === 'win');
   if (won) {
-    if (r.kind === 'fight' && won.mon === r.mon) dg.cleared[dg.room] = true;
-    if (r.kind === 'boss' && won.mon === r.mon && !mem.keeper) passKeeper(state, events, 'beat', `${iGa(monsterDef(r.mon).name)} 무릎을 꿇었다. 쇠와 돌이 흩어진다. 끝까지 문 쪽으로 손을 뻗고 있었다.`);
+    if (r.kind === 'fight' && won.mon === r.mon && !state.battle) dg.cleared[dg.room] = true; // 짝이 남아 있으면 아직이다 (JD-B3)
+    if (r.kind === 'boss' && won.mon === r.mon && !mem.keeper) passKeeper(state, events, 'beat', defOf(state).bossDown || `${iGa(monsterDef(r.mon).name)} 무릎을 꿇었다. 쇠와 돌이 흩어진다. 끝까지 문 쪽으로 손을 뻗고 있었다.`);
   }
   // 달아났으면 지나온 방으로 물러난다
   if (events.some((e) => e.type === 'battle' && e.phase === 'fled') && !resolved(state)) goBack(state, events);

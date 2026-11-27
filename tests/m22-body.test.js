@@ -59,15 +59,15 @@ test('사람들은 낯익은 사이부터 제 말투로 내 이름을 부른다.
   assert.ok(named > 0 && named < 30, `서른 번에 ${named}번`);
 });
 
-test('환생하면 숙련도마다 쌓은 경험치의 5%를 가지고 간다', () => {
+test('환생하면 숙련도를 그대로 가지고 간다 (Z98)', () => {
   const s = make('skill');
   s.skills.strike = { grade: 10, xp: 50, uses: 900 };
   const total = skillTotal(s.skills.strike);
   const carry = rebirthCarry(s);
-  assert.equal(carry.skills.strike, Math.floor(total * 0.05));
+  assert.equal(carry.skills.strike, total);
   const n = createGame({ name: '새', origin: 'bard', rolled: rollDice('same'), seed: 'n', carry });
-  assert.equal(skillTotal(n.skills.strike), Math.floor(total * 0.05));
-  assert.ok(n.skills.strike.grade >= 1);
+  assert.equal(skillTotal(n.skills.strike), total);
+  assert.deepEqual([n.skills.strike.grade, n.skills.strike.xp], [10, 50]);
 });
 
 test('배가 바닥나면 가방의 먹을 것을 허겁지겁 먹는다. 배를 가장 덜 채우는 것부터', () => {

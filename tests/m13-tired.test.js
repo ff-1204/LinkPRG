@@ -193,7 +193,9 @@ test('의뢰에는 어디서 하면 되는지가 적힌다. 아직 길을 모르
   assert.equal(whereOf(JOBS.herb5, s), '서쪽 숲에서 채집, 서쪽 숲에서 탐색');
   assert.ok(whereOf(JOBS.herb5, { ...s, opened: ['dock'] }).includes('갈대밭'));
   assert.ok(whereOf(JOBS.rat3, s).includes('서쪽 숲에서 사냥'));
-  for (const [id, d] of Object.entries(JOBS)) assert.ok(whereOf(d, { ...s, opened: ['ruins', 'dock', 'bigmarket'] }), `${id}: 어디서인지 적혀 있다`);
+  for (const [id, d] of Object.entries(JOBS)) assert.ok(whereOf(d, { ...s, opened: ['ruins', 'dock', 'bigmarket', 'icegate', 'saltflat', 'ashroad', 'marshroad', 'sunkenroad', 'cloudroad', 'pondroad'] }), `${id}: 어디서인지 적혀 있다`);
+  assert.equal(whereOf(JOBS.scorp3, { ...s, opened: ['ruins', 'dock', 'bigmarket', 'icegate'] }), '', '소금벌을 모르는 동안은 그곳 의뢰의 자리도 적히지 않는다');
+  assert.equal(whereOf(JOBS.fox3, s), '', '흰마루를 모르는 동안은 그곳 의뢰의 자리도 적히지 않는다');
   assert.ok(boardView(s).every((c) => typeof c.where === 'string'));
 });
 

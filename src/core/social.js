@@ -1,17 +1,19 @@
 // 사람들과의 사이, 명성, 칭호, 대화 판정 (E25~E28, G3-1, T10~T14).
 
-import { next, pick, roll01 } from './rng.js?v=6d96d3a';
-import { pushLine, ding } from './log.js?v=6d96d3a';
-import { PEOPLE, PEOPLE_ORDER, BONDS, GIFT, TALK_POINT, FAME, TITLES, personById, REGULAR, CALLS } from '../data/people.js?v=6d96d3a';
-import { itemDef } from '../data/items.js?v=6d96d3a';
-import { removeAt } from './inventory.js?v=6d96d3a';
-import { placeById, ACTIONS } from '../data/places.js?v=6d96d3a';
-import { COMPANIONS, ROLE_BONUS } from '../data/companions.js?v=6d96d3a';
-import { iGa, eulReul, ro, eunNeun } from './ko.js?v=6d96d3a';
-import { TALKS } from '../data/talks.js?v=6d96d3a';
-import { rootOf } from '../data/origins.js?v=6d96d3a';
-import { smithMemory } from './memories.js?v=6d96d3a';
-import { hasTitle } from './titles.js?v=6d96d3a';
+import { tentHere } from '../data/anvil.js?v=327d747';
+
+import { next, pick, roll01 } from './rng.js?v=327d747';
+import { pushLine, ding } from './log.js?v=327d747';
+import { PEOPLE, PEOPLE_ORDER, BONDS, GIFT, TALK_POINT, FAME, TITLES, personById, REGULAR, CALLS } from '../data/people.js?v=327d747';
+import { itemDef } from '../data/items.js?v=327d747';
+import { removeAt } from './inventory.js?v=327d747';
+import { placeById, ACTIONS } from '../data/places.js?v=327d747';
+import { ROLE_BONUS, fullRoles } from '../data/companions.js?v=327d747';
+import { iGa, eulReul, ro, eunNeun } from './ko.js?v=327d747';
+import { TALKS } from '../data/talks.js?v=327d747';
+import { rootOf } from '../data/origins.js?v=327d747';
+import { smithMemory } from './memories.js?v=327d747';
+import { hasTitle } from './titles.js?v=327d747';
 
 const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
 
@@ -30,12 +32,13 @@ export const bondName = (state, id) => BONDS[bondOf(state, id)].name;
 
 /** 이 곳에 있는 사람들. */
 export function peopleHere(state) {
-  return PEOPLE_ORDER.filter((id) => PEOPLE[id].place === state.place && !(PEOPLE[id].until && state.quests[PEOPLE[id].until]?.done) && !(state.party || []).some((c) => c.id === id)).map((id) => PEOPLE[id]);
+  // 일곱 천막에는 내가 푼 길의 사람만 와 있다 (CM-C)
+  return PEOPLE_ORDER.filter((id) => PEOPLE[id].place === state.place && !(PEOPLE[id].tent && !tentHere(state, id)) && !(PEOPLE[id].until && state.quests[PEOPLE[id].until]?.done) && !(state.party || []).some((c) => c.id === id)).map((id) => PEOPLE[id]);
 }
 
 function mustBeHere(state, id) {
   const p = personById(id);
-  if (p.place !== state.place || (p.until && state.quests[p.until]?.done) || (state.party || []).some((c) => c.id === id)) throw new Error(`${eunNeun(p.name)} 여기에 없습니다`);
+  if (p.place !== state.place || (p.tent && !tentHere(state, id)) || (p.until && state.quests[p.until]?.done) || (state.party || []).some((c) => c.id === id)) throw new Error(`${eunNeun(p.name)} 여기에 없습니다`);
   return p;
 }
 
@@ -391,8 +394,7 @@ function myScore(state, kind) {
 
 /** 막는 사람·때리는 사람·고치는 사람이 고루 있으면 모든 판정 +5% (T26). */
 function teamBonus(state) {
-  const roles = new Set([state.job === 'priest' ? 'healer' : state.job === 'warrior' ? 'guard' : 'striker', ...(state.party || []).map((c) => COMPANIONS[c.id].role)]);
-  return roles.size >= 3 ? ROLE_BONUS : 0;
+  return fullRoles(state.job, state.party) ? ROLE_BONUS : 0; // 고루 갖춘 일행 (T26, BM-C2)
 }
 
 /** 성공 확률. 고르기 전에 보인다 (T13). 50% + 차이 × 5%. */

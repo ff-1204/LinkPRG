@@ -183,6 +183,13 @@ html.calm * { animation: none !important; transition: none !important; }
 .fight .next { flex-basis: 100%; }
 .msg.intent { border: 1.5px solid var(--mint-line); background: var(--mint); color: var(--mint-ink); }
 .msg.sys.warn { border-color: var(--cinnamon); }
+/* 흰마루의 추위 (WM-B2): 식으면 체온 칸의 글자색이 바뀌고 이름표가 붙는다. 색만으로 알리지 않는다(이름표와 대화방 글이 같이 나온다) */
+.msg.sys.frost { background: #DCE9EE; color: #23414C; border-color: #7FA6B5; }
+.meterbtn { font: inherit; border: 0; background: none; padding: 0; cursor: pointer; text-decoration: underline dotted; text-underline-offset: 3px; }
+.tagx.frost { background: #DCE9EE; color: #23414C; border-color: #7FA6B5; }
+.meter.cold > i > i, .mst.cold > i > i { background: #5E8FA3; }
+.meter.cold.low b, .mst.cold.low b, .mst.cold.low { color: #23414C; }
+.meter.cold.low > i > i, .mst.cold.low > i > i { background: #23414C; }
 .msg.sys.dark { background: var(--deep); color: var(--cream); border-color: var(--deep); }
 .wt.dark { background: var(--deep); color: var(--cream); }
 .wt.dark button { color: var(--cream); border-color: var(--cream); }

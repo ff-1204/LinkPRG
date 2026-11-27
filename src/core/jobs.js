@@ -1,14 +1,14 @@
 // 직업과 히든 직업 (T4~T9, N4-3, N4-4, N5).
 
-import { pushLine, ding } from './log.js?v=6d96d3a';
-import { JOBS, JOB_ORDER, HIDDEN_JOBS, HIDDEN_JOB_ORDER, JOB_LEVEL, JOB_XP, SKILL_LEVELS, NAMELESS_LEVEL, jobDef, ADVANCED, ADVANCE_LEVEL } from '../data/jobs.js?v=6d96d3a';
-import { placeById } from '../data/places.js?v=6d96d3a';
-import { guildPerk } from './guild.js?v=6d96d3a';
-import { SKILL_NAMES, gradeLabel } from './skills.js?v=6d96d3a';
-import { itemDef } from '../data/items.js?v=6d96d3a';
-import { addItem } from './inventory.js?v=6d96d3a';
-import { eulReul, iGa } from './ko.js?v=6d96d3a';
-import { xpBoost } from './buffs.js?v=6d96d3a';
+import { pushLine, ding } from './log.js?v=327d747';
+import { JOBS, JOB_ORDER, HIDDEN_JOBS, HIDDEN_JOB_ORDER, JOB_LEVEL, JOB_XP, SKILL_LEVELS, NAMELESS_LEVEL, jobDef, ADVANCED, ADVANCE_LEVEL } from '../data/jobs.js?v=327d747';
+import { placeById } from '../data/places.js?v=327d747';
+import { guildPerk } from './guild.js?v=327d747';
+import { SKILL_NAMES, gradeLabel } from './skills.js?v=327d747';
+import { itemDef } from '../data/items.js?v=327d747';
+import { addItem } from './inventory.js?v=327d747';
+import { eulReul, iGa } from './ko.js?v=327d747';
+import { xpBoost } from './buffs.js?v=327d747';
 
 /** 보이는 직업 이름. */
 export function jobName(state) {
@@ -58,6 +58,7 @@ export function jobXp(state, skillId, repeated = false) {
   let m = state.buffs ? xpBoost(state) : 1; // 감상·음식의 힘도 여기서 곱한다
   if (['smithing', 'sculpting', 'cooking'].includes(skillId)) m *= 1 + guildPerk(state, 'craft'); // 모루회
   if (state.flags?.allSkill5) m *= 1.05; // 종지기의 아이
+  if (state.anvil?.end === 'cool') m *= 1.1; // 모루를 식힌 뒤: 모든 숙련도가 조금 빨리 오른다 (CM-D6)
   if (state.ending === 'free') m *= 1.1; // 푼 뒤: 재주는 다시 사람의 것. 모든 숙련도가 조금 빨리 오른다
   if (state.ending === 'mend') m *= 1 + (state.hidden?.echo?.value || 0) * 0.01;
   if (tiredPush(state)) m *= TIRED_PUSH.xp; // 피로 80 이상에서 하는 일 (Z75): 숙련도 1.5배. 싸움은 빼고

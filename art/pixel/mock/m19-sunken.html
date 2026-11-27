@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head><body style="margin:0">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>잠긴 도성 화면 시안</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap">
+<style>
+/* 배치: 게임과 같은 크림 한 가지 모습(일부러 한 테마). 위에서 아래로 번호 붙은 장, 화면 그림은 휴대폰 틀 안에 */
+:root { --cream: #FBF5E6; --paper: #FFFDF6; --sand: #F3E9D2; --line: #E6D9BD; --line2: #CDBE9E; --ink: #3A2A1E; --muted: #6B5443; --deep: #1E140D; --cinnamon: #8A4F2B; --mint: #BFE3D0; --mint-ink: #1F4A3A; --mint-line: #2F7A5E; --honey: #F2B63C; --honey-soft: #FBE7B4; --frost: #DCE9EE; --frost-ink: #23414C; --serif: 'Gowun Batang', 'Noto Serif KR', serif; --sans: 'Gowun Dodum', 'Noto Sans KR', system-ui, sans-serif; }
+* { box-sizing: border-box; }
+body { background: var(--cream); color: var(--ink); font: 16px/1.65 var(--sans); padding-block: 24px 60px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.wrap { max-width: 940px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
+h1 { font: 700 27px/1.3 var(--serif); margin: 0; }
+h2 { font: 700 20px/1.3 var(--serif); margin: 28px 0 2px; padding-top: 10px; border-top: 2px solid var(--deep); }
+h3 { font: 700 16px/1.4 var(--serif); margin: 10px 0 0; }
+p { margin: 0; }
+.note { color: var(--muted); max-width: 54rem; }
+.id { display: inline-block; font: 700 .76rem/1 var(--sans); color: var(--cinnamon); border: 1px solid var(--cinnamon); border-radius: 4px; padding: 3px 6px; margin-right: 6px; vertical-align: 2px; }
+.row { display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start; }
+.opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+.opt { background: var(--paper); border: 1px solid var(--line2); border-radius: 10px; padding: 12px 14px; min-width: 0; }
+.opt.rec { border: 2px solid var(--cinnamon); }
+.opt b.t { font: 700 16px var(--serif); display: block; margin-bottom: 4px; }
+.tag { display: inline-block; font-size: 12px; padding: 0 8px; border-radius: 999px; background: var(--cinnamon); color: #fff; margin-left: 6px; vertical-align: 2px; }
+.new { background: var(--honey-soft); border-radius: 3px; padding: 0 5px; font-size: .78rem; white-space: nowrap; }
+/* 휴대폰 틀 */
+.phone { width: min(370px, 100%); background: var(--paper); border: 2px solid var(--deep); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
+.top { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 12px 4px; background: var(--cream); font-family: var(--serif); }
+.top b { font-size: 1.02rem; } .top span { font-size: .8rem; color: var(--muted); }
+.stats { display: grid; gap: 6px; padding: 4px 12px 8px; border-bottom: 1px solid var(--line); background: var(--cream); }
+.stats.c4 { grid-template-columns: repeat(4, 1fr); } .stats.c5 { grid-template-columns: repeat(5, 1fr); }
+.st { font-size: .7rem; color: var(--muted); display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.st b { color: var(--ink); font-size: .8rem; }
+.st i { display: block; height: 5px; border-radius: 3px; background: var(--sand); overflow: hidden; }
+.st i i { height: 100%; background: var(--cinnamon); }
+.st.cold i i { background: #5E8FA3; } .st.cold.low { color: var(--frost-ink); } .st.cold.low b { color: var(--frost-ink); }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; padding: 6px 12px 0; }
+.chip { font-size: .72rem; border-radius: 999px; padding: 1px 9px; border: 1px solid var(--line2); background: var(--paper); }
+.chip.frost { background: var(--frost); border-color: #7FA6B5; color: var(--frost-ink); }
+.chat { padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
+.me { align-self: flex-end; background: var(--sand); border-radius: 14px 4px 14px 14px; padding: 6px 12px; font-family: var(--serif); max-width: 88%; }
+.rm { align-self: center; color: var(--muted); font: .88rem/1.5 var(--serif); text-align: center; }
+.sys { align-self: flex-start; background: var(--sand); border-radius: 4px 14px 14px 14px; padding: 6px 12px; max-width: 88%; font-size: .92rem; }
+.sys.frost { background: var(--frost); color: var(--frost-ink); border: 1px solid #7FA6B5; }
+.sys.mint { background: var(--mint); color: var(--mint-ink); border: 1px solid var(--mint-line); }
+.who { font-size: .75rem; color: var(--muted); margin-bottom: -5px; }
+.npc { align-self: flex-start; background: var(--paper); border: 1px solid var(--line); border-radius: 4px 14px 14px 14px; padding: 6px 12px; font-family: var(--serif); max-width: 88%; }
+.slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 8px 12px 12px; border-top: 1px solid var(--line); background: var(--cream); }
+.sl { min-height: 50px; border: 1.5px solid var(--line2); border-radius: 9px; background: var(--paper); font-size: .78rem; font-weight: 700; padding: 4px 7px; line-height: 1.3; min-width: 0; }
+.sl small { display: block; font-weight: 400; color: var(--muted); font-size: .68rem; }
+.sl.go { border-color: var(--cinnamon); }
+.cap { font-size: .88rem; color: var(--muted); max-width: 370px; margin-top: 6px; }
+.pg { width: min(370px, 100%); background: var(--paper); border: 1.5px solid var(--cinnamon); border-radius: 10px; padding: 14px 16px; font-family: var(--serif); display: flex; flex-direction: column; gap: 4px; }
+.pg .h { font: 700 .85rem var(--sans); color: var(--muted); margin-top: 6px; }
+.pg .ttl { font: 700 1.1rem/1.3 var(--serif); }
+.rowx { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px dashed var(--line2); padding: 5px 0; font-size: .93rem; }
+.rowx span:last-child { text-align: right; color: var(--muted); font-family: var(--sans); font-size: .84rem; }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 560px; background: var(--paper); font-size: .92rem; }
+th, td { border-bottom: 1px dashed var(--line2); padding: 7px 9px; text-align: left; vertical-align: top; }
+th { border-bottom: 2px solid var(--deep); font-size: .82rem; white-space: nowrap; }
+td:first-child { white-space: nowrap; }
+ol, ul { margin: 0; padding-left: 1.3rem; }
+.ask { background: var(--paper); border: 2px solid var(--cinnamon); border-radius: 10px; padding: 14px 16px; }
+</style>
+
+<div class="wrap">
+<h1>잠긴 도성 화면 시안 (레벨 61~70)</h1>
+<p class="note">로드맵 M19 "가라앉은 서울"에서 새로 생기는 화면과 글입니다. 고를 것은 모두 추천안으로 정해 그렸습니다(맨 아래). 몬스터, 옛 청동 장비, 비늘 찜, 깊은 성수의 자료는 이미 들어가 있습니다. 이 구간부터 용병이 필요해집니다.</p>
+
+<h2><span class="id">A</span>가는 길과 곳</h2>
+<div class="scroll"><table>
+  <tr><th>번호</th><th>곳</th><th>무엇</th><th>단축 칸</th></tr>
+  <tr><td>A1</td><td>뜬마을 → 잠긴 도성</td><td>9장을 끝내면 뜬마을 나루에 "물길을 따라 내려간다"가 생긴다. 배로 반나절</td><td>—</td></tr>
+  <tr><td>A2</td><td><b>지붕마을 선창</b> <span class="new">새로</span></td><td>물 위로 남은 기와지붕들 사이에 널을 깔아 지은 마을. 발밑으로 옛 거리가 내려다보인다</td><td>둘러보기 · 말 걸기 · 쉬기</td></tr>
+  <tr><td>A3</td><td><b>종루 꼭대기</b></td><td>도성 종루의 맨 위 한 층만 물 위에 있다. 종이 걸렸던 고리가 비어 있다</td><td>둘러보기 · 기도 · 말 걸기</td></tr>
+  <tr><td>A4</td><td><b>근위 막사</b></td><td>옛 근위병의 후손들이 창을 닦는다. 삯을 받고 물 아래까지 따라간다</td><td>용병 · 게시판 · 말 걸기</td></tr>
+  <tr><td>A5</td><td><b>청동 대장간</b></td><td>건져 올린 청동을 다시 녹인다. 옛 청동을 다룬다</td><td>만들기 · 상점 · 고치기 · 강화</td></tr>
+  <tr><td>A6</td><td><b>잠수꾼 조합</b></td><td>물 아래에서 건진 것을 사고판다. 공기 주머니를 짓는다</td><td>상점 · 바느질 · 게시판 · 말 걸기</td></tr>
+  <tr><td>A7</td><td><b>물가 사당</b></td><td>잠긴 종루의 물을 길어 축복한다. 깊은 성수를 판다</td><td>기도 · 상점 · 다시 태어나기</td></tr>
+  <tr><td>A8</td><td><b>뱃집 주막</b></td><td>배 세 척을 묶어 지은 집. 밤새 흔들린다</td><td>방 빌리기 · 보관함 · 요리 · 소문</td></tr>
+  <tr><td>A9</td><td>잠긴 거리 (사냥터, 물 아래)</td><td>물먹은 문지기(61), 비늘 사냥개(63). 옛 청동, 비늘 가죽</td><td>탐색 · 캐기 · 숨 쉬기</td></tr>
+  <tr><td>A10</td><td>잠긴 궁 뜰 (사냥터, 물 아래)</td><td>종소리 해파리(66), 가라앉은 근위병(68). 해파리 묵</td><td>탐색 · 캐기 · 숨 쉬기</td></tr>
+  <tr><td>A11</td><td>잠긴 궁 (던전, 물 아래)</td><td>궁 안 다섯 전각. 맨 안쪽에 늘 울리던 종의 메아리(70)</td><td>지금 던전 + 숨</td></tr>
+</table></div>
+
+<h2><span class="id">B</span>숨, 그리고 둘씩 덤비는 것들</h2>
+<p class="note">잠긴 도성의 사냥터는 모두 물 아래입니다. 숨이 닳기 전에 끝내고 올라와야 하고, 여기 것들은 짝을 지어 다닙니다. 혼자서는 싸움이 길어져 숨이 모자랍니다. 그래서 용병이 필요해집니다.</p>
+<div class="row">
+  <div>
+    <div class="phone">
+      <div class="top"><b>잠긴 거리</b><span>96일째 낮 · 위험 높음</span></div>
+      <div class="stats c5">
+        <div class="st"><span>생명 <b>880</b></span><i><i style="width:78%"></i></i></div>
+        <div class="st"><span>마나 <b>84</b></span><i><i style="width:70%"></i></i></div>
+        <div class="st"><span>포만 <b>61</b></span><i><i style="width:61%"></i></i></div>
+        <div class="st"><span>피로 <b>39</b></span><i><i style="width:39%"></i></i></div>
+        <div class="st cold"><span>숨 <b>13</b></span><i><i style="width:65%"></i></i></div>
+      </div>
+      <div class="chips"><span class="chip">일행: 창잡이 파랑 · 방패잡이 너울</span></div>
+      <div class="chat">
+        <div class="rm">기와지붕 아래로 내려서자 거리가 그대로 있다. 간판, 수레, 열린 문. 모든 것이 천천히 흔들린다.</div>
+        <div class="sys">비늘 사냥개를 쓰러뜨렸다. 경험치 +1,640.</div>
+        <div class="sys frost">물살이 갈라진다. 짝이 온다. 숨 돌릴 틈이 없다.</div>
+        <div class="sys mint">너울이 방패로 둘째를 막아섰다. 둘째는 생명력 절반으로 덤빈다.</div>
+      </div>
+      <div class="slots">
+        <button class="sl go">1<br>공격</button>
+        <button class="sl">2<br>방어</button>
+        <button class="sl">3<br>스킬</button>
+        <button class="sl">4<br>공기 주머니<small>숨 +10</small></button>
+      </div>
+    </div>
+    <p class="cap">B1 물 아래의 싸움. 하나를 쓰러뜨리면 짝이 곧바로 이어 덤빕니다. 막는 용병이 있으면 둘째가 절반의 생명력으로 옵니다.</p>
+  </div>
+  <div>
+    <div class="phone">
+      <div class="top"><b>잠긴 궁 뜰</b><span>96일째 낮 · 위험 높음</span></div>
+      <div class="stats c5">
+        <div class="st"><span>생명 <b>611</b></span><i><i style="width:54%"></i></i></div>
+        <div class="st"><span>마나 <b>30</b></span><i><i style="width:25%"></i></i></div>
+        <div class="st"><span>포만 <b>55</b></span><i><i style="width:55%"></i></i></div>
+        <div class="st"><span>피로 <b>52</b></span><i><i style="width:52%"></i></i></div>
+        <div class="st cold low"><span>숨 <b>0</b></span><i><i style="width:0%"></i></i></div>
+      </div>
+      <div class="chips"><span class="chip frost">막힌 숨: 움직일 때마다 생명력이 깎인다</span></div>
+      <div class="chat">
+        <div class="sys frost">숨이 다했다. 가슴이 탄다. 생명력 −56.</div>
+        <div class="me">물 위로 솟구쳤다. 숨이 돌아왔다.</div>
+        <div class="rm">지붕마을 선창. 젖은 채로 널 위에 엎드렸다.</div>
+      </div>
+      <div class="slots">
+        <button class="sl go">1<br>탐색</button>
+        <button class="sl">2<br>캐기</button>
+        <button class="sl">3<br>숨 쉬기<small>물 위로</small></button>
+        <button class="sl">4<br>공기 주머니<small>가방에 1개</small></button>
+      </div>
+    </div>
+    <p class="cap">B2 숨이 다했을 때. "숨 쉬기"는 물 위로 올라가 선창으로 돌아오는 일입니다. 싸우는 중에는 올라갈 수 없습니다.</p>
+  </div>
+</div>
+<h3><span class="id">B3</span>숨과 짝의 숫자</h3>
+<div class="scroll"><table>
+  <tr><th>무엇</th><th>숫자</th></tr>
+  <tr><td>숨</td><td>스무 번이 가득. 물 아래에서 한 번 움직일 때마다(싸움의 한 턴도) 하나씩 준다</td></tr>
+  <tr><td>막힌 숨 (0)</td><td>움직일 때마다 최대 생명력의 5%가 깎인다</td></tr>
+  <tr><td>숨 쉬기</td><td>물 위로 올라가 선창으로 돌아온다. 숨이 가득 찬다. 싸우는 중에는 못 한다. 다시 내려가는 데 다섯 번 움직인 만큼의 때가 든다</td></tr>
+  <tr><td>공기 주머니 <span class="new">새 물건</span></td><td>물 아래에서 숨 +10. 싸우는 중에도 쓴다(한 턴). 잠수꾼 조합에서 은화 120, 비늘 가죽 둘로 직접 꿰맬 수도 있다</td></tr>
+  <tr><td>비늘 가죽 장비</td><td>하나마다 숨 +2 (장갑·장화 둘이면 가득이 24)</td></tr>
+  <tr><td>짝</td><td>잠긴 도성의 보통 몬스터는 둘씩 다닌다. 하나를 쓰러뜨리면 둘째가 곧바로 덤빈다. 사이에 쉬거나 먹을 수 없다. 경험치와 전리품은 둘 몫</td></tr>
+  <tr><td>막는 용병이 있으면</td><td>둘째가 생명력 절반으로 덤빈다</td></tr>
+  <tr><td>때리는 용병이 있으면</td><td>지금처럼 턴마다 함께 친다. 싸움이 짧아져 숨이 남는다</td></tr>
+</table></div>
+<p class="note">따라가 보기: 혼자 내려가면 한 짝에 스물두 턴쯤 걸려 숨 스물로는 모자랍니다(공기 주머니 하나가 듭니다). 때리는 용병 하나면 열다섯 턴, 막는 용병까지 둘이면 열한 턴입니다. 숨 스물로 한 짝을 잡고 조금 캐고 올라오는 길이가 됩니다.</p>
+
+<h2><span class="id">C</span>이 구간의 용병과 호위받는 채집</h2>
+<div class="row">
+  <div>
+    <div class="pg">
+      <span class="ttl">근위 막사의 용병</span>
+      <div class="rowx"><span><b>창잡이 파랑</b> · 때리는 이</span><span>하루 삯 250 · 함께 있다</span></div>
+      <p style="font-family:var(--sans);font-size:.86rem;color:var(--muted)">내 공격력의 55%만큼 턴마다 함께 친다. 생명력 1,400.</p>
+      <div class="rowx"><span><b>방패잡이 너울</b> · 막는 이</span><span>하루 삯 250 · 함께 있다</span></div>
+      <p style="font-family:var(--sans);font-size:.86rem;color:var(--muted)">내가 맞을 것의 35%를 대신 맞는다. 짝의 둘째를 붙잡는다. 생명력 2,000.</p>
+      <div class="rowx"><span><b>활잡이 이랑</b> · 때리는 이 (뒷줄)</span><span>하루 삯 250 · 동료는 2명까지</span></div>
+      <span class="h">지금 지역의 용병</span>
+      <div class="rowx"><span>가온 · 바람결 · 돌방패</span><span>여기까지 따라오지 않는다</span></div>
+    </div>
+    <p class="cap">C1 용병 창. 지금 창 그대로이고 사람만 이 구간 사람입니다. 일행은 81 전까지 둘입니다.</p>
+  </div>
+  <div>
+    <div class="phone">
+      <div class="top"><b>잠긴 거리</b><span>96일째 낮 · 위험 높음</span></div>
+      <div class="chat">
+        <div class="me">무너진 담 밑에서 청동을 캤다.</div>
+        <div class="sys frost">기척: 문지기 둘이 이쪽으로 온다.</div>
+        <div class="sys mint">파랑과 너울이 앞을 막았다. "캐시오. 여긴 우리가."</div>
+        <div class="me">옛 청동 덩이 2개를 캤다.</div>
+        <div class="sys">파랑과 너울이 문지기 둘을 물리쳤다. 경험치 +1,470 (절반). 너울이 조금 다쳤다.</div>
+      </div>
+      <div class="slots">
+        <button class="sl">1<br>탐색</button>
+        <button class="sl go">2<br>캐기<small>호위받는 중</small></button>
+        <button class="sl">3<br>숨 쉬기</button>
+        <button class="sl">4<br>공기 주머니</button>
+      </div>
+    </div>
+    <p class="cap">C2 호위받는 채집. 캐는 동안 덤비는 것은 용병 둘이 맡습니다.</p>
+  </div>
+</div>
+<ul class="note">
+  <li>C3 구간 용병은 거점마다 따로 있습니다. 지금 용병 셋(가온, 바람결, 돌방패)은 소리재까지만 따라옵니다. 흰마루에서 안개늪까지는 그곳 움막·막사에 그 구간의 숫자를 가진 용병 셋이 있습니다(이름만 다르고 지금과 같은 틀).</li>
+  <li>C4 호위받는 채집은 용병이 둘 다 있을 때만 됩니다. 캐기를 누르는 동안 싸움이 나면 용병의 힘으로 결과가 정해지고, 나는 캐기를 이어 갑니다. 경험치는 절반, 전리품은 그대로입니다.</li>
+  <li>C5 용병도 다칩니다. 호위 싸움 한 번에 생명력의 15~30%를 잃고, 쓰러지면 그날은 못 씁니다(지금 규칙 그대로). 주막에서 자면 낫습니다.</li>
+  <li>C6 싸우지 않는 길(만들기로 사는 사람)은 이것으로 재료를 직접 모읍니다.</li>
+</ul>
+
+<h2><span class="id">D</span>10장 늘 울리던 종: 글</h2>
+<div class="row">
+  <div class="pg">
+    <span class="h">메인 퀘스트 · 10장</span>
+    <span class="ttl">늘 울리던 종</span>
+    <p>이 도성의 임금은 백성을 아꼈다. 그래서 종에게 시켰다. 누구에게나, 날마다, 무엇을 하든 울라고. 아침에 눈만 떠도 띠링이 왔다. 석 달 만에 종이 터졌고, 터진 자리로 물이 들어왔다. 물 아래에서는 아직도 그 메아리가 운다. 아무에게나, 끝없이.</p>
+    <span class="h">푸는 길</span>
+    <div class="rowx"><span>잠재우는 길</span><span>잠긴 궁 맨 안쪽의 메아리를 쓰러뜨린다</span></div>
+    <div class="rowx"><span>다시 짓는 길</span><span>옛 청동 덩이 이백과 근위병의 창(승급작)을 종루에 바친다</span></div>
+    <div class="rowx"><span>풀어 주는 길</span><span>가라앉은 근위병 다섯에게 교대를 알린다(설득 판정)</span></div>
+    <span class="h">끝내면</span>
+    <div class="rowx"><span>열리는 길</span><span>구름다리로 오르는 길</span></div>
+  </div>
+  <div>
+    <div class="phone">
+      <div class="top"><b>잠수꾼 조합</b><span>95일째 밤 · 안전</span></div>
+      <div class="chat">
+        <div class="rm">벽마다 건져 올린 것들이 걸려 있다. 깨진 그릇, 녹슨 열쇠, 그리고 뚜껑이 열리지 않은 상자들.</div>
+        <div class="who">조합장 한별</div>
+        <div class="npc">할머니의 할머니 때 얘기야. 눈만 떠도 울렸대. 밥 먹었다고 울리고, 걸었다고 울리고.</div>
+        <div class="npc">좋았겠지, 처음엔. 그런데 다 울리면 뭐가 울린 건지 모르잖아. 사람들이 아무것도 안 하게 됐대.</div>
+        <div class="me">아래에 상자가 많더라고 했다.</div>
+        <div class="npc">임금의 하사품이야. 그냥 가지라고 둔 거. 열면 좋은 게 나와. …우린 안 열어.</div>
+      </div>
+      <div class="slots">
+        <button class="sl">1<br>상점</button>
+        <button class="sl">2<br>바느질</button>
+        <button class="sl">3<br>게시판</button>
+        <button class="sl go">4<br>말 걸기</button>
+      </div>
+    </div>
+    <p class="cap">D1 조합장과 처음 만날 때. 이 장의 물음은 "거저 준 것도 답인가"입니다.</p>
+  </div>
+</div>
+<div class="scroll"><table>
+  <tr><th>번호</th><th>무엇</th><th>글 (처음 값)</th></tr>
+  <tr><td>D2</td><td>도성에 닿을 때</td><td>안개가 걷히자 물 위에 지붕들이 떠 있었다. 지붕이 아니다. 잠긴 것의 꼭대기다. 배 밑으로 거리가 지나갔다. 그리고 물속에서, 아주 많은 띠링이 한꺼번에 울리고 있었다.</td></tr>
+  <tr><td>D3</td><td>메아리를 잠재운 끝</td><td>메아리가 흩어지자 물속이 처음으로 조용해졌다. 너무 조용해서 내 숨소리가 들렸다. 위에서 누가 종루의 빈 고리를 한 번 쳤다. 띵. 그것으로 충분했다.</td></tr>
+  <tr><td>D4</td><td>다시 지은 끝</td><td>이백 번째 청동을 올리자 대장장이가 쇳물을 부었다. 작은 종이었다. 옛것의 반의반도 안 됐다. "이건 아무에게나 안 울어." 그가 말했다. "그래야 종이지."</td></tr>
+  <tr><td>D5</td><td>풀어 준 끝</td><td>다섯째 근위병이 검을 내렸다. 갑옷 안의 물이 빠져나갔다. "교대… 왔는가. 오래… 걸렸군." 물 아래의 띠링이 하나씩 꺼졌다. 지킬 것이 없어지자 메아리도 갈 데가 없었다.</td></tr>
+  <tr><td>D6</td><td>서브: 젖은 족보</td><td>잠긴 거리의 집 다섯 채에서 족보를 건져 온다. 지붕마을 사람들이 제 성을 되찾는다. 캐기로 찾는다.</td></tr>
+  <tr><td>D7</td><td>서브: 근위병의 마지막 순찰</td><td>파랑이 밤에 잠긴 거리를 한 바퀴 돌고 싶어 한다. 증조부가 돌던 길이다. 함께 내려가 끝까지 돈다(숨을 세 번 채워야 하는 길이).</td></tr>
+</table></div>
+<p class="note">히든 퀘스트 "받지 않은 사람": 물 아래 곳곳에 "임금의 하사품" 상자가 있습니다. 열면 그 구간의 좋은 물건이 그냥 나옵니다. 하나도 열지 않고 10장을 끝내면 열립니다. 상자를 하나 열 때마다 메아리가 5%씩 세지는 것은 화면에 나오지 않습니다.</p>
+
+<h2><span class="id">E</span>화면에 나오는 말</h2>
+<div class="scroll"><table>
+  <tr><th>자리</th><th>쓸 말</th><th>근거</th></tr>
+  <tr><td>눈금 칸</td><td>숨</td><td>물속을 다루는 게임에서 흔히 쓰는 말 (확인 안 함)</td></tr>
+  <tr><td>이름표</td><td>막힌 숨</td><td>Claude가 지음. "마른 목", "식은 몸"과 맞춤</td></tr>
+  <tr><td>단축 칸</td><td>숨 쉬기 · 공기 주머니 · 캐기 (호위받는 중)</td><td>Claude가 지음</td></tr>
+  <tr><td>용병 창</td><td>때리는 이 · 막는 이</td><td>지금 게임의 말(T26)</td></tr>
+  <tr><td>곳</td><td>지붕마을 선창 · 종루 꼭대기 · 근위 막사 · 청동 대장간 · 잠수꾼 조합 · 물가 사당 · 뱃집 주막 · 잠긴 거리 · 잠긴 궁 뜰 · 잠긴 궁</td><td>Claude가 지음 (잠긴 궁만 앞 시안에서 확정)</td></tr>
+  <tr><td>사람</td><td>조합장 한별 · 창잡이 파랑 · 방패잡이 너울 · 활잡이 이랑</td><td>Claude가 지음</td></tr>
+  <tr><td>물건</td><td>공기 주머니 · 임금의 하사품</td><td>Claude가 지음</td></tr>
+</table></div>
+
+<h2><span class="id">F</span>아직 없을 때의 모습</h2>
+<ul>
+  <li>F1 잠긴 도성: 9장을 끝내기 전에는 지도, 소문, 뜬마을의 단축 칸 어디에도 나오지 않습니다(숨김).</li>
+  <li>F2 숨 칸: 물 아래에 있을 때만 보입니다. 지붕마을에서는 네 칸입니다.</li>
+  <li>F3 호위받는 채집: 용병 둘과 처음 물 아래에서 캐기를 할 때 대화방 한 줄로 알립니다. 그 전에는 도움말에도 없습니다(숨김).</li>
+  <li>F4 임금의 하사품: 상자는 보이고 열 수 있습니다. 열면 무엇이 달라지는지는 어디에도 나오지 않습니다(히든).</li>
+  <li>F5 구간 용병: 그 거점에 가 보기 전에는 용병 창에 나오지 않습니다(숨김).</li>
+</ul>
+
+<div class="ask">
+  <h3 style="margin-top:0">추천대로 정한 것</h3>
+  <ol>
+    <li>"둘씩 덤빈다"는 한꺼번에 둘과 싸우는 것이 아니라 <b>연달아 두 판</b>으로 넣었습니다. 지금 전투는 적 하나와 싸우는 틀이라, 틀을 바꾸지 않고 "숨 돌릴 틈 없이 이어진다"로 풀었습니다.</li>
+    <li>숨은 싸움의 한 턴에도 닳습니다. 그래서 싸움이 짧아야 하고, 그것이 용병이 필요한 까닭이 됩니다. 앞서 숫자만으로는 용병이 꼭 필요하지 않았던 것을 이 규칙으로 메웁니다.</li>
+    <li>구간 용병은 거점마다 따로 두고, 지금 용병 셋은 소리재까지만 따라옵니다. 흰마루~안개늪에도 그 구간 숫자의 용병 셋이 생깁니다(흰마루 시안의 "지금 용병 셋 그대로"가 이렇게 바뀝니다).</li>
+    <li>호위받는 채집은 용병 둘이 다 있을 때만 됩니다. 경험치는 절반입니다.</li>
+    <li>임금의 하사품은 열면 정말 좋은 것이 나옵니다. 값은 우두머리가 세지는 것으로 치릅니다. "거저 주지 않는다"를 이야기로 겪게 하려는 것입니다.</li>
+    <li>용병 삯 250, 공기 주머니 120, 깊은 성수 130, 방 값 210입니다.</li>
+  </ol>
+  <p class="note" style="margin-top:8px">3번은 확정하신 흰마루 시안의 한 줄을 바꿉니다. 지금 돌고 있는 M15 개발에는 "지금 용병 셋 그대로"로 들어가고, 구간 용병은 이 구간을 만들 때 앞 지역에 같이 넣습니다. 이 시안에 없는 것: 던전의 방 배치, 곳의 띠 그림. 고칠 곳은 번호(B3, C4처럼)로 짚어 주세요.</p>
+</div>
+</div>
+
+</body></html>

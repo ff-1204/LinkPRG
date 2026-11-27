@@ -1,13 +1,14 @@
 // 장비의 이름, 수리, 강화, 옵션 (Z17~Z19). 템은 두드리고 고치고 키운 만큼 세진다.
 
-import { roll01 } from './rng.js?v=6d96d3a';
-import { pushLine, ding } from './log.js?v=6d96d3a';
-import { itemDef } from '../data/items.js?v=6d96d3a';
-import { countOf, takeById } from './inventory.js?v=6d96d3a';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=6d96d3a';
-import { placeById } from '../data/places.js?v=6d96d3a';
-import { iGa, eulReul } from './ko.js?v=6d96d3a';
-import { jobXp } from './jobs.js?v=6d96d3a';
+import { roll01 } from './rng.js?v=327d747';
+import { pushLine, ding } from './log.js?v=327d747';
+import { itemDef } from '../data/items.js?v=327d747';
+import { countOf, takeById } from './inventory.js?v=327d747';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=327d747';
+import { placeById } from '../data/places.js?v=327d747';
+import { iGa, eulReul } from './ko.js?v=327d747';
+import { jobXp } from './jobs.js?v=327d747';
+import { HEAT, hotAtForge } from './heat.js?v=327d747';
 
 export const PLUS_MAX = 10;
 /** +0에서 +1로 갈 때부터의 성공 확률. 높을수록 어렵다. */
@@ -104,7 +105,7 @@ export function repairCost(state, item) {
   const max = maxDur(item);
   if (!max || item.dur >= max) return 0;
   const base = (itemDef(item.id).price || 10) * (1 - item.dur / max) * 0.5;
-  return Math.max(1, Math.ceil(base * (state.work === (isCloth(item) ? 'tailor' : 'smith') ? 0.5 : 1) * (state.flags.cheapRepair ? 0.5 : 1))); // 편자공의 조수는 절반
+  return Math.max(1, Math.ceil(base * (state.work === (isCloth(item) ? 'tailor' : 'smith') ? 0.5 : 1) * (state.flags.cheapRepair ? 0.5 : 1) * (hotAtForge(state, item) ? HEAT.repair : 1))); // 편자공의 조수는 절반. 달궈진 쇠는 큰 대장간에서 절반 (AG-B3)
 }
 
 export function repair(state, events, loc) {
@@ -127,8 +128,9 @@ export function enhanceView(state, item) {
   const ore = def.attack ? 'ironore' : 'boarhide';
   const need = { id: ore, name: itemDef(ore).name, n: plus + 1, have: countOf(state, ore) };
   const silver = 5 * (plus + 1);
-  const chance = Math.min(1, PLUS_ODDS[plus] + (state.skills[isCloth(item) ? 'leather' : 'smithing']?.grade || 0) * 0.005 + (state.hidden.craft?.value || 0) * 0.01);
-  return { plus, max: false, need, silver, chance, can: need.have >= need.n && state.silver >= silver && item.dur > 0, dropOnFail: plus >= PLUS_DROP_AT };
+  const hot = hotAtForge(state, item); // 달궈진 쇠 (AG-B3): 큰 대장간에서 그 무기의 강화 +10%p
+  const chance = Math.min(1, PLUS_ODDS[plus] + (state.skills[isCloth(item) ? 'leather' : 'smithing']?.grade || 0) * 0.005 + (state.hidden.craft?.value || 0) * 0.01 + (hot ? HEAT.plus : 0));
+  return { plus, max: false, need, silver, chance, hot, can: need.have >= need.n && state.silver >= silver && item.dur > 0, dropOnFail: plus >= PLUS_DROP_AT };
 }
 
 /**

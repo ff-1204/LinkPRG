@@ -1,31 +1,48 @@
 // 전투 (E5~E9, R2-2). 한 턴에 행동 하나. 적의 다음 행동은 늘 미리 보인다.
 // 방어하면 피해가 절반이고, 돌진류는 막고 되받아친다.
 
-import { next, chance } from './rng.js?v=6d96d3a';
-import { pushLine, ding } from './log.js?v=6d96d3a';
-import { monsterDef, STATUS } from '../data/monsters.js?v=6d96d3a';
-import { itemDef, ITEMS, gradeName } from '../data/items.js?v=6d96d3a';
-import { roll01 } from './rng.js?v=6d96d3a';
-import { guildPerk } from './guild.js?v=6d96d3a';
-import { rollOptions, gearName } from './gear.js?v=6d96d3a';
-import { derived, skillBonus } from './derived.js?v=6d96d3a';
-import { addItem, removeAt, usable, totalWeight, equip, slotFor, equipPower } from './inventory.js?v=6d96d3a';
-import { grantXp } from './reward.js?v=6d96d3a';
-import { useSkill, emptySkill, gradeLabel, SKILL_NAMES } from './skills.js?v=6d96d3a';
-import { fall } from './fall.js?v=6d96d3a';
-import { iGa, eulReul, ro } from './ko.js?v=6d96d3a';
-import { branchOf } from './evolve.js?v=6d96d3a';
-import { skillsNow, jobXp, adv } from './jobs.js?v=6d96d3a';
-import { guardFor, hitCompanion, companionsAct, afterBattle, roleBonus, cross } from './party.js?v=6d96d3a';
-import { jobDef } from '../data/jobs.js?v=6d96d3a';
-import { BEATS, WEAK_MULT, RESIST_MULT } from '../data/dungeon.js?v=6d96d3a';
-import { HUNGRY, DUEL, DUEL_MOVES, BANDIT, BANDIT_MOVES } from '../data/wild.js?v=6d96d3a';
-import { addFame } from './social.js?v=6d96d3a';
-import { giveMurder, MURDER, giveGrace, GRACE } from './buffs.js?v=6d96d3a';
-import { applyDish } from './cook.js?v=6d96d3a';
-import { DISHES } from '../data/cooking.js?v=6d96d3a';
+import { bandOfPlace } from '../data/bands.js?v=327d747';
+import { placeById } from '../data/places.js?v=327d747';
+import { next, chance } from './rng.js?v=327d747';
+import { pushLine, ding } from './log.js?v=327d747';
+import { monsterDef, STATUS } from '../data/monsters.js?v=327d747';
+import { itemDef, ITEMS, gradeName } from '../data/items.js?v=327d747';
+import { roll01 } from './rng.js?v=327d747';
+import { guildPerk } from './guild.js?v=327d747';
+import { rollOptions, gearName } from './gear.js?v=327d747';
+import { derived, skillBonus, attackStat } from './derived.js?v=327d747';
+import { addItem, removeAt, usable, totalWeight, equip, slotFor, equipPower } from './inventory.js?v=327d747';
+import { grantXp } from './reward.js?v=327d747';
+import { useSkill, emptySkill, gradeLabel, SKILL_NAMES } from './skills.js?v=327d747';
+import { fall } from './fall.js?v=327d747';
+import { iGa, eulReul, ro } from './ko.js?v=327d747';
+import { branchOf } from './evolve.js?v=327d747';
+import { skillsNow, jobXp, adv } from './jobs.js?v=327d747';
+import { guardFor, hitCompanion, companionsAct, afterBattle, roleBonus, cross } from './party.js?v=327d747';
+import { jobDef } from '../data/jobs.js?v=327d747';
+import { BEATS, WEAK_MULT, RESIST_MULT } from '../data/dungeon.js?v=327d747';
+import { HUNGRY, DUEL, DUEL_MOVES, BANDIT, BANDIT_MOVES } from '../data/wild.js?v=327d747';
+import { addFame } from './social.js?v=327d747';
+import { giveMurder, MURDER, giveGrace, GRACE } from './buffs.js?v=327d747';
+import { applyDish } from './cook.js?v=327d747';
+import { DISHES } from '../data/cooking.js?v=327d747';
+import { warmUp } from './cold.js?v=327d747';
+import { loseWater } from './thirst.js?v=327d747';
+import { wear } from './heat.js?v=327d747';
+import { normalAt } from '../data/bands.js?v=327d747';
+import { arenaIntent, neverRests, ARENA_FOE } from '../data/arena.js?v=327d747';
 
 /** 사나움 (Z60): 세계의 날마다 괴물의 생명·공격과 경험치·떨굼 확률이 조금씩 오른다. 끝이 없다. 우두머리·던전도 같다. */
+import { curseOf, curseMult, curseHit, liftCurse, healCut } from './marsh.js?v=327d747';
+import { SUNKEN, SUNKEN_LINES, pairComes, holder, giftBoost, useAir } from './sunken.js?v=327d747';
+import { COMPANIONS } from '../data/companions.js?v=327d747';
+import { drumBuff } from './buffs.js?v=327d747';
+import { CLOUD, CLOUD_LINES, windIs, pushedLine } from './cloud.js?v=327d747';
+import { POND, READ_LINES, mirrored, isRead, readKey, readStep, readReset } from './pond.js?v=327d747';
+import { ANVIL, ANVIL_LINES, forged, temperMult, hammerInBattle, cooled, keptEdge, bellIntent, shellBroke, bellRound, leftBell, building, bellBuilt } from './anvil.js?v=327d747';
+import { monsterXp } from '../data/bands.js?v=327d747';
+import { xpToNext } from './level.js?v=327d747';
+import { addSkillXp } from './skills.js?v=327d747';
 export const FIERCE_PER = 0.0005;
 export const fierceOf = (day) => 1 + FIERCE_PER * Math.max(0, (day || 1) - 1);
 
@@ -35,6 +52,10 @@ export const ELITE = { hp: 2.5, attack: 1.3, defense: 2, level: 2, xp: 3, per: 0
 function mdef(b) {
   let m = monsterDef(b.mon);
   if (m.phases && b.phase) m = { ...m, ...m.phases[b.phase - 1] };
+  // 못의 거울상 (BM-B3): 공격력이 내 공격력의 90%, 방어력이 내 방어구 합, 경험치가 내 레벨의 몬스터 한 마리 반. 이 한 마리만 나를 비춘다
+  if (b.mirror) m = { ...m, attack: b.mirror.attack, defense: b.mirror.defense, xp: b.mirror.xp };
+  // 지어지지 않은 종 (CM-D3): 싸움에서 깨는 것은 식은 껍질이다. 종의 생명력(보통 몬스터의 4배, LV-I3) 가운데 껍질의 몫만큼만 깨면 속이 드러난다
+  if (m.build) m = { ...m, hp: Math.max(1, Math.round(m.hp * ANVIL.shell)) };
   // 이름난 개체: 많이 잡은 사냥감 가운데 드물게 나온다. 훨씬 세고, 잡으면 장비를 떨어뜨린다
   if (b.elite) m = { ...m, name: `이름난 ${m.name}`, hp: Math.round(m.hp * ELITE.hp), attack: Math.round(m.attack * ELITE.attack), defense: m.defense + ELITE.defense, level: m.level + ELITE.level, xp: m.xp * ELITE.xp };
   if (b.hungry) m = { ...m, name: `굶주린 ${m.name}`, hp: Math.round(m.hp * HUNGRY.hp), attack: Math.round(m.attack * HUNGRY.attack), xp: m.xp * HUNGRY.xp }; // 먹잇감 냄새를 맡고 온 놈 (Z64)
@@ -42,6 +63,10 @@ function mdef(b) {
   if (b.person) m = { ...m, name: `모험가 '${b.person}'`, element: null, hp: Math.round(m.hp * DUEL.hp), attack: Math.round(m.attack * DUEL.attack), xp: m.xp * DUEL.xp, moves: DUEL_MOVES, drops: [], phases: null };
   // 도적 (Z90): 그 들판의 가장 센 짐승에서, 눈에 띄는 정도 1000마다 레벨 +1
   if (b.bandit) { const u = b.bandit.up || 0; m = { ...m, name: `도적 '${b.bandit.name}'`, element: null, level: m.level + u, hp: Math.round(m.hp * 1.2 * (1 + BANDIT.hp * u)), attack: Math.round(m.attack * (1 + BANDIT.attack * u)), defense: m.defense + Math.floor(u / 2), xp: Math.round(m.xp * BANDIT.xp * (1 + 0.1 * u)), moves: BANDIT_MOVES, drops: [], phases: null }; }
+  // 겨루기 상대 (AG-C2): "모험가와 싸우기"의 틀(수 셋) 그대로, 세기는 그 사람의 레벨에 맞춘다(곱하는 숫자는 마당의 것, M23-4). 떨구는 것도 경험치도 없다
+  if (b.arena) { const n = normalAt(b.arena.level); m = { ...m, name: `겨루기 상대 '${b.arena.name}'`, element: null, level: b.arena.level, hp: Math.round(n.hp * ARENA_FOE.hp), attack: Math.round(n.attack * ARENA_FOE.attack), defense: n.defense, agi: Math.round(10 + b.arena.level * 0.6), xp: 0, moves: neverRests(b.arena) ? DUEL_MOVES.filter((x) => x.kind !== 'wait') : DUEL_MOVES, drops: [], phases: null }; }
+  // 임금의 하사품 (JD-D): 연 상자마다 메아리가 5%씩 세다. 어디에도 내보내지 않는다
+  if (b.gift) m = { ...m, hp: Math.round(m.hp * b.gift), attack: Math.round(m.attack * b.gift) };
   const f = b.fierce || 1; // 싸움이 시작된 날의 사나움
   if (f !== 1) m = { ...m, hp: Math.round(m.hp * f), attack: Math.round(m.attack * f), xp: Math.round(m.xp * f), drops: (m.drops || []).map((d) => ({ ...d, p: Math.min(1, d.p * f) })) };
   return m;
@@ -59,7 +84,8 @@ const DROP_GRADES = [35, 35, 20, 8, 2];
 /** 이름난 개체가 떨어뜨리는 장비 하나. 등급과 옵션이 붙는다. */
 function dropGear(state, events) {
   const n = (state.counters.elites = (state.counters.elites || 0) + 1);
-  const pool = Object.entries(ITEMS).filter(([, d]) => d.kind === 'gear' && !d.tool && !d.job && (d.attack || d.defense) && d.price).map(([id]) => id);
+  const here = bandOfPlace(placeById(state.place)).n; // 그곳 구간의 장비까지만 떨어진다 (LV-G1)
+  const pool = Object.entries(ITEMS).filter(([, d]) => d.kind === 'gear' && !d.tool && !d.job && (d.attack || d.defense) && d.price && (d.tier || 1) <= here).map(([id]) => id);
   if (!pool.length) return;
   const id = pool[Math.floor(roll01(`${state.seed}|drop|${n}`) * pool.length)];
   let roll = roll01(`${state.seed}|dropgrade|${n}`) * 100;
@@ -79,6 +105,14 @@ export function elementMult(attack, target) {
 }
 
 const val = (state, id) => derived(state).find((d) => d.id === id).value;
+/** 못의 거울상이 비추는 것 (BM-B3): 지금의 내 공격력과 방어구 합. 좋은 장비를 찰수록 세다. */
+export const mirrorOf = (state) => ({ attack: Math.max(1, Math.round(val(state, 'attack') * POND.mirrorAttack)), defense: equipPower(state).defense });
+/** 싸움에서 오른 숙련도를 적어 둔다: 한 번도 읽히지 않고 이기면 그 20%가 더 오른다 (BM-B3). 읽히는 곳에서만 적는다. */
+function tally(state, b, id, up) {
+  if (!b || !mirrored(state) || !up?.gained) return;
+  b.gain = b.gain || {};
+  b.gain[id] = (b.gain[id] || 0) + up.gained;
+}
 const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
 
 export function weighted(state, list) {
@@ -95,8 +129,9 @@ export function hasStatus(state, id) {
 /** 도망 성공 확률 (R2-2). 무게를 넘겼으면 어렵다 (G1-6). */
 export function fleeChance(state) {
   const m = mdef(state.battle);
+  if (building(state.battle)) return 1; // 지어지지 않은 종은 쫓아오지 않는다: 망치를 내려놓으면 내려온다 (CM-D5)
   const over = totalWeight(state) > val(state, 'carry') ? 0.2 : 0;
-  return clamp(0.5 + (state.stats.agi - m.agi) * 0.03 - over + roleBonus(state) + (adv(state).flee || 0) + (state.flags.fleeEasy ? 0.1 : 0), 0.05, 0.95);
+  return clamp(0.5 + (state.stats.agi - m.agi) * 0.03 - over + roleBonus(state) + (adv(state).flee || 0) + (state.flags.fleeEasy ? 0.1 : 0) + (windIs(state, 'tail') ? CLOUD.flee : 0), 0.05, 0.95); // 뒷바람이 등을 민다 (GD-B3)
 }
 
 function critChance(a, b) {
@@ -109,31 +144,43 @@ function damage(state, attack, power, defense) {
   return Math.max(1, Math.round(base * (0.9 + next(state) * 0.2)));
 }
 
-export function startBattle(state, events, monId, { ambush = false, pounce = false, caught = false, hungry = false, person = null, bandit = null } = {}) {
+export function startBattle(state, events, monId, { ambush = false, pounce = false, caught = false, hungry = false, person = null, bandit = null, arena = null, second = false, half = false, solo = false, bell = null } = {}) {
   const m = monsterDef(monId);
   const seenN = (state.counters.fights = (state.counters.fights || 0) + 1);
-  const elite = !hungry && !person && !bandit && roll01(`${state.seed}|elite|${monId}|${seenN}`) < eliteChance(state, monId);
+  const elite = !hungry && !person && !bandit && !arena && !second && roll01(`${state.seed}|elite|${monId}|${seenN}`) < eliteChance(state, monId);
   // stun·weak·burn: 내 스킬이 적에게 건 것. ward: 내 몸을 감싼 것. streak: 같은 공격을 이어 한 횟수.
   state.battle = { mon: monId, hp: 0, turn: 1, intent: null, stun: 0, weak: null, burn: 0, ward: null, streak: 0, phase: 0 };
+  // 지어지지 않은 종 (CM-D2): 종(bell)을 100까지 채워야 끝난다. bellx는 절반 단위로 센 값, open은 깨진 껍질이 다시 굳기까지의 턴
+  if (m.build) { state.battle.bell = bell || 0; state.battle.bellx = (bell || 0) * 2; state.battle.open = 0; }
+  // 벼리는 곳 (CM-B3): 싸움을 시작할 때 든 무기의 내구도를 적어 둔다(벼림 열둘로 이기면 닳지 않는다)
+  if (forged(state) && state.equip.weapon) { state.battle.wid = state.equip.weapon.id; state.battle.wdur = state.equip.weapon.dur; }
   if (elite) state.battle.elite = true;
   if (hungry) state.battle.hungry = true;
   if (person) state.battle.person = person;
   if (bandit) state.battle.bandit = bandit;
-  const f = fierceOf(state.day);
+  if (arena) state.battle.arena = arena;
+  if (second) state.battle.second = true; // 짝의 둘째 (JD-B3): 이 싸움 뒤에는 더 오지 않는다
+  if (solo) state.battle.solo = true; // 혼자 자리를 지키는 근위병: 짝이 없다
+  if (m.gifted && giftBoost(state) > 1) state.battle.gift = giftBoost(state);
+  if (monId === POND.mirror) state.battle.mirror = { ...mirrorOf(state), xp: Math.round(monsterXp(state.level, xpToNext) * POND.mirrorXp) };
+  const f = arena ? 1 : fierceOf(state.day); // 겨루기 상대는 사람이다. 들짐승처럼 사나워지지 않는다
   if (f !== 1) state.battle.fierce = f;
   state.battle.hp = mdef(state.battle).hp;
+  if (half) state.battle.hp = Math.ceil(state.battle.hp * SUNKEN.secondHp); // 막는 이가 붙잡은 둘째는 생명력 절반으로 덤빈다
   state.status = [];
   state.choice = null;
   state.lastAction = null;
-  if (person) pushLine(state, events, { k: 'user', who: `모험가 '${person}'`, text: '그래, 그렇게 나오시겠다? 좋아요. 끝을 봅시다.' });
+  if (arena) pushLine(state, events, { k: 'room', who: '겨루기', text: `'${arena.name}'${arena.name.charCodeAt(arena.name.length - 1) >= 0xac00 && (arena.name.charCodeAt(arena.name.length - 1) - 0xac00) % 28 ? '이' : '가'} 마당 한가운데로 걸어 나온다. 둘레가 조용해진다.` });
+  else if (person) pushLine(state, events, { k: 'user', who: `모험가 '${person}'`, text: '그래, 그렇게 나오시겠다? 좋아요. 끝을 봅시다.' });
   else if (bandit) pushLine(state, events, { k: 'npc', who: `도적 '${bandit.name}'`, text: '장비도 반짝이는군. 오늘 운이 좋다.' });
-  else pushLine(state, events, { k: 'room', who: '전투', text: hungry ? `${iGa(`굶주린 ${m.name}`)} 이빨을 드러낸다. 입가가 붉다.` : m.intro });
+  else if (!second) pushLine(state, events, { k: 'room', who: '전투', text: hungry ? `${iGa(`굶주린 ${m.name}`)} 이빨을 드러낸다. 입가가 붉다.` : m.intro });
   if (elite) pushLine(state, events, { k: 'sys', text: `여느 놈이 아니다. 몸집이 크고 눈빛이 다르다. 이름난 ${m.name}다.`, tone: 'warn' });
   events.push({ type: 'battle', phase: 'start', mon: monId });
   if (pounce) {
+    const first = state.battle;
     pushLine(state, events, { k: 'me', text: '덤불에서 뛰쳐나가 먼저 덮쳤다.' });
     hitEnemy(state, events, 1.2 + (state.hidden.stealth?.value || 0) * 0.02 + (state.flags.pounceBonus ? 0.3 : 0));
-    if (!state.battle) return;
+    if (state.battle !== first) return; // 한 번에 쓰러졌다(짝이 이어 덤볐으면 그 싸움은 이미 차려졌다)
   }
   chooseIntent(state, events);
   if (caught) {
@@ -152,7 +199,11 @@ export function startBattle(state, events, monId, { ambush = false, pounce = fal
 function chooseIntent(state, events) {
   const b = state.battle;
   const m = mdef(b);
-  const move = weighted(state, m.moves);
+  // 겨루기 상대는 버릇대로 움직인다 (AG-C5). 버릇이 걸리지 않는 수는 지금처럼 고른다
+  const habit = b.arena ? arenaIntent(b.arena, b.turn, b.hp < m.hp / 2) : null;
+  // 지어지지 않은 종은 다섯 턴마다 큰 공격을 한다. 그 사이는 틈이다 (CM-D5)
+  const move = (habit && m.moves.find((x) => x.id === habit)) || (m.build ? m.moves.find((x) => x.id === bellIntent(b)) : weighted(state, m.moves));
+  if (b.arena) { if (move.id === 'breath' && b.hp < m.hp / 2) b.arena.rested = true; b.arena.last = move.id; }
   b.intent = move.id;
   const hint = move.kind === 'charge' ? '큰 피해. 방어하면 막고 반격합니다.' : move.kind === 'wait' ? '틈입니다.' : '방어하면 절반만 받습니다.';
   pushLine(state, events, { k: 'intent', text: move.tell, next: move.name, hint });
@@ -169,10 +220,12 @@ function hitEnemy(state, events, power = 1, verb = null, opt = {}) {
   const b = state.battle;
   const m = mdef(b);
   if (b.edge) { opt = { ...opt, plus: (opt.plus || 0) + b.edge.plus, sure: true }; b.edge = null; } // 피한 뒤의 빈틈
-  let attack = val(state, 'attack') + (opt.plus || 0); // plus: 되받아치기·빈틈·모으기에 실리는 것
+  let attack = Math.round(val(state, 'attack') * temperMult(state, b)) + (opt.plus || 0); // plus: 되받아치기·빈틈·모으기에 실리는 것. 벼림 하나마다 공격력 +4% (CM-B3)
   // 힘이 아닌 것으로 치는 스킬: 공격력에서 힘을 빼고 그 스탯을 넣는다. 지혜는 무기에 기대지 않는다.
   const stat = opt.stat === 'best' ? ['str', 'agi', 'wis'].reduce((a, k) => (state.stats[k] > state.stats[a] ? k : a), 'str') : opt.stat;
-  if (stat === 'agi') attack = attack - state.stats.str + state.stats.agi;
+  // 직업 무기를 든 사람은 기본 공격이 이미 제 스탯이다 (SB-G1). 스킬은 그 자리에 제 스탯을 넣는다
+  const base = attackStat(state);
+  if ((stat === 'agi' || stat === 'str') && stat !== base) attack = attack - state.stats[base] + state.stats[stat];
   if (stat === 'wis') attack = state.stats.wis;
   // 한길꾼: 같은 공격을 이어 할수록 쌓인다
   const streakRate = jobDef(state.job)?.streak || 0;
@@ -197,16 +250,27 @@ function hitEnemy(state, events, power = 1, verb = null, opt = {}) {
     seen.elems = seen.elems || {};
     seen.elems[`${opt.element}>${m.element}`] = em;
   }
+  // 맞바람 (GD-B3): 활로 넣는 피해가 30% 깎인다
+  const bowCut = windIs(state, 'head') && usable(state.equip.weapon) && itemDef(state.equip.weapon.id).job === 'archer';
+  if (bowCut) dmg = Math.max(1, Math.round(dmg * (1 - CLOUD.bowCut)));
+  if (isRead(state, b)) dmg = Math.max(1, Math.round(dmg * (1 - POND.cut))); // 읽혔다 (BM-B3): 내 공격의 피해 −25%
   b.hp = Math.max(0, b.hp - dmg);
-  if (verb !== false) pushLine(state, events, { k: 'me', text: `${verb === '' ? '' : `${verb || '내리쳤다.'} `}${crit ? '급소에 맞았다. ' : ''}${em > 1 ? '약점을 찔렀다. ' : em < 1 ? '잘 듣지 않는다. ' : ''}${dmg} 피해.` });
+  if (verb !== false) pushLine(state, events, { k: 'me', text: `${verb === '' ? '' : `${verb || '내리쳤다.'} `}${crit ? '급소에 맞았다. ' : ''}${em > 1 ? '약점을 찔렀다. ' : em < 1 ? '잘 듣지 않는다. ' : ''}${bowCut ? '맞바람에 화살이 밀린다. ' : ''}${dmg} 피해.` });
+  // 뒷바람 (GD-B1, GD-B3): 내 공격이 20%로 한 번 더 들어간다. 절반의 피해다
+  if (b.hp > 0 && windIs(state, 'tail') && chance(state, CLOUD.again)) {
+    const more = Math.max(1, Math.round(dmg * CLOUD.againDmg));
+    b.hp = Math.max(0, b.hp - more);
+    pushLine(state, events, { k: 'sys', text: `${CLOUD_LINES.again} ${more} 피해.`, tone: 'mint' });
+  }
 
   const weapon = state.equip.weapon;
   if (usable(weapon)) {
-    weapon.dur -= 1;
-    if (weapon.dur === 0) pushLine(state, events, { k: 'sys', text: `${iGa(itemDef(weapon.id).name)} 못 쓰게 되었다. 대장간에서 고쳐야 한다.` });
+    // 잿골의 들판에서는 쇠가 두 배로 닳는다 (AG-B3)
+    if (wear(state, events, weapon, 'weapon')) pushLine(state, events, { k: 'sys', text: `${iGa(itemDef(weapon.id).name)} 못 쓰게 되었다. 대장간에서 고쳐야 한다.` });
   }
   const skill = state.skills.strike || (state.skills.strike = emptySkill());
   const up = useSkill(skill, m.level * 2, jobXp(state, 'strike', (b.streak || 0) > 0));
+  tally(state, b, 'strike', up);
   b.streak = (b.streak || 0) + 1;
   if (up.leveled) ding(state, events, { level: up.rankUp ? 2 : 1, title: `${SKILL_NAMES.strike} 숙련도가 ${iGa(gradeLabel(up.grade))} 되었습니다` });
   if (b.hp <= 0) win(state, events);
@@ -216,7 +280,7 @@ function hitEnemy(state, events, power = 1, verb = null, opt = {}) {
 function hurt(state, events, dmg) {
   state.hp = Math.max(0, state.hp - dmg);
   const armor = state.equip.body;
-  if (usable(armor)) armor.dur -= 1;
+  if (usable(armor)) wear(state, events, armor, 'body');
 }
 
 // ── 지혜와 상태이상 내성 (Z52) ──
@@ -273,7 +337,7 @@ export function clashChance(state) {
 /** 피할 확률: 내 민첩이 적보다 높은 만큼, 회피 숙련만큼. */
 export function dodgeChance(state) {
   const m = mdef(state.battle);
-  return odds(0.5 + (state.stats.agi - m.agi) * 0.03 + (state.skills.evade?.grade || 0) * 0.01 + (state.flags.dodge10 ? 0.1 : 0));
+  return odds(0.5 + (state.stats.agi - m.agi) * 0.03 + (state.skills.evade?.grade || 0) * 0.01 + (state.flags.dodge10 ? 0.1 : 0) - (windIs(state, 'head') ? CLOUD.dodgeCut : 0)); // 맞바람에는 몸이 덜 빠진다 (GD-B3)
 }
 
 /** 태세로 한 턴을 버텼다. 그 숙련도가 오른다. 센 적일수록 많이 오른다. */
@@ -281,6 +345,7 @@ function stanceUp(state, events, id, m) {
   const skill = state.skills[id] || (state.skills[id] = emptySkill());
   state.counters.act[id] = (state.counters.act[id] || 0) + 1;
   const up = useSkill(skill, m.level * 2, jobXp(state, id, false));
+  tally(state, state.battle, id, up);
   if (up.leveled) ding(state, events, { level: up.rankUp ? 2 : 1, title: `${SKILL_NAMES[id]} 숙련도가 ${iGa(gradeLabel(up.grade))} 되었습니다` });
 }
 
@@ -294,6 +359,7 @@ function guardUp(state, events, m) {
   const skill = state.skills.guard || (state.skills.guard = emptySkill());
   state.counters.act.guard = (state.counters.act.guard || 0) + 1;
   const up = useSkill(skill, m.level * 2, jobXp(state, 'guard', false));
+  tally(state, state.battle, 'guard', up);
   if (up.leveled) ding(state, events, { level: up.rankUp ? 2 : 1, title: `${SKILL_NAMES.guard} 숙련도가 ${iGa(gradeLabel(up.grade))} 되었습니다` });
 }
 
@@ -305,7 +371,7 @@ function enemyAct(state, events, defended, guard = null, stance = null) {
   // 맞받아치기: 적이 치지 않으면 그냥 한 대 친다
   if (stance === 'clash' && idle) hitEnemy(state, events, 1, '빈틈에 내리쳤다.');
   if (stance === 'dodge' && idle) pushLine(state, events, { k: 'me', text: '피할 것이 오지 않았다.' });
-  if (!state.battle) return;
+  if (state.battle !== b) return; // 쓰러뜨렸다(짝이 이어 덤볐어도 이 턴은 여기까지다)
   if (b.stun > 0) {
     b.stun -= 1;
     pushLine(state, events, { k: 'room', text: `${iGa(m.name)} 움직이지 못한다.` });
@@ -315,6 +381,11 @@ function enemyAct(state, events, defended, guard = null, stance = null) {
     pushLine(state, events, { k: 'room', text: move.say });
     applyStatus(state, events, move.status);
     return;
+  }
+  // 맞바람 (GD-B3): 적의 큰 공격이 한 턴 늦게 온다. 늦은 것은 다음 턴에 그대로 온다
+  if (move.kind === 'charge') {
+    if (b.late === 'due') b.late = null;
+    else if (windIs(state, 'head')) { b.late = 'hold'; pushLine(state, events, { k: 'room', text: CLOUD_LINES.late }); return; }
   }
   if ((defended || guard?.counter) && move.kind === 'charge') {
     pushLine(state, events, { k: 'me', text: `${eulReul(move.name)} 막고 되받아쳤다.` });
@@ -348,8 +419,10 @@ function enemyAct(state, events, defended, guard = null, stance = null) {
   }
   if (stance === 'focus') stanceUp(state, events, 'focus', m);
   // '나를 먼저'인 앞줄 동료가 대신 맞아 준다 (T21)
-  const shield = state.party.length ? guardFor(state) : null;
+  const shield = state.party.length && !b.arena ? guardFor(state) : null; // 겨루기는 일대일이다
   if (shield) { if (clashWon) b.clashHit = true; hitCompanion(state, events, shield, dmg); return; }
+  if (curseOf(state) > 0) dmg = Math.max(1, Math.round(dmg * curseMult(state))); // 저주 한 겹마다 받는 피해 +5% (AN-B3)
+  if (isRead(state, b)) dmg = Math.max(1, Math.round(dmg * (1 + POND.hurt))); // 읽혔다 (BM-B3): 내가 맞는 피해 +25%
   if (defended) { dmg = Math.max(1, Math.round(dmg * (1 - guardCut(state)))); guardUp(state, events, m); }
   if (guard?.cut) dmg = Math.max(1, Math.round(dmg * (1 - guard.cut)));
   if (b.ward) {
@@ -360,8 +433,16 @@ function enemyAct(state, events, defended, guard = null, stance = null) {
   if (clashWon) b.clashHit = true;
   hurt(state, events, dmg);
   pushLine(state, events, { k: 'room', text: `${move.say} ${defended || guard?.cut ? '막았지만 ' : ''}${dmg} 피해.` });
+  // 식는다 (CM-B3, CM-D5): 큰 공격을 막지 못하고 맞으면 벼림이 절반이 되고, 모루 위에서는 종이 다섯 줄어든다
+  if (move.kind === 'charge' && !defended && !guard?.cut && !clashWon && state.hp > 0) cooled(state, events, b);
+  // 옆바람 (GD-B2, GD-B3): 큰 공격을 막지 못하고 맞으면 밀려나 다음 턴을 잃는다. 다리를 다 고친 벼랑길에서는 밀려나지 않는다 (GD-E6)
+  if (move.kind === 'charge' && !defended && !guard?.cut && !clashWon && state.hp > 0 && windIs(state, 'side')) {
+    if (state.place === 'cliffroad' && state.flags.planksFixed) pushLine(state, events, { k: 'sys', text: CLOUD_LINES.held, tone: 'mint' });
+    else { b.pushed = true; pushLine(state, events, { k: 'sys', text: pushedLine(state, m.name), tone: 'frost' }); }
+  }
   if (move.steal && !defended && state.silver > 0) { const lost = Math.max(1, Math.floor(state.silver * move.steal)); state.silver -= lost; pushLine(state, events, { k: 'sys', tone: 'warn', text: `주머니가 가벼워졌다. 은화 −${lost}.` }); } // 도적의 주머니 털기 (Z90)
   if (state.hp <= 0) return;
+  curseHit(state, events, b.mon); // 안개늪의 몬스터에게 맞으면 20%로 저주가 한 겹 앉는다 (AN-B3)
   if (!defended && !guard?.cut) applyStatus(state, events, move.status);
 }
 
@@ -399,12 +480,56 @@ function endRound(state, events) {
     }
   }
 
+  bellRound(state, events, b, mdef(b).hp); // 깨진 껍질은 열 턴 뒤 다시 굳는다 (CM-D3)
+  if (b.mirror) Object.assign(b.mirror, mirrorOf(state)); // 거울상은 지금의 나를 비춘다: 싸우다 바꿔 쥐면 저쪽도 바뀐다
   state.battle.turn += 1;
+  // 맞바람에 늦은 큰 공격 (GD-B3): 새로 고르지 않고 그대로 다시 온다
+  if (b.late === 'hold') { b.late = 'due'; const move = intentOf(state); pushLine(state, events, { k: 'intent', text: move.tell, next: move.name, hint: '큰 피해. 방어하면 막고 반격합니다.' }); return; }
   chooseIntent(state, events);
+}
+
+/** 겨루기가 끝났다 (AG-C2): 죽지 않는다. 져도 쓰러지지 않고, 잃는 것이 없다. 이긴 값과 진 값은 마당의 규칙(core/arena.js)이 매긴다. */
+function arenaEnd(state, events, won) {
+  const b = state.battle;
+  state.battle = null;
+  state.status = [];
+  if (!won) state.hp = Math.max(state.hp, Math.ceil(val(state, 'maxHp') * 0.3));
+  events.push({ type: 'battle', phase: won ? 'win' : 'lose', mon: null, arena: { foe: b.arena.foe, name: b.arena.name, level: b.arena.level, won } });
+}
+
+/** 종을 다 지었다 (CM-D2): 쓰러뜨린 것이 아니라 끝까지 지은 것이다. 싸움은 여기서 끝난다. */
+function built(state, events) {
+  const b = state.battle, m = mdef(b);
+  keptEdge(state, events, b);
+  const got = [`경험치 ${m.xp}`];
+  for (const d of m.drops) { if (!chance(state, d.p)) continue; addItem(state, d.id, 1); got.push(`${itemDef(d.id).name} 1`); }
+  state.dex.mon[b.mon] = { ...(state.dex.mon[b.mon] || { seen: 0, lost: 0 }), won: (state.dex.mon[b.mon]?.won || 0) + 1 };
+  state.battle = null;
+  state.status = [];
+  state.calm = 2;
+  afterBattle(state, events, true);
+  bellBuilt(state, events);
+  pushLine(state, events, { k: 'sys', text: `얻은 것: ${got.join(', ')}.` });
+  grantXp(state, events, Math.round(m.xp * (1 + guildPerk(state, 'fight'))));
+  events.push({ type: 'battle', phase: 'win', mon: b.mon, built: true });
 }
 
 function win(state, events) {
   const b = state.battle;
+  if (b.arena) return arenaEnd(state, events, true);
+  // 지어지지 않은 종은 생명력이 0이 되어도 쓰러지지 않는다 (CM-D2): 껍질이 깨질 뿐이다
+  if (building(b) && b.bell < ANVIL.bell) return shellBroke(state, events, b);
+  keptEdge(state, events, b); // 벼림 열둘로 이긴 싸움 (CM-B3)
+  const pair = pairComes(state, b); // 잠긴 도성의 것들은 둘씩 다닌다 (JD-B3)
+  // 한 번도 읽히지 않고 이긴 싸움은 숙련도가 20% 더 오른다 (BM-B3)
+  if (mirrored(state) && !b.wasRead && b.gain) {
+    pushLine(state, events, { k: 'sys', text: `${READ_LINES.clean} (숙련도 +${Math.round(POND.clean * 100)}%)`, tone: 'mint' });
+    for (const [id, got] of Object.entries(b.gain)) {
+      const up = addSkillXp(state.skills[id] || (state.skills[id] = emptySkill()), got * POND.clean);
+      if (up.leveled) ding(state, events, { level: up.rankUp ? 2 : 1, title: `${SKILL_NAMES[id]} 숙련도가 ${iGa(gradeLabel(up.grade))} 되었습니다` });
+    }
+    events.push({ type: 'unread' });
+  }
   const m = mdef(b);
   const before = state.level;
   pushLine(state, events, { k: 'room', text: `${iGa(m.name)} 쓰러졌다.` });
@@ -429,7 +554,7 @@ function win(state, events) {
   const maxHp = val(state, 'maxHp');
   if (state.hp <= maxHp * 0.1) state.counters.nearDeath += 1;
   if (m.level >= before + 5) state.counters.bigWins += 1;
-  if (!b.person && !b.bandit) state.dex.mon[b.mon] = { ...(state.dex.mon[b.mon] || { seen: 0, lost: 0 }), won: (state.dex.mon[b.mon]?.won || 0) + 1 };
+  if (!b.person && !b.bandit) state.dex.mon[b.mon] = { ...(state.dex.mon[b.mon] || { seen: 0, lost: 0 }), won: (state.dex.mon[b.mon]?.won || 0) + 1, ...(b.elite ? { elite: true } : {}) }; // elite: 이름난 놈을 잡아 본 사냥감 (CM-E)
   state.battle = null;
   state.status = [];
   state.calm = 2;
@@ -437,6 +562,13 @@ function win(state, events) {
   afterBattle(state, events, true);
   grantXp(state, events, Math.round(m.xp * (1 + guildPerk(state, 'fight'))));
   events.push({ type: 'battle', phase: 'win', mon: b.person || b.bandit ? null : b.mon, person: b.person || null, elite: !!b.elite }); // 모험가는 사냥 의뢰에 세지 않는다 (Z72)
+  // 하나를 쓰러뜨리면 짝이 곧바로 덤빈다 (JD-B1, JD-G1): 연달아 두 판. 사이에 쉬거나 먹을 수 없다. 막는 이가 있으면 둘째는 생명력 절반
+  if (pair && state.hp > 0) {
+    const g = holder(state);
+    pushLine(state, events, { k: 'sys', text: SUNKEN_LINES.pair, tone: 'frost' });
+    startBattle(state, events, b.mon, { second: true, half: !!g });
+    if (g) { const d = COMPANIONS[g.id]; pushLine(state, events, { k: 'sys', text: `${iGa(d.name)} ${d.way === 'merc' ? '방패로 ' : ''}둘째를 막아섰다. 둘째는 생명력 절반으로 덤빈다.`, tone: 'mint' }); }
+  }
 }
 
 /** 쓰러뜨린 모험가가 가진 것 (Z72): 장비 한두 점과 은화(상대 레벨 × 20~40). */
@@ -480,6 +612,8 @@ export function dozeInBattle(state, events) {
 
 function lose(state, events) {
   const b = state.battle;
+  leftBell(state, b); // 다시 오르면 채운 것의 절반에서 (CM-D5)
+  if (b?.arena) return arenaEnd(state, events, false);
   const m = b ? mdef(b) : null;
   if (b?.bandit) {
     const took = Math.floor((state.silver || 0) * BANDIT.lose);
@@ -502,7 +636,15 @@ export function battleAct(state, events, choice, arg) {
   const b = state.battle;
   if (!b) throw new Error('싸우고 있지 않습니다');
   const m = mdef(b);
-  if (!['attack', 'defend', 'flee', 'item', 'swap', 'skill'].includes(choice)) throw new Error('모르는 전투 행동: ' + choice);
+  if (!['attack', 'defend', 'flee', 'item', 'swap', 'skill', 'stance', 'hammer'].includes(choice)) throw new Error('모르는 전투 행동: ' + choice);
+  // 망치질 (CM-B1): 처음 모루의 싸움에서만 된다. 한 턴을 쓴다
+  if (choice === 'hammer' && !forged(state)) throw new Error('여기서는 벼릴 수 없습니다');
+  // 태세 바꾸기 (BM-B2, BM-B3): 별못의 싸움에서만 된다. 한 턴을 쓴다. 다른 데서는 지금처럼 싸우는 중에 바꾸지 못한다
+  if (choice === 'stance') {
+    if (!mirrored(state)) throw new Error('싸우는 중에는 태세를 바꿀 수 없습니다');
+    if (!STANCES[arg]) throw new Error('모르는 태세입니다');
+    if (arg === stanceOf(state).id) throw new Error('이미 그 태세입니다');
+  }
   const sk = choice === 'skill' ? skillsNow(state).find((x) => x.id === arg) : null;
   if (choice === 'skill') {
     if (!sk) throw new Error('쓸 수 없는 스킬입니다');
@@ -516,19 +658,26 @@ export function battleAct(state, events, choice, arg) {
     const need = itemDef(state.bag[arg].id).job;
     if (need && need !== state.job && !(state.flags.anyShield && state.bag[arg].id === 'oldshield')) throw new Error(`${jobDef(need)?.name || need}만 쓸 수 있습니다`);
   }
-  const stunned = hasStatus(state, 'stun');
+  // 옆바람에 밀려났으면 이 턴은 아무것도 하지 못한다 (GD-B3)
+  const pushed = !!b.pushed;
+  if (pushed) b.pushed = false;
+  const stunned = hasStatus(state, 'stun') || pushed;
+  // 거울 (BM-B3): 직전과 같은 행동이면 읽힘 +20, 다른 행동이면 −30. 읽히지 않는 곳에서는 null이다
+  let rd = choice === 'stance' ? null : readStep(state, b, readKey(choice, arg));
   const stance = choice === 'defend' && !stunned ? stanceOf(state).id : null;
   const defended = stance === 'hold';
 
   if (choice === 'flee' && !stunned) {
     if (chance(state, fleeChance(state))) {
-      pushLine(state, events, { k: 'me', text: '등을 돌려 달아났다.' });
+      if (b.arena) { pushLine(state, events, { k: 'me', text: '등을 돌려 마당 밖으로 물러났다. 물러난 쪽이 진 것이다.' }); return arenaEnd(state, events, false); }
+      pushLine(state, events, { k: 'me', text: building(b) ? '망치를 내려놓고 물러났다. 지은 것이 모루 위에서 식어 간다.' : '등을 돌려 달아났다.' });
       if (b.person) duelRumor(state, events, '치고 달아난');
+      leftBell(state, b);
       state.battle = null;
       state.status = [];
       state.calm = 2;
       afterBattle(state, events, false);
-      cross(state, events, 'flee');
+      if (!building(b)) cross(state, events, 'flee'); // 모루에서 내려오는 것은 달아난 것이 아니다
       events.push({ type: 'battle', phase: 'fled', mon: b.mon });
       return;
     }
@@ -542,7 +691,9 @@ export function battleAct(state, events, choice, arg) {
 
   if (sk && sk.flee && !stunned) {
     state.mp -= sk.mp;
+    if (b.arena) { pushLine(state, events, { k: 'me', text: `${sk.say} 그 틈에 마당 밖으로 물러났다. 물러난 쪽이 진 것이다.` }); return arenaEnd(state, events, false); }
     pushLine(state, events, { k: 'me', text: `${sk.say} 그 틈에 달아났다.` });
+    leftBell(state, b);
     state.battle = null;
     state.status = [];
     state.calm = 2;
@@ -562,9 +713,9 @@ export function battleAct(state, events, choice, arg) {
     if (charge) { b.focus = 0; pushLine(state, events, { k: 'sys', text: `모아 둔 것이 터진다. 위력 ${boost}배.` }); }
     if (sk.dmg) {
       const power = (sk.first && b.turn === 1 ? sk.first : sk.dmg) * boost;
-      for (let i = 0; i < (sk.hits || 1) && state.battle; i++) hitEnemy(state, events, power, '', { stat: sk.stat, pierce: sk.pierce, crit: sk.crit, element: sk.element, plus });
+      for (let i = 0; i < (sk.hits || 1) && state.battle === b; i++) hitEnemy(state, events, power, '', { stat: sk.stat, pierce: sk.pierce, crit: sk.crit, element: sk.element, plus });
     }
-    if (!state.battle) return;
+    if (state.battle !== b) return;
     if (sk.heal) {
       const max = val(state, 'maxHp');
       const before = state.hp;
@@ -579,9 +730,9 @@ export function battleAct(state, events, choice, arg) {
   };
 
   const mine = () => {
-    if (stunned) { pushLine(state, events, { k: 'sys', text: '몸이 굳어 움직일 수 없다.' }); return; }
+    if (stunned) { pushLine(state, events, { k: 'sys', text: pushed ? CLOUD_LINES.lost : '몸이 굳어 움직일 수 없다.' }); return; }
     if (sk) return cast();
-    if (choice === 'attack') hitEnemy(state, events, 1, usable(state.equip.weapon) ? '내리쳤다.' : '맨주먹을 휘둘렀다.');
+    if (choice === 'attack') hitEnemy(state, events, 1, building(b) && b.hp > 0 ? ANVIL_LINES.crack : usable(state.equip.weapon) ? '내리쳤다.' : '맨주먹을 휘둘렀다.'); // 모루 위에서는 껍질을 친다 (CM-D1)
     else if (choice === 'defend') {
       if (prepared) return; // 턴 머리에 이미 채비했다
       const id = stanceOf(state).id;
@@ -597,6 +748,16 @@ export function battleAct(state, events, choice, arg) {
       }
     }
     else if (choice === 'item') useInBattle(state, events, arg);
+    else if (choice === 'hammer') {
+      hammerInBattle(state, events, b);
+      if (building(b) && b.bell >= ANVIL.bell) built(state, events); // 종이 다 지어졌다 (CM-D2)
+    }
+    else if (choice === 'stance') {
+      state.stance = arg;
+      pushLine(state, events, { k: 'me', text: READ_LINES.stance(STANCES[arg].name) });
+      rd = readReset(state, b);
+      events.push({ type: 'stance' });
+    }
     else if (choice === 'swap') {
       const name = itemDef(state.bag[arg].id).name;
       equip(state, arg);
@@ -608,33 +769,47 @@ export function battleAct(state, events, choice, arg) {
 
   // 동료는 내 차례 바로 뒤에 방침대로 움직인다
   const friends = () => {
-    if (!state.battle || !state.party.length) return;
+    if (state.battle !== b || !state.party.length || b.arena) return; // 겨루기는 일대일이다: 동료는 둘레에서 본다
     const strike = (attack, name) => {
-      if (!state.battle) return;
-      const dmg = damage(state, Math.round(attack * (adv(state).friend || 1)), 1, m.defense);
+      if (state.battle !== b) return; // 쓰러뜨린 뒤다(짝의 둘째는 다음 턴부터 친다)
+      const dmg = damage(state, Math.round(attack * (adv(state).friend || 1) * (1 + (drumBuff(state)?.rate || 0))), 1, m.defense); // 북소리는 일행 모두의 공격력에 실린다 (GD-C0)
       b.hp = Math.max(0, b.hp - dmg);
       pushLine(state, events, { k: 'room', text: `${iGa(name)} 쳤다. ${dmg} 피해.` });
       if (b.hp <= 0) win(state, events);
     };
     companionsAct(state, events, strike, val(state, 'maxHp'), { hp: b.hp, maxHp: m.hp });
   };
+  // 읽힘의 한 줄 (BM-B1, BM-B2): 내 차례 바로 뒤에 적힌다. 처음 읽혔을 때는 한 줄로 알린다 (BM-G2)
+  let told = false;
+  const readSay = () => {
+    if (told || !rd || state.battle !== b) return;
+    told = true;
+    const name = mdef(b).name;
+    if (rd.now > POND.at && rd.same >= 2) pushLine(state, events, { k: 'sys', text: READ_LINES.same(rd.same, name), tone: 'frost' });
+    if (rd.now > POND.at && !state.flags.sawRead) { state.flags.sawRead = true; pushLine(state, events, { k: 'sys', text: READ_LINES.first, tone: 'warn' }); }
+    if (rd.now <= POND.at && rd.was > POND.at) pushLine(state, events, { k: 'sys', text: READ_LINES.lost(name), tone: 'mint' });
+    else if (choice === 'stance' && rd.was > 0) pushLine(state, events, { k: 'sys', text: READ_LINES.lost(name), tone: 'mint' });
+  };
   // 태세는 턴이 시작될 때 잡는다. 적이 더 빨라도 "채비했다"가 먼저 적히고, 모은 것도 맞기 전에 쌓인다
   let prepared = false;
-  if (stance) { mine(); prepared = true; }
+  if (stance) { mine(); prepared = true; readSay(); }
+  // 짝 (JD-B3): 첫째가 쓰러진 그 턴은 거기서 끝난다. 둘째는 제 싸움의 첫 턴부터 움직인다
+  const on = () => state.battle === b;
   if (state.stats.agi >= m.agi) {
     if (!prepared) mine();
+    readSay();
     friends();
-    if (state.battle) enemyAct(state, events, defended, guard, stance);
+    if (on()) enemyAct(state, events, defended, guard, stance);
   } else {
     enemyAct(state, events, defended, guard, stance);
-    if (state.hp > 0 && state.battle) { if (!prepared) mine(); friends(); }
+    if (state.hp > 0 && on()) { if (!prepared) mine(); readSay(); friends(); }
   }
-  if (state.battle && b.clashHit) {
+  if (on() && b.clashHit) {
     b.clashHit = false;
     if (state.hp > 0) hitEnemy(state, events, 1, '꺾인 틈으로 내리쳤다.', { pierce: true, plus: skillBonus(state.skills.smash) });
   }
   if (state.hp <= 0) return lose(state, events);
-  if (state.battle) endRound(state, events);
+  if (on()) endRound(state, events);
 }
 
 function useInBattle(state, events, index) {
@@ -646,10 +821,11 @@ function useInBattle(state, events, index) {
     const name = itemDef(item.id).name;
     removeAt(state, index, 1);
     const em = elementMult(t.element, m.element);
-    const dmg = Math.max(1, Math.round(t.dmg * em));
+    const blown = windIs(state, 'head'); // 맞바람 (GD-B3): 던지는 물건의 피해가 30% 깎인다
+    const dmg = Math.max(1, Math.round(t.dmg * em * (blown ? 1 - CLOUD.bowCut : 1)));
     if (em !== 1) { const seen = state.dex.mon[b.mon] || (state.dex.mon[b.mon] = { seen: 0, won: 0, lost: 0 }); seen.elems = seen.elems || {}; seen.elems[`${t.element}>${m.element}`] = em; }
     b.hp = Math.max(0, b.hp - dmg);
-    pushLine(state, events, { k: 'me', text: `${eulReul(name)} 던졌다. ${em > 1 ? '약점을 찔렀다. ' : em < 1 ? '잘 듣지 않는다. ' : ''}${t.element} 속성으로 ${dmg} 피해.` });
+    pushLine(state, events, { k: 'me', text: `${eulReul(name)} 던졌다. ${blown ? '맞바람에 밀린다. ' : ''}${em > 1 ? '약점을 찔렀다. ' : em < 1 ? '잘 듣지 않는다. ' : ''}${t.element} 속성으로 ${dmg} 피해.` });
     if (b.hp <= 0) win(state, events);
     return;
   }
@@ -662,9 +838,10 @@ export const FOOD_HEAL = 0.5; // 음식의 포만감 1마다 생명력 0.5 (정�
 /** 먹거나 쓰면 차는 생명력. 물약은 최대 생명력의 비율(hpPct), 약초는 정해진 양(hp), 음식은 포만감의 절반만큼 정해진 양 */
 export function healOf(state, def, max) {
   const more = state.flags?.foodPlus ? 1.2 : 1;
-  if (def.eat?.hpPct) return Math.round(max * def.eat.hpPct / 100 * more);
-  if (def.eat?.hp) return Math.round(def.eat.hp * more);
-  if (def.eat?.full) return Math.round(def.eat.full * FOOD_HEAL * more);
+  const cut = healCut(state); // 깊은 저주(다섯 겹): 음식과 물약으로 차는 생명력이 절반 (AN-B3)
+  if (def.eat?.hpPct) return Math.round(max * def.eat.hpPct / 100 * more * cut);
+  if (def.eat?.hp) return Math.round(def.eat.hp * more * cut);
+  if (def.eat?.full) return Math.round(def.eat.full * FOOD_HEAL * more * cut);
   return 0;
 }
 
@@ -676,14 +853,19 @@ export function eat(state, events, index) {
   const def = itemDef(item.id);
   if (def.throw) throw new Error('싸움에서 쓰는 물건입니다');
   if (!def.eat) throw new Error('먹을 수 없는 물건입니다');
+  if (def.eat.air) useAir(state, 0); // 물 위에서는 쓰지 못한다(없어지기 전에 막는다)
   removeAt(state, index, 1);
   const parts = [];
   const more = state.flags.foodPlus ? 1.2 : 1;
   if (def.eat.full) { const got = Math.round(def.eat.full * more); state.full = Math.min(100, state.full + got); parts.push(`포만감 +${got}`); }
   // 생명력: 물약은 최대 생명력의 비율, 약초·음식은 정해진 양 (Z54)
   if (def.eat.dish) { const had = applyDish(state, events, def.eat.dish, grade); const db = DISHES[def.eat.dish].buff; parts.push(`'${db.name}': ${db.text}${had ? ` (먼저 붙어 있던 '${had.name}'는 사라졌다)` : ''}`); } // 공용주방의 음식 (Z83)
+  if (def.eat.warm) { const got = warmUp(state, def.eat.warm); if (got > 0) parts.push(`체온 +${got}`); } // 뜨거운 음식 (WM-B3). 흰마루 밖에서는 아무 말도 없다
+  if (def.eat.salty) { const lost = loseWater(state, events, def.eat.salty); if (lost > 0) parts.push(`물 −${lost} 모금`); } // 짠 음식 (SB-B3). 소금벌 밖에서는 아무 말도 없다
   if (def.eat.shadow && (state.shadow || 0) > 0) { state.shadow = 0; state.shadowPray = 0; parts.push('죽음의 그림자가 모두 걷혔다'); events.push({ type: 'shadow', n: 0 }); } // 성수 (Z92)
-  if (def.eat.grace) { giveGrace(state); parts.push(`${GRACE.name}: ${GRACE.text}, 두 때 동안`); } // 성수 (Z77)
+  if (def.eat.shadow && liftCurse(state, events)) parts.push('저주가 모두 걷혔다'); // 성수 한 병에 모두 (AN-B3)
+  if (def.eat.air) parts.push(`숨 +${useAir(state, def.eat.air)}`); // 공기 주머니 (JD-B3): 물 아래에서만. 싸우는 중에도 쓴다
+  if (def.eat.grace) { const g = giveGrace(state, typeof def.eat.grace === 'number' ? def.eat.grace : undefined); parts.push(`${g.name}: ${g.text}, 두 때 동안`); } // 성수 (Z77)
   { const max = val(state, 'maxHp'); const heal = healOf(state, def, max); if (heal) { const before = state.hp; state.hp = Math.min(max, state.hp + heal); if (state.hp > before || !def.eat.full) parts.push(`생명력 +${state.hp - before}`); } }
-  pushLine(state, events, { k: 'me', text: `${eulReul(def.name)} ${def.eat.full ? '먹었다' : def.kind === 'material' ? '씹어 상처에 붙였다' : '마셨다'}. ${parts.join(', ')}.` });
+  pushLine(state, events, { k: 'me', text: `${eulReul(def.name)} ${def.eat.air ? '물었다' : def.eat.full ? '먹었다' : def.kind === 'material' ? '씹어 상처에 붙였다' : '마셨다'}. ${parts.join(', ')}.` });
 }

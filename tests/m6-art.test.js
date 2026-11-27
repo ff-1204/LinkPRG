@@ -200,10 +200,11 @@ test('음식 버프는 한 번에 하나만 붙는다', () => {
   s.place = 'river';
   addItem(s, 'crucian', 2); addItem(s, 'salt', 2); addItem(s, 'herb', 2); addItem(s, 'boarmeat', 1);
   cookIt(s, 'cook_saltfish');
-  const hp = valueOf(s, 'maxHp');
+  const hp = valueOf(s, 'maxHp'), lv = s.level;
   cookIt(s, 'cook_boarstew');
   assert.equal(foodBuff(s).name, '뜨거운 피');
-  assert.equal(valueOf(s, 'maxHp'), hp - 15, '먼저 붙어 있던 것은 사라진다');
+  // 만들기에도 경험치가 붙어(LV-M2) 그사이 레벨이 올랐으면 그 몫(레벨마다 10)은 빼고 본다
+  assert.equal(valueOf(s, 'maxHp') - (s.level - lv) * 10, hp - 15, '먼저 붙어 있던 것은 사라진다');
   assert.equal(buffRows(s).filter((r) => r.kind === '음식').length, 1);
   for (const d of Object.values(DISHES)) { assert.ok(d.buff.name && d.buff.text && d.full > 0); for (const id of d.needs) assert.ok(ITEMS[id]); }
 });
@@ -235,7 +236,7 @@ test('동료 영입: 사이가 단골 이상인 미루에게 청한다. 파티�
   assert.equal(s.silver, 40);
   for (let i = 0; i < 3; i++) passPhase(s);
   assert.deepEqual(s.party.map((c) => c.id), ['miru'], '삯을 못 내면 용병은 떠난다');
-  for (const c of Object.values(COMPANIONS)) { assert.ok(c.name && c.wants && c.join && c.leave && PLANS[c.role].length === 4); }
+  for (const c of Object.values(COMPANIONS)) { assert.ok(c.name && c.wants && c.join && c.leave && PLANS[c.role].length === (c.role === 'bard' ? 1 : 4)); } // 북 치는 이는 방침이 하나다 (GD-C0)
 });
 
 test('토끼상에 생명을 주면 돌토끼가 동료가 된다. 예술을 조금 잃는다 (M6-6)', () => {

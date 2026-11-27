@@ -158,3 +158,19 @@ test('일부러 낸 오류가 기록에 남는다 (I00-01-03)', () => {
   clearErrors(st);
   assert.equal(readErrors(st).length, 0);
 });
+
+test('선택이 떠 있는 채 저장한 칸이 다시 읽힌다: 도적, 재봉사·주방장의 권유 (M16-0)', () => {
+  for (const choice of [{ kind: 'bandit', mon: 'boar', up: 1.2, name: '외눈' }, { kind: 'offer', job: 'tailor' }, { kind: 'offer', job: 'chef' }, { kind: 'offer', job: 'smith' }]) {
+    const st = fakeStorage();
+    const s = newGame();
+    s.choice = choice;
+    saveTo(st, 0, s);
+    assert.deepEqual(loadFrom(st, 0).choice, choice);
+    assert.ok(!listSlots(st)[0].broken);
+  }
+  const st = fakeStorage();
+  const s = newGame();
+  s.choice = { kind: 'offer', job: 'king' };
+  saveTo(st, 0, s);
+  assert.throws(() => loadFrom(st, 0), /모르는 선택/);
+});

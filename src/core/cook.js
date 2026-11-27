@@ -1,17 +1,17 @@
 // 요리 (N3). 재료를 셋까지 넣어 조합을 찾는다.
 
-import { next } from './rng.js?v=6d96d3a';
-import { pushLine, ding } from './log.js?v=6d96d3a';
-import { countOf, takeById, addItem } from './inventory.js?v=6d96d3a';
-import { craftLvOf } from './craft.js?v=6d96d3a';
-import { CRAFT_LV } from '../data/recipes.js?v=6d96d3a';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=6d96d3a';
-import { itemDef } from '../data/items.js?v=6d96d3a';
-import { placeById } from '../data/places.js?v=6d96d3a';
-import { jobXp } from './jobs.js?v=6d96d3a';
-import { COOK_MAX, COOK_DIFFICULTY, INGREDIENTS, DISHES, DISH_ORDER, MUSH, COOK_LINES } from '../data/cooking.js?v=6d96d3a';
-import { iGa, eulReul, eunNeun } from './ko.js?v=6d96d3a';
-import { foodBuff, xpBoost } from './buffs.js?v=6d96d3a';
+import { next } from './rng.js?v=327d747';
+import { pushLine, ding } from './log.js?v=327d747';
+import { countOf, takeById, addItem } from './inventory.js?v=327d747';
+import { craftLvOf, addCraftXp, grantMakeXp } from './craft.js?v=327d747';
+import { CRAFT_LV } from '../data/recipes.js?v=327d747';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=327d747';
+import { itemDef } from '../data/items.js?v=327d747';
+import { placeById } from '../data/places.js?v=327d747';
+import { jobXp } from './jobs.js?v=327d747';
+import { COOK_MAX, COOK_DIFFICULTY, INGREDIENTS, DISHES, DISH_ORDER, MUSH, COOK_LINES } from '../data/cooking.js?v=327d747';
+import { iGa, eulReul, eunNeun } from './ko.js?v=327d747';
+import { foodBuff, xpBoost } from './buffs.js?v=327d747';
 
 export { foodBuff };
 
@@ -39,21 +39,18 @@ export function applyDish(state, events, dishId, grade = 0) {
   const d = DISHES[dishId];
   const had = foodBuff(state);
   if (!state.buffs) state.buffs = {};
-  state.buffs.food = { name: d.buff.name, text: d.buff.text, attack: d.buff.attack || 0, defense: d.buff.defense || 0, hp: d.buff.hp || 0, xp: d.buff.xp || 0, until: phasesLater(state, dishPhases(state, d, grade)) };
+  state.buffs.food = { name: d.buff.name, text: d.buff.text, attack: d.buff.attack || 0, defense: d.buff.defense || 0, hp: d.buff.hp || 0, xp: d.buff.xp || 0, rate: d.buff.rate || 0, until: phasesLater(state, dishPhases(state, d, grade)) };
   events.push({ type: 'buff' });
   return had;
 }
 /** 요리 레벨 (Z83): 맞는 요리를 하나 끝낼 때마다 요리의 레벨만큼. 요리사면 1.5배. 레벨이 오르면 주방장이 새 요리를 귀띔한다. */
 function gainCookXp(state, events, d) {
-  const c = craftLvOf(state, 'cook');
-  c.xp += Math.round((d.lv || 1) * (state.work === 'chef' ? CRAFT_LV.workXp : 1));
-  while (c.xp >= c.lv * CRAFT_LV.per) {
-    c.xp -= c.lv * CRAFT_LV.per;
-    c.lv += 1;
+  const promoted = addCraftXp(state, events, 'cook', Math.round((d.lv || 1) * (state.work === 'chef' ? CRAFT_LV.workXp : 1)), d, (c) => {
     const opened = DISH_ORDER.filter((id) => DISHES[id].lv === c.lv);
     for (const id of opened) if (!state.cookHints.includes(id)) state.cookHints.push(id);
     ding(state, events, { level: 2, title: `요리 레벨 ${c.lv}이 되었습니다`, body: opened.length ? '주방장에게서 새 요리 이야기를 들었다. 요리 창의 "들은 말"에 적혔다.' : '' });
-  }
+  });
+  grantMakeXp(state, events, d, 0, promoted);
 }
 
 /** 넣은 재료로 굽는다. 맞으면 레시피가 도감에 적히고, 아니면 "먹을 수는 있는 것". 재료는 돌아오지 않는다.

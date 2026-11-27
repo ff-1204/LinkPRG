@@ -177,5 +177,135 @@ const passS = (bg) => { const g = ground(blank(96, 24, bg)); blit(g, PEAK(14), 2
 done.push(save('strip-belltower-day', towerS('.'), 4), save('strip-belltower-night', stars(towerS('D')), 4));
 done.push(save('strip-pass-day', passS('.'), 4), save('strip-pass-night', stars(passS('D')), 4));
 
+// ── M15: 흰마루 (WM-A). 눈은 크림의 가장 밝은 쪽(W), 얼음은 민트(M) ──
+const snowGround = (g, top = 20) => { for (let x = 0; x < 96; x++) { const y = top + ((x >> 3) % 2 ? 0 : 1); g[y][x] = 'S'; for (let k = y + 1; k < 23; k++) g[k][x] = 'W'; g[23][x] = 'K'; } return g; };
+const SNOWTREE = grid(['...KK', '..KWWK', '.KWWWWK', '.KmmmmK', 'KWWWWWWK', 'KmmMmmmK', '.KKKKKK', '...CC', '...CC', '...CC'], 8);
+const SNOWHUT = grid(['......KK', '.....KWWK', '....KWWWWK', '...KWWWWWWK', '..KWWWWWWWWK', '.KKKKKKKKKKKK', '.KSSSSSSSSSSK', '.KSSKKSSSKhSK', '.KSSKKSSSKhSK', '.KKKKKKKKKKKK'], 14);
+const DRIFT = grid(['...SSSS', '.SSWWWWSS', 'SWWWWWWWWS'], 10);
+const snowS = (bg) => { const g = snowGround(blank(96, 24, bg)); [6, 30, 71].forEach((x, i) => blit(g, SNOWTREE, x, 11 - (i % 2))); [18, 46, 58, 84].forEach((x) => blit(g, DRIFT, x, 18)); for (let x = 40; x < 70; x += 5) g[21][x] = 'S'; return g; };
+const ICESPIKE = (h) => grid(Array.from({ length: h }, (_, y) => '.'.repeat(Math.floor((h - 1 - y) / 2)) + 'm' + 'M'.repeat(Math.floor(y / 2) * 2 + (y % 2)) + 'm'), h + 2);
+const iceSheet = (g, top, from = 0, to = 96) => { for (let x = from; x < to; x++) { g[top][x] = 'm'; for (let y = top + 1; y < 23; y++) g[y][x] = 'M'; g[23][x] = 'K'; } for (let x = from + 5; x < to - 4; x += 11) { g[top + 2][x] = 'W'; g[top + 2][x + 1] = 'W'; g[top + 3][x + 2] = 'W'; g[top + 2][x + 3] = 'm'; } return g; };
+const icelakeS = (bg) => { const g = iceSheet(ground(blank(96, 24, bg)), 17); blit(g, ICESPIKE(9), 10, 8); blit(g, ICESPIKE(12), 40, 5); blit(g, ICESPIKE(7), 66, 10); blit(g, ICESPIKE(10), 80, 7); blit(g, grid(['KKKK', 'KDDDK', 'KDDDDK', 'KKKKKK'], 6), 26, 18); return g; };
+const HOLE = grid(['.KKKK', 'KDDDDK', '.KKKK'], 6);
+const icepondS = (bg) => { const g = snowGround(blank(96, 24, bg)); iceSheet(g, 19, 34, 78); blit(g, SNOWHUT, 2, 10); blit(g, SNOWHUT, 18, 11); blit(g, SNOWHUT, 80, 10); blit(g, HOLE, 42, 20); blit(g, HOLE, 58, 20); blit(g, grid(['K', 'K', 'K', 'K'], 1), 49, 16); blit(g, grid(['K', 'K', 'K', 'K'], 1), 65, 16); blit(g, grid(['.S', 'S', '.S', 'S'], 2), 9, 5); blit(g, grid(['.S', 'S', '.S', 'S'], 2), 87, 5); return g; };
+const ICECASE = (() => { const g = blank(18, 20); for (let y = 0; y < 20; y++) for (let x = 0; x < 18; x++) { const edge = y === 0 || x === 0 || x === 17; g[y][x] = edge ? 'm' : 'M'; } [[3, 3], [13, 6], [4, 12], [14, 15]].forEach(([x, y]) => { g[y][x] = 'W'; g[y + 1][x] = 'W'; }); return g; })();
+const icetowerS = (bg) => { const g = snowGround(blank(96, 24, bg)); blit(g, ICECASE, 39, 3); blit(g, TOWER, 42, 6); blit(g, grid(['.KK', 'KDDK', 'KDDK', '.KK'], 4), 46, 8); for (const x of [40, 44, 51, 55]) { g[23 - 20][x] = 'm'; } [38, 47, 57].forEach((x) => { g[2][x] = 'W'; g[1][x] = 'W'; }); blit(g, SNOWHUT, 4, 10); blit(g, SNOWTREE, 74, 11); blit(g, DRIFT, 60, 18); return g; };
+done.push(save('strip-snow-day', snowS('.'), 4), save('strip-snow-night', stars(snowS('D')), 4));
+done.push(save('strip-icelake-day', icelakeS('.'), 4), save('strip-icelake-night', stars(icelakeS('D')), 4));
+done.push(save('strip-icepond-day', icepondS('.'), 4), save('strip-icepond-night', stars(icepondS('D')), 4));
+done.push(save('strip-icetower-day', icetowerS('.'), 4), save('strip-icetower-night', stars(icetowerS('D')), 4));
+
+// ── M16: 소금벌 (SB-A). 소금은 크림의 가장 밝은 쪽(W), 그늘은 모래(S) ──
+const saltGround = (g, top = 19) => { for (let x = 0; x < 96; x++) { g[top][x] = 'S'; for (let k = top + 1; k < 23; k++) g[k][x] = 'W'; g[23][x] = 'K'; } for (let x = 3; x < 94; x += 7) { const y = top + 1 + (x % 3); const y2 = Math.min(22, y + 1); g[y][x] = 'S'; g[y][x + 1] = 'S'; g[y2][x + 2] = 'S'; g[y2][x - 1] = 'S'; } return g; };
+const SALTPILLAR = (h) => grid(Array.from({ length: h }, (_, y) => (y === 0 ? '.KK' : y < 3 ? 'KWWK' : 'KWSWK').padStart(y < 3 ? 4 : 5, '.')), 6);
+const saltfloorS = (bg) => { const g = saltGround(blank(96, 24, bg)); blit(g, SALTPILLAR(9), 8, 11); blit(g, SALTPILLAR(6), 34, 14); blit(g, SALTPILLAR(11), 62, 9); blit(g, SALTPILLAR(5), 84, 15); blit(g, grid(['..KK', '.KCCK', 'KCCCCK...K', '.KKKK...KCK', '.......KCK', '........K'], 12), 44, 14); return g; };
+const HULL = grid(['...KKKKKKKKKKKK', '..KCCCCCCCCCCCCK', '.KCCcCCCCcCCCCCCK', 'KKKKKKKKKKKKKKKKKK'], 18);
+const MAST = (h) => grid(Array.from({ length: h }, (_, y) => (y === 1 ? 'KKKK' : y === 0 ? '.K' : '.C')), 4);
+const CROW = grid(['.KK', 'KKKK', '.K'], 4);
+const drychannelS = (bg) => { const g = saltGround(blank(96, 24, bg), 20); for (let x = 20; x < 78; x++) { g[20][x] = 'D'; g[21][x] = 'S'; } blit(g, HULL, 6, 16); blit(g, HULL, 40, 17); blit(g, HULL, 70, 16); blit(g, MAST(10), 30, 10); blit(g, MAST(8), 62, 12); blit(g, CROW, 30, 7); blit(g, CROW, 62, 9); blit(g, CROW, 12, 13); return g; };
+const SCALE = grid(['....K', '.KKKKKKK', '.K..K..K', 'KKK.K.KKK', 'KhK.K.KhK', '....K', '...KKK'], 9);
+const saltmarketS = (bg) => { const g = saltGround(blank(96, 24, bg), 20); blit(g, STALL('C'), 6, 13); blit(g, STALL('h'), 30, 13); blit(g, STALL('m'), 66, 13); blit(g, SCALE, 51, 13); blit(g, grid(['.KKKK', 'KWWWWK', 'KWWWWK', 'KKKKKK'], 6), 22, 17); blit(g, grid(['.KKKK', 'KWWWWK', 'KWWWWK', 'KKKKKK'], 6), 84, 17); return g; };
+const DEPOT = (() => { const g = blank(34, 14); for (let y = 0; y < 14; y++) for (let x = 0; x < 34; x++) g[y][x] = y < 3 ? (y === 0 || x === 0 || x === 33 ? 'K' : 'C') : (x === 0 || x === 33 || y === 13 || y === 3 ? 'K' : 'S'); for (let y = 6; y < 13; y++) for (let x = 13; x < 21; x++) g[y][x] = y === 6 || x === 13 || x === 20 ? 'K' : 'C'; [[15, 8], [17, 10], [18, 8]].forEach(([x, y]) => { g[y][x] = 'H'; g[y + 1][x] = 'h'; }); return g; })();
+const GUARD = grid(['.KK', '.KK', 'KCCK', 'KCCK', '.KK', '.KK'], 4);
+const warehouseS = (bg) => { const g = saltGround(blank(96, 24, bg), 20); blit(g, DEPOT, 31, 7); blit(g, GUARD, 24, 15); blit(g, GUARD, 68, 15); for (const x of [23, 72]) for (let y = 11; y < 21; y++) g[y][x] = 'K'; blit(g, CRATE, 8, 16); blit(g, CRATE, 82, 16); return g; };
+done.push(save('strip-saltfloor-day', saltfloorS('.'), 4), save('strip-saltfloor-night', stars(saltfloorS('D')), 4));
+done.push(save('strip-drychannel-day', drychannelS('.'), 4), save('strip-drychannel-night', stars(drychannelS('D')), 4));
+done.push(save('strip-saltmarket-day', saltmarketS('.'), 4), save('strip-saltmarket-night', stars(saltmarketS('D')), 4));
+done.push(save('strip-warehouse-day', warehouseS('.'), 4), save('strip-warehouse-night', stars(warehouseS('D')), 4));
+
+// ── M17: 잿골 (AG-A). 재는 모래(S)와 그 그늘(D), 쇳물과 불티는 꿀(H, h) ──
+const ashGround = (g, top = 20) => { for (let x = 0; x < 96; x++) { g[top][x] = 'D'; for (let k = top + 1; k < 23; k++) g[k][x] = 'S'; g[23][x] = 'K'; } for (let x = 4; x < 94; x += 9) { g[top + 1 + (x % 2)][x] = 'W'; g[top + 2][x + 3] = 'D'; } return g; };
+const CHIMNEY = (h) => grid([...Array.from({ length: h }, (_, y) => (y === 0 ? 'KKKK' : 'KCCK'))], 4);
+const SMOKE = grid(['..SS', '.SSSS', '..SS', '.SS', '..S'], 5);
+const kilntownS = (bg) => { const g = ashGround(blank(96, 24, bg)); blit(g, HOUSE('D'), 2, 12); blit(g, HOUSE('S'), 36, 12); blit(g, HOUSE('D'), 70, 12); [[8, 6], [26, 8], [44, 5], [62, 9], [78, 6]].forEach(([x, top]) => { blit(g, CHIMNEY(20 - top), x, top); blit(g, SMOKE, x, Math.max(0, top - 5)); }); blit(g, HOUSE('D'), 2, 12); blit(g, HOUSE('S'), 36, 12); blit(g, HOUSE('D'), 70, 12); for (const x of [14, 30, 52, 66, 88]) g[21][x] = 'W'; return g; };
+const HUNGSWORD = grid(['KKKKKKKKK', '....K', '....W', '....W', '....W', '....W', '...KHK', '....C'], 9);
+const FOLK = grid(['.KK', '.KK', 'KDDK', 'KDDK', '.KK'], 4);
+const arenaS = (bg) => { const g = ashGround(blank(96, 24, bg)); for (let x = 24; x < 72; x++) { g[19][x] = 'K'; g[20][x] = 'c'; g[21][x] = 'c'; g[22][x] = 'K'; } for (let x = 28; x < 68; x += 6) g[20][x] = 'S'; for (let y = 2; y < 19; y++) { g[y][47] = 'K'; g[y][48] = 'C'; } for (let x = 47; x < 52; x++) g[1][x] = 'K'; blit(g, HUNGSWORD, 50, 1); [4, 9, 14, 19, 74, 79, 84, 89].forEach((x, i) => blit(g, FOLK, x, 15 + (i % 2))); return g; };
+const STUMP = grid(['.K.K', 'KCCK', 'KCDK', 'KCCK'], 4);
+const ashslopeS = (bg) => { const g = blank(96, 24, bg); for (let x = 0; x < 96; x++) { const top = 21 - Math.floor(x / 12); g[top][x] = 'D'; for (let k = top + 1; k < 23; k++) g[k][x] = 'S'; g[23][x] = 'K'; } [[10, 17], [34, 15], [58, 13], [82, 11]].forEach(([x, y]) => blit(g, STUMP, x, y)); [[20, 21], [45, 20], [46, 21], [70, 18], [90, 17], [27, 22]].forEach(([x, y]) => { g[y][x] = 'H'; }); [[6, 22], [52, 19], [76, 17]].forEach(([x, y]) => { g[y][x] = 'W'; }); return g; };
+const KILNMOUTH = grid(['...KKKKKK', '..KDDDDDDK', '.KDDKKKKDDK', '.KDKHHHHKDK', 'KDDKHhhHKDDK', 'KDDKHhhHKDDK', 'KKKKHHHHKKKK'], 12);
+const moltenbrookS = (bg) => { const g = ashGround(blank(96, 24, bg)); blit(g, PEAK(15), 58, 5); blit(g, KILNMOUTH, 67, 12); for (let x = 6; x < 74; x++) { const y = 20 + ((x >> 3) % 2); g[y][x] = 'H'; g[y + 1][x] = x % 5 === 0 ? 'h' : 'H'; } for (let y = 19; y < 21; y++) { g[y][72] = 'H'; g[y][73] = 'H'; } [[14, 19], [30, 20], [50, 19]].forEach(([x, y]) => { g[y][x] = 'K'; g[y][x + 1] = 'D'; g[y][x + 2] = 'K'; }); return g; };
+done.push(save('strip-kilntown-day', kilntownS('.'), 4), save('strip-kilntown-night', stars(kilntownS('D')), 4));
+done.push(save('strip-arena-day', arenaS('.'), 4), save('strip-arena-night', stars(arenaS('D')), 4));
+done.push(save('strip-ashslope-day', ashslopeS('.'), 4), save('strip-ashslope-night', stars(ashslopeS('D')), 4));
+done.push(save('strip-moltenbrook-day', moltenbrookS('.'), 4), save('strip-moltenbrook-night', stars(moltenbrookS('D')), 4));
+
+// ── M18: 안개늪 (AN-A). 물과 이끼는 민트(m, M), 안개는 흰 줄(W), 등불은 꿀(H, h) ──
+const marshWater = (g, top = 20) => { for (let x = 0; x < 96; x++) { g[top][x] = 'M'; for (let k = top + 1; k < 23; k++) g[k][x] = 'm'; g[23][x] = 'K'; } for (let x = 3; x < 93; x += 7) { g[top + 1 + (x % 2)][x] = 'W'; g[top + 1 + (x % 2)][x + 1] = 'W'; } return g; };
+const mist = (g, rows) => { rows.forEach((y, i) => { for (let x = (i * 5) % 13; x < 90; x += 13) for (let k = 0; k < 6; k++) g[y][x + k] = 'W'; }); return g; };
+const LAMPON = grid(['.K', 'KHK', 'KhK', '.K'], 3);
+const LAMPOFF = grid(['.K', 'KDK', 'KDK', '.K'], 3);
+const PUNT = grid(["K........K", "KCCCCCCCCK", ".KKKKKKKK"], 10);
+const floattownS = (bg) => { const g = marshWater(mist(blank(96, 24, bg), [4, 8])); blit(g, HOUSE('M'), 2, 9); blit(g, HOUSE('m'), 38, 9); blit(g, HOUSE('M'), 72, 9); for (const [a, b] of [[23, 38], [59, 72]]) for (let x = a; x < b; x += 2) g[16][x] = 'K'; blit(g, PUNT, 26, 19); blit(g, PUNT, 60, 19); return g; };
+const lampbridgeS = (bg) => { const g = marshWater(mist(blank(96, 24, bg), [3, 12])); for (let x = 2; x < 94; x++) { g[17][x] = 'K'; g[18][x] = 'C'; g[19][x] = x % 4 === 0 ? 'K' : g[19][x]; } [6, 20, 34, 48, 62, 76, 90].forEach((x, i) => { for (let y = 9; y < 23; y++) g[y][x] = y < 17 ? 'K' : 'C'; blit(g, i % 2 ? LAMPOFF : LAMPON, x - 1, 5); }); return g; };
+const MOUND = grid(['...KKKKK', '.KKMMMMMKK', 'KMMmMMMmMMK', 'KMMMMmMMMMK'], 11);
+const mossfieldS = (bg) => { const g = mist(blank(96, 24, bg), [6, 11]); for (let x = 0; x < 96; x++) { const top = 20 - ((x >> 4) % 2); g[top][x] = 'M'; for (let k = top + 1; k < 23; k++) g[k][x] = (x + k) % 6 === 0 ? 'M' : 'm'; g[23][x] = 'K'; } [[6, 15], [30, 16], [52, 15], [78, 16]].forEach(([x, y]) => blit(g, MOUND, x, y)); [[22, 21], [46, 21], [70, 20], [90, 21]].forEach(([x, y]) => { g[y][x] = 'W'; g[y][x + 1] = 'W'; }); for (let k = 0; k < 6; k++) { g[14][20 + k] = 'W'; g[14][62 + k] = 'W'; } return g; };
+const TRUNK = (h) => grid([...Array.from({ length: h }, (_, y) => (y === 2 ? 'KKCCK' : y === 5 ? '.KCCKK' : '.KCCK'))], 6);
+const sunkenwoodS = (bg) => { const g = marshWater(mist(blank(96, 24, bg), [5, 10]), 17); [[4, 1], [20, 3], [38, 0], [58, 2], [74, 1], [88, 4]].forEach(([x, top]) => blit(g, TRUNK(18 - top), x, top)); for (let k = 0; k < 6; k++) { g[13][10 + k] = 'W'; g[13][44 + k] = 'W'; g[15][64 + k] = 'W'; } blit(g, grid(['.h', 'hHh', '.h'], 3), 49, 12); return g; };
+done.push(save('strip-floattown-day', floattownS('.'), 4), save('strip-floattown-night', stars(floattownS('D')), 4));
+done.push(save('strip-lampbridge-day', lampbridgeS('.'), 4), save('strip-lampbridge-night', stars(lampbridgeS('D')), 4));
+done.push(save('strip-mossfield-day', mossfieldS('.'), 4), save('strip-mossfield-night', stars(mossfieldS('D')), 4));
+done.push(save('strip-sunkenwood-day', sunkenwoodS('.'), 4), save('strip-sunkenwood-night', stars(sunkenwoodS('D')), 4));
+
+// ── M19: 잠긴 도성 (JD-A). 물은 민트(M, m), 기와와 청동은 시나몬(C, c), 빛줄기는 흰 줄(W), 종 모양의 것은 꿀(H, h) ──
+const ROOF = grid(['......KK', '....KKCCKK', '..KKCCCCCCKK', 'KKCCCCCCCCCCKK', 'KCCcCCCcCCCcCK'], 14);
+const seaTop = (g, top) => { for (let x = 0; x < 96; x++) { g[top][x] = 'M'; for (let k = top + 1; k < 23; k++) g[k][x] = 'm'; g[23][x] = 'K'; } for (let x = 2; x < 94; x += 9) { g[top + 1][x] = 'W'; g[top + 1][x + 1] = 'W'; g[top + 1][x + 2] = 'W'; } return g; };
+const rooftownS = (bg) => { const g = seaTop(blank(96, 24, bg), 15); [[4, 11], [30, 10], [58, 11], [80, 10]].forEach(([x, y]) => blit(g, ROOF, x, y)); for (const [a, b] of [[18, 30], [44, 58], [72, 80]]) for (let x = a; x < b; x++) { g[14][x] = 'K'; if (x % 3 === 0) g[15][x] = 'K'; } blit(g, PUNT, 46, 12); for (const x of [36, 64]) for (let y = 7; y < 11; y++) g[y][x] = 'K'; return g; };
+const BELLTOP = grid(['....KKKKKKKK', '..KKCCCCCCCCKK', 'KKCCCCCCCCCCCCKK', '.KKKKKKKKKKKKKK', '..K....HH....K', '..K...H..H...K', '..K...H..H...K', '..K....HH....K', '..KKKKKKKKKKKK', '..KSSSSSSSSSSK', '..KSSKKSSKKSSK'], 16);
+const belltopS = (bg) => { const g = seaTop(blank(96, 24, bg), 16); blit(g, BELLTOP, 40, 5); blit(g, ROOF, 6, 12); blit(g, ROOF, 74, 12); for (let x = 20; x < 40; x++) { g[15][x] = 'K'; } for (let x = 56; x < 74; x++) { g[15][x] = 'K'; } return g; };
+const shafts = (g) => { for (const x0 of [10, 34, 60, 84]) for (let k = 0; k < 9; k++) { const x = x0 + Math.floor(k / 2), y = 2 + k; if (g[y] && g[y][x] !== undefined) g[y][x] = 'W'; } return g; };
+const weed = (g, x, h) => { for (let k = 0; k < h; k++) g[22 - k][x + (k % 2)] = 'M'; return g; };
+const under = (bg) => { const g = blank(96, 24, bg === 'D' ? 'D' : 'm'); for (let x = 0; x < 96; x++) { g[0][x] = 'M'; g[1][x] = x % 6 < 3 ? 'M' : g[1][x]; g[23][x] = 'K'; } return shafts(g); };
+const sunkenstreetS = (bg) => { const g = under(bg); blit(g, HOUSE('C'), 2, 13); blit(g, HOUSE('c'), 37, 13); blit(g, HOUSE('C'), 72, 13); [26, 30, 62, 66, 94].forEach((x, i) => weed(g, x, 4 + (i % 3))); blit(g, grid(['KKKKKK', 'KhhhhK', 'KKKKKK'], 6), 28, 9); g[8][30] = 'K'; g[8][31] = 'K'; return g; };
+const JELLY = grid(['.hh', 'hHHh', 'hHHh', 'h..h'], 4);
+const PGATE = grid(['......KKKKKKKKKKKKKKKK', '...KKKCCCCCCCCCCCCCCCCKKK', 'KKKCCCCCCCCCCCCCCCCCCCCCCKKK', '.KKKKKKKKKKKKKKKKKKKKKKKKKK', '..KSSK....KSSSSK....KSSK', '..KSSK....KSSSSK....KSSK', '..KSSK....KSSSSK....KSSK', '..KSSK....KSSSSK....KSSK', '..KSSK....KSSSSK....KSSK', '.KKKKKKKKKKKKKKKKKKKKKKKKKK'], 28);
+const palaceyardS = (bg) => { const g = under(bg); blit(g, PGATE, 34, 9); for (let k = 0; k < 4; k++) for (let x = 30 - k * 2; x < 66 + k * 2; x++) g[19 + k][x] = k === 3 ? 'K' : 'S'; [[8, 6], [20, 12], [70, 5], [84, 11]].forEach(([x, y]) => blit(g, JELLY, x, y)); [4, 14, 78, 90].forEach((x, i) => weed(g, x, 4 + (i % 3))); return g; };
+done.push(save('strip-rooftown-day', rooftownS('.'), 4), save('strip-rooftown-night', stars(rooftownS('D')), 4));
+done.push(save('strip-belltop-day', belltopS('.'), 4), save('strip-belltop-night', stars(belltopS('D')), 4));
+done.push(save('strip-sunkenstreet-day', sunkenstreetS('.'), 4), save('strip-sunkenstreet-night', sunkenstreetS('D'), 4));
+done.push(save('strip-palaceyard-day', palaceyardS('.'), 4), save('strip-palaceyard-night', palaceyardS('D'), 4));
+
+// ── M20: 구름다리 (GD-A). 바위는 모래(S), 다리 널과 깃대는 시나몬(C), 구름은 흰 줄(W), 금빛 지붕은 꿀(H, h), 깃발은 민트(M) ──
+const cloudRow = (g, y, xs) => { for (const [a, b] of xs) for (let x = a; x < b; x++) { if (g[y] && g[y][x] !== undefined) g[y][x] = 'W'; } return g; };
+const seaOfCloud = (g, top) => { cloudRow(g, top, [[0, 14], [22, 40], [50, 70], [80, 96]]); cloudRow(g, top + 1, [[0, 96]]); for (let y = top + 2; y < 24; y++) cloudRow(g, y, [[0, 96]]); for (let x = 4; x < 96; x += 11) { g[top + 2][x] = 'S'; g[top + 2][x + 1] = 'S'; g[top + 2][x + 2] = 'S'; } return g; };
+const crag = (g, x0, w, top, flip) => { for (let y = top; y < 24; y++) { const half = Math.min(w, 2 + Math.floor((y - top) * 0.9)); for (let k = 0; k < half; k++) { const x = flip ? x0 - k : x0 + k; if (g[y] && g[y][x] !== undefined) g[y][x] = k === half - 1 ? 'K' : (x + y) % 5 === 0 ? 'c' : 'S'; } } return g; };
+const GOLDROOF = grid(['....KK', '..KKHHKK', 'KKHHhHHHKK', '.KKKKKKKK', '..KSSSSK', '..KSKKSK'], 10);
+const WFLAG = (ch) => grid(['K' + ch + ch + ch, 'K' + ch + ch, 'K', 'K', 'K', 'K'], 4);
+const bridgegateS = (bg) => { const g = seaOfCloud(blank(96, 24, bg), 19); crag(g, 0, 20, 4, false); crag(g, 95, 22, 2, true); for (let x = 16; x < 80; x++) { const sag = Math.round(2 * Math.sin(((x - 16) / 64) * Math.PI)); g[12 + sag][x] = 'K'; g[13 + sag][x] = 'C'; if (x % 6 === 0) { g[11 + sag][x] = 'K'; g[10 + sag][x] = 'K'; } g[9 + sag][x] = x % 2 ? 'K' : g[9 + sag][x]; } blit(g, GOLDROOF, 82, 3); return g; };
+const cliffroadS = (bg) => { const g = seaOfCloud(blank(96, 24, bg), 18); for (let x = 0; x < 96; x++) { const top = 3 + ((x >> 3) % 3); for (let y = top; y < 14; y++) g[y][x] = y === top ? 'K' : (x * 3 + y) % 7 === 0 ? 'c' : 'S'; g[14][x] = 'K'; g[15][x] = 'C'; g[16][x] = x % 5 === 0 ? 'K' : g[16][x]; } [14, 44, 74].forEach((x, i) => blit(g, WFLAG(i === 1 ? 'H' : 'M'), x, 8)); return g; };
+const MONK = grid(['.KK', 'KSSK', 'KSSK', 'KSSSK', 'KKKKK'], 5);
+const BIGROOF = grid(['..........KKKKKKKK', '......KKKKHHHHHHHHKKKK', '..KKKKHHHHhHHHHhHHHHHHKKKK', 'KKHHHHHHHHHHHHHHHHHHHHHHHHKK', '.KKKKKKKKKKKKKKKKKKKKKKKKKK', '..KSSK..KSSK.KHHK.KSSK..KSSK', '..KSSK..KSSK.KHHK.KSSK..KSSK', '..KSSK..KSSK.KHHK.KSSK..KSSK', '..KSSK..KSSK.KHHK.KSSK..KSSK', '.KKKKKKKKKKKKKKKKKKKKKKKKKK'], 28);
+const templeyardS = (bg) => { const g = blank(96, 24, bg); for (let x = 0; x < 96; x++) { g[20][x] = 'K'; for (let y = 21; y < 24; y++) g[y][x] = (x + y) % 8 === 0 ? 'K' : 'S'; } blit(g, BIGROOF, 34, 10); [4, 14, 24, 68, 78, 88].forEach((x) => blit(g, MONK, x, 15)); cloudRow(g, 5, [[2, 16], [70, 90]]); cloudRow(g, 6, [[0, 22], [64, 96]]); return g; };
+done.push(save('strip-bridgegate-day', bridgegateS('.'), 4), save('strip-bridgegate-night', stars(bridgegateS('D')), 4));
+done.push(save('strip-cliffroad-day', cliffroadS('.'), 4), save('strip-cliffroad-night', stars(cliffroadS('D')), 4));
+done.push(save('strip-templeyard-day', templeyardS('.'), 4), save('strip-templeyard-night', stars(templeyardS('D')), 4));
+
+// ── M21: 별못 (BM-A). 못물은 민트(M)와 흰 줄(W), 집은 모래(S)와 시나몬 지붕(C), 열린 문의 불빛과 별 조각은 꿀(H, h), 풀은 민트(m) ──
+const pondWater = (g, x0, x1, top, bot) => { for (let y = top; y <= bot; y++) { const inset = Math.round(Math.abs(y - (top + bot) / 2) * 1.6); for (let x = x0 + inset; x < x1 - inset; x++) if (g[y] && g[y][x] !== undefined) g[y][x] = (x + y * 3) % 9 === 0 ? 'W' : 'M'; } return g; };
+const OPENHOUSE = grid(['...KKKKKK', '..KCCCCCCK', '.KCCCCCCCCK', 'KKKKKKKKKKKK', '.KSSSSSSSSK', '.KSSKhhKSSK', '.KSSKhhKSSK', '.KKKKhhKKKK'], 12);
+const pondGround = (g, y0) => { for (let x = 0; x < 96; x++) { g[y0][x] = 'K'; for (let y = y0 + 1; y < 24; y++) g[y][x] = (x + y) % 7 === 0 ? 'c' : 'S'; } return g; };
+const echogateS = (bg) => { const g = pondGround(blank(96, 24, bg), 20); pondWater(g, 26, 70, 13, 22); [2, 14, 72, 84].forEach((x) => blit(g, OPENHOUSE, x, 12)); [30, 46, 60].forEach((x) => blit(g, OPENHOUSE, x, 4)); return g; };
+const PREED = grid(['.m', '.m', 'mm', '.m', '.m', '.m'], 2);
+const MOTH = grid(['h.h', '.H.'], 3);
+const pondsideS = (bg) => { const g = pondGround(blank(96, 24, bg), 21); pondWater(g, 4, 92, 10, 23); for (let x = 2; x < 94; x += 7) blit(g, PREED, x, 15 + (x % 3)); [[12, 6], [33, 4], [51, 8], [70, 5], [86, 7]].forEach(([x, y]) => blit(g, MOTH, x, y)); return g; };
+const STARSHARD = grid(['.H', 'HhH', '.H'], 3);
+const starfieldS = (bg) => { const g = pondGround(blank(96, 24, bg), 18); for (let x = 0; x < 94; x += 3) { if (x > 36 && x < 60) continue; g[17][x] = 'm'; g[16][x + 1] = 'm'; } for (let x = 38; x < 58; x++) { const d = Math.round(4 * Math.sin(((x - 38) / 20) * Math.PI)); for (let y = 18; y <= 18 + d; y++) g[y][x] = y === 18 + d ? 'K' : 'D'; } [[8, 12], [24, 14], [66, 13], [82, 11], [47, 19]].forEach(([x, y]) => blit(g, STARSHARD, x, y)); return g; };
+done.push(save('strip-echogate-day', echogateS('.'), 4), save('strip-echogate-night', stars(echogateS('D')), 4));
+done.push(save('strip-pondside-day', pondsideS('.'), 4), save('strip-pondside-night', stars(pondsideS('D')), 4));
+done.push(save('strip-starfield-day', starfieldS('.'), 4), save('strip-starfield-night', stars(starfieldS('D')), 4));
+
+
+// ── 처음 모루 (CM-A, M22): 모루 아래 야영지, 모루 앞, 쇳물 골 ──
+const TENT = (ch) => grid(['....K....', '...K' + ch + 'K...', '..K' + ch + ch + ch + 'K..', '.K' + ch + ch + 'K' + ch + ch + 'K.', 'K' + ch + ch + ch + 'K' + ch + ch + ch + 'K'], 9);
+const CAMPFIRE = grid(['.H.', 'HhH', 'KKK'], 3);
+const rockGround = (g, top = 20) => { for (let x = 0; x < 96; x++) { g[top][x] = 'K'; for (let y = top + 1; y < 24; y++) g[y][x] = (x * 3 + y) % 5 === 0 ? 'c' : 'C'; } return g; };
+const anvilcampS = (bg) => { const g = rockGround(blank(96, 24, bg)); crag(g, 95, 26, 1, true); [[3, 'c'], [14, 'C'], [25, 'c'], [36, 'C'], [52, 'c'], [63, 'C'], [74, 'c']].forEach(([x, ch]) => blit(g, TENT(ch), x, 15)); blit(g, CAMPFIRE, 46, 17); return g; };
+const ANVILBIG = grid(['.KKKKKKKKKKK.', 'KccccccccccCK', '.KKKccccKKKK.', '....KccK.....', '....KccK.....', '...KccccK....', '..KKKKKKKK...'], 13);
+const HAMMERLY = grid(['KKK.....', 'KcKKKKKK', 'KKK.....'], 8);
+const anvilfrontS = (bg) => { const g = seaOfCloud(blank(96, 24, bg), 20); for (let x = 12; x < 84; x++) { g[16][x] = 'K'; for (let y = 17; y < 24; y++) g[y][x] = (x + y * 2) % 6 === 0 ? 'c' : 'C'; } blit(g, ANVILBIG, 41, 9); blit(g, HAMMERLY, 58, 13); return g; };
+const meltgullyS = (bg) => { const g = rockGround(blank(96, 24, bg)); crag(g, 0, 18, 3, false); crag(g, 95, 20, 5, true); for (let x = 12; x < 84; x++) { g[20][x] = x % 7 < 4 ? 'H' : 'h'; g[21][x] = x % 5 < 2 ? 'H' : 'h'; if (x % 11 === 3) g[19][x] = 'h'; } return g; };
+done.push(save('strip-anvilcamp-day', anvilcampS('.'), 4), save('strip-anvilcamp-night', stars(anvilcampS('D')), 4));
+done.push(save('strip-anvilfront-day', anvilfrontS('.'), 4), save('strip-anvilfront-night', stars(anvilfrontS('D')), 4));
+done.push(save('strip-meltgully-day', meltgullyS('.'), 4), save('strip-meltgully-night', stars(meltgullyS('D')), 4));
 console.log(done.join('\n'));
 console.log('모두 ' + done.length + '장');

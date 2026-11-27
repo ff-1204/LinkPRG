@@ -22,6 +22,12 @@ export function seedFrom(text) {
   return h || 1;
 }
 
+/** 글 하나로 캐릭터 표(16진수 열여섯 자)를 낸다. 같은 글이면 늘 같은 표다. */
+export function cidFrom(text) {
+  const hex = (t) => Math.floor(roll01(t) * 4294967296).toString(16).padStart(8, '0');
+  return hex(`cid|a|${text}`) + hex(`cid|b|${text}`);
+}
+
 /** 0 이상 1 미만의 수를 하나 뽑고 state.rng를 다음 값으로 옮긴다. */
 export function next(state) {
   let t = (state.rng = (state.rng + 0x6d2b79f5) >>> 0);

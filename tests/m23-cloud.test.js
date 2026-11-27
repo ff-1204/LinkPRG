@@ -50,7 +50,7 @@ test('드라이브: 숨은 폴더에 올리고, 덮고, 받고, 지운다', asyn
   const d = createDrive(f.fetchFn, () => 'TOKEN');
   const id = await d.upload(1, '{"rev":3}', 3, 111);
   let list = await d.list();
-  assert.deepEqual(list[1], { id, rev: 3, savedAt: 111 });
+  assert.deepEqual(list[1], { id, rev: 3, savedAt: 111, cid: null });
   await d.upload(1, '{"rev":4}', 4, 222, id);
   list = await d.list();
   assert.equal(list[1].rev, 4);

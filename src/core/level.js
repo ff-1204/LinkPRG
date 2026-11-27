@@ -1,3 +1,4 @@
+import { LEVEL_MAX } from '../data/bands.js?v=327d747';
 // 레벨과 경험치 (E10~E12, R2-1). 경험치는 전투와 의뢰에서 온다.
 
 export const POINTS_PER_LEVEL = 3;
@@ -17,7 +18,8 @@ export function gainXp(state, amount) {
   if (!Number.isFinite(amount) || amount < 0) throw new Error('경험치는 0 이상이어야 합니다');
   state.xp += Math.round(amount);
   let ups = 0;
-  while (state.xp >= xpToNext(state.level)) {
+  // 레벨은 100이 끝이다 (CM-E2): 그 뒤의 경험치는 버려지지 않고 쌓여, 다시 태어날 때 남는 몫에 든다
+  while (state.level < LEVEL_MAX && state.xp >= xpToNext(state.level)) {
     state.xp -= xpToNext(state.level);
     state.level += 1;
     state.unspent += POINTS_PER_LEVEL;

@@ -82,6 +82,21 @@ export function useSkill(skill, difficulty, multiplier = 1) {
   return { gained, leveled, rankUp, grade: skill.grade };
 }
 
+/** 쓴 횟수는 세지 않고 경험치만 얹는다(읽히지 않고 이긴 싸움의 덤, BM-B3). */
+export function addSkillXp(skill, amount) {
+  if (skill.grade >= MAX_GRADE || !(amount > 0)) return { gained: 0, leveled: false, rankUp: false, grade: skill.grade };
+  skill.xp += amount;
+  let leveled = false, rankUp = false;
+  while (skill.grade < MAX_GRADE && skill.xp >= xpNeeded(skill.grade)) {
+    skill.xp -= xpNeeded(skill.grade);
+    const before = rankOf(skill.grade);
+    skill.grade += 1;
+    leveled = true;
+    if (rankOf(skill.grade) > before) rankUp = true;
+  }
+  return { gained: amount, leveled, rankUp, grade: skill.grade };
+}
+
 /** 다음 등급까지 얼마나 찼는지 0~1. */
 export function progress(skill) {
   if (skill.grade >= MAX_GRADE) return 1;

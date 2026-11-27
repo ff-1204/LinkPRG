@@ -1,17 +1,18 @@
 // 상점과 보관함 (E24, E25, E28, H1-5, H1-6, R2-4).
 // 돈은 은화 한 가지. 팔 때는 값의 40%. 등급이 높으면 값도 높다.
 
-import { pushLine } from './log.js?v=6d96d3a';
-import { itemDef, GRADE_MULT, gradeName } from '../data/items.js?v=6d96d3a';
-import { addItem, removeAt, itemWeight } from './inventory.js?v=6d96d3a';
-import { SHOPS, DAILY_SWING } from '../data/shops.js?v=6d96d3a';
-import { seedFrom } from './rng.js?v=6d96d3a';
-import { discountOf as socialDiscount } from './social.js?v=6d96d3a';
-import { placeById } from '../data/places.js?v=6d96d3a';
-import { guildPerk } from './guild.js?v=6d96d3a';
-import { gearName } from './gear.js?v=6d96d3a';
-import { eulReul, iGa } from './ko.js?v=6d96d3a';
-import { hasTitle } from './titles.js?v=6d96d3a';
+import { INTEREST_WORK } from '../data/bands.js?v=327d747';
+import { pushLine } from './log.js?v=327d747';
+import { itemDef, GRADE_MULT, gradeName } from '../data/items.js?v=327d747';
+import { addItem, removeAt, itemWeight } from './inventory.js?v=327d747';
+import { SHOPS, DAILY_SWING, MARKET_SWING, MARKET_FLAT, MARKET_GOODS, MARKET_GOODS_AT } from '../data/shops.js?v=327d747';
+import { seedFrom } from './rng.js?v=327d747';
+import { discountOf as socialDiscount } from './social.js?v=327d747';
+import { placeById } from '../data/places.js?v=327d747';
+import { guildPerk } from './guild.js?v=327d747';
+import { gearName } from './gear.js?v=327d747';
+import { eulReul, iGa } from './ko.js?v=327d747';
+import { hasTitle } from './titles.js?v=327d747';
 
 export const SELL_RATE = 0.4;
 export const APPRAISE_SELL = 0.01;
@@ -39,7 +40,8 @@ export function buyPrice(state, id) {
   if (per) { const v = Math.max(per, (state.level || 1) * per); return { base: v, now: v, why: '' }; }
   let base = worth({ id, grade: itemDef(id).grade || 0 });
   const shop = SHOPS[state.place];
-  if (shop?.daily) base = Math.max(1, Math.round(base * (DAILY_SWING[0] + (seedFrom(`${state.seed}|price|${state.day}|${id}`) / 4294967296) * DAILY_SWING[1])));
+  if (shop?.market) base = Math.max(1, Math.round(base * marketRate(state, id)));
+  else if (shop?.daily) base = Math.max(1, Math.round(base * (DAILY_SWING[0] + (seedFrom(`${state.seed}|price|${state.day}|${id}`) / 4294967296) * DAILY_SWING[1])));
   const cut = discountOf(state);
   const rate = cut.rate + guildPerk(state, 'social') + (state.flags.cheapBuy ? 0.05 : 0); // 등불 모임, 가게 집 막내
   return { base, now: rate > 0 && base >= 5 ? Math.max(1, Math.floor(base * (1 - rate))) : base, why: [cut.why, guildPerk(state, 'social') > 0 ? '길드의 덕' : ''].filter(Boolean).join(', ') };
@@ -56,7 +58,37 @@ export function sellPrice(item, state = null) {
   const mine = state && hasTitle(state, 'maker') && item.maker === state.name ? 1.1 : 1;
   const hide = state && state.flags.hideSeller && /hide/.test(item.id) ? 1.3 : 1; // 무두장이는 가죽 값을 더 받는다
   const eye = state ? 1 + (state.skills?.appraise?.grade || 0) * APPRAISE_SELL : 1; // 감정 (Z62): 등급마다 파는 값이 오른다. 상한 없음
-  return Math.max(1, Math.floor(worth(item) * SELL_RATE * mine * hide * eye));
+  const market = state && SHOPS[state.place]?.market ? marketRate(state, item.id) : 1; // 저울목: 파는 값도 날마다 바뀐다 (SB-C1)
+  return Math.max(1, Math.floor(worth(item) * SELL_RATE * mine * hide * eye * market));
+}
+
+/** 저울목의 오늘 값 (SB-C1): 제값의 몇 배인가. 나루 어시장과 같은 씨앗을 쓴다. 날이 바뀔 때 새로 붙는다. */
+export function marketRate(state, id, day = state.day) {
+  const m = MARKET_SWING[0] + (seedFrom(`${state.seed}|price|${day}|${id}`) / 4294967296) * MARKET_SWING[1];
+  const r = Math.round(m * 100) / 100;
+  return Math.abs(r - 1) < MARKET_FLAT - 0.005 ? 1 : r;
+}
+/** 시세판 (SB-C2): 오늘 값만 보인다. 비싼 것, 싼 것, 제값인 것 세 묶음. */
+export function pricesView(state) {
+  const rows = (MARKET_GOODS_AT[state.place] || MARKET_GOODS).map((id) => {
+    const base = worth({ id, grade: itemDef(id).grade || 0 }), rate = marketRate(state, id);
+    return { id, name: itemDef(id).name, base, now: Math.max(1, Math.round(base * rate)), pct: Math.round((rate - 1) * 100) };
+  });
+  // 값이 작아 반올림하면 제값과 같은 것은 제값 묶음에 둔다
+  return { day: state.day, up: rows.filter((r) => r.now > r.base).sort((a, b) => b.pct - a.pct), down: rows.filter((r) => r.now < r.base).sort((a, b) => a.pct - b.pct), flat: rows.filter((r) => r.now === r.base) };
+}
+/** 주막의 소문 (SB-C2): 내일 값이 가장 크게 움직일 것 하나. 가끔만 흘린다(이틀에 한 번쯤). 없으면 null. */
+export function marketHint(state) {
+  if (seedFrom(`${state.seed}|pricehint|${state.day}`) % 2) return null;
+  const best = MARKET_GOODS.map((id) => ({ id, rate: marketRate(state, id, state.day + 1) })).filter((r) => r.rate !== 1).sort((a, b) => Math.abs(b.rate - 1) - Math.abs(a.rate - 1))[0];
+  if (!best) return null;
+  const short = { scorpshell: '껍질', saltsteel: '소금강', wormmeat: '갯지렁이', whitefur: '흰털', frostiron: '서릿쇠' }[best.id] || itemDef(best.id).name;
+  return { id: best.id, up: best.rate > 1, text: `내일은 ${short}값이 ${best.rate > 1 ? '뛴다' : '떨어진다'}더라.` };
+}
+
+/** 저울목에서 제값보다 싼 날 내다 팔았다: 값을 깎아 판 것이다. 깎지 않고 판 수를 처음부터 다시 센다 (LV-E4, 화면에 내보내지 않는다). */
+function cutSale(state, item) {
+  if (SHOPS[state.place]?.market && marketRate(state, item.id) < 1 && state.counters.fairSold) state.counters.fairSold = 0;
 }
 
 export function shopHere(state) {
@@ -68,7 +100,7 @@ export function shopView(state) {
   const shop = shopHere(state);
   if (!shop) return null;
   return {
-    keeper: shop.keeper, hello: shop.hello, daily: !!shop.daily,
+    keeper: shop.keeper, hello: shop.hello, daily: !!shop.daily, market: !!shop.market,
     goods: shop.sells.map((id) => ({ id, name: itemDef(id).name, desc: itemDef(id).desc, ...buyPrice(state, id) })),
     mine: state.bag.map((item, index) => ({ index, item, name: gearName(item), grade: gradeName(item.grade), n: item.n, each: sellPrice(item, state) })).filter((x) => x.each > 0),
   };
@@ -96,6 +128,7 @@ export function sell(state, events, index, n = 1) {
   if (each <= 0) throw new Error('퀘스트 물건은 팔 수 없습니다');
   // 메인 1장 '만드는 길': 제 손으로 만든 희귀 등급 이상을 마을 사람에게 판다
   if (item.maker === state.name && item.grade >= 2) state.main.soldRare = true;
+  cutSale(state, item);
   const name = gearName(item);
   const grade = item.grade ? `${gradeName(item.grade)} 등급 ` : '';
   removeAt(state, index, n);
@@ -124,6 +157,7 @@ export function sellMany(state, events, picks) {
   });
   let total = 0;
   const names = [];
+  for (const r of rows) cutSale(state, r.item);
   for (const r of [...rows].sort((a, b) => b.index - a.index)) {
     if (r.item.maker === state.name && r.item.grade >= 2) state.main.soldRare = true;
     names.unshift(`${r.item.grade ? `${gradeName(r.item.grade)} 등급 ` : ''}${gearName(r.item)}${r.n > 1 ? ` ${r.n}개` : ''}`);
@@ -156,7 +190,7 @@ export function storeView(state) {
   const box = boxOf(state);
   return {
     items: box.items.map((item, index) => ({ index, item, name: gearName(item), grade: gradeName(item.grade), n: item.n })),
-    silver: box.silver, weight: storeWeight(box), cap: STORE_CAP, fee: STORE_FEE, debt: state.storeDebt || 0, rate: STORE_RATE, interest: Math.floor((box.silver || 0) * STORE_RATE),
+    silver: box.silver, weight: storeWeight(box), cap: STORE_CAP, fee: STORE_FEE, debt: state.storeDebt || 0, rate: STORE_RATE, interest: Math.floor((box.silver || 0) * STORE_RATE), work: state.flags?.dayWork || 0, workNeed: INTEREST_WORK,
     busy: box.items.length > 0 || box.silver > 0,
   };
 }
@@ -219,10 +253,13 @@ export function withdrawSilver(state, events, amount) {
   events.push({ type: 'trade' });
 }
 
-/** 날이 바뀔 때 부른다. 맡긴 은화에는 하루 1% 이자가 붙는다 (Z42). 물건을 맡긴 날만 삯을 낸다 (H1-6). 모자라면 달아 둔다. */
-export function storeDay(state, events) {
+/**
+ * 날이 바뀔 때 부른다. 맡긴 은화에는 하루 1% 이자가 붙는다 (Z42). 물건을 맡긴 날만 삯을 낸다 (H1-6). 모자라면 달아 둔다.
+ * @param worked 그날 일을 서른 번 이상 했는가 (LV-L9). 아니면 이자가 붙지 않는다. 잠만 자서 날을 넘기는 길을 막는다
+ */
+export function storeDay(state, events, worked = true) {
   for (const [town, box] of Object.entries(state.store)) {
-    const interest = Math.floor((box.silver || 0) * STORE_RATE);
+    const interest = worked ? Math.floor((box.silver || 0) * STORE_RATE) : 0;
     if (interest > 0) {
       box.silver += interest;
       pushLine(state, events, { k: 'sys', tone: 'mint', text: `${town}에 맡긴 은화에 이자가 붙었다. 은화 +${interest}.` });

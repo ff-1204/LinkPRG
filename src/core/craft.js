@@ -2,21 +2,24 @@
 // 쇠는 식는다. 얼마나 늦었는지는 화면이 재서 알려 주고(late), 규칙은 그 값만 본다.
 // 그래서 같은 씨앗과 같은 입력이면 늘 같은 결과가 나온다.
 
-import { next } from './rng.js?v=6d96d3a';
-import { rollOptions } from './gear.js?v=6d96d3a';
-import { pushLine, ding } from './log.js?v=6d96d3a';
-import { countOf, takeById, addItem } from './inventory.js?v=6d96d3a';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=6d96d3a';
-import { itemDef, GRADES } from '../data/items.js?v=6d96d3a';
-import { RECIPES, RECIPE_ORDER, GRADE_BASE, PUSH, HAMMER_LINES, HAMMER_MARKS, recipeById, STITCH_LINES, JEWEL_LINES, COOK_STIR, BRANCHES, BRANCH_ORDER, CRAFT_LV, ORDER_OF } from '../data/recipes.js?v=6d96d3a';
-import { branchOf } from './evolve.js?v=6d96d3a';
-import { placeById } from '../data/places.js?v=6d96d3a';
-import { DISHES } from '../data/cooking.js?v=6d96d3a';
-import { applyDish } from './cook.js?v=6d96d3a';
-import { iGa, eulReul } from './ko.js?v=6d96d3a';
-import { jobXp } from './jobs.js?v=6d96d3a';
-import { jobDef } from '../data/jobs.js?v=6d96d3a';
-import { hasTitle } from './titles.js?v=6d96d3a';
+import { next } from './rng.js?v=327d747';
+import { rollOptions } from './gear.js?v=327d747';
+import { pushLine, ding } from './log.js?v=327d747';
+import { countOf, takeById, addItem } from './inventory.js?v=327d747';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=327d747';
+import { itemDef, GRADES } from '../data/items.js?v=327d747';
+import { RECIPES, RECIPE_ORDER, GRADE_BASE, PUSH, HAMMER_LINES, HAMMER_MARKS, recipeById, STITCH_LINES, JEWEL_LINES, COOK_STIR, BRANCHES, BRANCH_ORDER, CRAFT_LV, ORDER_OF } from '../data/recipes.js?v=327d747';
+import { branchOf } from './evolve.js?v=327d747';
+import { TIER_SIZE, CRAFT_LV_MAX, BAND_MAX, tierOfLv, makeXp, promoXp } from '../data/bands.js?v=327d747';
+import { grantXp } from './reward.js?v=327d747';
+import { xpToNext } from './level.js?v=327d747';
+import { DISHES, DISH_ORDER } from '../data/cooking.js?v=327d747';
+import { placeById } from '../data/places.js?v=327d747';
+import { applyDish } from './cook.js?v=327d747';
+import { iGa, eulReul } from './ko.js?v=327d747';
+import { jobXp } from './jobs.js?v=327d747';
+import { jobDef } from '../data/jobs.js?v=327d747';
+import { hasTitle } from './titles.js?v=327d747';
 
 export const WORK_XP = 1.5; // 일하는 직업이 맞으면 그 숙련도가 빨리 오른다 (T7)
 export const TANNER_XP = 1.2; // 무두장이 출신은 가죽 숙련도가 조금 빨리 오른다 (Z71)
@@ -38,23 +41,71 @@ export function craftLvOf(state, branch) {
   if (!state.craftLv) state.craftLv = emptyCraftLv();
   return state.craftLv[branch] || (state.craftLv[branch] = { lv: 1, xp: 0 });
 }
-/** 갈래 하나의 레벨과 다음 레벨까지. */
+// ── 제작 단계 (LV-F11): 단계마다 제작 레벨 넷. 4, 8, 12…에서 멈추고, 승급작을 지으면 다음 단계가 열린다 ──
+/** 그 갈래에서 열린 단계. 없던 저장은 지금 레벨로 셈한다. */
+export function craftTierOf(state, branch) {
+  if (!state.craftTier) state.craftTier = {};
+  if (!Number.isInteger(state.craftTier[branch])) state.craftTier[branch] = tierOfLv(craftLvOf(state, branch).lv);
+  return state.craftTier[branch];
+}
+/** 단계의 끝(4, 8, 12…)에 닿아 승급작을 기다리는가. 경험은 버려지지 않고 쌓여 있다가 승급하면 한꺼번에 오른다. */
+export function craftCapped(state, branch) {
+  const c = craftLvOf(state, branch);
+  return c.lv >= CRAFT_LV_MAX || (c.lv % TIER_SIZE === 0 && craftTierOf(state, branch) <= c.lv / TIER_SIZE);
+}
+/** 그 갈래 그 단계의 승급작 이름. 아직 없는 단계면 null. */
+export function promoOf(branch, tier) {
+  if (branch === 'cook') { const id = DISH_ORDER.find((d) => DISHES[d].promo && tierOfLv(DISHES[d].lv || 1) === tier); return id ? DISHES[id].name : null; }
+  const r = (ORDER_OF[branch] || []).map((id) => RECIPES[id]).find((x) => x.promo && tierOfLv(x.lv || 1) === tier);
+  return r ? r.name : null;
+}
+/** 갈래 하나의 레벨과 다음 레벨까지. capped: 승급작을 지어야 더 오른다. */
 export function craftLvView(state, branch) {
   const c = craftLvOf(state, branch);
-  return { id: branch, name: BRANCHES[branch].name, lv: c.lv, xp: c.xp, need: c.lv * CRAFT_LV.per };
+  const capped = craftCapped(state, branch);
+  const tier = tierOfLv(c.lv);
+  return { id: branch, name: BRANCHES[branch].name, lv: c.lv, xp: c.xp, need: c.lv * CRAFT_LV.per, tier, capped, max: c.lv >= CRAFT_LV_MAX, promo: capped && c.lv < CRAFT_LV_MAX ? promoOf(branch, tier) : null };
 }
-/** 하나 다 만들었다: 설계도 레벨 × (1 + 등급). 그 갈래의 일하는 직업이면 1.5배. 끝이 없다. */
-function gainCraftXp(state, events, r, grade) {
-  const branch = branchOfRecipe(r);
+/** 쌓인 경험으로 오를 수 있는 만큼 오른다. onLevel(c): 레벨이 하나 오를 때마다. */
+function levelUpCraft(state, branch, onLevel) {
   const c = craftLvOf(state, branch);
-  const work = BRANCHES[branch].work;
-  c.xp += Math.round((r.lv || 1) * (1 + grade) * (work && state.work === work ? CRAFT_LV.workXp : 1));
-  while (c.xp >= c.lv * CRAFT_LV.per) {
+  while (c.xp >= c.lv * CRAFT_LV.per && !craftCapped(state, branch)) {
     c.xp -= c.lv * CRAFT_LV.per;
     c.lv += 1;
-    const opened = ORDER_OF[branch].map((id) => RECIPES[id]).filter((x) => x.lv === c.lv).map((x) => x.name);
-    ding(state, events, { level: 2, title: `${BRANCHES[branch].name} 레벨 ${c.lv}이 되었습니다`, body: opened.length ? `새 설계도: ${opened.join(', ')}` : '' });
+    onLevel(c);
   }
+}
+/**
+ * 제작 경험을 얻는다. made가 그 단계의 승급작(promo)이고 아직 그 단계에 있으면 다음 단계가 열린다.
+ * @param made 설계도나 요리의 자료({ lv, promo, name })
+ */
+export function addCraftXp(state, events, branch, amount, made, onLevel) {
+  const c = craftLvOf(state, branch);
+  c.xp += amount;
+  const tier = tierOfLv(made?.lv || 1);
+  let promoted = false;
+  if (made?.promo && craftTierOf(state, branch) === tier && tier < BAND_MAX) {
+    state.craftTier[branch] = tier + 1;
+    promoted = true;
+    ding(state, events, { level: 3, title: `${BRANCHES[branch].name} ${tier + 1}단계가 열렸습니다`, body: `승급작 ${eulReul(made.name)} 지어 보였다. ${BRANCHES[branch].name} 레벨이 ${tier * TIER_SIZE}을 넘어 오를 수 있다.` });
+  }
+  levelUpCraft(state, branch, onLevel);
+  return promoted;
+}
+/** 만들기에도 경험치 (LV-M2): 싸우지 않는 길로도 레벨이 오른다. 승급한 그 한 번은 열 마리치를 더 받는다. */
+export function grantMakeXp(state, events, made, grade, promoted) {
+  const tier = tierOfLv(made?.lv || 1);
+  grantXp(state, events, makeXp(made?.lv || 1, grade, xpToNext) + (promoted ? promoXp(tier, xpToNext) : 0));
+}
+/** 하나 다 만들었다: 설계도 레벨 × (1 + 등급). 그 갈래의 일하는 직업이면 1.5배. */
+function gainCraftXp(state, events, r, grade) {
+  const branch = branchOfRecipe(r);
+  const work = BRANCHES[branch].work;
+  const promoted = addCraftXp(state, events, branch, Math.round((r.lv || 1) * (1 + grade) * (work && state.work === work ? CRAFT_LV.workXp : 1)), r, (c) => {
+    const opened = ORDER_OF[branch].map((id) => RECIPES[id]).filter((x) => x.lv === c.lv && knownRecipe(state, x)).map((x) => x.name);
+    ding(state, events, { level: 2, title: `${BRANCHES[branch].name} 레벨 ${c.lv}이 되었습니다`, body: opened.length ? `새 설계도: ${opened.join(', ')}` : '' });
+  });
+  grantMakeXp(state, events, r, grade, promoted);
 }
 
 /** 재료의 품질: 가방에서 쓰일 재료들의 평균 등급. */
@@ -98,9 +149,14 @@ export function gradeOdds(push) {
   return w.map((x) => (x / total) * 100);
 }
 
+/** 아는 설계도인가: needDex가 적힌 것은 그 물건을 한 번 손에 넣어 본 뒤에야 안다 (BM-G5). */
+export const knownRecipe = (state, r) => !r.needDex || !!state.dex?.items?.[r.needDex];
+
 /** 설계도 목록과, 지금 만들 수 있는지 (제작 창이 그린다). */
 export function recipeList(state, order = RECIPE_ORDER) {
-  return order.map((id) => {
+  // 아직 열리지 않은 단계의 설계도는 어디에도 나오지 않는다 (LV-F11, 숨김)
+  // 그 물건을 손에 넣어 보기 전에는 목록에 없는 설계도도 있다 (BM-G5: 작은 종)
+  return order.filter((id) => tierOfLv(RECIPES[id].lv || 1) <= craftTierOf(state, branchOfRecipe(RECIPES[id])) && knownRecipe(state, RECIPES[id])).map((id) => {
     const r = RECIPES[id];
     const needs = r.needs.map((n) => ({ id: n.id, name: itemDef(n.id).name, n: n.n, have: countOf(state, n.id) }));
     const quality = qualityOf(state, r);
@@ -109,6 +165,7 @@ export function recipeList(state, order = RECIPE_ORDER) {
     const job = itemDef(r.makes).job;
     return {
       id, name: r.name, say: r.say, hits: r.hits, needs, lv: r.lv || 1, branch, locked, job, can: !locked && needs.every((n) => n.have >= n.n),
+      promo: !!r.promo && tierOfLv(r.lv || 1) < BAND_MAX, // 승급작 이름표 (WM-C2)
       // 두드리기 전에 보이는 확률: 하나도 식히지 않았을 때와 모두 식혔을 때 (가죽은 둘이 같다)
       best: gradeOdds(pushOf(state, r, r.hits, quality).total),
       worst: gradeOdds(pushOf(state, r, 0, quality).total),
@@ -136,6 +193,7 @@ export function startCraft(state, events, recipeId) {
   const r = recipeById(recipeId);
   const br = BRANCHES[branchOfRecipe(r)];
   if (state.place && !placeById(state.place).actions.includes(br.act)) throw new Error(`${br.where}에서 만듭니다`);
+  if (!knownRecipe(state, r)) throw new Error('아직 모르는 설계도입니다');
   if ((r.lv || 1) > craftLvOf(state, br.id).lv) throw new Error(`${br.name} 레벨 ${r.lv}에 열리는 설계도입니다`);
   for (const n of r.needs) if (countOf(state, n.id) < n.n) throw new Error(`${iGa(itemDef(n.id).name)} 모자랍니다 (${countOf(state, n.id)} / ${n.n})`);
   const quality = qualityOf(state, r);
@@ -229,7 +287,9 @@ function finishCook(state, events, r, grade) {
   const kitchen = !!placeById(state.place).kitchen;
   const gname = grade ? `${GRADES[grade]} 등급 ` : '';
   if (kitchen) {
-    addItem(state, r.makes, 1, { grade, maker: state.name });
+    const more = r.dish === 'marshbrew' && state.flags.brewKnack ? 1 : 0; // 늪 약탕의 요령 (AN-D7): 한 그릇이 더 나온다
+    addItem(state, r.makes, 1 + more, { grade, maker: state.name });
+    if (more) pushLine(state, events, { k: 'sys', text: '넷째 물을 국자로 떴다. 한 그릇이 더 나왔다.', tone: 'mint' });
     state.counters.dishes = (state.counters.dishes || 0) + 1; // 주방장이 요리사를 권하는 셈 (Z83)
     pushLine(state, events, { k: 'room', text: `${gname}${eulReul(r.name)} 그릇에 담아 가방에 넣었다.` });
     events.push({ type: 'bag' });
@@ -280,6 +340,20 @@ function finish(state, events) {
   const odds = gradeOdds(pushOf(state, r, c.warm, c.quality).total);
   const grade = rollGrade(state, odds);
   if (r.cook) return finishCook(state, events, r, grade);
+  // 장비가 아닌 것(공기 주머니, JD-B3): 등급도 옵션도 없다. 꿰맨 수와 제작 경험만 센다
+  if (r.plain) {
+    addItem(state, r.makes, 1);
+    state.craft = null;
+    state.lastAction = null;
+    if (!r.jewel) state.counters.sewn = (state.counters.sewn || 0) + 1; // 세공은 재봉사가 일을 권하는 셈에 들지 않는다
+    state.counters.crafts += 1;
+    gainCraftXp(state, events, r, 0);
+    pushLine(state, events, { k: 'room', text: r.jewel ? `마지막으로 광을 냈다. ${iGa(itemDef(r.makes).name)} 다 되었다.` : `마지막 땀을 매듭지었다. ${iGa(itemDef(r.makes).name)} 다 지어졌다.` });
+    events.push({ type: 'bag' });
+    events.push({ type: 'craft', phase: 'done', grade: 0, item: r.makes });
+    events.push({ type: 'art' });
+    return;
+  }
   const branch = branchOf(state, r.skill);
   const item = addItem(state, r.makes, 1, { grade, maker: state.name });
   if (itemDef(r.makes).tool) item.dur = Math.round(item.dur * (1 + 0.5 * grade)); // 도구: 등급마다 내구도 +50%

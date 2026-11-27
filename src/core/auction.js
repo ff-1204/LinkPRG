@@ -1,19 +1,21 @@
 // 경매장 (N6-1 ~ N6-3). 가상 유저가 입찰하고 한마디씩 남긴다.
 // 입찰은 씨앗과 날짜로 셈한다. 같은 씨앗이면 같은 값에 팔린다.
 
-import { seedFrom } from './rng.js?v=6d96d3a';
-import { gearName } from './gear.js?v=6d96d3a';
-import { pushLine } from './log.js?v=6d96d3a';
-import { ITEMS, itemDef, gradeName } from '../data/items.js?v=6d96d3a';
-import { addItem, removeAt } from './inventory.js?v=6d96d3a';
-import { worth } from './trade.js?v=6d96d3a';
-import { placeById } from '../data/places.js?v=6d96d3a';
-import { standingOf } from './factions.js?v=6d96d3a';
-import { FACTION_REGULAR } from '../data/factions.js?v=6d96d3a';
-import { userBase } from './world.js?v=6d96d3a';
-import { MASK_LOT, AUCTION_FEE, AUCTION_DAYS, LOT_TIERS, LOT_SKIP, LOT_ASK, LOT_GEAR_MIN, BID_SAYS, USER_COUNT } from '../data/world.js?v=6d96d3a';
-import { eulReul, iGa, eunNeun } from './ko.js?v=6d96d3a';
-import { grantTitle } from './social.js?v=6d96d3a';
+import { PLACES } from '../data/places.js?v=327d747';
+import { reachedBand } from '../data/bands.js?v=327d747';
+import { seedFrom } from './rng.js?v=327d747';
+import { gearName } from './gear.js?v=327d747';
+import { pushLine } from './log.js?v=327d747';
+import { ITEMS, itemDef, gradeName } from '../data/items.js?v=327d747';
+import { addItem, removeAt } from './inventory.js?v=327d747';
+import { worth } from './trade.js?v=327d747';
+import { placeById } from '../data/places.js?v=327d747';
+import { standingOf } from './factions.js?v=327d747';
+import { FACTION_REGULAR } from '../data/factions.js?v=327d747';
+import { userBase } from './world.js?v=327d747';
+import { MASK_LOT, AUCTION_FEE, AUCTION_DAYS, LOT_TIERS, LOT_SKIP, LOT_ASK, LOT_GEAR_MIN, BID_SAYS, USER_COUNT } from '../data/world.js?v=327d747';
+import { eulReul, iGa, eunNeun } from './ko.js?v=327d747';
+import { grantTitle } from './social.js?v=327d747';
 
 // 끝 글자만 다른 글들도 고르게 흩어지도록 한 번 더 섞는다(전에는 같은 날 물건들의 시작가가 거의 같았다)
 const mix = (h) => { h ^= h >>> 16; h = Math.imul(h, 0x85ebca6b) >>> 0; h ^= h >>> 13; h = Math.imul(h, 0xc2b2ae35) >>> 0; h ^= h >>> 16; return h >>> 0; };
@@ -41,12 +43,13 @@ export function lotPool(grade) {
 /** 오늘 가상 유저들이 내놓은 물건 (Z66). 하급·중급·상급. 하루 뒤에 끝난다. */
 export function lotsToday(state, day = state.day) {
   const out = [];
+  const reach = reachedBand(state, PLACES);
   for (const t of LOT_TIERS) {
     if (t.chance != null && unit(state.seed, 'tier', t.id, day) >= t.chance) continue; // 상급은 비는 날이 있다
     const taken = new Set();
     for (let k = 0; k < t.n; k++) {
       const grade = t.top && unit(state.seed, 'top', t.id, day, k) < t.top ? t.grade + 1 : t.grade;
-      const pool = lotPool(grade).filter((id) => !taken.has(id));
+      const pool = lotPool(grade).filter((id) => !taken.has(id) && (itemDef(id).tier || 1) <= reach); // 가 본 구간까지만 올라온다 (LV-G1)
       if (!pool.length) continue;
       const id = pool[hash(state.seed, 'lot', t.id, day, k) % pool.length];
       taken.add(id);

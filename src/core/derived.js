@@ -1,8 +1,10 @@
 // 계산된 값과 그 셈 (R2-1, R2-2, G2-2). 누르면 셈이 풀려 보인다.
 
-import { equipPower } from './inventory.js?v=6d96d3a';
-import { buffOf, foodBuff, restBuff, graceBuff, murderBuff } from './buffs.js?v=6d96d3a';
-import { ADVANCED } from '../data/jobs.js?v=6d96d3a';
+import { equipPower, usable } from './inventory.js?v=327d747';
+import { itemDef } from '../data/items.js?v=327d747';
+import { buffOf, foodBuff, restBuff, graceBuff, murderBuff, drumBuff } from './buffs.js?v=327d747';
+import { ADVANCED } from '../data/jobs.js?v=327d747';
+import { coldAttackCut } from './cold.js?v=327d747';
 
 /** 숙련 보너스: 등급 두 칸마다 1. */
 export function skillBonus(skill) {
@@ -21,6 +23,16 @@ export function isTired(state) {
   return (state.tired || 0) >= TIRED_AT;
 }
 
+/** 직업 무기 (SB-G1): 활·단검은 민첩, 지팡이·기도 구슬은 지혜로 친다. 그 직업이 제 직업 무기를 들었을 때만이다. */
+export const JOB_WEAPON_STAT = { archer: 'agi', rogue: 'agi', mage: 'wis', priest: 'wis' };
+export const STAT_NAMES = { str: '힘', agi: '민첩', con: '체력', wis: '지혜' };
+/** 기본 공격에 쓰는 스탯. 직업 무기를 들지 않았으면 힘이다. */
+export function attackStat(state) {
+  const stat = JOB_WEAPON_STAT[state.job];
+  if (!stat || !state.equip) return 'str';
+  return Object.values(state.equip).some((it) => usable(it) && itemDef(it.id).job === state.job) ? stat : 'str';
+}
+
 /** 굶주림과 그림자의 벌. 근성이 있으면 조금 덜하다. */
 function gritCut(state) {
   return Math.max(0, 1 - (state.hidden?.grit?.value || 0) * 0.05);
@@ -35,10 +47,11 @@ function penaltyRate(state) {
 export function derived(state) {
   const s = state.stats;
   const strikeBonus = skillBonus(state.skills.strike);
+  const main = attackStat(state);
   const levelHp = (state.level - 1) * 10;
   const gear = state.equip ? equipPower(state) : { attack: 0, defense: 0 };
   const list = [
-    { id: 'attack', name: '공격력', parts: [{ label: `힘 ${s.str}`, value: s.str }, { label: `무기 ${gear.attack}`, value: gear.attack }, { label: `치기 숙련 ${strikeBonus}`, value: strikeBonus }] },
+    { id: 'attack', name: '공격력', parts: [{ label: `${STAT_NAMES[main]} ${s[main]}`, value: s[main] }, { label: `무기 ${gear.attack}`, value: gear.attack }, { label: `치기 숙련 ${strikeBonus}`, value: strikeBonus }] },
     { id: 'defense', name: '방어력', parts: [{ label: `체력 ${s.con}의 절반`, value: Math.floor(s.con / 2) }, { label: `방어구 ${gear.defense}`, value: gear.defense }] },
     { id: 'maxHp', name: '최대 생명력', parts: [{ label: '기본 50', value: 50 }, { label: `체력 ${s.con} × 5`, value: s.con * 5 }, { label: `레벨업 ${levelHp}`, value: levelHp }] },
     { id: 'maxMp', name: '최대 마나', parts: [{ label: `지혜 ${s.wis} × 3`, value: s.wis * 3 }] },
@@ -72,11 +85,28 @@ export function derived(state) {
       addTo(d.id, `${murder.name} ${Math.round(sum * murder.power)}`, Math.round(sum * murder.power));
     }
   }
+  // 비율로 붙는 음식 (LV-H1): 21부터의 요리는 공격력·방어력에 비율로 붙는다
+  if (food?.rate) {
+    for (const d of list) {
+      if (d.id !== 'attack' && d.id !== 'defense') continue;
+      const sum = d.parts.reduce((a, p) => a + p.value, 0);
+      addTo(d.id, `${food.name} ${Math.round(sum * food.rate)}`, Math.round(sum * food.rate));
+    }
+  }
   if (grace) {
     for (const d of list) {
       if (d.id !== 'attack' && d.id !== 'defense') continue;
       const sum = d.parts.reduce((a, p) => a + p.value, 0);
       addTo(d.id, `${grace.name} ${Math.round(sum * grace.power)}`, Math.round(sum * grace.power));
+    }
+  }
+  // 북소리 (LV-H4, GD-C2): 북 치는 이가 곁에 있는 동안 공격력·방어력이 비율로 오른다. 음식·성수와 겹친다
+  const drum = state.party ? drumBuff(state) : null;
+  if (drum) {
+    for (const d of list) {
+      if (d.id !== 'attack' && d.id !== 'defense') continue;
+      const sum = d.parts.reduce((a, p) => a + p.value, 0);
+      addTo(d.id, `${drum.name} ${Math.round(sum * drum.rate)}`, Math.round(sum * drum.rate));
     }
   }
   if (slept?.hp || slept?.power) {
@@ -93,6 +123,8 @@ export function derived(state) {
       if (isHungry(state)) d.parts.push({ label: `굶주림 ${Math.round(sum * rate)}`, value: -Math.round(sum * rate) });
       if (state.shadow > 0) { const cut = Math.round(sum * state.shadow * 0.05 * gritCut(state)); d.parts.push({ label: `죽음의 그림자 ${state.shadow}겹 ${cut}`, value: -cut }); }
       if (isTired(state)) d.parts.push({ label: `피로 ${Math.round(sum * 0.1)}`, value: -Math.round(sum * 0.1) });
+      // 언 몸 (WM-B3): 흰마루에서 체온이 30까지 내려가면 공격력 −10%
+      if (d.id === 'attack' && state.place && coldAttackCut(state)) d.parts.push({ label: `언 몸 ${Math.round(sum * coldAttackCut(state))}`, value: -Math.round(sum * coldAttackCut(state)) });
     }
     d.value = d.parts.reduce((a, p) => a + p.value, 0);
   }

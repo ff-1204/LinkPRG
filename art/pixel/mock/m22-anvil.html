@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head><body style="margin:0">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>처음 모루 화면 시안</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap">
+<style>
+/* 배치: 게임과 같은 크림 한 가지 모습(일부러 한 테마). 위에서 아래로 번호 붙은 장, 화면 그림은 휴대폰 틀 안에 */
+:root { --cream: #FBF5E6; --paper: #FFFDF6; --sand: #F3E9D2; --line: #E6D9BD; --line2: #CDBE9E; --ink: #3A2A1E; --muted: #6B5443; --deep: #1E140D; --cinnamon: #8A4F2B; --mint: #BFE3D0; --mint-ink: #1F4A3A; --mint-line: #2F7A5E; --honey: #F2B63C; --honey-soft: #FBE7B4; --frost: #DCE9EE; --frost-ink: #23414C; --serif: 'Gowun Batang', 'Noto Serif KR', serif; --sans: 'Gowun Dodum', 'Noto Sans KR', system-ui, sans-serif; }
+* { box-sizing: border-box; }
+body { background: var(--cream); color: var(--ink); font: 16px/1.65 var(--sans); padding-block: 24px 60px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.wrap { max-width: 940px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
+h1 { font: 700 27px/1.3 var(--serif); margin: 0; }
+h2 { font: 700 20px/1.3 var(--serif); margin: 28px 0 2px; padding-top: 10px; border-top: 2px solid var(--deep); }
+h3 { font: 700 16px/1.4 var(--serif); margin: 10px 0 0; }
+p { margin: 0; }
+.note { color: var(--muted); max-width: 54rem; }
+.id { display: inline-block; font: 700 .76rem/1 var(--sans); color: var(--cinnamon); border: 1px solid var(--cinnamon); border-radius: 4px; padding: 3px 6px; margin-right: 6px; vertical-align: 2px; }
+.row { display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start; }
+.opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+.opt { background: var(--paper); border: 1px solid var(--line2); border-radius: 10px; padding: 12px 14px; min-width: 0; }
+.opt.rec { border: 2px solid var(--cinnamon); }
+.opt b.t { font: 700 16px var(--serif); display: block; margin-bottom: 4px; }
+.tag { display: inline-block; font-size: 12px; padding: 0 8px; border-radius: 999px; background: var(--cinnamon); color: #fff; margin-left: 6px; vertical-align: 2px; }
+.new { background: var(--honey-soft); border-radius: 3px; padding: 0 5px; font-size: .78rem; white-space: nowrap; }
+/* 휴대폰 틀 */
+.phone { width: min(370px, 100%); background: var(--paper); border: 2px solid var(--deep); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
+.top { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 12px 4px; background: var(--cream); font-family: var(--serif); }
+.top b { font-size: 1.02rem; } .top span { font-size: .8rem; color: var(--muted); }
+.stats { display: grid; gap: 6px; padding: 4px 12px 8px; border-bottom: 1px solid var(--line); background: var(--cream); }
+.stats.c4 { grid-template-columns: repeat(4, 1fr); } .stats.c5 { grid-template-columns: repeat(5, 1fr); }
+.st { font-size: .7rem; color: var(--muted); display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.st b { color: var(--ink); font-size: .8rem; }
+.st i { display: block; height: 5px; border-radius: 3px; background: var(--sand); overflow: hidden; }
+.st i i { height: 100%; background: var(--cinnamon); }
+.st.cold i i { background: #5E8FA3; } .st.cold.low { color: var(--frost-ink); } .st.cold.low b { color: var(--frost-ink); }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; padding: 6px 12px 0; }
+.chip { font-size: .72rem; border-radius: 999px; padding: 1px 9px; border: 1px solid var(--line2); background: var(--paper); }
+.chip.frost { background: var(--frost); border-color: #7FA6B5; color: var(--frost-ink); }
+.chat { padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
+.me { align-self: flex-end; background: var(--sand); border-radius: 14px 4px 14px 14px; padding: 6px 12px; font-family: var(--serif); max-width: 88%; }
+.rm { align-self: center; color: var(--muted); font: .88rem/1.5 var(--serif); text-align: center; }
+.sys { align-self: flex-start; background: var(--sand); border-radius: 4px 14px 14px 14px; padding: 6px 12px; max-width: 88%; font-size: .92rem; }
+.sys.frost { background: var(--frost); color: var(--frost-ink); border: 1px solid #7FA6B5; }
+.sys.mint { background: var(--mint); color: var(--mint-ink); border: 1px solid var(--mint-line); }
+.who { font-size: .75rem; color: var(--muted); margin-bottom: -5px; }
+.npc { align-self: flex-start; background: var(--paper); border: 1px solid var(--line); border-radius: 4px 14px 14px 14px; padding: 6px 12px; font-family: var(--serif); max-width: 88%; }
+.slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 8px 12px 12px; border-top: 1px solid var(--line); background: var(--cream); }
+.sl { min-height: 50px; border: 1.5px solid var(--line2); border-radius: 9px; background: var(--paper); font-size: .78rem; font-weight: 700; padding: 4px 7px; line-height: 1.3; min-width: 0; }
+.sl small { display: block; font-weight: 400; color: var(--muted); font-size: .68rem; }
+.sl.go { border-color: var(--cinnamon); }
+.cap { font-size: .88rem; color: var(--muted); max-width: 370px; margin-top: 6px; }
+.pg { width: min(370px, 100%); background: var(--paper); border: 1.5px solid var(--cinnamon); border-radius: 10px; padding: 14px 16px; font-family: var(--serif); display: flex; flex-direction: column; gap: 4px; }
+.pg .h { font: 700 .85rem var(--sans); color: var(--muted); margin-top: 6px; }
+.pg .ttl { font: 700 1.1rem/1.3 var(--serif); }
+.rowx { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px dashed var(--line2); padding: 5px 0; font-size: .93rem; }
+.rowx span:last-child { text-align: right; color: var(--muted); font-family: var(--sans); font-size: .84rem; }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 560px; background: var(--paper); font-size: .92rem; }
+th, td { border-bottom: 1px dashed var(--line2); padding: 7px 9px; text-align: left; vertical-align: top; }
+th { border-bottom: 2px solid var(--deep); font-size: .82rem; white-space: nowrap; }
+td:first-child { white-space: nowrap; }
+ol, ul { margin: 0; padding-left: 1.3rem; }
+.ask { background: var(--paper); border: 2px solid var(--cinnamon); border-radius: 10px; padding: 14px 16px; }
+</style>
+
+<div class="wrap">
+<h1>처음 모루 화면 시안 (레벨 91~100)</h1>
+<p class="note">로드맵 M22 "두 번째 약속"입니다. 이야기의 결말이 들어 있어, 추천안으로 그렸지만 D장(끝들)은 꼭 읽어 봐 주세요. 몬스터, 첫쇠 장비, 모루 밥상의 자료는 이미 들어가 있습니다.</p>
+
+<h2><span class="id">A</span>가는 길과 곳</h2>
+<div class="scroll"><table>
+  <tr><th>번호</th><th>곳</th><th>무엇</th><th>단축 칸</th></tr>
+  <tr><td>A1</td><td>맞울 → 처음 모루</td><td>12장을 끝내면 맞울 어귀에 "처음 모루로 오른다"가 생긴다. 이틀 길</td><td>—</td></tr>
+  <tr><td>A2</td><td><b>모루 아래 야영지</b> <span class="new">새로</span></td><td>마을이 없다. 산 아래 평평한 터에 천막 몇 채와 모닥불 하나. 여기까지 온 사람이 지은 것이다</td><td>둘러보기 · 쉬기 · 요리 · 보관함</td></tr>
+  <tr><td>A3</td><td><b>일곱 천막</b></td><td>지나온 일곱 지역에서 사람들이 올라와 있다. 누가 와 있는지는 내가 푼 길에 달렸다</td><td>말 걸기 · 상점 · 용병</td></tr>
+  <tr><td>A4</td><td><b>식은 가마터</b></td><td>첫 종을 지은 가마. 사백 년 식어 있었다. 불을 넣으면 첫쇠를 다룬다</td><td>만들기 · 고치기 · 강화 · 바느질</td></tr>
+  <tr><td>A5</td><td><b>모루 앞</b></td><td>산꼭대기의 너른 바위. 한가운데 사람 키만 한 모루. 그 위에 아무것도 없다</td><td>둘러보기 · 기도 (13장: 망치를 든다)</td></tr>
+  <tr><td>A6</td><td>쇳물 골 (사냥터)</td><td>식은 쇳물(91), 약속의 그림자(94). 첫쇠, 모루 소금</td><td>탐색 · 캐기 · 쉬기</td></tr>
+  <tr><td>A7</td><td>장인의 길 (사냥터)</td><td>첫 장인의 손(97). 그림자 가죽</td><td>탐색 · 캐기 · 쉬기</td></tr>
+  <tr><td>A8</td><td>모루 위 (마지막 싸움)</td><td>지어지지 않은 종(100). 던전이 없다. 모루 앞에서 망치를 들면 시작된다</td><td>공격 · 방어 · 스킬 · 망치질</td></tr>
+</table></div>
+
+<h2><span class="id">B</span>벼리며 싸우기</h2>
+<p class="note">처음 모루의 규칙입니다. 싸움 중에 "망치질" 칸이 열립니다. 한 턴을 써서 든 무기를 벼립니다. 다섯째 칸에는 벼림이 올라옵니다. 싸움과 만들기를 따로 익혀 온 사람이 여기서 둘을 같이 씁니다.</p>
+<div class="row">
+  <div>
+    <div class="phone">
+      <div class="top"><b>쇳물 골</b><span>171일째 낮 · 위험 높음</span></div>
+      <div class="stats c5">
+        <div class="st"><span>생명 <b>1,420</b></span><i><i style="width:88%"></i></i></div>
+        <div class="st"><span>마나 <b>110</b></span><i><i style="width:73%"></i></i></div>
+        <div class="st"><span>포만 <b>63</b></span><i><i style="width:63%"></i></i></div>
+        <div class="st"><span>피로 <b>38</b></span><i><i style="width:38%"></i></i></div>
+        <div class="st cold"><span>벼림 <b>5</b></span><i><i style="width:42%"></i></i></div>
+      </div>
+      <div class="chips"><span class="chip">벼림 5: 공격력 +20%</span></div>
+      <div class="chat">
+        <div class="rm">굳다 만 쇳물이 골을 따라 흐른다. 흐르다 멈추고, 이쪽 모양을 본뜬다.</div>
+        <div class="me">싸우는 틈에 검을 모루 조각에 대고 내리쳤다. 벼림 5.</div>
+        <div class="sys">식은 쇳물이 틀을 짓는다. 다음: 틀에 붓기 (큰 피해).</div>
+      </div>
+      <div class="slots">
+        <button class="sl">1<br>공격</button>
+        <button class="sl go">2<br>방어</button>
+        <button class="sl">3<br>스킬</button>
+        <button class="sl">4<br>망치질<small>벼림 +1</small></button>
+      </div>
+    </div>
+    <p class="cap">B1 싸움 중의 망치질. 넷째 칸이 이 지역에서는 "망치질"입니다.</p>
+  </div>
+  <div>
+    <div class="phone">
+      <div class="top"><b>쇳물 골</b><span>171일째 낮 · 위험 높음</span></div>
+      <div class="stats c5">
+        <div class="st"><span>생명 <b>1,105</b></span><i><i style="width:68%"></i></i></div>
+        <div class="st"><span>마나 <b>110</b></span><i><i style="width:73%"></i></i></div>
+        <div class="st"><span>포만 <b>63</b></span><i><i style="width:63%"></i></i></div>
+        <div class="st"><span>피로 <b>40</b></span><i><i style="width:40%"></i></i></div>
+        <div class="st cold low"><span>벼림 <b>2</b></span><i><i style="width:17%"></i></i></div>
+      </div>
+      <div class="chips"><span class="chip frost">식었다: 큰 공격을 맞아 벼림이 절반이 됐다</span></div>
+      <div class="chat">
+        <div class="sys frost">쇳물이 온몸을 덮었다. 생명력 −315. 달궈 놓은 검이 식었다.</div>
+        <div class="who">지나가던 유저 '끝물'</div>
+        <div class="npc">큰 거 올 땐 막고, 틈일 때 두드려요. 대장간이랑 똑같아요</div>
+      </div>
+      <div class="slots">
+        <button class="sl go">1<br>공격</button>
+        <button class="sl">2<br>방어</button>
+        <button class="sl">3<br>스킬</button>
+        <button class="sl">4<br>망치질<small>벼림 +1</small></button>
+      </div>
+    </div>
+    <p class="cap">B2 큰 공격을 막지 못해 식었을 때. 대장간의 "식히지 않고 치기"와 같은 박자입니다.</p>
+  </div>
+</div>
+<h3><span class="id">B3</span>벼림의 숫자</h3>
+<div class="scroll"><table>
+  <tr><th>무엇</th><th>숫자</th></tr>
+  <tr><td>벼림</td><td>0에서 12. 망치질 한 번(한 턴)에 +1. 대장 레벨이 33을 넘으면 +2</td></tr>
+  <tr><td>힘</td><td>벼림 하나마다 그 싸움 동안 공격력 +4% (열둘이면 +48%)</td></tr>
+  <tr><td>식는다</td><td>적의 큰 공격(모아 치기)을 막지 못하고 맞으면 벼림이 절반이 된다</td></tr>
+  <tr><td>싸움이 끝나면</td><td>0으로 돌아간다. 벼림 열둘을 채우고 이긴 싸움은 든 무기의 내구도가 닳지 않는다</td></tr>
+  <tr><td>잘 다루면</td><td>벼림 열둘로 이긴 싸움이 따로 세어진다(무엇에 쓰이는지는 화면에 나오지 않는다)</td></tr>
+  <tr><td>어디서</td><td>쇳물 골, 장인의 길, 모루 위</td></tr>
+</table></div>
+
+<h2><span class="id">C</span>일곱 천막: 누가 올라와 있나</h2>
+<p class="note">야영지에는 지나온 지역의 사람이 한 사람씩 와 있습니다. 내가 그 지역에서 어느 길로 풀었느냐에 따라 사람이 다릅니다. 그 사람이 그 지역의 가게와 용병을 대신합니다.</p>
+<div class="scroll"><table>
+  <tr><th>지역</th><th>힘으로 풀었으면</th><th>손으로 풀었으면</th><th>말로 풀었으면</th></tr>
+  <tr><td>흰마루</td><td>깨어난 종루의 아이</td><td>얼음 낚시터의 임자</td><td>종지기 한솔</td></tr>
+  <tr><td>소금벌</td><td>삯을 받은 칼잡이</td><td>상단 대리인 유겸</td><td>저울을 내려놓은 저울꾼</td></tr>
+  <tr><td>잿골</td><td>심판 노을</td><td>큰 대장간 주인</td><td>풀무꾼 다래</td></tr>
+  <tr><td>안개늪</td><td>등불지기 여울</td><td>약초꾼 수련</td><td>견습 보리</td></tr>
+  <tr><td>잠긴 도성</td><td>창잡이 파랑</td><td>청동 대장장이</td><td>조합장 한별</td></tr>
+  <tr><td>구름다리</td><td>가면을 벗은 대사제</td><td>견습 사제 새벽</td><td>미루</td></tr>
+  <tr><td>별못</td><td>조각 줍는 솔</td><td>그물 깁는 달래</td><td>마당지기 다온</td></tr>
+</table></div>
+<p class="note"><span class="id">C1</span>"힘 · 손 · 말"은 화면에 이 이름으로 나오지 않습니다. 장마다 세 길을 하나씩 이 셋에 넣은 것입니다: 쓰러뜨리는 길은 힘, 끝까지 하거나 지어 내는 길은 손, 사람과 풀어내는 길은 말.</p>
+
+<h2><span class="id">D</span>13장 두 번째 약속: 끝들</h2>
+<div class="row">
+  <div class="pg">
+    <span class="h">메인 퀘스트 · 13장</span>
+    <span class="ttl">두 번째 약속</span>
+    <p>여덟 종은 모두 여기서 났다. 장인들은 첫 종을 짓고 말했다. "누구든 끝까지 해내면, 내가 답하겠다." 사백 년이 지났다. 종은 얼려지고, 팔리고, 벼려지고, 잊히고, 터지고, 모셔지고, 깨졌다. 모루는 비어 있다. 망치는 그 곁에 그대로 있다.</p>
+    <span class="h">할 일</span>
+    <div class="rowx"><span>망치를 든다</span><span>모루 앞에서. 레벨 95부터</span></div>
+    <div class="rowx"><span>지어지지 않은 종</span><span>끝까지 짓는다</span></div>
+    <div class="rowx"><span>고른다</span><span>무엇을 약속할지</span></div>
+  </div>
+  <div>
+    <div class="phone">
+      <div class="top"><b>모루 위</b><span>마지막 싸움</span></div>
+      <div class="stats c5">
+        <div class="st"><span>생명 <b>1,240</b></span><i><i style="width:74%"></i></i></div>
+        <div class="st"><span>마나 <b>70</b></span><i><i style="width:47%"></i></i></div>
+        <div class="st"><span>포만 <b>55</b></span><i><i style="width:55%"></i></i></div>
+        <div class="st"><span>피로 <b>51</b></span><i><i style="width:51%"></i></i></div>
+        <div class="st cold"><span>종 <b>63</b>/100</span><i><i style="width:63%"></i></i></div>
+      </div>
+      <div class="chips"><span class="chip">식은 껍질: 남음 (망치질이 절반만 먹는다)</span></div>
+      <div class="chat">
+        <div class="rm">모루 위에 쇳물이 솟는다. 종의 모양을 하려다 무너지고, 다시 솟는다. 아직 누구의 약속도 아닌 것이 화를 낸다.</div>
+        <div class="me">껍질을 내리쳤다. 금이 갔다.</div>
+        <div class="me">망치를 내렸다. 종이 조금 더 종이 되었다. 63.</div>
+      </div>
+      <div class="slots">
+        <button class="sl">1<br>공격<small>껍질을 깬다</small></button>
+        <button class="sl">2<br>방어</button>
+        <button class="sl">3<br>스킬</button>
+        <button class="sl go">4<br>망치질<small>종 +1</small></button>
+      </div>
+    </div>
+    <p class="cap">D1 마지막 싸움. 쓰러뜨리는 싸움이 아니라 끝까지 짓는 싸움입니다. 다섯째 칸이 "종"입니다.</p>
+  </div>
+</div>
+<ul class="note">
+  <li>D2 지어지지 않은 종은 생명력이 0이 되어도 쓰러지지 않습니다. 망치질로 "종"을 100까지 채워야 끝납니다.</li>
+  <li>D3 "식은 껍질"(생명력)이 남아 있으면 망치질이 절반만 먹습니다(두 번에 +1). 공격으로 껍질을 다 깨면 온전히 먹고, 껍질은 열 턴 뒤 다시 굳습니다.</li>
+  <li>D4 싸움을 잘하는 사람은 껍질을 빨리 깨고 두드리고, 만들기를 잘하는 사람(대장 레벨 33 넘게)은 한 번에 둘씩 두드립니다. 어느 쪽으로도 끝까지 갑니다.</li>
+  <li>D5 종은 다섯 턴마다 큰 공격을 합니다. 막지 못하면 "종"이 다섯 줄어듭니다(식는다). 쓰러지면 지금처럼 쓰러짐의 규칙을 따르고, 다시 오르면 "종"은 그날 채운 것의 절반에서 시작합니다.</li>
+</ul>
+
+<h3><span class="id">D6</span>고를 수 있는 끝</h3>
+<p class="note">종을 다 지으면 마지막으로 고릅니다. 1부의 5장처럼, 지금까지 어떻게 풀어 왔는지가 고를 수 있는 끝을 정합니다. 고를 수 없는 끝은 "???"로 보입니다.</p>
+<div class="scroll"><table>
+  <tr><th>끝</th><th>무엇을 하나</th><th>고를 수 있으려면</th><th>끝난 뒤의 세계</th></tr>
+  <tr><td><b>다시 약속한다</b></td><td>첫 약속을 그대로 새긴다. "누구든 끝까지 해내면, 내가 답하겠다."</td><td>일곱 장 가운데 넷 이상을 손의 길로</td><td>여덟 종이 다시 운다. 띠링이 또렷해지고, 지나온 일곱 지역에서도 띠링이 울린다</td></tr>
+  <tr><td><b>모루를 식힌다</b></td><td>종을 걸지 않는다. 지은 것을 다시 녹인다. "답은 필요 없다. 해낸 사람은 스스로 안다."</td><td>일곱 장 가운데 넷 이상을 힘의 길로</td><td>띠링이 사라진다. 대신 무언가를 끝까지 하면 대화방에 내 말 한 줄이 남는다("해냈다."). 모든 숙련도가 조금 빨리 오른다</td></tr>
+  <tr><td><b>나누어 건다</b></td><td>큰 종 대신 작은 종 여럿을 지어 내려보낸다. "사람이 사람에게 울린다."</td><td>일곱 장 가운데 넷 이상을 말의 길로</td><td>띠링에 사람의 이름이 붙는다("달래가 보았다"). 사이가 깊은 사람이 많을수록 자주 울린다</td></tr>
+  <tr><td><b>내려간다</b></td><td>종을 모루 위에 둔 채 아무것도 새기지 않고 내려간다. 다음에 오를 사람의 몫으로</td><td>누구나</td><td>달라지는 것이 없다. 야영지에 내 천막이 남고, 가상 유저 하나가 뒤따라 오른다</td></tr>
+  <tr><td><b>숨은 끝: 여덟이 친다</b></td><td>마지막 망치질 앞에서 일곱 천막의 사람들이 올라온다. 한 사람씩 한 번 치고, 여덟 번째가 나다</td><td>선택지에 없다. 일곱 지역의 히든 퀘스트를 모두 풀었을 때</td><td>약속이 바뀐다. "끝까지 해낸 사람에게, 우리가 답하겠다." 띠링이 울릴 때 종과 사람이 함께 답한다</td></tr>
+</table></div>
+<div class="row">
+  <div>
+    <div class="phone">
+      <div class="top"><b>모루 위</b><span>종이 다 지어졌다</span></div>
+      <div class="chat">
+        <div class="rm">종이 식는다. 아직 아무 글도 새겨지지 않았다. 망치 대신 정이 손에 쥐여 있다.</div>
+        <div class="sys">무엇을 새길 것인가. 한 번 새기면 고칠 수 없다.</div>
+      </div>
+      <div class="slots" style="grid-template-columns:1fr 1fr">
+        <button class="sl go">다시 약속한다<small>첫 약속을 그대로</small></button>
+        <button class="sl">나누어 건다<small>작은 종 여럿으로</small></button>
+        <button class="sl" disabled style="opacity:.55">???<small>고를 수 없다</small></button>
+        <button class="sl">내려간다<small>새기지 않는다</small></button>
+      </div>
+    </div>
+    <p class="cap">D7 끝을 고르는 창. 지금 5장의 끝 고르기와 같은 틀입니다.</p>
+  </div>
+  <div style="max-width:420px">
+    <p><span class="id">D8</span>어느 끝도 나쁜 끝이 아닙니다(1부의 원칙 그대로).</p>
+    <p style="margin-top:8px"><span class="id">D9</span>1부에서 고른 끝이 바꾼 띠링의 규칙은 2부 내내 이어지다가, 여기서 고른 끝이 그것을 덮습니다. 다만 1부에서 "서로 답한다"(숨은 끝)를 본 사람은 "나누어 건다"를 조건 없이 고를 수 있습니다.</p>
+    <p style="margin-top:8px"><span class="id">D10</span>끝난 뒤에도 게임은 이어집니다. 스스로 고르는 환생으로 다시 태어나 다른 길로 풀면 다른 끝을 봅니다.</p>
+  </div>
+</div>
+<div class="scroll"><table>
+  <tr><th>번호</th><th>무엇</th><th>글 (처음 값)</th></tr>
+  <tr><td>D11</td><td>모루에 오를 때</td><td>나무가 끝나고 바위가 시작됐다. 꼭대기에 모루가 있었다. 생각보다 작았다. 사백 년 동안 아무도 두드리지 않은 쇠는 이끼 하나 없이 깨끗했다. 곁에 망치가 놓여 있었다. 자루가 손때로 검었다.</td></tr>
+  <tr><td>D12</td><td>다시 약속한 끝</td><td>마지막 글자를 새기자 종이 울었다. 아래에서, 그 아래에서, 일곱 번 답이 왔다. 얼음 속에서, 장터에서, 대장간에서, 늪에서, 물 밑에서, 구름 위에서, 못가에서. 띠링. 이번에는 내가 한 약속이었다.</td></tr>
+  <tr><td>D13</td><td>모루를 식힌 끝</td><td>종을 다시 가마에 넣었다. 쇳물이 되어 흘렀다. 아무것도 울리지 않았다. 손을 내려다보았다. 굳은살이 있었다. 그것으로 충분했다. 해냈다.</td></tr>
+  <tr><td>D14</td><td>나누어 건 끝</td><td>큰 종을 쪼개 작은 종 여럿을 지었다. 소리는 멀리 가지 않는다. 옆 사람에게까지만 간다. 산을 내려가며 만나는 사람마다 하나씩 쥐여 주었다. "누가 끝까지 하면, 흔들어 줘요."</td></tr>
+  <tr><td>D15</td><td>내려간 끝</td><td>종은 모루 위에 두었다. 새기지 않았다. 내려가다 돌아보니 누가 올라오고 있었다. 망치는 제자리에 있다.</td></tr>
+  <tr><td>D16</td><td>숨은 끝</td><td>정을 대려는데 발소리가 났다. 일곱 사람이었다. 한솔이 먼저 망치를 들었다. "아끼지 않고." 한 번. 다래가 받았다. "이긴 것 말고." 한 번. 일곱 번이 지나고 망치가 내게 왔다. 다온이 말했다. "봤어. 네가 한 거. 이제 네가 쳐."</td></tr>
+</table></div>
+
+<h2><span class="id">E</span>100 뒤에 할 일</h2>
+<div class="row">
+  <div class="pg">
+    <span class="ttl">끝난 뒤</span>
+    <p style="font-family:var(--sans);font-size:.86rem;color:var(--muted)">레벨 100. 이 뒤의 경험치 482,000은 다시 태어날 때 남는 몫에 든다.</p>
+    <span class="h">남은 것</span>
+    <div class="rowx"><span>지역의 숨은 이야기</span><span>5 / 8</span></div>
+    <div class="rowx"><span>이름난 개체</span><span>27 / 42</span></div>
+    <div class="rowx"><span>도감</span><span>괴물 39 / 43 · 물건 161 / 188</span></div>
+    <div class="rowx"><span>걸작으로 지은 승급작</span><span>2 / 9</span></div>
+    <div class="rowx"><span>본 끝</span><span>1 / 5</span></div>
+    <div class="rowx"><span>랭킹</span><span>3위 (위에 가상 유저 둘)</span></div>
+  </div>
+  <div style="max-width:420px">
+    <p><span class="id">E1</span>지금 있는 "끝난 뒤" 화면에 줄을 더합니다. 숨은 이야기는 푼 수만 보이고 이름과 조건은 나오지 않습니다.</p>
+    <p style="margin-top:8px"><span class="id">E2</span>레벨은 100이 끝입니다. 그 뒤 경험치는 버려지지 않고 쌓여, 다시 태어날 때 남는 몫(1%에서 7.5%)에 들어갑니다.</p>
+    <p style="margin-top:8px"><span class="id">E3</span>끝없이 세지는 탑, 무한 구간, 날마다 해야 하는 일은 넣지 않습니다.</p>
+    <p style="margin-top:8px"><span class="id">E4</span>가상 유저: 랭킹의 가상 유저도 구간을 오릅니다. 처음 모루의 야영지에는 가상 유저가 한둘뿐이고("여기까지 온 사람은 나 말고 둘이다"), 내가 "내려간다"를 고르면 하나가 뒤따라 오릅니다.</p>
+  </div>
+</div>
+
+<h2><span class="id">F</span>화면에 나오는 말</h2>
+<div class="scroll"><table>
+  <tr><th>자리</th><th>쓸 말</th><th>근거</th></tr>
+  <tr><td>눈금 칸</td><td>벼림 · 종</td><td>Claude가 지음. "벼리다"는 지금 게임의 글에 쓰는 말</td></tr>
+  <tr><td>이름표</td><td>식었다 · 식은 껍질</td><td>지금 대장간의 "식는다"와 맞춤</td></tr>
+  <tr><td>단축 칸</td><td>망치질 · 망치를 든다</td><td>망치질은 지금 있는 말</td></tr>
+  <tr><td>끝</td><td>다시 약속한다 · 모루를 식힌다 · 나누어 건다 · 내려간다 · 여덟이 친다</td><td>Claude가 지음. 1부의 "잇는다 · 푼다 · 맡는다 · 서로 답한다"와 맞춤</td></tr>
+  <tr><td>끝난 뒤</td><td>지역의 숨은 이야기 · 걸작으로 지은 승급작 · 본 끝</td><td>Claude가 지음</td></tr>
+  <tr><td>곳</td><td>모루 아래 야영지 · 일곱 천막 · 식은 가마터 · 모루 앞 · 쇳물 골 · 장인의 길 · 모루 위</td><td>Claude가 지음</td></tr>
+</table></div>
+
+<h2><span class="id">G</span>아직 없을 때의 모습</h2>
+<ul>
+  <li>G1 처음 모루: 12장을 끝내기 전에는 지도, 소문, 맞울의 단축 칸 어디에도 나오지 않습니다(숨김).</li>
+  <li>G2 "망치를 든다": 레벨 95가 되기 전에는 모루 앞에 "둘러보기"와 "기도"만 있습니다. 둘러보면 "아직 손이 모자라다"는 한 줄.</li>
+  <li>G3 고를 수 없는 끝: "???"로 보이고 이름과 조건은 나오지 않습니다(지금 5장과 같음). 숨은 끝은 "???"로도 보이지 않습니다.</li>
+  <li>G4 일곱 천막: 그 지역의 장을 끝내지 않고 올라올 수는 없으므로 늘 일곱이 차 있습니다. 스스로 고른 환생으로 장을 건너뛴 삶에서는 지난 삶에 푼 길의 사람이 와 있습니다.</li>
+  <li>G5 끝난 뒤의 줄들: 13장을 끝낸 뒤에만 보입니다.</li>
+</ul>
+
+<div class="ask">
+  <h3 style="margin-top:0">추천대로 정한 것 (꼭 읽어 주세요)</h3>
+  <ol>
+    <li>마지막 싸움은 쓰러뜨리는 것이 아니라 <b>끝까지 짓는 것</b>입니다. 이 게임이 처음부터 해 온 말("끝까지 해낸 사람에게")을 마지막 싸움의 규칙으로 삼았습니다.</li>
+    <li>일곱 장의 세 길을 "힘 · 손 · 말"로 나눠, 넷 이상 고른 쪽의 끝이 열립니다. 고루 풀어 온 사람은 "내려간다"만 고를 수 있을 수도 있습니다(셋·둘·둘). 그 사람은 다시 태어나 다른 길로 풀면 됩니다.</li>
+    <li>끝은 넷과 숨은 끝 하나입니다. 1부와 같은 수이고, 어느 끝도 나쁜 끝이 아닙니다.</li>
+    <li>숨은 끝의 조건은 일곱 지역의 히든 퀘스트를 모두 푸는 것입니다(레벨 100 시안의 "여덟 번째 망치질" 그대로).</li>
+    <li>"모루를 식힌다"는 띠링을 없앱니다. 1부의 "푼다"보다 더 나아간 끝입니다. 띠링이 이 게임의 이름인 만큼 가장 조심스러운 선택지입니다.</li>
+    <li>처음 모루에는 마을도 던전도 없습니다. 일곱 천막이 가게와 용병을 대신합니다.</li>
+    <li>레벨 95부터 마지막 싸움에 들 수 있습니다. 100이 될 때까지 기다리지 않아도 됩니다.</li>
+  </ol>
+  <p class="note" style="margin-top:8px">2번이 가장 큰 결정입니다. 고루 푼 사람에게도 끝 하나를 더 열어 주는 쪽(예: 셋만 넘으면 열림)이 낫다고 보시면 알려 주세요. 고칠 곳은 번호(D6, D16처럼)로 짚어 주세요.</p>
+</div>
+</div>
+
+</body></html>

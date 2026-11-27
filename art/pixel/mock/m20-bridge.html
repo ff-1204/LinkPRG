@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head><body style="margin:0">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>구름다리 화면 시안</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap">
+<style>
+/* 배치: 게임과 같은 크림 한 가지 모습(일부러 한 테마). 위에서 아래로 번호 붙은 장, 화면 그림은 휴대폰 틀 안에 */
+:root { --cream: #FBF5E6; --paper: #FFFDF6; --sand: #F3E9D2; --line: #E6D9BD; --line2: #CDBE9E; --ink: #3A2A1E; --muted: #6B5443; --deep: #1E140D; --cinnamon: #8A4F2B; --mint: #BFE3D0; --mint-ink: #1F4A3A; --mint-line: #2F7A5E; --honey: #F2B63C; --honey-soft: #FBE7B4; --frost: #DCE9EE; --frost-ink: #23414C; --serif: 'Gowun Batang', 'Noto Serif KR', serif; --sans: 'Gowun Dodum', 'Noto Sans KR', system-ui, sans-serif; }
+* { box-sizing: border-box; }
+body { background: var(--cream); color: var(--ink); font: 16px/1.65 var(--sans); padding-block: 24px 60px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.wrap { max-width: 940px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
+h1 { font: 700 27px/1.3 var(--serif); margin: 0; }
+h2 { font: 700 20px/1.3 var(--serif); margin: 28px 0 2px; padding-top: 10px; border-top: 2px solid var(--deep); }
+h3 { font: 700 16px/1.4 var(--serif); margin: 10px 0 0; }
+p { margin: 0; }
+.note { color: var(--muted); max-width: 54rem; }
+.id { display: inline-block; font: 700 .76rem/1 var(--sans); color: var(--cinnamon); border: 1px solid var(--cinnamon); border-radius: 4px; padding: 3px 6px; margin-right: 6px; vertical-align: 2px; }
+.row { display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start; }
+.opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+.opt { background: var(--paper); border: 1px solid var(--line2); border-radius: 10px; padding: 12px 14px; min-width: 0; }
+.opt.rec { border: 2px solid var(--cinnamon); }
+.opt b.t { font: 700 16px var(--serif); display: block; margin-bottom: 4px; }
+.tag { display: inline-block; font-size: 12px; padding: 0 8px; border-radius: 999px; background: var(--cinnamon); color: #fff; margin-left: 6px; vertical-align: 2px; }
+.new { background: var(--honey-soft); border-radius: 3px; padding: 0 5px; font-size: .78rem; white-space: nowrap; }
+/* 휴대폰 틀 */
+.phone { width: min(370px, 100%); background: var(--paper); border: 2px solid var(--deep); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
+.top { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 12px 4px; background: var(--cream); font-family: var(--serif); }
+.top b { font-size: 1.02rem; } .top span { font-size: .8rem; color: var(--muted); }
+.stats { display: grid; gap: 6px; padding: 4px 12px 8px; border-bottom: 1px solid var(--line); background: var(--cream); }
+.stats.c4 { grid-template-columns: repeat(4, 1fr); } .stats.c5 { grid-template-columns: repeat(5, 1fr); }
+.st { font-size: .7rem; color: var(--muted); display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.st b { color: var(--ink); font-size: .8rem; }
+.st i { display: block; height: 5px; border-radius: 3px; background: var(--sand); overflow: hidden; }
+.st i i { height: 100%; background: var(--cinnamon); }
+.st.cold i i { background: #5E8FA3; } .st.cold.low { color: var(--frost-ink); } .st.cold.low b { color: var(--frost-ink); }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; padding: 6px 12px 0; }
+.chip { font-size: .72rem; border-radius: 999px; padding: 1px 9px; border: 1px solid var(--line2); background: var(--paper); }
+.chip.frost { background: var(--frost); border-color: #7FA6B5; color: var(--frost-ink); }
+.chat { padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
+.me { align-self: flex-end; background: var(--sand); border-radius: 14px 4px 14px 14px; padding: 6px 12px; font-family: var(--serif); max-width: 88%; }
+.rm { align-self: center; color: var(--muted); font: .88rem/1.5 var(--serif); text-align: center; }
+.sys { align-self: flex-start; background: var(--sand); border-radius: 4px 14px 14px 14px; padding: 6px 12px; max-width: 88%; font-size: .92rem; }
+.sys.frost { background: var(--frost); color: var(--frost-ink); border: 1px solid #7FA6B5; }
+.sys.mint { background: var(--mint); color: var(--mint-ink); border: 1px solid var(--mint-line); }
+.who { font-size: .75rem; color: var(--muted); margin-bottom: -5px; }
+.npc { align-self: flex-start; background: var(--paper); border: 1px solid var(--line); border-radius: 4px 14px 14px 14px; padding: 6px 12px; font-family: var(--serif); max-width: 88%; }
+.slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 8px 12px 12px; border-top: 1px solid var(--line); background: var(--cream); }
+.sl { min-height: 50px; border: 1.5px solid var(--line2); border-radius: 9px; background: var(--paper); font-size: .78rem; font-weight: 700; padding: 4px 7px; line-height: 1.3; min-width: 0; }
+.sl small { display: block; font-weight: 400; color: var(--muted); font-size: .68rem; }
+.sl.go { border-color: var(--cinnamon); }
+.cap { font-size: .88rem; color: var(--muted); max-width: 370px; margin-top: 6px; }
+.pg { width: min(370px, 100%); background: var(--paper); border: 1.5px solid var(--cinnamon); border-radius: 10px; padding: 14px 16px; font-family: var(--serif); display: flex; flex-direction: column; gap: 4px; }
+.pg .h { font: 700 .85rem var(--sans); color: var(--muted); margin-top: 6px; }
+.pg .ttl { font: 700 1.1rem/1.3 var(--serif); }
+.rowx { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px dashed var(--line2); padding: 5px 0; font-size: .93rem; }
+.rowx span:last-child { text-align: right; color: var(--muted); font-family: var(--sans); font-size: .84rem; }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 560px; background: var(--paper); font-size: .92rem; }
+th, td { border-bottom: 1px dashed var(--line2); padding: 7px 9px; text-align: left; vertical-align: top; }
+th { border-bottom: 2px solid var(--deep); font-size: .82rem; white-space: nowrap; }
+td:first-child { white-space: nowrap; }
+ol, ul { margin: 0; padding-left: 1.3rem; }
+.ask { background: var(--paper); border: 2px solid var(--cinnamon); border-radius: 10px; padding: 14px 16px; }
+</style>
+
+<div class="wrap">
+<h1>구름다리 화면 시안 (레벨 71~80)</h1>
+<p class="note">로드맵 M20 "구름 위의 신전"에서 새로 생기는 화면과 글입니다. 고를 것은 모두 추천안으로 정해 그렸습니다(맨 아래). 몬스터, 구름은 장비, 염소젖 죽의 자료는 이미 들어가 있습니다. 이 구간에서 버프 용병과 상단이 처음 나옵니다.</p>
+
+<h2><span class="id">A</span>가는 길과 곳</h2>
+<div class="scroll"><table>
+  <tr><th>번호</th><th>곳</th><th>무엇</th><th>단축 칸</th></tr>
+  <tr><td>A1</td><td>지붕마을 → 구름다리</td><td>10장을 끝내면 지붕마을 선창에 "산길로 오른다"가 생긴다. 하루 길</td><td>—</td></tr>
+  <tr><td>A2</td><td><b>다릿목 어귀</b> <span class="new">새로</span></td><td>두 산을 잇는 긴 다리의 이쪽 끝. 순례자들이 줄지어 오르고, 짐꾼들이 줄지어 내려간다</td><td>둘러보기 · 말 걸기 · 쉬기</td></tr>
+  <tr><td>A3</td><td><b>다리 장터</b></td><td>다리 위에 좌판이 늘어섰다. 온 지역의 물건이 여기를 지나간다</td><td>시세판 · 상점 · 경매장 (사면: 상단)</td></tr>
+  <tr><td>A4</td><td><b>은 대장간</b></td><td>바람으로 풀무를 돌린다. 구름은을 다룬다</td><td>만들기 · 상점 · 고치기 · 강화</td></tr>
+  <tr><td>A5</td><td><b>염소치기 움막</b></td><td>벼랑에 붙은 움막. 염소털을 잣고, 북 치는 이들이 모인다</td><td>바느질 · 상점 · 용병 · 게시판</td></tr>
+  <tr><td>A6</td><td><b>신전 문 앞</b></td><td>금칠한 문이 닫혀 있다. 사제만 든다. 안에서 종소리가 나는데 밖에서는 들리지 않는다고들 한다</td><td>기도 · 말 걸기 · 둘러보기</td></tr>
+  <tr><td>A7</td><td><b>순례자 숙소</b></td><td>긴 방에 자리가 쉰. 밤새 누군가 기도한다</td><td>방 빌리기 · 보관함 · 요리 · 소문</td></tr>
+  <tr><td>A8</td><td>벼랑길 (사냥터)</td><td>구름 염소(71), 바람 매듭(73). 염소털, 염소 고기</td><td>탐색 · 캐기 · 깃발 보기</td></tr>
+  <tr><td>A9</td><td>신전 뜰 (사냥터)</td><td>돌 수도승(76), 금빛 가면(78). 구름은</td><td>탐색 · 캐기 · 기도</td></tr>
+  <tr><td>A10</td><td>하늘 신전 (던전)</td><td>신전 안 다섯 전. 맨 안쪽에 모신 종의 대사제(80)</td><td>지금 던전과 같음</td></tr>
+</table></div>
+
+<h2><span class="id">B</span>바람</h2>
+<p class="note">구름다리의 규칙은 바람입니다. 때(아침·낮·밤)마다 바람이 바뀌고, 바람에 따라 유리한 싸움법이 달라집니다. 다섯째 칸에는 지금 부는 바람이 올라옵니다.</p>
+<div class="row">
+  <div>
+    <div class="phone">
+      <div class="top"><b>벼랑길</b><span>118일째 낮 · 위험 높음</span></div>
+      <div class="stats c5">
+        <div class="st"><span>생명 <b>1,180</b></span><i><i style="width:91%"></i></i></div>
+        <div class="st"><span>마나 <b>120</b></span><i><i style="width:100%"></i></i></div>
+        <div class="st"><span>포만 <b>64</b></span><i><i style="width:64%"></i></i></div>
+        <div class="st"><span>피로 <b>30</b></span><i><i style="width:30%"></i></i></div>
+        <div class="st cold"><span>바람 <b>뒷바람</b></span><i><i style="width:100%"></i></i></div>
+      </div>
+      <div class="chips"><span class="chip">뒷바람: 공격이 한 번 더 들어갈 수 있다</span></div>
+      <div class="chat">
+        <div class="rm">한쪽은 바위, 한쪽은 구름이다. 길은 사람 하나 폭이다. 등 뒤에서 바람이 민다.</div>
+        <div class="me">내리쳤다. 구름 염소에게 144.</div>
+        <div class="sys mint">바람을 탔다. 한 번 더 들어갔다. 구름 염소에게 131.</div>
+      </div>
+      <div class="slots">
+        <button class="sl go">1<br>공격</button>
+        <button class="sl">2<br>방어</button>
+        <button class="sl">3<br>스킬</button>
+        <button class="sl">4<br>물건</button>
+      </div>
+    </div>
+    <p class="cap">B1 뒷바람이 불 때의 싸움.</p>
+  </div>
+  <div>
+    <div class="phone">
+      <div class="top"><b>벼랑길</b><span>118일째 밤 · 위험 높음</span></div>
+      <div class="stats c5">
+        <div class="st"><span>생명 <b>905</b></span><i><i style="width:70%"></i></i></div>
+        <div class="st"><span>마나 <b>88</b></span><i><i style="width:73%"></i></i></div>
+        <div class="st"><span>포만 <b>52</b></span><i><i style="width:52%"></i></i></div>
+        <div class="st"><span>피로 <b>47</b></span><i><i style="width:47%"></i></i></div>
+        <div class="st cold low"><span>바람 <b>옆바람</b></span><i><i style="width:100%"></i></i></div>
+      </div>
+      <div class="chips"><span class="chip frost">옆바람: 큰 공격을 맞으면 밀려난다</span></div>
+      <div class="chat">
+        <div class="me">깃발을 올려다보았다. 내일 아침은 맞바람이다.</div>
+        <div class="sys frost">염소에게 받혀 벼랑 끝까지 밀렸다. 한 턴을 잃었다.</div>
+        <div class="who">지나가던 유저 '산마늘'</div>
+        <div class="npc">옆바람 불 땐 모아 치기 무조건 막으세요. 안 막으면 밀려요</div>
+      </div>
+      <div class="slots">
+        <button class="sl go">1<br>탐색</button>
+        <button class="sl">2<br>캐기</button>
+        <button class="sl">3<br>깃발 보기</button>
+        <button class="sl">4<br>쉬기</button>
+      </div>
+    </div>
+    <p class="cap">B2 옆바람일 때, 그리고 깃발로 다음 때의 바람을 미리 볼 때.</p>
+  </div>
+</div>
+<h3><span class="id">B3</span>바람의 숫자</h3>
+<div class="scroll"><table>
+  <tr><th>바람</th><th>무엇이 달라지나</th><th>맞는 싸움법</th></tr>
+  <tr><td>뒷바람</td><td>내 공격이 20% 확률로 한 번 더 들어간다(절반의 피해). 달아나기 +20%p</td><td>맞받아치기, 몰아치기</td></tr>
+  <tr><td>맞바람</td><td>활과 던지는 물건의 피해 −30%. 피하기 태세의 성공 −15%p. 적의 큰 공격이 한 턴 늦게 온다</td><td>버티기, 모으기</td></tr>
+  <tr><td>옆바람</td><td>큰 공격(모아 치기)을 막지 못하고 맞으면 밀려나 다음 턴을 잃는다</td><td>큰 공격은 반드시 막기</td></tr>
+  <tr><td>바뀌는 때</td><td colspan="2">아침·낮·밤이 바뀔 때마다. 씨앗으로 정해져 같은 날 같은 때는 늘 같다. "깃발 보기"로 다음 때의 바람을 안다</td></tr>
+  <tr><td>어디서</td><td colspan="2">벼랑길, 신전 뜰. 하늘 신전 안과 다릿목에서는 불지 않는다</td></tr>
+</table></div>
+
+<h2><span class="id">C</span>버프 용병: 북 치는 이</h2>
+<div class="row">
+  <div class="pg">
+    <span class="ttl">염소치기 움막의 용병</span>
+    <div class="rowx"><span><b>북 치는 마루</b> · 북돋는 이</span><span>하루 삯 420</span></div>
+    <p style="font-family:var(--sans);font-size:.86rem;color:var(--muted)">싸우지 않는다. 북을 치는 동안 일행 모두의 공격력·방어력 +10%. 맞지도 않는다.</p>
+    <div class="rowx"><span><b>창잡이 서리</b> · 때리는 이</span><span>하루 삯 420 · 함께 있다</span></div>
+    <div class="rowx"><span><b>방패잡이 바위</b> · 막는 이</span><span>하루 삯 420 · 함께 있다</span></div>
+    <span class="h">일행 (2 / 2)</span>
+    <p style="font-family:var(--sans);font-size:.86rem;color:var(--muted)">마루를 들이려면 한 사람을 보내야 한다.</p>
+  </div>
+  <div style="max-width:420px">
+    <p><span class="id">C1</span>이 구간에서는 일행이 둘까지라, 북 치는 이를 넣으면 때리는 이나 막는 이 가운데 하나를 빼야 합니다. 그래서 "있으면 편함"입니다. 다음 구간(별못)에서 일행이 셋이 되면 셋을 다 둡니다.</p>
+    <p style="margin-top:8px"><span class="id">C2</span>싸움 화면에는 지금 버프처럼 이름표 하나로 보입니다: "북소리: 공격력·방어력 +10%". 상태 탭의 "걸린 효과"에도 한 줄.</p>
+    <p style="margin-top:8px"><span class="id">C3</span>역할 이름은 지금 "막는 이 · 때리는 이 · 고치는 이"에 "북돋는 이"를 더합니다. 셋이 고루 있으면 모든 판정 +5%(지금 규칙)는 그대로이고, 북돋는 이는 그 셋에 들지 않습니다.</p>
+  </div>
+</div>
+
+<h2><span class="id">D</span>상단</h2>
+<p class="note">레벨 100 시안의 상단(LV-K3)입니다. 다리 장터에서 상단 깃발을 은화 42,000에 삽니다. 사기 전에는 "상단" 칸이 어디에도 나오지 않습니다.</p>
+<div class="row">
+  <div>
+    <div class="pg">
+      <span class="ttl">내 상단</span>
+      <span class="h">가는 짐 (1 / 1)</span>
+      <div class="rowx"><span><b>다릿목 → 가마골</b></span><span>내 일 12번 뒤 닿음</span></div>
+      <div class="rowx"><span>짐</span><span>구름은 반지 3, 염소털 20</span></div>
+      <div class="rowx"><span>호위</span><span>방패잡이 바위 (잃을 위험 6%)</span></div>
+      <span class="h">지난 짐</span>
+      <div class="rowx"><span>다릿목 → 저울목</span><span>은화 +4,120 (우편함으로)</span></div>
+      <div class="rowx"><span>다릿목 → 뜬마을</span><span>길에서 잃음</span></div>
+    </div>
+    <p class="cap">D1 짐이 가는 중일 때.</p>
+  </div>
+  <div>
+    <div class="pg">
+      <span class="ttl">짐 꾸리기</span>
+      <span class="h">어디로</span>
+      <div class="rowx"><span>가마골 (잿골)</span><span>일 30번 · 위험 12% · 구름은이 귀하다고 들었다</span></div>
+      <div class="rowx"><span>저울목 (소금벌)</span><span>일 60번 · 위험 20% · 소문 없음</span></div>
+      <div class="rowx"><span>지붕마을 (잠긴 도성)</span><span>일 30번 · 위험 15% · 염소털이 흔하다고 들었다</span></div>
+      <span class="h">무엇을 (보관함과 가방에서, 무게 60까지)</span>
+      <div class="rowx"><span>구름은 반지 × 3</span><span>무게 0</span></div>
+      <div class="rowx"><span>염소털 × 20</span><span>무게 40</span></div>
+      <span class="h">호위</span>
+      <div class="rowx"><span>방패잡이 바위를 붙인다</span><span>위험 절반. 닿을 때까지 일행에서 빠진다</span></div>
+      <div class="rowx"><span>짐꾼 삯</span><span>은화 350</span></div>
+    </div>
+    <p class="cap">D2 짐을 꾸릴 때. 그곳 값은 숫자로 보이지 않고, 들은 소문만 적힙니다.</p>
+  </div>
+</div>
+<ul class="note">
+  <li>D3 짐은 내가 서른 번 일할 때마다 거점 하나를 갑니다. 쉬거나 자는 동안에는 가지 않습니다. 닿으면 그곳의 그날 값으로 팔리고, 은화가 우편함으로 옵니다.</li>
+  <li>D4 지역마다 그곳에서 나는 것은 30% 싸고, 두 지역 넘게 떨어진 곳의 것은 40% 비쌉니다. 날마다 바뀌는 값(소금벌 시세판의 방식)이 그 위에 얹힙니다.</li>
+  <li>D5 가는 길에 잃을 위험은 지나가는 지역의 위험도 합입니다. 잃으면 짐과 짐꾼 삯이 사라집니다. 용병을 호위로 붙이면 절반이고, 그 용병은 닿을 때까지 내 곁에 없습니다.</li>
+  <li>D6 한 번에 짐 하나입니다. 상단을 키우면(별못에서) 둘, 셋까지.</li>
+  <li>D7 값은 다리 장터의 소문과 게시판, 그리고 직접 가 본 날의 시세판으로만 압니다. 상단 창에는 "들었다"만 적힙니다.</li>
+</ul>
+
+<h2><span class="id">E</span>11장 모신 종: 글</h2>
+<div class="row">
+  <div class="pg">
+    <span class="h">메인 퀘스트 · 11장</span>
+    <span class="ttl">모신 종</span>
+    <p>구름다리의 사제들은 종을 신이라 부른다. 금칠한 문 안에 모셔 두고, 닦은 귀에만 들린다고 가르친다. 문밖의 사람들은 평생 기도하며 들리기를 기다린다. 아랫마을 미루의 신전이 여기서 갈라져 나왔다.</p>
+    <span class="h">푸는 길</span>
+    <div class="rowx"><span>쓰러뜨리는 길</span><span>하늘 신전 맨 안쪽의 대사제를 쓰러뜨린다</span></div>
+    <div class="rowx"><span>스스로 듣는 길</span><span>기도 숙련도를 달인까지 올린다. 문밖에서 종이 답한다</span></div>
+    <div class="rowx"><span>함께 여는 길</span><span>미루를 동료로 데려와, '가족 같은' 사이로 문 앞에 선다</span></div>
+    <span class="h">끝내면</span>
+    <div class="rowx"><span>열리는 길</span><span>별못으로 내려가는 길, 일행 셋</span></div>
+  </div>
+  <div>
+    <div class="phone">
+      <div class="top"><b>신전 문 앞</b><span>117일째 아침 · 안전</span></div>
+      <div class="chat">
+        <div class="rm">금칠한 문 앞에 사람들이 무릎을 꿇고 있다. 문은 닫혀 있다. 안에서 무언가 울리는 것 같기도 하고, 바람 소리 같기도 하다.</div>
+        <div class="who">문지기 사제 고요</div>
+        <div class="npc">종은 신이오. 신의 소리는 닦은 귀에만 들리오. 그대는 몇 해를 닦았소.</div>
+        <div class="me">아래에서는 허수아비만 쳐도 들렸다고 했다.</div>
+        <div class="npc">그건 메아리요. 참된 소리는 이 안에 있소. 우리는 사백 년을 닦았소.</div>
+        <div class="who">견습 사제 새벽</div>
+        <div class="npc">(작게) …저는 한 번도 못 들었어요. 말하면 안 되는데.</div>
+      </div>
+      <div class="slots">
+        <button class="sl">1<br>기도</button>
+        <button class="sl go">2<br>말 걸기</button>
+        <button class="sl">3<br>둘러보기</button>
+        <button class="sl">4<br>—</button>
+      </div>
+    </div>
+    <p class="cap">E1 문지기 사제와 처음 만날 때. 이 장의 물음은 "종은 누구의 것인가"입니다.</p>
+  </div>
+</div>
+<div class="scroll"><table>
+  <tr><th>번호</th><th>무엇</th><th>글 (처음 값)</th></tr>
+  <tr><td>E2</td><td>다리에 오를 때</td><td>물이 끝나고 돌이 시작됐다. 구름을 뚫고 오르자 두 산 사이에 다리가 걸려 있었다. 다리 끝에 금빛 지붕이 있다. 여기까지 오는 동안 띠링이 한 번도 울리지 않았다는 것을 그제야 알았다.</td></tr>
+  <tr><td>E3</td><td>대사제를 쓰러뜨린 끝</td><td>대사제의 가면이 떨어졌다. 그 뒤에 지친 얼굴이 있었다. "나도… 못 들었네. 사십 년을." 문이 저절로 열렸다. 종소리가 다리 끝까지 흘러 나갔고, 무릎 꿇은 사람들이 고개를 들었다.</td></tr>
+  <tr><td>E4</td><td>스스로 들은 끝</td><td>띠링. 문밖에서, 문지기의 눈앞에서 울렸다. 고요가 입을 벌렸다. "문이 닫혀 있는데." 닫힌 문은 아무것도 막지 못하고 있었다. 처음부터.</td></tr>
+  <tr><td>E5</td><td>함께 연 끝</td><td>미루가 문에 손을 댔다. "신의 목소리가 아니었어요. 그래도 저는 여기 있을래요. 듣고 싶은 사람이 들을 수 있게, 문을 열어 두는 사람으로." 문이 열렸다.</td></tr>
+  <tr><td>E6</td><td>서브: 다리 고치는 이들</td><td>다리의 널이 삭았다. 구름은 덩이 서른과 염소털 스물을 대 준다. 다 고치면 벼랑길에서 옆바람에 밀려나지 않는다.</td></tr>
+  <tr><td>E7</td><td>서브: 견습 사제의 의심</td><td>새벽은 신전을 나가 염소를 치고 싶어 한다. 염소치기 일을 함께 끝까지 한다(염소 치기 쉰 번). 끝나면 새벽이 처음으로 띠링을 듣는다.</td></tr>
+</table></div>
+<p class="note">히든 퀘스트 "듣지 못한 기도"(답이 없는 기도를 삼백 번 올린다)는 조건이 화면 어디에도 나오지 않습니다. 스스로 듣는 길로 11장을 끝내기 전의 기도만 셉니다.</p>
+
+<h2><span class="id">F</span>화면에 나오는 말</h2>
+<div class="scroll"><table>
+  <tr><th>자리</th><th>쓸 말</th><th>근거</th></tr>
+  <tr><td>눈금 칸</td><td>바람 (뒷바람 · 맞바람 · 옆바람)</td><td>우리말 바람 이름</td></tr>
+  <tr><td>단축 칸</td><td>깃발 보기 · 상단</td><td>상단은 레벨 100 시안에서 확정. 깃발 보기는 Claude가 지음</td></tr>
+  <tr><td>용병 역할</td><td>북돋는 이</td><td>Claude가 지음. "막는 이 · 때리는 이 · 고치는 이"와 맞춤</td></tr>
+  <tr><td>이름표</td><td>북소리</td><td>Claude가 지음</td></tr>
+  <tr><td>상단 창</td><td>내 상단 · 가는 짐 · 지난 짐 · 짐 꾸리기 · 호위 · 짐꾼 삯</td><td>Claude가 지음</td></tr>
+  <tr><td>곳</td><td>다릿목 어귀 · 다리 장터 · 은 대장간 · 염소치기 움막 · 신전 문 앞 · 순례자 숙소 · 벼랑길 · 신전 뜰 · 하늘 신전</td><td>Claude가 지음 (하늘 신전만 앞 시안에서 확정)</td></tr>
+  <tr><td>사람</td><td>문지기 사제 고요 · 견습 사제 새벽 · 북 치는 마루 · 창잡이 서리 · 방패잡이 바위</td><td>Claude가 지음</td></tr>
+</table></div>
+
+<h2><span class="id">G</span>아직 없을 때의 모습</h2>
+<ul>
+  <li>G1 구름다리: 10장을 끝내기 전에는 지도, 소문, 지붕마을의 단축 칸 어디에도 나오지 않습니다(숨김).</li>
+  <li>G2 바람 칸: 벼랑길과 신전 뜰에서만 보입니다.</li>
+  <li>G3 상단: 깃발을 사기 전에는 "상단" 칸이 없고, 다리 장터의 방 글에 짐꾼들이 오간다는 한 줄만 있습니다. 장터 어른에게 말을 걸면 값을 듣습니다(숨김).</li>
+  <li>G4 북돋는 이: 염소치기 움막에 가 보기 전에는 용병 창에도, 역할 설명에도 나오지 않습니다(숨김).</li>
+  <li>G5 함께 여는 길: 미루를 동료로 들인 적이 없으면 퀘스트 창에 "???"로 보입니다(지금 숨은 길을 보이는 방식).</li>
+</ul>
+
+<div class="ask">
+  <h3 style="margin-top:0">추천대로 정한 것</h3>
+  <ol>
+    <li>바람은 눈금이 아니라 세 가지 상태로 넣었습니다. 때마다 바뀌고 깃발로 다음 바람을 미리 봅니다.</li>
+    <li>앞 시안의 "활과 피하기가 세지거나 약해진다"를 넓혀, 바람마다 맞는 태세가 있게 했습니다. 지금 있는 태세 넷이 여기서 쓸모를 갖습니다.</li>
+    <li>북 치는 이는 싸우지도 맞지도 않습니다. 이 구간에서는 일행 둘 가운데 한 자리를 차지합니다.</li>
+    <li>상단의 값은 숫자로 보이지 않고 소문으로만 압니다. 팔린 은화는 우편함으로 옵니다.</li>
+    <li>11장의 "함께 여는 길"은 시작 마을의 미루를 여기까지 데려온 사람의 길입니다.</li>
+    <li>일행 셋은 11장을 끝낸 보상으로 열립니다(레벨 100 시안의 "81부터"를 이렇게 구체화).</li>
+    <li>용병 삯 420, 짐꾼 삯 350, 방 값 350입니다.</li>
+  </ol>
+  <p class="note" style="margin-top:8px">이 시안에 없는 것: 던전의 방 배치, 곳의 띠 그림, 상단을 키우는 값. 고칠 곳은 번호(B3, D4처럼)로 짚어 주세요.</p>
+</div>
+</div>
+
+</body></html>

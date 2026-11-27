@@ -138,3 +138,29 @@ test('쓰러지면 운이 정한다: 다섯에 하나 꼴로 다시 태어나야
   }
   assert.ok(reborn >= 25 && reborn <= 55, `200번 가운데 ${reborn}번`);
 });
+
+test('환생: 숙련도 전부, 제작 레벨, 던전 지도, 경험치의 1%가 남는다 (Z98)', async () => {
+  const { levelTotal, XP_KEEP } = await import('../src/core/rebirth.js');
+  const { xpToNext } = await import('../src/core/level.js');
+  const s = make('bard', 'keep');
+  s.level = 30; s.xp = 500;
+  s.skills.smithing = { grade: 7, xp: 12, uses: 300 };
+  s.craftLv = { smith: { lv: 4, xp: 9 }, sew: { lv: 2, xp: 0 }, jewel: { lv: 1, xp: 3 } };
+  s.dmem.ruins = { seen: ['f1-gate', 'f1-hall'], done: { chest1: true }, nights: 3, keeper: 'beat' };
+  let total = 500; for (let l = 1; l < 30; l++) total += xpToNext(l);
+  assert.equal(levelTotal(s), total);
+  const carry = rebirthCarry(s);
+  assert.equal(carry.xp, Math.floor(total * XP_KEEP));
+  const n = createGame({ name: '새', origin: 'farmer', rolled: rollDice('same'), seed: 'keep2', carry });
+  const plain = createGame({ name: '새', origin: 'farmer', rolled: rollDice('same'), seed: 'keep2' });
+  assert.equal(n.level, 5, '레벨 30의 경험치 1%는 레벨 5만큼이다');
+  assert.equal(n.unspent, plain.unspent + 4 * 3, '오른 레벨만큼 스탯 점수가 붙는다');
+  assert.deepEqual([n.skills.smithing.grade, n.skills.smithing.xp], [7, 12]);
+  assert.deepEqual(n.craftLv.smith, { lv: 4, xp: 9 });
+  assert.deepEqual(n.craftLv.sew, { lv: 2, xp: 0 });
+  assert.deepEqual(n.dmem.ruins, { seen: ['f1-gate', 'f1-hall'], done: {}, nights: 0, keeper: null }, '지도만 남고 문지기와의 일은 다시 한다');
+  assert.equal(n.main.chapter, 1);
+  // 저장했다 읽어도 같다
+  const back = parseSave(JSON.stringify({ v: SAVE_VERSION, rev: 1, savedAt: 1, state: n })).state;
+  assert.deepEqual(back.dmem, n.dmem);
+});

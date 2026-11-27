@@ -241,16 +241,18 @@ test('기척을 알아챌 확률은 민첩으로 겨룬다. 사냥꾼의 조수�
   assert.ok(Math.abs(senseChance(h, 'boar') - (0.5 + (11 - 8) * 0.05 + 0.15)) < 1e-9);
 });
 
-test('다섯 레벨 넘게 높으면 괴물이 달아난다 (R2-3)', () => {
+test('레벨이 아무리 높아도 탐색하면 괴물을 만난다. 달아나지 않는다 (Z97)', () => {
   const s = fresh('run');
   s.place = 'river';
-  s.level = 8;
+  s.level = 60;
+  let met = 0;
   for (let i = 0; i < 200; i++) {
-    s.choice = null; s.full = 80; // 굶어 쓰러지지 않게
-    dispatch(s, { type: 'act', id: 'explore' });
-    assert.equal(s.battle, null);
-    if (s.choice) assert.equal(s.choice.kind, 'incident');
+    s.choice = null; s.battle = null; s.full = 80; s.tired = 0; s.hp = 100; // 굶거나 지쳐 쓰러지지 않게
+    const ev = dispatch(s, { type: 'act', id: 'explore' });
+    assert.ok(!ev.some((e) => e.type === 'line' && /달아났다/.test(e.line.text)), '달아나는 일은 없다');
+    if (s.battle || s.choice?.kind === 'sense' || s.choice?.kind === 'bandit') met++;
   }
+  assert.ok(met >= 20, `탐색 200번에 ${met}번 만났다`);
 });
 
 test('전투: 다음 행동이 미리 보이고, 단축 칸이 전투용으로 바뀐다 (E6, E7)', () => {
@@ -497,7 +499,7 @@ test('사건: 고른 대로 일이 일어난다. 필요한 물건이 없으면 �
   assert.equal(countOf(s, 'berry'), 0);
   assert.equal(s.choice, null);
   for (const list of Object.values(INCIDENTS)) for (const inc of list) for (const o of inc.options) assert.ok(o.effect.say, inc.id);
-  for (const w of Object.values(WILDS)) for (const m of w.monsters) assert.ok(MONSTERS[m.id]);
+  for (const w of Object.values(WILDS)) for (const m of w.monsters || []) assert.ok(MONSTERS[m.id]); // 얼음 낚시터는 괴물이 없다
 });
 
 test('옛 저장(1판)을 읽으면 지금 판으로 올라온다', () => {

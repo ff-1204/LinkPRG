@@ -112,7 +112,18 @@ export const MONSTERS = {
       { id: 'maul', name: '덮쳐 누르기', kind: 'charge', power: 2.3, tell: '곰이 두 발로 일어선다.', say: '곰이 온 무게로 덮쳤다.', w: 2 },
       { id: 'roar', name: '포효', kind: 'wait', power: 0, tell: '곰이 숨을 크게 들이쉰다.', say: '포효가 고개를 울렸다.', status: { id: 'fear', turns: 2, chance: 0.6 }, w: 1 },
     ],
-    drops: [{ id: 'boarhide', p: 0.8 }, { id: 'boarmeat', p: 0.8 }],
+    drops: [{ id: 'bearhide', p: 0.7 }, { id: 'bearmeat', p: 0.6 }, { id: 'boarmeat', p: 0.4 }],
+  },
+  // 고개 너머로 사람을 따라오는 늑대 (LV-C2). 19~20을 메운다
+  guidewolf: {
+    element: '바람', name: '길잡이 늑대', level: 20, hp: 300, attack: 46, defense: 17, agi: 26, xp: 1500,
+    intro: '앞서 걷던 것이 돌아본다. 길을 알려 주는 줄 알았는데, 무리가 있는 쪽으로 데려가고 있었다.',
+    moves: [
+      { id: 'snap', name: '물어뜯기', kind: 'hit', power: 1, tell: '늑대가 몸을 낮춘다.', say: '이빨이 팔뚝에 박혔다.', status: { id: 'bleed', turns: 3, chance: 0.4 }, w: 3 },
+      { id: 'lunge', name: '목덜미 노리기', kind: 'charge', power: 2.1, tell: '늑대가 뒤로 한 걸음 물러난다.', say: '늑대가 목덜미로 뛰어올랐다.', w: 2 },
+      { id: 'howl', name: '부르는 소리', kind: 'wait', power: 0, tell: '늑대가 고개를 든다.', say: '긴 울음이 고개를 넘어갔다. 멀리서 답이 왔다.', status: { id: 'fear', turns: 2, chance: 0.4 }, w: 1 },
+    ],
+    drops: [{ id: 'wolffang', p: 0.8 }, { id: 'steel', p: 0.25 }],
   },
   // 우두머리 (T22). 국면이 바뀌면 속성과 하는 짓이 달라진다. at: 생명력이 이 몫 아래로 내려가면 그 국면이 된다.
   gatekeeper: {
@@ -145,3 +156,9 @@ export function monsterDef(id) {
   if (!m) throw new Error('모르는 괴물: ' + id);
   return m;
 }
+
+// 21~100의 보통 몬스터 (LV-C3~C10). 사냥터에 잇기 전이라 아직 만나지 않는다
+import { tierMonsters, tierBosses } from './tiers.js?v=327d747';
+import { monsterXp } from './bands.js?v=327d747';
+import { xpToNext } from '../core/level.js?v=327d747';
+Object.assign(MONSTERS, tierMonsters((level) => monsterXp(level, xpToNext)), tierBosses((level) => monsterXp(level, xpToNext)));

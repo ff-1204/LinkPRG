@@ -44,6 +44,21 @@ export const ITEMS = {
   leathervest: { name: '가죽 조끼', kind: 'gear', slot: 'body', defense: 5, dur: 70, weight: 3, price: 60, icon: 'item-cloth', desc: '가죽 두 겹을 꿰맨 조끼. 움직이기 편하다.' },
   leatherarmor: { name: '가죽 갑옷', kind: 'gear', slot: 'body', defense: 8, dur: 100, weight: 5, price: 110, icon: 'item-cloth', desc: '가죽 겹 사이에 쇠 징을 박았다. 무겁지만 단단하다.' },
   sandals: { name: '짚신', kind: 'gear', slot: 'feet', defense: 1, dur: 30, weight: 1, price: 3, icon: 'item-sandal', desc: '금방 닳지만 금방 삼는다.' },
+  // 2단계: 강철과 곰 가죽 (LV-F2, 11~20). 무기 24, 방어구 합 32
+  steelsword: { name: '강철 검', kind: 'gear', slot: 'weapon', tier: 2, attack: 24, dur: 110, weight: 4, price: 190, gradeIcon: 'sword', desc: '쇠를 접어 두드린 검. 날이 쉽게 무뎌지지 않는다.' },
+  longbow: { name: '긴 활', kind: 'gear', slot: 'weapon', tier: 2, attack: 14, dur: 70, weight: 2, price: 100, job: 'archer', icon: 'item-bow', desc: '고갯바람을 뚫는 긴 활. 궁수만 쓴다.' },
+  steelknife: { name: '강철 단검', kind: 'gear', slot: 'weapon', tier: 2, attack: 12, dur: 65, weight: 1, price: 90, job: 'rogue', icon: 'item-knife', desc: '손바닥만 한 날. 도적만 쓴다.' },
+  steelwand: { name: '강철 고리 지팡이', kind: 'gear', slot: 'weapon', tier: 2, attack: 7, dur: 70, weight: 2, price: 100, job: 'mage', icon: 'item-wand', desc: '끝에 강철 고리 셋을 건 지팡이. 마법사만 쓴다.' },
+  steelshield: { name: '강철 방패', kind: 'gear', slot: 'off', tier: 2, defense: 7, dur: 90, weight: 5, price: 90, job: 'warrior', icon: 'item-shield', desc: '강철판을 덧댄 방패. 전사만 쓴다.' },
+  steelhelm: { name: '강철 투구', kind: 'gear', slot: 'head', tier: 2, defense: 5, dur: 120, weight: 2, price: 120, icon: 'item-ore', desc: '이마에 띠를 두른 투구.' },
+  steelarmor: { name: '강철 갑옷', kind: 'gear', slot: 'body', tier: 2, defense: 13, dur: 140, weight: 7, price: 300, icon: 'item-cloth', desc: '곰 가죽 위에 강철 비늘을 겹쳐 엮었다. 대장 2단계의 승급작이다.' },
+  beargloves: { name: '곰 가죽 장갑', kind: 'gear', slot: 'hand', tier: 2, attack: 1, defense: 2, dur: 80, weight: 0, price: 70, icon: 'item-hide', desc: '두꺼운 가죽이 손등을 덮는다.' },
+  bearboots: { name: '곰 가죽 장화', kind: 'gear', slot: 'feet', tier: 2, defense: 5, dur: 90, weight: 1, price: 100, icon: 'item-sandal', desc: '고갯길 돌밭에도 미끄러지지 않는다.' },
+  steelring: { name: '강철 반지', kind: 'gear', slot: 'ring', tier: 2, attack: 2, defense: 3, dur: 130, weight: 0, price: 140, icon: 'item-ore', desc: '강철을 가늘게 뽑아 세 번 감았다.' },
+  steel: { name: '강철 덩이', kind: 'material', tier: 2, weight: 1, icon: 'item-ore', price: 14, desc: '쇠를 여러 번 접어 두드린 덩이. 고갯길 너머 대장간에서 쓴다.' },
+  bearhide: { name: '곰 가죽', kind: 'material', tier: 2, weight: 3, icon: 'item-hide', price: 26, desc: '손가락이 묻힐 만큼 털이 깊다.' },
+  bearmeat: { name: '곰 고기', kind: 'material', tier: 2, weight: 2, icon: 'item-meat', price: 14, desc: '기름이 두껍다. 오래 끓여야 한다.' },
+  dish_bearstew: { name: '곰 고기 전골', kind: 'eat', tier: 2, weight: 1, icon: 'item-meat', price: 60, eat: { full: 75, dish: 'bearstew' }, desc: '기름이 뜬 뜨거운 전골. 먹으면 곰의 속(최대 생명력 +40, 공격력 +5).' },
   ironore: { name: '철광석', kind: 'material', weight: 1, icon: 'item-ore', price: 4, desc: '붉은 녹이 슨 돌. 녹이면 쇠가 된다.' },
   copperore: { name: '구리 광석', kind: 'material', weight: 1, icon: 'item-copper', price: 6, desc: '푸르스름한 얼룩이 박힌 돌.' },
   oakbranch: { name: '참나무 가지', kind: 'material', weight: 1, icon: 'item-branch', price: 2, desc: '단단하고 곧다. 자루로도, 깎을 거리로도 좋다.' },
@@ -54,9 +69,34 @@ export const ITEMS = {
   wolffang: { name: '늑대 송곳니', kind: 'material', weight: 0, icon: 'item-fang', price: 9, desc: '손가락만 한 이빨.' },
   crucian: { name: '붕어', kind: 'material', weight: 1, icon: 'item-fish', price: 3, desc: '손바닥만 한 민물고기. 구워야 먹는다.' },
   waterpouch: { name: '물 주머니', kind: 'eat', weight: 1, icon: 'item-water', price: 8, throw: { element: '물', dmg: 16 }, desc: '싸움에서 던진다. 물 속성으로 16 피해. 불에 약한 것에게는 더 아프다.' },
+  emptypouch: { name: '빈 물 주머니', kind: 'material', weight: 0, icon: 'item-water', price: 2, desc: '물을 다 마신 주머니. 우물에서 다시 채운다.' }, // 소금벌 (SB-B3): 마신 주머니는 비고, 우물에서 다시 찬다
   torch: { name: '횃불', kind: 'eat', weight: 1, icon: 'item-branch', price: 6, throw: { element: '불', dmg: 16 }, desc: '싸움에서 휘두른다. 불 속성으로 16 피해.' },
   assassinmask: { name: '암살자의 가면', kind: 'etc', weight: 0, icon: 'item-unknown', price: 5000, desc: '눈구멍만 뚫린 검은 가면. 손에 넣으면 칭호 "암살자"가 생긴다.' },
+  shardkey: { name: '셋째 자물쇠의 열쇠', kind: 'etc', weight: 0, icon: 'item-unknown', price: 1, desc: '종 조각 창고 안쪽 문에 맞을 것 같다. 꼬리표에 값이 적혀 있다.' },
+  icekey: { name: '얼음 낀 열쇠', kind: 'etc', weight: 0, icon: 'item-unknown', price: 1, desc: '얼음 종루 어딘가의 문에 맞을 것 같다. 손에 쥐면 시리다.' },
   ruinkey: { name: '녹슨 열쇠', kind: 'etc', weight: 0, icon: 'item-unknown', price: 1, desc: '폐허 어딘가의 문에 맞을 것 같다.' },
+  // 잿골 (AG-B3): 쇠 장비 하나의 내구도 +20. 큰 대장간에서만 판다. 한 번 쓰면 없어진다
+  whetstone: { name: '숫돌', kind: 'etc', weight: 1, icon: 'item-ore', price: 60, whet: 20, desc: '손바닥만 한 거친 돌. 찬 쇠 장비 가운데 가장 많이 닳은 것 하나의 내구도를 20 되살린다. 한 번 쓰면 닳아 없어진다.' },
+  // 안개늪 (AN-B3): 등불과 표식 끈은 등불 다리에서만 판다. 약초 다섯 가지는 약초꾼의 장부(AN-D7)에 들어갈 것들이다
+  lamp: { name: '등불', kind: 'etc', weight: 1, icon: 'item-branch', price: 90, lamp: 60, desc: '기름 먹인 심지를 단 작은 등. 안개늪의 들판에서 켜면 예순 번 움직이는 동안 길을 잃지 않는다. 다 타면 없어진다.' },
+  marker: { name: '표식 끈', kind: 'etc', weight: 0, icon: 'item-cloth', price: 40, desc: '눈에 띄게 물들인 끈. 안개늪의 사냥터에 한 번에 하나씩 묶는다. 열 개를 묶은 곳에서는 다시 길을 잃지 않는다.' },
+  mosskey: { name: '이끼 낀 열쇠', kind: 'etc', weight: 1, icon: 'item-unknown', price: 1, desc: '가라앉는 오솔길의 사립문에 맞을 것 같다. 이끼를 긁어내도 다시 돋는다.' },
+  marshmoss: { name: '물이끼', kind: 'material', weight: 0, icon: 'item-herb', price: 12, desc: '쥐면 물이 한 줌 나온다. 상처에 대면 시원하다.' },
+  toadgrass: { name: '두꺼비풀', kind: 'material', weight: 0, icon: 'item-herb', price: 12, desc: '두꺼비가 앉았던 자리에만 난다. 잎이 우툴두툴하다.' },
+  mistmint: { name: '늪 박하', kind: 'material', weight: 0, icon: 'item-herb', price: 16, desc: '씹으면 코끝의 안개가 걷히는 것 같다.' },
+  lampshroom: { name: '등불 버섯', kind: 'material', weight: 0, icon: 'item-herb', price: 16, desc: '어두운 데서 흐리게 빛난다. 길을 밝힐 만큼은 아니다.' },
+  fogbloom: { name: '안개꽃', kind: 'material', weight: 0, icon: 'item-herb', price: 16, desc: '안개 속에서만 핀다. 꺾어 들고 나오면 반나절 만에 진다고 하는데, 아직 피어 있다.' },
+  // 잠긴 도성 (JD-B3): 공기 주머니는 잠수꾼 조합에서 팔고, 비늘 가죽 둘로 직접 꿰맬 수도 있다. 물 아래에서만 쓴다
+  airbag: { name: '공기 주머니', kind: 'eat', weight: 1, icon: 'item-water', price: 120, eat: { air: 10 }, desc: '비늘 가죽을 꿰매 공기를 채운 주머니. 물 아래에서 물면 숨이 10 돌아온다. 싸우는 중에도 쓴다. 한 번 쓰면 없어진다.' },
+  palacekey: { name: '물먹은 궁 열쇠', kind: 'etc', weight: 1, icon: 'item-unknown', price: 1, desc: '잠긴 궁 넷째 전각의 문에 맞을 것 같다. 청동이라 삭지 않았다.' },
+  // 구름다리 (GD-A10): 하늘 신전의 안문 열쇠
+  templekey: { name: '신전 안문 열쇠', kind: 'etc', weight: 1, icon: 'item-unknown', price: 1, desc: '하늘 신전 넷째 전의 금칠한 안문에 맞을 것 같다. 손때가 없다.' },
+  // 별못 (BM-E, BM-F): 종 조각은 별 떨어진 벌에서 나고, 작은 종은 그것으로 세공한다. 둘 다 팔거나 버릴 수 없다
+  bellshard: { name: '종 조각', kind: 'quest', weight: 1, icon: 'item-ore', desc: '별이 종을 깼을 때 튄 조각. 쥐면 조금 떤다. 혼자서는 울지 못한다.' },
+  smallbell: { name: '작은 종', kind: 'quest', weight: 1, icon: 'item-ore', desc: '종 조각 하나를 다듬어 지은 종. 소리가 작다. 옆집까지만 들린다.' },
+  wetledger: { name: '젖은 족보', kind: 'quest', weight: 1, icon: 'item-cloth', desc: '잠긴 거리의 어느 집 궤에서 건진 족보. 먹이 번졌지만 성은 읽힌다.' },
+  kilnkey: { name: '가마 문의 쇠지레', kind: 'etc', weight: 1, icon: 'item-unknown', price: 1, desc: '식지 않는 가마 안쪽 문의 빗장에 맞을 것 같다. 쥐는 데만 식어 있다.' },
+  hotash: { name: '식지 않은 재', kind: 'quest', weight: 1, icon: 'item-ore', desc: '쇳물 내에서 퍼 담은 재. 속이 아직 붉다. 식기 전에 날라야 한다.' },
   eel: { name: '장어', kind: 'material', weight: 1, icon: 'item-fish', price: 9, desc: '미끄럽고 힘이 세다. 나루에서만 난다.' },
   tar: { name: '역청', kind: 'material', weight: 1, icon: 'item-ore', price: 7, desc: '배 밑에 바르는 끈적한 검은 것. 나루에서만 판다.' },
   sailcloth: { name: '돛천', kind: 'material', weight: 2, icon: 'item-cloth', price: 22, desc: '질긴 삼베를 겹쳐 기운 천. 나루에서만 판다.' },
@@ -74,6 +114,8 @@ export const ITEMS = {
   dish_herbfish: { name: '약초 붕어 탕', kind: 'eat', weight: 1, icon: 'item-fish', price: 16, eat: { full: 40, dish: 'herbfish' }, desc: '맑은 탕. 먹으면 맑은 정신(숙련도 오름 +5%).' },
   dish_eelsoup: { name: '장어 소금 국', kind: 'eat', weight: 1, icon: 'item-fish', price: 30, eat: { full: 60, dish: 'eelsoup' }, desc: '진한 국. 먹으면 깊은 숨(최대 생명력 +25).' },
   dish_boarskewer: { name: '멧돼지 산열매 꼬치', kind: 'eat', weight: 1, icon: 'item-meat', price: 26, eat: { full: 55, dish: 'boarskewer' }, desc: '단내 나는 꼬치. 먹으면 사나운 입맛(공격력 +3, 방어력 +1).' },
+  // 흰마루 (WM-B3, WM-F4): 식은 몸일 때만 얼음 구멍에서 문다. 잡아 보기 전에는 도감에 이름이 없다
+  silverfish: { name: '얼음 밑 은어', kind: 'material', tier: 3, weight: 1, icon: 'item-fish', price: 66, desc: '얼음 바로 밑에 붙어 다니는 은빛 고기. 몸이 더운 사람의 줄에는 물지 않는다.' },
   redpotion: { name: '붉은 물약', kind: 'eat', grade: 1, weight: 1, icon: 'item-potion', price: 20, eat: { hpPct: 40 }, desc: '최대 생명력의 40%를 채운다.' },
   forgetwater: { name: '잊는 물', kind: 'etc', grade: 3, weight: 1, icon: 'item-water', price: 400, desc: '마시면 손에 익은 갈래 하나를 잊는다. 다시 고를 수 있게 된다. 아주 귀하다.' },
   oldrod: { name: '진흙투성이 낚싯대', kind: 'quest', weight: 1, icon: 'item-branch', desc: '강바닥에서 건져 올렸다. 손잡이 마디에 실이 곱게 감겨 있다.' },
@@ -92,3 +134,7 @@ export function itemDef(id) {
 export function gradeName(grade) {
   return GRADES[grade ?? 0];
 }
+
+// 3~10단계의 재료·장비·음식 (LV-F3~F10). 그 지역을 낼 때까지는 게임 안에서 닿지 않는다
+import { tierItems } from './tiers.js?v=327d747';
+Object.assign(ITEMS, tierItems());

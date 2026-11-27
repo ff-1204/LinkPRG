@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head><body style="margin:0">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>소금벌 화면 시안</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap">
+<style>
+/* 배치: 게임과 같은 크림 한 가지 모습(일부러 한 테마). 위에서 아래로 번호 붙은 장, 화면 그림은 휴대폰 틀 안에 */
+:root { --cream: #FBF5E6; --paper: #FFFDF6; --sand: #F3E9D2; --line: #E6D9BD; --line2: #CDBE9E; --ink: #3A2A1E; --muted: #6B5443; --deep: #1E140D; --cinnamon: #8A4F2B; --mint: #BFE3D0; --mint-ink: #1F4A3A; --mint-line: #2F7A5E; --honey: #F2B63C; --honey-soft: #FBE7B4; --frost: #DCE9EE; --frost-ink: #23414C; --serif: 'Gowun Batang', 'Noto Serif KR', serif; --sans: 'Gowun Dodum', 'Noto Sans KR', system-ui, sans-serif; }
+* { box-sizing: border-box; }
+body { background: var(--cream); color: var(--ink); font: 16px/1.65 var(--sans); padding-block: 24px 60px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.wrap { max-width: 940px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
+h1 { font: 700 27px/1.3 var(--serif); margin: 0; }
+h2 { font: 700 20px/1.3 var(--serif); margin: 28px 0 2px; padding-top: 10px; border-top: 2px solid var(--deep); }
+h3 { font: 700 16px/1.4 var(--serif); margin: 10px 0 0; }
+p { margin: 0; }
+.note { color: var(--muted); max-width: 54rem; }
+.id { display: inline-block; font: 700 .76rem/1 var(--sans); color: var(--cinnamon); border: 1px solid var(--cinnamon); border-radius: 4px; padding: 3px 6px; margin-right: 6px; vertical-align: 2px; }
+.row { display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start; }
+.opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+.opt { background: var(--paper); border: 1px solid var(--line2); border-radius: 10px; padding: 12px 14px; min-width: 0; }
+.opt.rec { border: 2px solid var(--cinnamon); }
+.opt b.t { font: 700 16px var(--serif); display: block; margin-bottom: 4px; }
+.tag { display: inline-block; font-size: 12px; padding: 0 8px; border-radius: 999px; background: var(--cinnamon); color: #fff; margin-left: 6px; vertical-align: 2px; }
+.new { background: var(--honey-soft); border-radius: 3px; padding: 0 5px; font-size: .78rem; white-space: nowrap; }
+/* 휴대폰 틀 */
+.phone { width: min(370px, 100%); background: var(--paper); border: 2px solid var(--deep); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
+.top { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 12px 4px; background: var(--cream); font-family: var(--serif); }
+.top b { font-size: 1.02rem; } .top span { font-size: .8rem; color: var(--muted); }
+.stats { display: grid; gap: 6px; padding: 4px 12px 8px; border-bottom: 1px solid var(--line); background: var(--cream); }
+.stats.c4 { grid-template-columns: repeat(4, 1fr); } .stats.c5 { grid-template-columns: repeat(5, 1fr); }
+.st { font-size: .7rem; color: var(--muted); display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.st b { color: var(--ink); font-size: .8rem; }
+.st i { display: block; height: 5px; border-radius: 3px; background: var(--sand); overflow: hidden; }
+.st i i { height: 100%; background: var(--cinnamon); }
+.st.cold i i { background: #5E8FA3; } .st.cold.low { color: var(--frost-ink); } .st.cold.low b { color: var(--frost-ink); }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; padding: 6px 12px 0; }
+.chip { font-size: .72rem; border-radius: 999px; padding: 1px 9px; border: 1px solid var(--line2); background: var(--paper); }
+.chip.frost { background: var(--frost); border-color: #7FA6B5; color: var(--frost-ink); }
+.chat { padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
+.me { align-self: flex-end; background: var(--sand); border-radius: 14px 4px 14px 14px; padding: 6px 12px; font-family: var(--serif); max-width: 88%; }
+.rm { align-self: center; color: var(--muted); font: .88rem/1.5 var(--serif); text-align: center; }
+.sys { align-self: flex-start; background: var(--sand); border-radius: 4px 14px 14px 14px; padding: 6px 12px; max-width: 88%; font-size: .92rem; }
+.sys.frost { background: var(--frost); color: var(--frost-ink); border: 1px solid #7FA6B5; }
+.sys.mint { background: var(--mint); color: var(--mint-ink); border: 1px solid var(--mint-line); }
+.who { font-size: .75rem; color: var(--muted); margin-bottom: -5px; }
+.npc { align-self: flex-start; background: var(--paper); border: 1px solid var(--line); border-radius: 4px 14px 14px 14px; padding: 6px 12px; font-family: var(--serif); max-width: 88%; }
+.slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 8px 12px 12px; border-top: 1px solid var(--line); background: var(--cream); }
+.sl { min-height: 50px; border: 1.5px solid var(--line2); border-radius: 9px; background: var(--paper); font-size: .78rem; font-weight: 700; padding: 4px 7px; line-height: 1.3; min-width: 0; }
+.sl small { display: block; font-weight: 400; color: var(--muted); font-size: .68rem; }
+.sl.go { border-color: var(--cinnamon); }
+.cap { font-size: .88rem; color: var(--muted); max-width: 370px; margin-top: 6px; }
+.pg { width: min(370px, 100%); background: var(--paper); border: 1.5px solid var(--cinnamon); border-radius: 10px; padding: 14px 16px; font-family: var(--serif); display: flex; flex-direction: column; gap: 4px; }
+.pg .h { font: 700 .85rem var(--sans); color: var(--muted); margin-top: 6px; }
+.pg .ttl { font: 700 1.1rem/1.3 var(--serif); }
+.rowx { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px dashed var(--line2); padding: 5px 0; font-size: .93rem; }
+.rowx span:last-child { text-align: right; color: var(--muted); font-family: var(--sans); font-size: .84rem; }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 560px; background: var(--paper); font-size: .92rem; }
+th, td { border-bottom: 1px dashed var(--line2); padding: 7px 9px; text-align: left; vertical-align: top; }
+th { border-bottom: 2px solid var(--deep); font-size: .82rem; white-space: nowrap; }
+td:first-child { white-space: nowrap; }
+ol, ul { margin: 0; padding-left: 1.3rem; }
+.ask { background: var(--paper); border: 2px solid var(--cinnamon); border-radius: 10px; padding: 14px 16px; }
+</style>
+
+<div class="wrap">
+<h1>소금벌 화면 시안 (레벨 31~40)</h1>
+<p class="note">로드맵 M16 "값이 매겨진 띠링"에서 새로 생기는 화면과 글입니다. 고를 것은 모두 추천안으로 정해 그렸습니다(맨 아래 "추천대로 정한 것"). 몬스터, 소금강 장비, 소금벌 구이의 자료는 이미 들어가 있습니다. 화면 틀은 지금 게임 그대로입니다.</p>
+
+<h2><span class="id">A</span>가는 길과 곳</h2>
+<div class="scroll"><table>
+  <tr><th>번호</th><th>곳</th><th>무엇</th><th>단축 칸</th></tr>
+  <tr><td>A1</td><td>언못 → 소금벌</td><td>6장을 끝내면 언못 어귀에 "소금벌로 내려간다"가 생긴다. 반나절 길</td><td>—</td></tr>
+  <tr><td>A2</td><td><b>저울목 어귀</b> <span class="new">새로</span></td><td>말라붙은 바다 한가운데 선 장터의 들머리. 소금 수레가 줄지어 들어온다</td><td>둘러보기 · 말 걸기 · 쉬기</td></tr>
+  <tr><td>A3</td><td><b>저울 마당</b></td><td>장터 한복판. 시세판이 서 있고, 빈 좌판 하나가 임자를 기다린다</td><td>시세판 · 상점 · 가게 · 경매장</td></tr>
+  <tr><td>A4</td><td><b>소금 대장간</b></td><td>소금물에 쇠를 담가 식힌다. 소금강을 다룬다</td><td>만들기 · 상점 · 고치기 · 강화</td></tr>
+  <tr><td>A5</td><td><b>우물가 주막</b></td><td>장터에 하나뿐인 우물을 낀 집. 물값을 받는다</td><td>방 빌리기 · 물 채우기 · 보관함 · 요리</td></tr>
+  <tr><td>A6</td><td><b>용병 막사</b></td><td>상단이 부리는 칼잡이들. 삯을 떼인 이들이 많다</td><td>게시판 · 용병 · 바느질 · 말 걸기</td></tr>
+  <tr><td>A7</td><td><b>작은 사당</b></td><td>상단이 지어 준 사당. 향값을 내면 누구나 든다</td><td>기도 · 상점 · 다시 태어나기</td></tr>
+  <tr><td>A8</td><td><b>상단 창고 앞</b></td><td>문지기 둘, 자물쇠 셋. 안에서 가끔 종소리 같은 것이 난다</td><td>둘러보기 · 말 걸기</td></tr>
+  <tr><td>A9</td><td>소금 바닥 (사냥터)</td><td>소금 전갈(31), 마른 갯지렁이(33). 전갈 껍질, 갯지렁이 살</td><td>탐색 · 캐기 · 물 마시기</td></tr>
+  <tr><td>A10</td><td>마른 뱃길 (사냥터)</td><td>소금 까마귀(35), 떠도는 저울꾼(38). 소금강</td><td>탐색 · 물 마시기 · 쉬기</td></tr>
+  <tr><td>A11</td><td>종 조각 창고 (던전)</td><td>창고 안 다섯 칸. 맨 안쪽에 소금 기둥의 징수인(40)</td><td>지금 던전과 같음</td></tr>
+</table></div>
+
+<h2><span class="id">B</span>갈증</h2>
+<p class="note">소금벌의 규칙은 갈증입니다. 흰마루의 체온과 같은 자리에 "물" 칸이 생깁니다. 체온은 흰마루에서만, 물은 소금벌에서만 보입니다.</p>
+<div class="row">
+  <div>
+    <div class="phone">
+      <div class="top"><b>소금 바닥</b><span>41일째 낮 · 위험 보통</span></div>
+      <div class="stats c5">
+        <div class="st"><span>생명 <b>590</b></span><i><i style="width:90%"></i></i></div>
+        <div class="st"><span>마나 <b>75</b></span><i><i style="width:100%"></i></i></div>
+        <div class="st"><span>포만 <b>66</b></span><i><i style="width:66%"></i></i></div>
+        <div class="st"><span>피로 <b>31</b></span><i><i style="width:31%"></i></i></div>
+        <div class="st cold"><span>물 <b>3</b> 모금</span><i><i style="width:30%"></i></i></div>
+      </div>
+      <div class="chat">
+        <div class="rm">흰 바닥이 끝없이 갈라져 있다. 햇빛이 아래에서도 올라온다. 입술이 먼저 마른다.</div>
+        <div class="me">소금 껍질을 뒤집으며 둘레를 살폈다.</div>
+        <div class="sys">발견: 굳은 소금 밑에서 소금강 덩이 2개를 떼어 냈다.</div>
+        <div class="me">물 한 모금을 마셨다.</div>
+      </div>
+      <div class="slots">
+        <button class="sl go">1<br>탐색</button>
+        <button class="sl">2<br>캐기</button>
+        <button class="sl">3<br>물 마시기<small>물 주머니 2개</small></button>
+        <button class="sl">4<br>철검<small>빠른 칸</small></button>
+      </div>
+    </div>
+    <p class="cap">B1 소금벌 들판. 물 칸은 열 모금이 가득입니다.</p>
+  </div>
+  <div>
+    <div class="phone">
+      <div class="top"><b>마른 뱃길</b><span>41일째 낮 · 위험 높음</span></div>
+      <div class="stats c5">
+        <div class="st"><span>생명 <b>488</b></span><i><i style="width:74%"></i></i></div>
+        <div class="st"><span>마나 <b>40</b></span><i><i style="width:53%"></i></i></div>
+        <div class="st"><span>포만 <b>51</b></span><i><i style="width:51%"></i></i></div>
+        <div class="st"><span>피로 <b>48</b></span><i><i style="width:48%"></i></i></div>
+        <div class="st cold low"><span>물 <b>0</b> 모금</span><i><i style="width:0%"></i></i></div>
+      </div>
+      <div class="chips"><span class="chip frost">마른 목: 움직일 때마다 생명력이 깎인다</span></div>
+      <div class="chat">
+        <div class="sys frost">물이 떨어졌다. 혀가 입천장에 붙는다.</div>
+        <div class="me">엎어진 배 밑을 뒤졌다. 생명력 −13.</div>
+        <div class="sys mint">발견: 배 밑에 옛 우물이 있다. 지도에 적어 두었다.</div>
+      </div>
+      <div class="slots">
+        <button class="sl go">1<br>탐색</button>
+        <button class="sl">2<br>물 채우기<small>옛 우물</small></button>
+        <button class="sl">3<br>쉬기</button>
+        <button class="sl">4<br>—</button>
+      </div>
+    </div>
+    <p class="cap">B2 물이 떨어졌을 때, 그리고 사냥터에 숨은 우물을 찾았을 때. 찾은 우물은 지도에 남습니다.</p>
+  </div>
+</div>
+<h3><span class="id">B3</span>갈증의 숫자</h3>
+<div class="scroll"><table>
+  <tr><th>무엇</th><th>숫자</th></tr>
+  <tr><td>물</td><td>열 모금이 가득. 소금벌 들판에서 열 번 움직일 때마다 한 모금이 준다</td></tr>
+  <tr><td>마른 목 (0 모금)</td><td>움직일 때마다 최대 생명력의 2%가 깎인다. 싸움의 한 턴도 한 번으로 센다</td></tr>
+  <tr><td>물 주머니 (지금 있는 물건)</td><td>지금은 던지는 물건이다. 소금벌에서는 "물 마시기"로 다섯 모금을 채울 수도 있다. 던지는 쓰임은 그대로</td></tr>
+  <tr><td>우물</td><td>우물가 주막에서 은화 5에 가득(물 주머니도 채운다). 사냥터마다 숨은 옛 우물 하나, 찾으면 값없이 채운다</td></tr>
+  <tr><td>짠 음식</td><td>소금벌 구이를 먹으면 한 모금이 더 준다. 힘은 그대로 붙는다</td></tr>
+  <tr><td>잘 다루면</td><td>물 주머니 셋이면 한 번 나가 300번을 움직인다(하루 반). 옛 우물을 다 찾으면 물값이 들지 않는다</td></tr>
+</table></div>
+
+<h2><span class="id">C</span>날마다 바뀌는 값: 시세판</h2>
+<div class="row">
+  <div class="pg">
+    <span class="ttl">저울 마당의 시세판</span>
+    <p style="font-family:var(--sans);font-size:.86rem;color:var(--muted)">41일째. 값은 날이 바뀔 때 새로 붙는다.</p>
+    <span class="h">오늘 비싼 것</span>
+    <div class="rowx"><span>전갈 껍질</span><span>94 (제값 72, +30%)</span></div>
+    <div class="rowx"><span>소금강 덩이</span><span>41 (제값 36, +14%)</span></div>
+    <span class="h">오늘 싼 것</span>
+    <div class="rowx"><span>갯지렁이 살</span><span>27 (제값 36, −25%)</span></div>
+    <div class="rowx"><span>흰털 가죽</span><span>37 (제값 44, −16%)</span></div>
+    <span class="h">어제와 같은 것</span>
+    <div class="rowx"><span>서릿쇠 덩이 · 약초 · 소금</span><span>제값</span></div>
+  </div>
+  <div style="max-width:420px">
+    <p><span class="id">C1</span>저울목의 가게는 사는 값도 파는 값도 날마다 바뀝니다. 지금 나루 어시장이 쓰는 방식(날마다 0.7~1.3배)을 그대로 씁니다.</p>
+    <p style="margin-top:8px"><span class="id">C2</span>시세판은 오늘 값만 보입니다. 내일 값은 보이지 않고, 주막의 소문이 가끔 한 품목을 귀띔합니다("내일은 껍질값이 뛴다더라").</p>
+    <p style="margin-top:8px"><span class="id">C3</span>싼 날 사서 보관함에 두었다가 비싼 날 팔 수 있습니다. 가게에 파는 값은 지금처럼 제값의 40%에서 시작하므로, 사고팔기만으로 벌려면 값이 크게 벌어진 날을 기다려야 합니다.</p>
+  </div>
+</div>
+
+<h2><span class="id">D</span>가게</h2>
+<p class="note">레벨 100 시안의 가게(LV-K1)입니다. 저울 마당의 빈 좌판을 은화 3,800에 삽니다. 사기 전에는 "가게" 칸이 어디에도 나오지 않습니다.</p>
+<div class="row">
+  <div>
+    <div class="pg">
+      <span class="ttl">내 가게</span>
+      <div class="rowx"><span>단골</span><span>12명 · 내가 스무 번 일하면 손님 하나</span></div>
+      <div class="rowx"><span>다음 손님까지</span><span>일 7번</span></div>
+      <span class="h">진열대 (4 / 6)</span>
+      <div class="rowx"><span>고급 서릿쇠 검</span><span>310</span></div>
+      <div class="rowx"><span>서릿쇠 투구</span><span>200</span></div>
+      <div class="rowx"><span>눈밭 전골 × 3</span><span>28씩</span></div>
+      <div class="rowx"><span>흰털 가죽 장화</span><span>170</span></div>
+      <div class="rowx"><span style="color:var(--muted)">빈 칸</span><span>올리기</span></div>
+      <div class="rowx"><span style="color:var(--muted)">빈 칸</span><span>올리기</span></div>
+      <span class="h">어제 팔린 것</span>
+      <div class="rowx"><span>서릿쇠 단검</span><span>은화 +140</span></div>
+    </div>
+    <p class="cap">D1 물건이 있을 때. 값은 제값(가게가 파는 값)으로 붙고 내가 정하지 않습니다.</p>
+  </div>
+  <div>
+    <div class="pg">
+      <span class="ttl">내 가게</span>
+      <div class="rowx"><span>단골</span><span>0명 · 내가 스무 번 일하면 손님 하나</span></div>
+      <span class="h">진열대 (0 / 6)</span>
+      <p style="font-family:var(--sans);font-size:.9rem;color:var(--muted)">좌판이 비어 있다. 내가 만든 물건을 올려 두면, 내가 일하는 동안 손님이 와서 사 간다. 쉬거나 자는 동안에는 오지 않는다.</p>
+      <div class="rowx"><span style="color:var(--muted)">빈 칸</span><span>올리기</span></div>
+    </div>
+    <p class="cap">D2 처음 샀을 때.</p>
+    <div class="phone" style="margin-top:12px">
+      <div class="chat">
+        <div class="me">소금 껍질을 뒤집으며 둘레를 살폈다.</div>
+        <div class="sys mint">가게: 손님이 고급 서릿쇠 검을 사 갔다. 은화 +310.</div>
+      </div>
+    </div>
+    <p class="cap">D3 팔리면 어디에 있든 대화방에 한 줄. 띠링은 울리지 않습니다.</p>
+  </div>
+</div>
+<ul class="note">
+  <li>D4 올릴 수 있는 것은 내가 만든 물건뿐입니다(주운 것, 산 것은 안 됨). 팔린 은화는 바로 주머니로 옵니다.</li>
+  <li>D5 손님은 등급이 높은 것, 내 명성이 높을 때 먼저 삽니다. 판 수만큼 단골이 늘어 손님이 잦아집니다(스무 번에 하나 → 여덟 번에 하나).</li>
+  <li>D6 "일"은 탐색, 싸움의 한 턴, 망치질·바느질 한 번, 캐기, 낚시, 일터의 일입니다. 쉬기, 잠, 길 가기, 사고팔기, 둘러보기는 세지 않습니다. 이자가 붙는 날을 가르는 "일"도 이 기준으로 맞춥니다.</li>
+</ul>
+
+<h2><span class="id">E</span>스스로 고르는 환생</h2>
+<div class="row">
+  <div class="pg">
+    <span class="ttl">다시 태어납니까?</span>
+    <p style="font-family:var(--sans);font-size:.9rem">사당지기가 묻는다. "쓰러진 것도 아닌데. 스스로 내려놓겠다는 건가."</p>
+    <span class="h">가지고 가는 것</span>
+    <div class="rowx"><span>숙련도 · 제작 레벨 · 던전 지도</span><span>그대로</span></div>
+    <div class="rowx"><span>히든 스탯 · 칭호 · 도감 · 보관함</span><span>그대로</span></div>
+    <div class="rowx"><span>경험치</span><span>31,400 (쌓은 것의 4%)</span></div>
+    <div class="rowx"><span>스스로 고른 덤</span><span>끝낸 장 6개 × 0.5%p, 출신 패 한 장 더</span></div>
+    <div class="rowx"><span>끝낸 장</span><span>건너뛰거나 다른 길로 다시</span></div>
+    <span class="h">내려놓는 것</span>
+    <div class="rowx"><span>레벨</span><span>레벨 34</span></div>
+    <div class="rowx"><span>직업 · 사람들과의 사이 · 길드</span><span>모두</span></div>
+    <div class="rowx"><span>가진 것</span><span>가방, 장비, 은화 2,140</span></div>
+    <div class="rowx"><span>가게</span><span>남는다 (견습은 떠난다)</span></div>
+  </div>
+  <div style="max-width:420px">
+    <p><span class="id">E1</span>사당의 "다시 태어나기"는 지금 구간의 메인 장을 끝낸 사람에게만 보입니다. 소금벌에서는 7장을 끝낸 뒤입니다. 그 전에는 칸이 없습니다.</p>
+    <p style="margin-top:8px"><span class="id">E2</span>캐릭터 지우기처럼 두 번 묻고, 두 번 다 초점은 "그만둔다"에 갑니다.</p>
+    <p style="margin-top:8px"><span class="id">E3</span>다시 태어난 삶에서 끝낸 장은 퀘스트 창에 "지난 삶에서 끝냄"으로 보이고, "다른 길로 다시 푼다"를 누르면 그 장이 처음부터 열립니다. 누르지 않으면 열린 길(지역)은 그대로 다닐 수 있습니다.</p>
+    <p style="margin-top:8px"><span class="id">E4</span>쓰러져서 운으로 다시 태어나는 것은 지금 그대로입니다(덤 없음, 끝낸 장은 처음부터).</p>
+  </div>
+</div>
+
+<h2><span class="id">F</span>7장 팔린 종: 글</h2>
+<div class="row">
+  <div class="pg">
+    <span class="h">메인 퀘스트 · 7장</span>
+    <span class="ttl">팔린 종</span>
+    <p>저울목의 종은 쪼개졌다. 상단이 조각을 하나씩 판다. 조각을 쥔 사람은 무엇을 하든 띠링을 듣는다. 값만 치르면. 장터에서는 누가 정말 해낸 사람인지 아무도 가리지 못한다.</p>
+    <span class="h">푸는 길</span>
+    <div class="rowx"><span>터는 길</span><span>종 조각 창고의 징수인을 쓰러뜨리고 조각을 거둔다</span></div>
+    <div class="rowx"><span>사 모으는 길</span><span>조각 일곱을 제값(하나에 은화 4,000)에 사서 다시 잇는다</span></div>
+    <div class="rowx"><span>돌려세우는 길</span><span>떠도는 저울꾼 다섯과 '단골' 사이가 되어 상단을 떠나게 한다</span></div>
+    <span class="h">끝내면</span>
+    <div class="rowx"><span>열리는 길</span><span>잿골로 가는 길</span></div>
+  </div>
+  <div>
+    <div class="phone">
+      <div class="top"><b>상단 창고 앞</b><span>42일째 낮 · 안전</span></div>
+      <div class="chat">
+        <div class="rm">창고 문에 자물쇠가 셋 걸려 있다. 안에서 누가 쇠를 두드리는 것 같은 소리가 가늘게 난다.</div>
+        <div class="who">상단 대리인 유겸</div>
+        <div class="npc">조각 보러 오셨소? 하나 쥐어 보시오. 값은 그다음에.</div>
+        <div class="sys">띠링! 조각을 쥐었습니다.</div>
+        <div class="me">아무것도 하지 않았는데 울렸다.</div>
+        <div class="npc">좋지 않소? 삼백 번 칠 것 없이. 우리는 사람들 고생을 덜어 주는 거요.</div>
+      </div>
+      <div class="slots">
+        <button class="sl">1<br>둘러보기</button>
+        <button class="sl go">2<br>말 걸기</button>
+        <button class="sl">3<br>—</button>
+        <button class="sl">4<br>—</button>
+      </div>
+    </div>
+    <p class="cap">F1 대리인과 처음 만날 때. 이 장의 물음은 "값을 치른 띠링도 띠링인가"입니다. 여기서 쥐어 본 조각의 띠링은 기록에 남지 않습니다.</p>
+  </div>
+</div>
+<div class="scroll"><table>
+  <tr><th>번호</th><th>무엇</th><th>글 (처음 값)</th></tr>
+  <tr><td>F2</td><td>소금벌에 내려설 때</td><td>눈이 끝나는 곳에서 소금이 시작됐다. 바다였던 바닥이 하얗게 말라 있다. 멀리 천막 지붕들이 보이고, 바람에 실려 온 띠링 소리가 끊이지 않는다. 너무 자주 울린다.</td></tr>
+  <tr><td>F3</td><td>창고를 턴 끝</td><td>조각들이 자루 안에서 서로를 찾아 붙었다. 금이 간 채로, 그래도 종이었다. 장터의 띠링이 한꺼번에 멎었다. 사람들이 빈 손을 내려다보았다.</td></tr>
+  <tr><td>F4</td><td>사 모은 끝</td><td>일곱째 조각의 값을 치르자 유겸이 처음으로 웃지 않았다. "다 사 가는 사람은 처음이오. 이제 뭘 팔라는 거요." 조각들이 손안에서 맞물렸다.</td></tr>
+  <tr><td>F5</td><td>돌려세운 끝</td><td>저울꾼 다섯이 저울을 창고 앞에 내려놓았다. "달 것이 없더이다. 해낸 것에는 눈금이 없소." 문지기가 자물쇠를 풀었다.</td></tr>
+  <tr><td>F6</td><td>서브: 가짜 띠링 감정</td><td>장터 사람 다섯 가운데 누가 조각 없이 띠링을 들은 사람인지 가려낸다. 감정 숙련도가 쓰인다.</td></tr>
+  <tr><td>F7</td><td>서브: 떼인 삯</td><td>막사의 칼잡이 넷이 석 달 치 삯을 못 받았다. 대리인에게 받아 내거나, 내 은화로 대신 치른다.</td></tr>
+</table></div>
+<p class="note">히든 퀘스트 "값을 매기지 않는 사람"(한 번도 값을 깎지 않고 백 번 판다)은 조건이 화면 어디에도 나오지 않습니다.</p>
+
+<h2><span class="id">G</span>직업 무기 (규칙 한 장)</h2>
+<p class="note">앞서 실제 전투 규칙으로 재 보니 마법사·사제·궁수·도적이 전사보다 한 판에 10~25%p 더 잃었습니다. 기본 공격이 늘 힘으로 들어가서입니다. 소금벌부터 차이가 더 벌어지므로 이 구간에 앞서 고칩니다.</p>
+<div class="scroll"><table>
+  <tr><th>번호</th><th>지금</th><th>이렇게</th></tr>
+  <tr><td>G1</td><td>공격력 = 힘 + 무기. 어떤 무기를 들든 같다</td><td>직업 무기를 든 그 직업은 힘 대신 제 스탯으로 친다. 활·단검은 민첩, 지팡이·기도 구슬은 지혜</td></tr>
+  <tr><td>G2</td><td>직업 무기의 공격력이 검의 30~58%</td><td>그대로 둔다. 제 스탯으로 치는 대신 무기 숫자는 낮다</td></tr>
+  <tr><td>G3</td><td>스킬은 이미 제 스탯을 쓴다</td><td>그대로</td></tr>
+</table></div>
+<p class="note">따라가 보기: 레벨 25 마법사(지혜 48, 힘 12)가 서릿쇠 고리 지팡이(공격력 11)를 들면 지금은 공격력 23, 바꾸면 59입니다. 같은 레벨 전사는 서릿쇠 검으로 84입니다. 지금 지역(1~20)의 궁수·마법사·도적·사제도 같이 세집니다. 만들 때 계산 도구로 직업 다섯을 다시 재고, 어느 직업이든 한 판에 35~50%에 들도록 직업 무기의 숫자를 맞춥니다.</p>
+
+<h2><span class="id">H</span>화면에 나오는 말</h2>
+<div class="scroll"><table>
+  <tr><th>자리</th><th>쓸 말</th><th>근거</th></tr>
+  <tr><td>눈금 칸</td><td>물</td><td>Claude가 지음. "체온"과 같은 자리</td></tr>
+  <tr><td>이름표</td><td>마른 목</td><td>Claude가 지음. "식은 몸"과 맞춤</td></tr>
+  <tr><td>단축 칸</td><td>물 마시기 · 물 채우기 · 시세판 · 가게 · 다시 태어나기</td><td>Claude가 지음. 가게는 레벨 100 시안에서 확정</td></tr>
+  <tr><td>가게 창</td><td>내 가게 · 진열대 · 단골 · 올리기</td><td>장사 게임에서 흔히 쓰는 말 (확인 안 함)</td></tr>
+  <tr><td>곳</td><td>저울목 어귀 · 저울 마당 · 소금 대장간 · 우물가 주막 · 용병 막사 · 작은 사당 · 상단 창고 앞 · 소금 바닥 · 마른 뱃길 · 종 조각 창고</td><td>Claude가 지음 (종 조각 창고만 앞 시안에서 확정)</td></tr>
+  <tr><td>사람</td><td>상단 대리인 유겸 · 사당지기</td><td>Claude가 지음</td></tr>
+</table></div>
+
+<h2><span class="id">I</span>아직 없을 때의 모습</h2>
+<ul>
+  <li>I1 소금벌: 6장을 끝내기 전에는 지도, 소문, 언못의 단축 칸 어디에도 나오지 않습니다(숨김).</li>
+  <li>I2 물 칸과 마른 목: 소금벌 밖에서는 보이지 않습니다. 물 주머니의 "물 마시기"도 소금벌 들판에서만 나옵니다(숨김).</li>
+  <li>I3 가게: 좌판을 사기 전에는 "가게" 칸이 없고, 저울 마당의 방 글에 빈 좌판이 있다는 한 줄만 있습니다. 좌판 임자에게 말을 걸면 값을 듣습니다(숨김).</li>
+  <li>I4 다시 태어나기: 7장을 끝내기 전에는 사당에 칸이 없습니다(숨김).</li>
+  <li>I5 옛 우물: 찾기 전에는 지도에 없습니다(숨김).</li>
+</ul>
+
+<div class="ask">
+  <h3 style="margin-top:0">추천대로 정한 것</h3>
+  <ol>
+    <li>갈증은 흰마루의 체온과 같은 방식(눈금 칸 하나)으로 보입니다.</li>
+    <li>가게의 값은 내가 정하지 않고 제값으로 붙습니다. 값을 매기는 화면을 두지 않아 단순합니다.</li>
+    <li>이자와 가게의 "일"에서 둘러보기를 뺍니다(D6). 지금은 둘러보기 서른 번으로도 이자가 붙습니다.</li>
+    <li>직업 무기를 든 직업은 제 스탯으로 칩니다(G장). 지금 지역의 전투도 같이 바뀝니다.</li>
+    <li>방 값은 구간에 맞춰 50, 물 채우기는 5입니다.</li>
+    <li>조각 하나의 값 4,000(일곱이면 28,000)은 이 구간에서 60일쯤 모아야 하는 돈입니다. "큰돈으로 푸는 길"이라 일부러 멀게 잡았습니다.</li>
+  </ol>
+  <p class="note" style="margin-top:8px">이 가운데 3번과 4번은 지금 게임의 규칙을 바꿉니다. 마음에 걸리면 번호로 짚어 주세요. 이 시안에 없는 것: 던전의 방 배치(지금 폐허와 같은 틀), 곳의 띠 그림, 구간 용병(M19).</p>
+</div>
+</div>
+
+</body></html>

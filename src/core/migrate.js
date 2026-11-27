@@ -1,22 +1,27 @@
 // 저장의 판(버전)과, 옛 저장을 지금 꼴로 올리는 길.
 // 저장 형식을 바꾸면 SAVE_VERSION을 올리고 여기에 한 단계를 더한다.
 
-import { makeItem } from './inventory.js?v=6d96d3a';
-import { valueOf } from './derived.js?v=6d96d3a';
-import { worldFields } from './world.js?v=6d96d3a';
-import { auctionFields } from './auction.js?v=6d96d3a';
+import { makeItem } from './inventory.js?v=327d747';
+import { valueOf } from './derived.js?v=327d747';
+import { worldFields } from './world.js?v=327d747';
+import { auctionFields } from './auction.js?v=327d747';
 
-import { endingFields } from './ending.js?v=6d96d3a';
-import { MAIN } from '../data/quests.js?v=6d96d3a';
-import { ITEMS } from '../data/items.js?v=6d96d3a';
-import { ADVANCED } from '../data/jobs.js?v=6d96d3a';
-import { nativeWork } from './work.js?v=6d96d3a';
-import { deliverMail } from './mail.js?v=6d96d3a';
+import { endingFields } from './ending.js?v=327d747';
+import { MAIN } from '../data/quests.js?v=327d747';
+import { ITEMS } from '../data/items.js?v=327d747';
+import { ADVANCED } from '../data/jobs.js?v=327d747';
+import { nativeWork } from './work.js?v=327d747';
+import { deliverMail } from './mail.js?v=327d747';
+import { cidFrom } from './rng.js?v=327d747';
+import { tierOfLv } from '../data/bands.js?v=327d747';
+import { ashFields } from './heat.js?v=327d747';
+import { marshFields } from './marsh.js?v=327d747';
+import { sunkenFields, SUNKEN } from './sunken.js?v=327d747';
 const ORIGIN_NATIVE = new Proxy({}, { get: (_, id) => nativeWork(id) });
 
 export { worldFields, auctionFields, endingFields };
 
-export const SAVE_VERSION = 11;
+export const SAVE_VERSION = 21;
 
 /** M2에서 생긴 몸·가방·전투 칸. 새 게임과 옛 저장이 같은 것을 쓴다. */
 export function bodyFields() {
@@ -33,7 +38,7 @@ export function bodyFields() {
 
 /** M3에서 생긴 제작·진화·일하는 직업·보관함 칸. */
 export function makerFields() {
-  return { craft: null, made: 0, craftLv: { smith: { lv: 1, xp: 0 }, sew: { lv: 1, xp: 0 }, jewel: { lv: 1, xp: 0 } }, evolve: {}, evolveSeen: {}, work: null, workAsk: 3, store: {}, storeDebt: 0 };
+  return { craft: null, made: 0, craftLv: { smith: { lv: 1, xp: 0 }, sew: { lv: 1, xp: 0 }, jewel: { lv: 1, xp: 0 } }, craftTier: { smith: 1, sew: 1, jewel: 1, cook: 1 }, evolve: {}, evolveSeen: {}, work: null, workAsk: 3, store: {}, storeDebt: 0 };
 }
 
 /** M4에서 생긴 사람·명성·칭호·퀘스트 칸. */
@@ -41,7 +46,7 @@ export function townFields() {
   return {
     people: {}, fame: {}, titles: [], title: null, lean: 0,
     jobs: [], jobsDone: 0, board: { day: 0, gone: [] },
-    quests: {}, hq: {}, main: { chapter: 1, done: [], called: null, soldRare: false }, opened: [],
+    quests: {}, hq: {}, main: { chapter: 1, done: [], past: [], called: null, soldRare: false }, opened: [],
   };
 }
 
@@ -60,7 +65,63 @@ export function dungeonFields() {
   return { dungeon: null, dmem: {} };
 }
 
+/** 캐릭터 표 (Z96). 표가 없던 옛 저장은 씨앗·이름·출신으로 낸다. */
+export function cidOfState(state) {
+  return typeof state.cid === 'string' && state.cid ? state.cid : cidFrom(`${state.seed}|${state.name}|${state.origin}`);
+}
+
 const STEPS = {
+  // 20 → 21: 처음 모루가 생겼다 (CM-D). 모루 위에 남긴 종도, 새긴 끝도, 본 끝도 없이 시작한다
+  20(state) {
+    state.anvil = { left: 0, built: false, end: null, endDay: 0, seen: [], tent: false, follow: 0 };
+  },
+  // 19 → 20: 별못이 생겼다 (BM-D, BM-E). 지켜본 일도, 건 작은 종도 없이 시작한다. 공방의 셋째 자리(hand3)는 들일 때 생긴다: 없으면 빈 자리다
+  19(state) {
+    state.pond = { who: null, watch: {}, bells: 0 };
+  },
+  // 18 → 19: 구름다리가 생겼다 (GD-D, GD-E). 상단은 없이, 구름다리에서 올린 기도는 없이 시작한다. 일행이 둘이던 저장은 그대로 둘이다(셋째 자리는 11장을 끝내야 생긴다)
+  18(state) {
+    state.caravan = null;
+    state.cloud = { prayers: 0 };
+  },
+  // 17 → 18: 잠긴 도성이 생겼다 (JD-B, JD-D). 숨은 가득 찬 채로, 상자는 하나도 열지 않은 채로, 종루에 바친 청동은 없이 시작한다. 공방에는 둘째 자리가 생긴다(빈 채로)
+  17(state) {
+    state.sunken = sunkenFields().sunken;
+    if (state.shop && state.shop.hand2 === undefined) state.shop.hand2 = null;
+  },
+  // 16 → 17: 안개늪이 생겼다 (AN-B, AN-C). 저주는 없이, 등불은 꺼진 채로, 묶은 끈과 걷은 이끼는 없이, 공방은 없이 시작한다.
+  16(state) {
+    state.marsh = marshFields().marsh;
+    state.shop = null;
+  },
+  // 15 → 16: 잿골이 생겼다 (AG-B, AG-C). 달궈진 쇠는 식은 채로, 겨루기는 한 번도 서지 않은 채로 시작한다.
+  15(state) {
+    state.ash = ashFields().ash;
+  },
+  // 14 → 15: 소금벌이 생겼다 (SB-B, SB-D, SB-E). 물은 가득에서, 찾은 옛 우물은 없이, 가게는 없이, 지난 삶에서 끝낸 장은 없이 시작한다.
+  14(state) {
+    state.water = 10;
+    state.dryStep = 0;
+    state.wells = [];
+    state.wellTries = {};
+    state.stall = null;
+    if (state.main) state.main.past = [];
+  },
+  // 13 → 14: 흰마루의 추위가 생겼다 (WM-B). 체온은 가득에서, 횃불은 꺼진 채로 시작한다.
+  13(state) {
+    state.warm = 100;
+    state.torch = 0;
+  },
+  // 12 → 13: 제작 단계가 생겼다 (LV-F11). 지금 제작 레벨이 든 단계에서 시작한다. 그날 한 일의 수(이자, LV-L9)도 센다.
+  12(state) {
+    state.craftTier = {};
+    for (const [k, v] of Object.entries(state.craftLv || {})) if (v && Number.isFinite(v.lv)) state.craftTier[k] = tierOfLv(v.lv);
+    if (state.flags) state.flags.dayWork = 0;
+  },
+  // 11 → 12: 캐릭터 표(cid)가 생겼다 (Z96). 옛 캐릭터는 씨앗·이름·출신으로 표를 낸다. 어느 기기에서 올려도 같은 표가 나온다.
+  11(state) {
+    state.cid = cidOfState(state);
+  },
   // 10 → 11: 피로가 생겼다. 조각은 조각칼이 있어야 한다. 이미 깎아 본 사람은 칼을 하나 쥐고 시작한다.
   10(state) {
     state.tired = 0;
@@ -129,13 +190,99 @@ function mend(state) {
     const smith = lvOf(made * 2), sew = lvOf(sewn * 2);
     state.craftLv = { smith: made > 0 && smith.lv < 3 ? { lv: 3, xp: 0 } : smith, sew: sewn > 0 && sew.lv < 2 ? { lv: 2, xp: 0 } : sew, jewel: { lv: 1, xp: 0 } };
   }
+  // 제작 단계 (LV-F11): 제작 레벨이 위에서 막 생긴 옛 저장도 제 단계를 갖는다
+  if (!state.craftTier || typeof state.craftTier !== 'object') state.craftTier = {};
+  for (const [k, v] of Object.entries(state.craftLv || {})) if (!Number.isInteger(state.craftTier[k]) && v && Number.isFinite(v.lv)) state.craftTier[k] = tierOfLv(v.lv);
   // 끝낸 장이 여는 길: 그 장을 끝낸 뒤에 길이 생긴 경우(2장 → 나루)가 있다
   if (state.main && Array.isArray(state.main.done) && Array.isArray(state.opened)) {
-    for (const d of state.main.done) for (const id of (MAIN[d && d.chapter]?.opens || [])) if (!state.opened.includes(id)) state.opened.push(id);
+    for (const d of state.main.done) for (const id of [...(MAIN[d && d.chapter]?.opens || []), ...(MAIN[d && d.chapter]?.roads || [])]) if (!state.opened.includes(id)) state.opened.push(id);
   }
+  // 흰마루로 가는 길 (WM-A1): 끝을 본 밤에 열린다. 그 밤이 이미 지난 옛 저장은 읽을 때 연다
+  if (state.ending && Array.isArray(state.opened) && !state.opened.includes('icegate') && (state.endDay || 0) < state.day) state.opened.push('icegate');
   if (state.counters && !Number.isFinite(state.counters.tiredWork)) state.counters.tiredWork = 0;
   if (!['hold', 'clash', 'dodge', 'focus'].includes(state.stance)) state.stance = 'hold';
   if (state.guild === undefined) state.guild = null;
+  if (!Number.isFinite(state.warm) || state.warm < 0 || state.warm > 100) state.warm = 100;
+  if (!Number.isInteger(state.torch) || state.torch < 0) state.torch = 0;
+  if (!Number.isFinite(state.water) || state.water < 0 || state.water > 10) state.water = 10;
+  if (!Number.isInteger(state.dryStep) || state.dryStep < 0) state.dryStep = 0;
+  if (!Array.isArray(state.wells)) state.wells = [];
+  if (!state.wellTries || typeof state.wellTries !== 'object') state.wellTries = {};
+  if (state.stall === undefined) state.stall = null;
+  // 잿골의 칸 (AG-B, AG-C): 빠졌거나 어긋난 것은 처음 값으로
+  {
+    const fresh = ashFields().ash;
+    if (!state.ash || typeof state.ash !== 'object' || Array.isArray(state.ash)) state.ash = fresh;
+    const a = state.ash;
+    for (const k of ['hot', 'hotNo', 'pumps', 'ember']) if (!Number.isInteger(a[k]) || a[k] < 0) a[k] = fresh[k];
+    if (a.hot > 30) a.hot = 30;
+    if (!a.half || typeof a.half !== 'object') a.half = {};
+    if (!a.duel || typeof a.duel !== 'object') a.duel = fresh.duel;
+    for (const k of ['day', 'wins', 'pumps', 'told', 'seenDay']) if (!Number.isInteger(a.duel[k]) || a.duel[k] < 0) a.duel[k] = 0;
+    a.duel.lost = !!a.duel.lost;
+    if (!Array.isArray(a.duel.seen)) a.duel.seen = [];
+  }
+  // 미루를 동료로 들인 적이 있는가 (GD-G5): 옛 저장은 지금 곁에 있거나, 따라나선 날이 일지에 남아 있으면 그렇다고 본다
+  if (state.flags && !state.flags.hadMiru && ((state.party || []).some((c) => c && c.id === 'miru') || (state.journal || []).some((j) => j && j.note === '미루와 함께한 날'))) state.flags.hadMiru = true;
+  // 처음 모루의 칸 (CM-D): 빠졌거나 어긋난 것은 처음 값으로
+  {
+    const ENDS = ['again', 'cool', 'share', 'descend', 'eight'];
+    if (!state.anvil || typeof state.anvil !== 'object' || Array.isArray(state.anvil)) state.anvil = { left: 0, built: false, end: null, endDay: 0, seen: [], tent: false, follow: 0 };
+    const a = state.anvil;
+    if (!Number.isInteger(a.left) || a.left < 0) a.left = 0;
+    if (a.left > 100) a.left = 100;
+    a.built = !!a.built; a.tent = !!a.tent;
+    if (!ENDS.includes(a.end)) a.end = null;
+    if (a.end) a.built = true;
+    if (!Number.isInteger(a.endDay) || a.endDay < 0) a.endDay = 0;
+    a.seen = Array.isArray(a.seen) ? [...new Set(a.seen.filter((x) => ENDS.includes(x)))] : [];
+    if (a.end && !a.seen.includes(a.end)) a.seen.push(a.end);
+    if (!Number.isInteger(a.follow) || a.follow < 0) a.follow = 0;
+  }
+  // 별못의 칸 (BM-D, BM-E): 빠졌거나 어긋난 것은 처음 값으로
+  {
+    if (!state.pond || typeof state.pond !== 'object' || Array.isArray(state.pond)) state.pond = { who: null, watch: {}, bells: 0 };
+    const p = state.pond;
+    if (!p.watch || typeof p.watch !== 'object' || Array.isArray(p.watch)) p.watch = {};
+    for (const [id, w] of Object.entries(p.watch)) {
+      if (!w || typeof w !== 'object') { delete p.watch[id]; continue; }
+      if (!Number.isInteger(w.n) || w.n < 0) w.n = 0;
+      if (w.n > 30) w.n = 30;
+      if (!Number.isInteger(w.done) || w.done < 0) w.done = 0;
+      if (w.done > 3) w.done = 3;
+      w.ready = w.done < 3 && w.n >= 30;
+    }
+    if (typeof p.who !== 'string') p.who = null;
+    if (!Number.isInteger(p.bells) || p.bells < 0) p.bells = 0;
+    if (p.bells > 7) p.bells = 7;
+  }
+  // 구름다리의 칸 (GD-D, GD-E): 빠졌거나 어긋난 것은 처음 값으로
+  if (state.caravan === undefined) state.caravan = null;
+  if (state.caravan) { const c = state.caravan; if (!Array.isArray(c.past)) c.past = []; if (!c.heard || typeof c.heard !== 'object') c.heard = {}; if (!Number.isInteger(c.sent)) c.sent = 0; if (c.load === undefined) c.load = null; }
+  if (!state.cloud || typeof state.cloud !== 'object' || Array.isArray(state.cloud)) state.cloud = { prayers: 0 };
+  if (!Number.isInteger(state.cloud.prayers) || state.cloud.prayers < 0) state.cloud.prayers = 0;
+  // 잠긴 도성의 칸 (JD-B, JD-D): 빠졌거나 어긋난 것은 처음 값으로
+  {
+    const fresh = sunkenFields().sunken;
+    if (!state.sunken || typeof state.sunken !== 'object' || Array.isArray(state.sunken)) state.sunken = fresh;
+    const a = state.sunken;
+    if (!Number.isInteger(a.breath) || a.breath < 0) a.breath = SUNKEN.max;
+    if (!Number.isInteger(a.bronze) || a.bronze < 0) a.bronze = 0;
+    if (!a.boxes || typeof a.boxes !== 'object' || Array.isArray(a.boxes)) a.boxes = {};
+    if (state.shop && state.shop.hand2 === undefined) state.shop.hand2 = null;
+  }
+  // 안개늪의 칸 (AN-B, AN-C): 빠졌거나 어긋난 것은 처음 값으로
+  {
+    const fresh = marshFields().marsh;
+    if (!state.marsh || typeof state.marsh !== 'object' || Array.isArray(state.marsh)) state.marsh = fresh;
+    const a = state.marsh;
+    for (const k of ['curse', 'pray', 'lamp', 'moss']) if (!Number.isInteger(a[k]) || a[k] < 0) a[k] = 0;
+    if (a.curse > 5) a.curse = 5;
+    if (a.lamp > 60) a.lamp = 60;
+    if (!a.knots || typeof a.knots !== 'object' || Array.isArray(a.knots)) a.knots = {};
+    if (state.shop === undefined) state.shop = null;
+  }
+  if (state.main && !Array.isArray(state.main.past)) state.main.past = [];
   if (!state.lore || !Array.isArray(state.lore.hints)) state.lore = { hints: [] };
   if (!state.tough) state.tough = { str: 0, agi: 0, con: 0, wis: 0 };
   if (!state.toughGained) state.toughGained = { str: 0, agi: 0, con: 0, wis: 0 };

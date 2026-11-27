@@ -1,28 +1,33 @@
 // 탐색과 랜덤 인카운터, 기척 (E1~E4, R2-3).
 // 탐색 한 번마다 전투·발견·사건·만남·희귀 가운데 하나. 싸울지는 되도록 내가 고른다.
 
-import { next, pick, chance, roll01 } from './rng.js?v=6d96d3a';
-import { addFame } from './social.js?v=6d96d3a';
-import { pushLine } from './log.js?v=6d96d3a';
-import { weighted, startBattle } from './battle.js?v=6d96d3a';
-import { addItem, countOf, takeById } from './inventory.js?v=6d96d3a';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=6d96d3a';
-import { ding } from './log.js?v=6d96d3a';
-import { monsterDef } from '../data/monsters.js?v=6d96d3a';
-import { itemDef } from '../data/items.js?v=6d96d3a';
-import { USERS } from '../data/lines.js?v=6d96d3a';
-import { BANDIT, BANDIT_FEEL, BANDIT_NAMES, WILDS, INCIDENTS, DANGER, DANGER_UP, OTHER_WEIGHTS, TENSION_STEP, TENSION_MAX, SCENT_TRIES, SCENT_PHASES } from '../data/wild.js?v=6d96d3a';
-import { placeById } from '../data/places.js?v=6d96d3a';
-import { iGa, eulReul, eunNeun } from './ko.js?v=6d96d3a';
-import { hasTitle } from './titles.js?v=6d96d3a';
-import { worth } from './trade.js?v=6d96d3a';
-import { branchOf } from './evolve.js?v=6d96d3a';
-import { answerHidden } from './quests.js?v=6d96d3a';
-import { jobXp, hiddenJobView, answerHiddenJob } from './jobs.js?v=6d96d3a';
-import { HIDDENS } from '../data/quests.js?v=6d96d3a';
-import { dungeonChoiceView, dungeonChoose } from './dungeon.js?v=6d96d3a';
-import { endingChoiceView, applyEnding } from './ending.js?v=6d96d3a';
-import { memoryChoiceView, chooseMemory } from './memories.js?v=6d96d3a';
+import { banditStep, bandOfPlace } from '../data/bands.js?v=327d747';
+import { next, pick, chance, roll01 } from './rng.js?v=327d747';
+import { addFame } from './social.js?v=327d747';
+import { pushLine } from './log.js?v=327d747';
+import { weighted, startBattle } from './battle.js?v=327d747';
+import { addItem, countOf, takeById } from './inventory.js?v=327d747';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=327d747';
+import { ding } from './log.js?v=327d747';
+import { monsterDef } from '../data/monsters.js?v=327d747';
+import { itemDef } from '../data/items.js?v=327d747';
+import { USERS } from '../data/lines.js?v=327d747';
+import { loseWater } from './thirst.js?v=327d747';
+import { BANDIT, BANDIT_FEEL, BANDIT_NAMES, WILDS, INCIDENTS, DANGER, DANGER_UP, OTHER_WEIGHTS, TENSION_STEP, TENSION_MAX, SCENT_TRIES, SCENT_PHASES } from '../data/wild.js?v=327d747';
+import { placeById } from '../data/places.js?v=327d747';
+import { iGa, eulReul, eunNeun } from './ko.js?v=327d747';
+import { hasTitle } from './titles.js?v=327d747';
+import { worth } from './trade.js?v=327d747';
+import { branchOf } from './evolve.js?v=327d747';
+import { answerHidden } from './quests.js?v=327d747';
+import { jobXp, hiddenJobView, answerHiddenJob } from './jobs.js?v=327d747';
+import { HIDDENS } from '../data/quests.js?v=327d747';
+import { dungeonChoiceView, dungeonChoose } from './dungeon.js?v=327d747';
+import { coldStage } from './cold.js?v=327d747';
+import { endingChoiceView, applyEnding } from './ending.js?v=327d747';
+import { anvilChoiceView, chooseAnvilEnd } from './anvil.js?v=327d747';
+import { memoryChoiceView, chooseMemory } from './memories.js?v=327d747';
+import { chestsLeft, openChest } from './sunken.js?v=327d747';
 
 const WORK = { smith: { name: '대장장이', who: '대장간 주인', skill: 'smithing' }, tailor: { name: '재봉사', who: '재봉사', skill: 'leather' }, chef: { name: '요리사', who: '주방장', skill: 'cooking' } };
 
@@ -87,7 +92,8 @@ export function explore(state, events) {
     pushLine(state, events, { k: 'user', who: `만남, 지나가던 유저 '${userName(state)}'`, text: pick(state, wild.meets) });
     return;
   }
-  const pool = INCIDENTS[state.place] || [];
+  // 임금의 하사품 (JD-F4): 그곳의 상자를 다 열었으면 상자는 더 나오지 않는다
+  const pool = (INCIDENTS[state.place] || []).filter((x) => !x.chest || chestsLeft(state) > 0);
   const inc = pick(state, pool);
   pushLine(state, events, { k: 'room', who: '사건', text: inc.text });
   state.choice = { kind: 'incident', id: inc.id, place: state.place };
@@ -136,11 +142,8 @@ function meetMonster(state, events, wild) {
   const monId = weighted(state, wild.monsters).id;
   const m = monsterDef(monId);
   state.tension[state.place] = 0;
-  // 내가 다섯 레벨 넘게 높으면 달아난다 (R2-3)
-  if (state.level >= m.level + 5) {
-    pushLine(state, events, { k: 'room', text: `${iGa(m.name)} 이쪽을 보더니 달아났다.` });
-    return find(state, events, pick(state, wild.finds));
-  }
+  // 레벨이 아무리 높아도 탐색하면 만난다 (Z97): 달아나 버리면 사냥 의뢰와 퀘스트가 멈춘다.
+  // 약한 짐승이 먼저 덤비지 않는 것(가는 길 습격, 쉴 때 습격)은 그대로다
   seen(state, monId);
   if (chance(state, senseChance(state, monId))) {
     state.choice = { kind: 'sense', mon: monId, watched: false };
@@ -197,10 +200,13 @@ export function wealthFeel(state) {
 /** 기척이 도적일 확률: 500부터 1000마다 1%p, 많아야 25%. */
 export function banditChance(state) {
   const w = wealthOf(state);
-  return w < BANDIT.from ? 0 : Math.min(BANDIT.cap, (w / BANDIT.per) * BANDIT.rate);
+  const per = banditPer(state);
+  return w < per * (BANDIT.from / BANDIT.per) ? 0 : Math.min(BANDIT.cap, (w / per) * BANDIT.rate);
 }
 /** 도적이 얼마나 센가: 1000마다 레벨 +1. */
-export const banditUp = (state) => Math.floor(wealthOf(state) / BANDIT.per);
+/** 도적이 한 칸 세지는 은화 (LV-L10): 1~20은 1,000, 그 뒤 구간은 그곳 닷새 벌이. */
+export const banditPer = (state) => banditStep(bandOfPlace(placeById(state.place)).n, BANDIT.per);
+export const banditUp = (state) => Math.floor(wealthOf(state) / banditPer(state));
 export const banditFee = (state) => Math.max(1, Math.floor((state.silver || 0) * BANDIT.pay));
 function banditRun(state) {
   return Math.min(0.9, Math.max(0.1, 0.45 + ((state.stats?.agi || 10) - 10) * 0.03));
@@ -273,7 +279,8 @@ export function choiceView(state) {
     };
   }
   if (c.kind === 'ending') return endingChoiceView(state);
-  if (c.kind === 'trap' || c.kind === 'door' || c.kind === 'keeper') return dungeonChoiceView(state);
+  if (c.kind === 'anvilend') return anvilChoiceView(state); // 13장: 무엇을 새길 것인가 (CM-D7)
+  if (c.kind === 'trap' || c.kind === 'door' || c.kind === 'keeper' || c.kind === 'post') return dungeonChoiceView(state);
   if (c.kind === 'hjob') {
     const j = hiddenJobView(state, c.id);
     return {
@@ -394,11 +401,12 @@ export function choose(state, events, id) {
     }
     throw new Error('고를 수 없는 것입니다');
   }
+  if (c.kind === 'anvilend') return chooseAnvilEnd(state, events, id);
   if (c.kind === 'ending') {
     if (id === 'back') { state.choice = null; pushLine(state, events, { k: 'me', text: '아직은 아니다. 종은 기다려 준다.' }); return; }
     return applyEnding(state, events, id);
   }
-  if (c.kind === 'trap' || c.kind === 'door' || c.kind === 'keeper') return dungeonChoose(state, events, id);
+  if (c.kind === 'trap' || c.kind === 'door' || c.kind === 'keeper' || c.kind === 'post') return dungeonChoose(state, events, id);
   if (c.kind === 'hjob') {
     if (id !== 'accept' && id !== 'decline') throw new Error('고를 수 없는 것입니다');
     return answerHiddenJob(state, events, c.id, id === 'accept');
@@ -434,9 +442,11 @@ export function choose(state, events, id) {
   if (e.item) addItem(state, e.item.id, e.item.n || 1);
   if (e.silver) state.silver += e.silver;
   if (e.hp) state.hp = Math.max(1, state.hp + e.hp);
+  if (e.water) loseWater(state, events, -e.water); // 소금벌: 물 한 모금을 나눠 준다
   if (e.flag) state.flags[e.flag] = true;
   state.choice = null;
   pushLine(state, events, { k: 'me', text: e.say });
+  if (e.chest) openChest(state, events, c.place); // 임금의 하사품 (JD-D): 열면 그 구간의 좋은 물건이 그냥 나온다
   if (e.scent) leaveScent(state, c.place, e.scent); // 지나친 짐승을 노리는 것이 온다 (Z64)
 }
 
@@ -458,7 +468,8 @@ export function gather(state, events) {
   if (chance(state, missChance)) {
     pushLine(state, events, { k: 'me', text: `${g.say[i]} ${g.missSay}` });
   } else {
-    const drop = weighted(state, g.drops.map((d) => ({ ...d, w: d.w * (br?.weight?.[d.id] ?? 1) })));
+    // cold: 식은 몸(또는 언 몸)일 때만 무는 것 (WM-B3: 얼음 밑 은어)
+    const drop = weighted(state, g.drops.filter((d) => !d.cold || coldStage(state) > 0).map((d) => ({ ...d, w: d.w * (br?.weight?.[d.id] ?? 1) })));
     const n = br?.double && chance(state, br.double) ? 2 : 1;
     addItem(state, drop.id, n);
     pushLine(state, events, { k: 'me', text: `${g.say[i]} ${itemDef(drop.id).name} ${n}.` });

@@ -1,20 +1,20 @@
 // 저장 (G4-1, G4-2). 칸 셋, 저절로 저장, 되감는 저장 없음, 파일로 내보내기.
 // 저장소(storage)는 getItem/setItem/removeItem만 있으면 된다. 테스트에서는 가짜를 쓴다.
 
-import { SAVE_VERSION, migrate } from './migrate.js?v=6d96d3a';
-import { PHASES, PLACES } from '../data/places.js?v=6d96d3a';
-import { ITEMS } from '../data/items.js?v=6d96d3a';
-import { MONSTERS } from '../data/monsters.js?v=6d96d3a';
-import { originById } from '../data/origins.js?v=6d96d3a';
-import { jobDef, HIDDEN_JOBS, ADVANCED } from '../data/jobs.js?v=6d96d3a';
-import { RECIPES } from '../data/recipes.js?v=6d96d3a';
-import { JOBS, SUBS, HIDDENS } from '../data/quests.js?v=6d96d3a';
-import { INCIDENTS } from '../data/wild.js?v=6d96d3a';
-import { DUNGEONS } from '../data/dungeon.js?v=6d96d3a';
-import { FIRSTS } from '../data/world.js?v=6d96d3a';
-import { COMPANIONS } from '../data/companions.js?v=6d96d3a';
-import { SUBJECTS } from '../data/works.js?v=6d96d3a';
-import { PEOPLE } from '../data/people.js?v=6d96d3a';
+import { SAVE_VERSION, migrate, cidOfState } from './migrate.js?v=327d747';
+import { PHASES, PLACES } from '../data/places.js?v=327d747';
+import { ITEMS } from '../data/items.js?v=327d747';
+import { MONSTERS } from '../data/monsters.js?v=327d747';
+import { originById } from '../data/origins.js?v=327d747';
+import { jobDef, HIDDEN_JOBS, ADVANCED } from '../data/jobs.js?v=327d747';
+import { RECIPES } from '../data/recipes.js?v=327d747';
+import { JOBS, SUBS, HIDDENS } from '../data/quests.js?v=327d747';
+import { INCIDENTS } from '../data/wild.js?v=327d747';
+import { DUNGEONS } from '../data/dungeon.js?v=327d747';
+import { FIRSTS } from '../data/world.js?v=327d747';
+import { COMPANIONS } from '../data/companions.js?v=327d747';
+import { SUBJECTS } from '../data/works.js?v=327d747';
+import { PEOPLE } from '../data/people.js?v=327d747';
 
 export const SLOT_COUNT = 3;
 const KEY = (slot) => `ttiring.save.${slot}`;
@@ -42,6 +42,16 @@ export function revOf(storage, slot) {
   } catch {
     return -1;
   }
+}
+
+/**
+ * 그 칸의 저장 횟수와 캐릭터 표 (Z96). 드라이브와 맞출 때 쓴다.
+ * 비었으면 { rev: 0 }, 읽을 수 없으면 { rev: -1 }. 표가 없던 옛 저장은 읽으면서 올려 표를 낸다.
+ */
+export function metaOf(storage, slot) {
+  const rev = revOf(storage, slot);
+  if (rev <= 0) return { rev, cid: null };
+  try { return { rev, cid: cidOfState(JSON.parse(storage.getItem(KEY(slot))).state || {}) }; } catch { return { rev: -1, cid: null }; }
 }
 
 /**
@@ -93,6 +103,7 @@ export function parseSave(raw) {
 function checkShape(s) {
   const bad = (why) => { throw new Error(`저장 파일이 망가졌습니다 (${why})`); };
   if (!PLACES[s.place]) bad('모르는 곳');
+  if (typeof s.cid !== 'string' || !s.cid || s.cid.length > 64) bad('캐릭터 표');
   if (!Array.isArray(s.bag) || !s.equip || typeof s.equip !== 'object') bad('가방');
   for (const item of [...s.bag, ...Object.values(s.equip)]) {
     if (item === null) continue;
@@ -109,18 +120,68 @@ function checkShape(s) {
   }
   if (!Number.isFinite(s.storeDebt) || s.storeDebt < 0) bad('보관 삯');
   if (s.craft && !RECIPES[s.craft.recipe]) bad('모르는 설계도');
+  if (!s.craftTier || typeof s.craftTier !== 'object') bad('제작 단계');
+  for (const v of Object.values(s.craftTier)) if (!Number.isInteger(v) || v < 1 || v > 10) bad('제작 단계');
   if (s.sculpt && !SUBJECTS[s.sculpt.subject]) bad('모르는 주제');
   if (!s.board || !Array.isArray(s.board.gone)) bad('게시판');
   for (const j of s.jobs || []) if (!j || !JOBS[j.id]) bad('모르는 의뢰');
   for (const [id, q] of Object.entries(s.quests || {})) if (!SUBS[id] || !q || !Array.isArray(q.set) || !Array.isArray(q.closed) || !SUBS[id].steps.some((st) => st.id === q.step)) bad('모르는 퀘스트');
   for (const [id, q] of Object.entries(s.hq || {})) if (!HIDDENS[id] || !q || !HIDDENS[id].steps.some((st) => st.id === q.step)) bad('모르는 퀘스트');
+  // 가게 (SB-D): 없거나, 진열대의 물건이 여섯 칸 안에 제대로 들어 있어야 한다
+  if (s.stall !== null) {
+    const st = s.stall;
+    if (!st || !Array.isArray(st.items) || st.items.length > 6 || !Array.isArray(st.sold) || !Array.isArray(st.today) || !Number.isInteger(st.regulars) || st.regulars < 0 || !Number.isInteger(st.work) || st.work < 0) bad('가게');
+    for (const item of st.items) if (!item || !ITEMS[item.id] || !Number.isInteger(item.n) || item.n < 1) bad('가게의 물건');
+  }
+  if (!Array.isArray(s.wells) || s.wells.some((id) => !PLACES[id]) || !Number.isFinite(s.water)) bad('물');
+  // 잿골 (AG-B, AG-C): 달궈진 쇠와 겨루기의 칸
+  if (!s.ash || !s.ash.duel || !Number.isInteger(s.ash.hot) || s.ash.hot < 0 || s.ash.hot > 30 || !Number.isInteger(s.ash.duel.wins) || !Array.isArray(s.ash.duel.seen)) bad('잿골');
+  // 안개늪 (AN-B, AN-C): 저주·등불·끈·이끼의 칸과 공방
+  if (!s.marsh || !Number.isInteger(s.marsh.curse) || s.marsh.curse < 0 || s.marsh.curse > 5 || !Number.isInteger(s.marsh.lamp) || s.marsh.lamp < 0 || s.marsh.lamp > 60 || !Number.isInteger(s.marsh.moss) || s.marsh.moss < 0 || !s.marsh.knots || Object.entries(s.marsh.knots).some(([id, n]) => !PLACES[id] || !Number.isInteger(n) || n < 0 || n > 10)) bad('안개늪');
+  if (s.shop !== null) {
+    const sh = s.shop;
+    if (!sh || !Array.isArray(sh.shelf) || !Array.isArray(sh.today)) bad('공방');
+    for (const item of sh.shelf) if (!item || !ITEMS[item.id] || !Number.isInteger(item.n) || item.n < 1) bad('공방의 물건');
+    for (const hd of [sh.hand, sh.hand2 ?? null, sh.hand3 ?? null]) {
+      if (hd !== null && (!hd || !PEOPLE[hd.id] || !Number.isInteger(hd.pts) || hd.pts < 0 || !Number.isInteger(hd.work) || hd.work < 0 || !Number.isInteger(hd.paidDay))) bad('견습');
+      if (hd && hd.job && !((hd.job.kind === 'make' && RECIPES[hd.job.recipe]) || (hd.job.kind === 'gather' && ITEMS[hd.job.item]))) bad('맡긴 일');
+    }
+  }
+  // 상단 (GD-D): 가는 짐, 지난 짐, 들은 소문
+  if (s.caravan !== null) {
+    const cv = s.caravan;
+    if (!cv || !Array.isArray(cv.past) || !cv.heard || typeof cv.heard !== 'object' || !Number.isInteger(cv.sent) || cv.sent < 0) bad('상단');
+    for (const p of cv.past) if (!p || !Number.isInteger(p.to) || p.to < 3 || p.to > 7) bad('지난 짐');
+    const ld = cv.load;
+    if (ld !== null) {
+      if (!ld || !Number.isInteger(ld.to) || ld.to < 3 || ld.to > 7 || !Array.isArray(ld.items) || !ld.items.length || !Number.isInteger(ld.hop) || ld.hop < 0 || ld.hop > 5 || !Number.isInteger(ld.work) || ld.work < 0 || ld.work > 30) bad('가는 짐');
+      for (const item of ld.items) if (!item || !ITEMS[item.id] || !Number.isInteger(item.n) || item.n < 1) bad('짐의 물건');
+      if (ld.escort !== null && (!ld.escort || !COMPANIONS[ld.escort.id] || !Number.isFinite(ld.escort.hp))) bad('호위');
+    }
+  }
+  if (!s.cloud || !Number.isInteger(s.cloud.prayers) || s.cloud.prayers < 0) bad('구름다리');
+  // 별못 (BM-D, BM-E): 곁에 앉은 사람, 지켜본 일, 건 작은 종
+  if (!s.pond || !s.pond.watch || typeof s.pond.watch !== 'object' || !Number.isInteger(s.pond.bells) || s.pond.bells < 0 || s.pond.bells > 7 || (s.pond.who !== null && !PEOPLE[s.pond.who])) bad('별못');
+  for (const [id, w] of Object.entries(s.pond.watch)) if (!PEOPLE[id] || !w || !Number.isInteger(w.n) || w.n < 0 || w.n > 30 || !Number.isInteger(w.done) || w.done < 0 || w.done > 3) bad('지켜본 일');
+  // 처음 모루 (CM-D): 모루 위에 남긴 종, 새긴 끝, 본 끝들
+  {
+    const a = s.anvil, ENDS = ['again', 'cool', 'share', 'descend', 'eight'];
+    if (!a || !Number.isInteger(a.left) || a.left < 0 || a.left > 100 || typeof a.built !== 'boolean' || (a.end !== null && !ENDS.includes(a.end)) || !Array.isArray(a.seen) || a.seen.some((x) => !ENDS.includes(x)) || !Number.isInteger(a.follow) || a.follow < 0) bad('처음 모루');
+    if (a.end && !a.built) bad('처음 모루');
+    if (s.battle && s.battle.bell != null && (!Number.isInteger(s.battle.bell) || s.battle.bell < 0 || s.battle.bell > 100 || !Number.isInteger(s.battle.bellx))) bad('종');
+    if (s.battle && s.battle.temper != null && (!Number.isInteger(s.battle.temper) || s.battle.temper < 0 || s.battle.temper > 12)) bad('벼림');
+    if (s.choice && s.choice.kind === 'anvilend' && (a.end || !a.built || s.main.chapter !== 13)) bad('모르는 선택');
+  }
+  // 잠긴 도성 (JD-B, JD-D): 숨, 연 상자, 바친 청동
+  if (!s.sunken || !Number.isInteger(s.sunken.breath) || s.sunken.breath < 0 || s.sunken.breath > 40 || !Number.isInteger(s.sunken.bronze) || s.sunken.bronze < 0 || s.sunken.bronze > 200 || !s.sunken.boxes || Object.values(s.sunken.boxes).some((n) => !Number.isInteger(n) || n < 0 || n > 4)) bad('잠긴 도성');
+  if (s.battle && s.battle.arena && (typeof s.battle.arena.name !== 'string' || !Number.isInteger(s.battle.arena.level) || s.battle.arena.level < 1)) bad('겨루기');
   const c = s.choice;
   if (c) {
-    const ok = ((c.kind === 'sense' || c.kind === 'hurt') && MONSTERS[c.mon]) || (c.kind === 'incident' && (INCIDENTS[c.place] || []).some((x) => x.id === c.id))
-      || (c.kind === 'offer' && c.job === 'smith') || (c.kind === 'hq' && HIDDENS[c.id]) || (c.kind === 'hjob' && HIDDEN_JOBS[c.id]) || ['trap', 'door', 'keeper', 'ending'].includes(c.kind) || (c.kind === 'memory' && c.id === 'debtpaper');
+    const ok = ((c.kind === 'sense' || c.kind === 'hurt' || c.kind === 'bandit') && MONSTERS[c.mon]) || (c.kind === 'incident' && (INCIDENTS[c.place] || []).some((x) => x.id === c.id))
+      || (c.kind === 'offer' && ['smith', 'tailor', 'chef'].includes(c.job)) || (c.kind === 'hq' && HIDDENS[c.id]) || (c.kind === 'hjob' && HIDDEN_JOBS[c.id]) || ['trap', 'door', 'keeper', 'post', 'ending', 'anvilend'].includes(c.kind) || (c.kind === 'memory' && c.id === 'debtpaper');
     if (!ok) bad('모르는 선택');
   }
-  if (!s.people || !s.fame || !Array.isArray(s.titles) || !Array.isArray(s.jobs) || !s.quests || !s.hq || !s.main || !Array.isArray(s.main.done) || !Array.isArray(s.opened)) bad('퀘스트');
+  if (!s.people || !s.fame || !Array.isArray(s.titles) || !Array.isArray(s.jobs) || !s.quests || !s.hq || !s.main || !Array.isArray(s.main.done) || !Array.isArray(s.main.past) || s.main.past.some((d) => !d || !Number.isInteger(d.chapter)) || !Array.isArray(s.opened)) bad('퀘스트');
   if (s.job !== null && !jobDef(s.job)) bad('모르는 직업');
   if (!Number.isFinite(s.tired) || s.tired < 0 || s.tired > 100) bad('피로');
   if (!s.hjobs || !s.factions) bad('직업');
@@ -129,7 +190,7 @@ function checkShape(s) {
   if (s.choice && s.choice.kind === 'ending' && (s.ending || s.main.chapter !== 5)) bad('모르는 선택');
   if (s.job2 !== null && (!ADVANCED[s.job2] || ADVANCED[s.job2].from !== s.job)) bad('모르는 2차 전직');
   if (!Array.isArray(s.works) || !Array.isArray(s.party) || !s.buffs || !s.dex.animals || !s.dex.dishes) bad('작품과 동료');
-  if (s.party.length > 2 || new Set(s.party.map((c) => c && c.id)).size !== s.party.length) bad('동료');
+  if (s.party.length > 3 || new Set(s.party.map((c) => c && c.id)).size !== s.party.length) bad('동료');
   for (const c of s.party) if (!c || !COMPANIONS[c.id] || !Number.isFinite(c.hp) || !Number.isFinite(c.crossed) || !Number.isFinite(c.bond)) bad('모르는 동료');
   for (const w of s.works) {
     if (!w || !SUBJECTS[w.subject] || !Number.isInteger(w.grade) || w.grade < 0 || w.grade > 4 || !Number.isInteger(w.no)) bad('모르는 작품');
@@ -206,5 +267,5 @@ export function importText(storage, slot, raw) {
 
 /** 이 일들이 일어났으면 저절로 저장할 때다: 방을 옮김, 띠링, 때가 바뀜, 싸움의 시작과 끝, 쓰러짐, 정할 것이 생김, 장비를 바꿈. */
 export function shouldAutosave(events) {
-  return events.some((e) => ['guild', 'stance', 'enhance', 'move', 'ding', 'phase', 'battle', 'fall', 'choice', 'gear', 'craft', 'trade', 'evolve', 'quest', 'social', 'check', 'job', 'sculpt', 'cook', 'party', 'statue', 'buff', 'room', 'world', 'auction', 'ending'].includes(e.type));
+  return events.some((e) => ['guild', 'stance', 'enhance', 'move', 'ding', 'phase', 'battle', 'fall', 'choice', 'gear', 'craft', 'trade', 'evolve', 'quest', 'social', 'check', 'job', 'sculpt', 'cook', 'party', 'statue', 'buff', 'room', 'world', 'auction', 'ending', 'thirst', 'well', 'heat', 'breath', 'chest', 'escort'].includes(e.type));
 }

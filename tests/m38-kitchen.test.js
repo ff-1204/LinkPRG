@@ -29,7 +29,7 @@ test('요리는 레벨별 목록. 한 번 누르면 한 번 젓는다. 주방 �
   const s = make('bag');
   dispatch(s, { type: 'move', to: 'kitchen' });
   const list = recipeList(s, COOK_ORDER);
-  assert.equal(list.length, 6);
+  assert.equal(list.length, 6, '2단계 요리(곰 고기 전골)는 요리 2단계가 열려야 보인다');
   assert.ok(list.find((r) => r.id === 'cook_eelsoup').locked, '장어 소금 국은 요리 레벨 2');
   addItem(s, 'crucian', 2); addItem(s, 'salt', 2);
   dispatch(s, { type: 'craft', recipe: 'cook_saltfish' });

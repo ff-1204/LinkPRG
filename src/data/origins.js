@@ -82,13 +82,13 @@ export const rootOf = (originId) => { const o = ORIGINS.find((x) => x.id === ori
  * 패 다섯 장을 깐다 (Z25). 같은 글(seedText)이면 늘 같은 패가 나온다. 서로 다른 다섯 가지이고, 등급이 높을수록 드물다.
  * 돌려주는 것은 출신 id 다섯 개.
  */
-export function dealOrigins(seedText) {
+export function dealOrigins(seedText, n = 5) {
   let h = 2166136261;
   for (const ch of String(seedText)) { h ^= ch.codePointAt(0); h = Math.imul(h, 16777619) >>> 0; }
   const next = () => { h ^= h >>> 16; h = Math.imul(h, 0x85ebca6b) >>> 0; h ^= h >>> 13; h = Math.imul(h, 0xc2b2ae35) >>> 0; h ^= h >>> 16; h = (h + 0x9e3779b9) >>> 0; return h / 4294967296; };
   const pool = ORIGINS.map((o) => ({ id: o.id, w: ORIGIN_GRADES[o.grade].weight }));
   const out = [];
-  while (out.length < 5) {
+  while (out.length < n && pool.length) {
     let r = next() * pool.reduce((a, x) => a + x.w, 0);
     let i = 0;
     for (; i < pool.length - 1; i++) { r -= pool[i].w; if (r < 0) break; }

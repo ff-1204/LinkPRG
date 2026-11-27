@@ -67,8 +67,10 @@ test('설계도에 드는 재료는 그 일터의 상점에서 다 판다 (Z81)'
   const { SHOPS } = await import('../src/data/shops.js');
   const where = { smith: 'forge', sew: 'tailor', jewel: 'artguild' };
   for (const [b, place] of Object.entries(where)) {
-    for (const id of ORDER_OF[b]) for (const n of RECIPES[id].needs) assert.ok(SHOPS[place].sells.includes(n.id), `${place}에서 ${n.id}`);
+    // 시작 마을의 일터는 1단계(제작 레벨 1~4) 설계도의 재료를 다 판다. 윗단계 재료는 그 구간의 지역에서 구한다 (LV-F)
+    for (const id of ORDER_OF[b]) if (RECIPES[id].lv <= 4) for (const n of RECIPES[id].needs) assert.ok(SHOPS[place].sells.includes(n.id), `${place}에서 ${n.id}`);
   }
+  for (const id of ['steel', 'bearhide']) assert.ok(SHOPS.bigmarket.sells.includes(id), `강철 단계의 재료는 소리재 큰 시장에서 판다: ${id}`);
   assert.ok(SHOPS.artguild.sells.includes('oakbranch') && SHOPS.artguild.sells.includes('chisel'), '조각 재료와 조각칼');
 });
 

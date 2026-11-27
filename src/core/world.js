@@ -1,15 +1,18 @@
 // 가상 유저의 세계: 명단, 날마다 자람, 세계 공지, 최초 발견, 랭킹, 소문 (N6-4 ~ N6-6, Q1-4, F08).
 // 가상 유저는 저장하지 않고 씨앗과 날짜로 셈한다. 같은 씨앗·같은 날이면 늘 같다.
 
-import { seedFrom } from './rng.js?v=6d96d3a';
-import { pushLine, ding } from './log.js?v=6d96d3a';
+import { seedFrom } from './rng.js?v=327d747';
+import { pushLine, ding } from './log.js?v=327d747';
 import {
   NAME_HEAD, NAME_TAIL, USER_COUNT, STYLES, STYLE_ORDER, RANKS, RANK_AROUND, FIRSTS, DAILY_NEWS,
-  RUMORS_ABOUT_ME, RUMORS_HINT, RUMORS_WORLD,
-} from '../data/world.js?v=6d96d3a';
-import { fameTotal } from './social.js?v=6d96d3a';
-import { foundCount } from './hidden.js?v=6d96d3a';
-import { iGa } from './ko.js?v=6d96d3a';
+  RUMORS_ABOUT_ME, RUMORS_HINT, RUMORS_WORLD, CLIMB, BAND_ROADS, RUMORS_AHEAD, RUMOR_NOBODY,
+} from '../data/world.js?v=327d747';
+import { PLACES } from '../data/places.js?v=327d747';
+import { reachedBand, LEVEL_MAX } from '../data/bands.js?v=327d747';
+import { ANVIL, ANVIL_LINES } from '../data/anvil.js?v=327d747';
+import { fameTotal } from './social.js?v=327d747';
+import { foundCount } from './hidden.js?v=327d747';
+import { iGa } from './ko.js?v=327d747';
 
 const hash = (...parts) => seedFrom(parts.join('|'));
 const unit = (...parts) => hash(...parts) / 4294967296;
@@ -21,16 +24,62 @@ export function userBase(state, i) {
   return { i, name, style };
 }
 
+// ── 구간을 오르는 유저 (LV-M6, CM-E4) ──
+const talentOf = (state, i) => 0.6 + unit(state.seed, 'talent', i) * 0.9; // 사람마다 빠르기가 다르다
+const growthOf = (state, i) => STYLES[userBase(state, i).style].level * talentOf(state, i);
+const GROW_MAX = 0.55 * 1.5;
+const reachCache = new Map();
+/** 유저마다 닿을 수 있는 끝 레벨: 잘 자라는 차례로 뒤 구간에 닿는다. 뒤 구간일수록 닿는 사람이 줄어든다. 씨앗마다 한 번만 셈한다. */
+function capsOf(state) {
+  const hit = reachCache.get(state.seed);
+  if (hit) return hit;
+  const order = Array.from({ length: USER_COUNT }, (_, i) => i).sort((a, b) => growthOf(state, b) - growthOf(state, a) || a - b);
+  const caps = new Array(USER_COUNT).fill(CLIMB.from);
+  let k = 0;
+  for (const [band, n] of CLIMB.reach) for (let j = 0; j < n && k < USER_COUNT; j++, k++) caps[order[k]] = band * 10 - (j === 0 ? 0 : hash(state.seed, 'cap', order[k]) % 5);
+  const out = { caps, order };
+  if (reachCache.size > 64) reachCache.clear();
+  reachCache.set(state.seed, out);
+  return out;
+}
+/** 그 유저의 그날 레벨: 스무 레벨까지는 지금처럼, 그 뒤로는 날마다 조금씩 올라 제 끝에서 멈춘다. */
+function levelAt(state, i, d) {
+  const g = growthOf(state, i);
+  const base = 1 + Math.floor(Math.sqrt(d * g * 6));
+  if (base <= CLIMB.from) return base;
+  const cap = capsOf(state).caps[i];
+  const d20 = ((CLIMB.from - 1) ** 2) / (g * 6); // 스무 레벨이 되는 날
+  const speed = CLIMB.speed[0] + (CLIMB.speed[1] - CLIMB.speed[0]) * Math.min(1, g / GROW_MAX);
+  return Math.min(cap, CLIMB.from + Math.floor(Math.max(0, d - d20) * speed));
+}
+/** "내려간다"를 고른 뒤 뒤따라 오르는 유저 (CM-D6, CM-E4): 처음 모루에 닿지 못할 사람 가운데 가장 잘 자라는 이. 없으면 null. */
+export function follower(state) {
+  if (!state.anvil?.follow) return null;
+  const { order, caps } = capsOf(state);
+  const i = order.find((x) => caps[x] <= (ANVIL.band - 1) * 10);
+  return i == null ? null : { i, name: userBase(state, i).name, day: state.anvil.follow };
+}
+/** 그 구간에 닿은 가상 유저의 수 (그 구간의 첫 레벨을 넘은 사람). */
+export function usersInBand(state, band, day = state.day) {
+  let n = 0;
+  for (let i = 0; i < USER_COUNT; i++) if (userAt(state, i, day).level > (band - 1) * 10) n++;
+  return n;
+}
+
 /** 그 유저가 그날까지 쌓은 것. 날이 갈수록 늘기만 한다 (M8-1). */
 export function userAt(state, i, day = state.day) {
   const u = userBase(state, i);
   const st = STYLES[u.style];
-  const talent = 0.6 + unit(state.seed, 'talent', i) * 0.9; // 사람마다 빠르기가 다르다
+  const talent = talentOf(state, i);
   const head = Math.floor(unit(state.seed, 'head', i) * 6); // 먼저 시작한 사람도 있다
   const d = day + head;
+  let level = levelAt(state, i, d);
+  // 뒤따라 오른 유저는 그날부터 처음 모루에 있다: 이레에 한 레벨씩 더 오른다
+  const f = state.anvil?.follow && day >= state.anvil.follow ? follower(state) : null;
+  if (f && f.i === i) level = Math.max(level, Math.min(LEVEL_MAX, (ANVIL.band - 1) * 10 + 1 + Math.floor((day - f.day) / 7)));
   return {
     ...u, styleName: st.name,
-    level: 1 + Math.floor(Math.sqrt(d * st.level * talent * 6)),
+    level,
     craft: Math.floor(d * st.craft * talent),
     art: Math.floor(d * st.art * talent),
     fame: Math.floor(d * st.fame * talent * 2),
@@ -70,7 +119,7 @@ function mineAlready(state, key) {
   if (kind === 'stat') return (state.hidden[id]?.value || 0) > 0;
   if (kind === 'hq') return !!state.hq[id];
   if (kind === 'job') return state.hjobs[id] === 'taken';
-  if (kind === 'boss') return !!state.dmem.ruins?.keeper;
+  if (kind === 'boss') return FIRSTS[key].dmem ? state.dmem[FIRSTS[key].dmem]?.keeper === 'beat' : !!state.dmem.ruins?.keeper;
   return false;
 }
 
@@ -80,6 +129,8 @@ function known(state, key) {
   if (kind === 'stat') return (state.hidden[id]?.value || 0) > 0;
   if (kind === 'hq') return !!state.hq[id];
   if (kind === 'job') return !!state.hjobs[id];
+  // 새 지역의 우두머리 (LV-M6): 내가 그 구간에 가 보기 전에는 이름이 가려진다
+  if (FIRSTS[key].band) return reachedBand(state, PLACES) >= FIRSTS[key].band;
   return true;
 }
 
@@ -108,6 +159,13 @@ export function worldDay(state, events) {
     state.world.notices.push(n);
     pushLine(state, events, { k: 'sys', who: '세계 공지', text: noticeText(state, n) });
   }
+  // "내려간다"를 고른 뒤 (CM-D6, CM-E4): 사흘 뒤 가상 유저 하나가 뒤따라 야영지에 오른다
+  const f = follower(state);
+  if (f && f.day === day) {
+    const text = ANVIL_LINES.follower(f.name);
+    state.world.notices.push({ day, phase: 0, who: f.name, mine: false, text, first: true });
+    pushLine(state, events, { k: 'sys', who: '세계 공지', text });
+  }
   const count = 1 + (hash(state.seed, 'news', day) % 2);
   for (let k = 0; k < count; k++) {
     const u = userAt(state, hash(state.seed, 'newswho', day, k) % USER_COUNT, day);
@@ -123,6 +181,13 @@ export function worldDay(state, events) {
 /** 세계 공지 창이 그릴 것: 새것부터. */
 export function noticesView(state, limit = 40) {
   return state.world.notices.slice(-limit).reverse().map((n) => ({ day: n.day, text: noticeText(state, n), mine: !!n.mine, first: !!n.key }));
+}
+
+/** 그 구간에 닿은 가상 유저 가운데 가장 앞선 이의 이름(없으면 null). */
+export function firstInBand(state, band) {
+  const { order } = capsOf(state);
+  for (const i of order) if (userAt(state, i).level > (band - 1) * 10) return userBase(state, i).name;
+  return null;
 }
 
 // ── 랭킹 (N6-4, N6-5) ──
@@ -188,6 +253,12 @@ export function rumorsView(state) {
   const b = (a + 1 + (hash(state.seed, 'rumor2', day) % (RUMORS_HINT.length - 1))) % RUMORS_HINT.length;
   const hints = [RUMORS_HINT[a], RUMORS_HINT[b]].map((r) => ({ id: `hint-${r.stat}`, text: r.text, about: 'hint', stat: r.stat }));
   const world = [{ id: 'world', text: RUMORS_WORLD[hash(state.seed, 'rumorw', day) % RUMORS_WORLD.length], about: 'world' }];
+  // 다음 지역을 미리 흘리는 소문 (LV-M6): 길은 열렸지만 아직 가 보지 않은 지역. 먼저 간 가상 유저의 말로 온다
+  const next = reachedBand(state, PLACES) + 1;
+  if (RUMORS_AHEAD[next] && state.opened.includes(BAND_ROADS[next])) {
+    const who = firstInBand(state, next);
+    world.push({ id: `ahead-${next}`, text: who ? RUMORS_AHEAD[next].replace('{who}', who) : RUMOR_NOBODY, about: 'world' });
+  }
   return [...mine, ...hints, ...world];
 }
 

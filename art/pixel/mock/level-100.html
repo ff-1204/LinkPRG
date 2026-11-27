@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head><body style="margin:0">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>LinkPRG 레벨 100 구조 시안</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap">
+<style>
+/* 배치: 한 줄기로 읽는 긴 문서. 맨 위 사다리 그림이 전체를 보이고, 아래로 번호 붙은 장(A~J)이 이어진다 */
+:root {
+  --cream: #FBF5E6; --paper: #FFFDF6; --sand: #F3E9D2; --line: #E6D9BD; --line2: #CDBE9E;
+  --ink: #3A2A1E; --muted: #6B5443;
+  --cinnamon: #8A4F2B; --cinnamon-soft: #F1D9C4; --mint: #BFE3D0; --mint-ink: #1F4A3A; --honey: #F2B63C; --honey-soft: #FBE7B4;
+  --serif: 'Gowun Batang', 'Noto Serif KR', serif;
+  --sans: 'Gowun Dodum', 'Noto Sans KR', system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --cream: #1E160F; --paper: #271D14; --sand: #32261A; --line: #47382A; --line2: #6A5540;
+  --ink: #F3E9D2; --muted: #C9B79C;
+  --cinnamon: #E0A070; --cinnamon-soft: #5A3520; --mint: #2C5A48; --mint-ink: #CFEFE0; --honey: #F2B63C; --honey-soft: #5A4514;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --cream: #1E160F; --paper: #271D14; --sand: #32261A; --line: #47382A; --line2: #6A5540;
+  --ink: #F3E9D2; --muted: #C9B79C;
+  --cinnamon: #E0A070; --cinnamon-soft: #5A3520; --mint: #2C5A48; --mint-ink: #CFEFE0; --honey: #F2B63C; --honey-soft: #5A4514;
+  color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--cream); color: var(--ink); font: 16px/1.7 var(--sans); padding-block: 28px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { max-width: 980px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px; }
+h1 { font: 700 1.9rem/1.3 var(--serif); margin: 0; text-wrap: balance; }
+h2 { font: 700 1.3rem/1.35 var(--serif); margin: 0 0 4px; text-wrap: balance; }
+h3 { font: 700 1.02rem/1.4 var(--serif); margin: 0; }
+p { margin: 0; max-width: 68ch; }
+.lede { color: var(--muted); margin-top: 8px; }
+.tag { display: inline-block; font: 700 .78rem/1 var(--sans); letter-spacing: .04em; color: var(--cinnamon); border: 1px solid var(--cinnamon); border-radius: 4px; padding: 4px 7px; margin-right: 8px; vertical-align: 3px; }
+section { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.note { color: var(--muted); font-size: .92rem; }
+.scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); }
+table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: .9rem; font-variant-numeric: tabular-nums; }
+td:first-child { white-space: nowrap; }
+th, td { padding: 8px 10px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+tr:last-child td { border-bottom: 0; }
+th { font: 700 .8rem/1.3 var(--sans); color: var(--muted); background: var(--sand); white-space: nowrap; }
+td.n, th.n { text-align: right; white-space: nowrap; }
+td b { font-family: var(--serif); }
+.new { background: var(--honey-soft); border-radius: 3px; padding: 0 5px; font-size: .78rem; white-space: nowrap; }
+.keep { background: var(--mint); color: var(--mint-ink); border-radius: 3px; padding: 0 5px; font-size: .78rem; white-space: nowrap; }
+
+/* 사다리 */
+.ladder { display: grid; grid-template-columns: 7.2rem repeat(10, minmax(52px, 1fr)); gap: 3px; min-width: 700px; padding: 12px; }
+.ladder .h { font: 700 .74rem/1.25 var(--sans); color: var(--muted); text-align: center; padding: 4px 2px; }
+.ladder .h b { display: block; font: 700 .86rem/1.2 var(--serif); color: var(--ink); }
+.ladder .r { font: 700 .84rem/1.2 var(--sans); align-self: center; }
+.ladder .c { height: 26px; border-radius: 4px; background: var(--sand); }
+.ladder .c.soft { background: repeating-linear-gradient(135deg, var(--honey-soft) 0 6px, var(--sand) 6px 12px); }
+.ladder .c.on { background: var(--honey); }
+.ladder .c.must { background: var(--cinnamon); }
+.ladder .part { grid-column: span 2; font: 700 .8rem/1 var(--serif); text-align: center; padding: 7px 0; border-radius: 4px; background: var(--mint); color: var(--mint-ink); }
+.ladder .part.p2 { grid-column: span 7; background: var(--honey-soft); color: var(--ink); }
+.ladder .part.p3 { grid-column: span 1; background: var(--cinnamon-soft); color: var(--ink); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: .84rem; color: var(--muted); }
+.legend i { display: inline-block; width: 22px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 6px; background: var(--sand); }
+.legend i.soft { background: repeating-linear-gradient(135deg, var(--honey-soft) 0 6px, var(--sand) 6px 12px); }
+.legend i.on { background: var(--honey); } .legend i.must { background: var(--cinnamon); }
+
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+.box { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.box .lv { font: 700 .78rem/1 var(--sans); color: var(--cinnamon); letter-spacing: .03em; }
+.box ul { margin: 0; padding-left: 1.1rem; font-size: .92rem; }
+.box li { margin: 2px 0; }
+.box p { font-size: .92rem; }
+.q { color: var(--muted); font-size: .88rem; }
+
+/* 균형 표의 칸 */
+td.ok { background: var(--mint); color: var(--mint-ink); }
+td.warn { background: var(--honey-soft); }
+td.bad { background: var(--cinnamon-soft); }
+td.pick { outline: 2px solid var(--cinnamon); outline-offset: -2px; font-weight: 700; }
+.ask { background: var(--paper); border: 2px solid var(--cinnamon); border-radius: 8px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
+.ask ol { margin: 0; padding-left: 1.3rem; display: flex; flex-direction: column; gap: 8px; }
+</style>
+
+<main>
+<header>
+  <h1>레벨 1~100 구조 시안</h1>
+  <p class="lede">구상하신 11가지를 지금 게임(레벨 18쯤에서 끝남)에 이어 붙인 한 장입니다. 열 레벨마다 지역 하나, 지역마다 재료 단계 하나, 그리고 뒤로 갈수록 준비물이 한 가지씩 늘어납니다. 숫자는 게임의 실제 식으로 계산했습니다.</p>
+</header>
+
+<section>
+  <h2><span class="tag">A</span>한눈에: 구간과 준비물</h2>
+  <div class="scroll"><div class="ladder" role="img" aria-label="구간 열 개와, 구간마다 필요한 준비물. 음식은 21부터 도움이 되고 31부터 필요, 성수는 41부터 도움이 되고 51부터 필요, 용병은 51부터 도움이 되고 61부터 필요, 용병 둘은 71부터, 버프 용병은 71부터 도움이 되고 81부터 필요">
+    <div></div>
+    <div class="h"><b>시작 마을</b>1~10</div><div class="h"><b>나루·소리재</b>11~20</div><div class="h"><b>흰마루</b>21~30</div><div class="h"><b>소금벌</b>31~40</div><div class="h"><b>잿골</b>41~50</div><div class="h"><b>안개늪</b>51~60</div><div class="h"><b>잠긴 도성</b>61~70</div><div class="h"><b>구름다리</b>71~80</div><div class="h"><b>별못</b>81~90</div><div class="h"><b>처음 모루</b>91~100</div>
+    <div class="r">이야기</div><div class="part">1부 약속의 종 (지금)</div><div class="part p2">2부 일곱 메아리</div><div class="part p3">3부</div>
+    <div class="r">구간 장비</div><div class="c must"></div><div class="c must"></div><div class="c must"></div><div class="c must"></div><div class="c must"></div><div class="c must"></div><div class="c must"></div><div class="c must"></div><div class="c must"></div><div class="c must"></div>
+    <div class="r">음식</div><div class="c"></div><div class="c"></div><div class="c soft"></div><div class="c must"></div><div class="c must"></div><div class="c must"></div><div class="c must"></div><div class="c must"></div><div class="c must"></div><div class="c must"></div>
+    <div class="r">성수</div><div class="c"></div><div class="c"></div><div class="c"></div><div class="c"></div><div class="c soft"></div><div class="c must"></div><div class="c must"></div><div class="c must"></div><div class="c must"></div><div class="c must"></div>
+    <div class="r">용병 하나</div><div class="c"></div><div class="c"></div><div class="c"></div><div class="c"></div><div class="c"></div><div class="c soft"></div><div class="c must"></div><div class="c must"></div><div class="c must"></div><div class="c must"></div>
+    <div class="r">용병 둘</div><div class="c"></div><div class="c"></div><div class="c"></div><div class="c"></div><div class="c"></div><div class="c"></div><div class="c soft"></div><div class="c must"></div><div class="c must"></div><div class="c must"></div>
+    <div class="r">버프 용병</div><div class="c"></div><div class="c"></div><div class="c"></div><div class="c"></div><div class="c"></div><div class="c"></div><div class="c"></div><div class="c soft"></div><div class="c must"></div><div class="c must"></div>
+    <div class="r">가게·공방</div><div class="c"></div><div class="c"></div><div class="c"></div><div class="c soft"></div><div class="c soft"></div><div class="c soft"></div><div class="c soft"></div><div class="c soft"></div><div class="c soft"></div><div class="c soft"></div>
+  </div></div>
+  <div class="legend"><span><i></i>없어도 됨</span><span><i class="soft"></i>있으면 편함</span><span><i class="must"></i>제 레벨에 돌려면 필요</span></div>
+  <p class="note">"필요"는 제 레벨에 그 구간을 돌 때의 이야기입니다. 다섯 레벨을 더 키우면 준비물 한 단계가 없어도 됩니다(I장). 가볍게 하는 사람도 끝까지 갈 수 있게 한 것입니다.</p>
+</section>
+
+<section>
+  <h2><span class="tag">B</span>지금 있는 것과 이렇게 맞춥니다</h2>
+  <div class="scroll"><table>
+    <tr><th>번호</th><th>지금</th><th>시안</th></tr>
+    <tr><td>B1</td><td>지역 셋(시작 마을, 나루, 소리재), 몬스터 레벨 2~18</td><td><span class="keep">그대로</span> 1~20 구간으로 둡니다. 19~20을 메울 몬스터 하나만 더합니다</td></tr>
+    <tr><td>B2</td><td>줄거리 다섯 장과 끝 넷</td><td><span class="keep">그대로</span> "1부"가 됩니다. 어느 끝을 골랐든 그 밤 고개 너머에서 답하는 소리가 들리고 2부가 열립니다</td></tr>
+    <tr><td>B3</td><td>장비는 구리·철·가죽 한 단계, 제작 레벨 1~4</td><td>재료 단계 열 개. 제작 레벨은 단계마다 넷씩 1~40 <span class="new">새로</span></td></tr>
+    <tr><td>B4</td><td>음식 버프는 붙는 값이 고정(공격력 +4 따위)</td><td>지금 요리는 그대로. 21부터의 요리는 비율(+9%~+16%)로 붙습니다 <span class="new">새로</span></td></tr>
+    <tr><td>B5</td><td>신의 가호(+5%, 신전에서 받음)</td><td>그대로. 지금 신전에서 파는 성수(가호 +5%, 그림자 걷음)에 윗단계 둘을 더합니다 <span class="new">새로</span></td></tr>
+    <tr><td>B6</td><td>용병 셋(가온, 바람결, 돌방패), 일행 둘까지</td><td>거점마다 그 구간의 용병. 버프 용병이 새로 생기고, 81부터 일행 셋 <span class="new">새로</span></td></tr>
+    <tr><td>B7</td><td>경매장 하급·중급·상급 칸</td><td>칸은 그대로. 내가 가 본 거점의 구간까지 물건이 올라옵니다</td></tr>
+    <tr><td>B9</td><td>만들기와 팔기는 모두 내 손으로. 맡길 사람이 없음</td><td>31부터 가게, 51부터 공방과 견습, 71부터 상단 (K장). 내가 움직일 때만 돕니다 <span class="new">새로</span></td></tr>
+    <tr><td>B8</td><td>경험치: 제 레벨 몬스터 5~6마리에 레벨 하나</td><td>뒤로 갈수록 늘어 91~100은 35마리쯤. 100까지 약 1,820판</td></tr>
+  </table></div>
+</section>
+
+<section>
+  <h2><span class="tag">C</span>지역과 몬스터</h2>
+  <p class="note">지역마다 사냥터 둘, 던전 하나, 거점 마을 하나. 이름은 모두 이 게임을 위해 새로 지었습니다.</p>
+  <div class="cols">
+    <div class="box"><span class="lv">C1 · 1~10 · 지금 그대로</span><h3>시작 마을</h3><p>서쪽 숲, 광산, 강가, 폐허. 들쥐, 숲 늑대, 성난 멧돼지, 동굴 박쥐, 돌거미. 우두머리 폐허의 문지기.</p></div>
+    <div class="box"><span class="lv">C2 · 11~20 · 지금 + 하나</span><h3>나루와 소리재</h3><p>갈대밭, 가라앉은 배, 고갯길. 갈대 뱀, 늪 두꺼비, 가라앉은 뱃사람, 바위 매, 고개 곰. <span class="new">새로</span> 고개 너머 길잡이 늑대(20).</p></div>
+    <div class="box"><span class="lv">C3 · 21~30</span><h3>흰마루</h3><p>눈 덮인 고원. 거점은 얼음 낚시 마을. 서리 여우(21), 눈 올빼미(23), 얼음 멧돼지(25), 고드름 거미(27). 던전 얼음 종루, 우두머리 잠든 종의 파수꾼(30).</p></div>
+    <div class="box"><span class="lv">C4 · 31~40</span><h3>소금벌</h3><p>말라붙은 바다. 거점은 소금 상단의 장터. 소금 전갈(31), 마른 갯지렁이(33), 소금 까마귀(35), 떠도는 저울꾼(38). 던전 종 조각 창고, 우두머리 소금 기둥의 징수인(40).</p></div>
+    <div class="box"><span class="lv">C5 · 41~50</span><h3>잿골</h3><p>불 뿜는 산 아래 대장간 골짜기. 잿빛 도마뱀(41), 불똥 박쥐(43), 쇳물 게(46), 재투성이 검꾼(48). 던전 식지 않는 가마, 우두머리 벼린 종의 망치(50).</p></div>
+    <div class="box"><span class="lv">C6 · 51~60</span><h3>안개늪</h3><p>고목과 늪. 거점은 물 위의 오두막들. 이끼 두꺼비(51), 안개 거머리(53), 물먹은 허수아비(56), 늪 등불(58). 저주를 거는 놈들이라 성수가 듣습니다. 우두머리 이끼 덮인 종지기(60).</p></div>
+    <div class="box"><span class="lv">C7 · 61~70</span><h3>잠긴 도성</h3><p>물에 잠긴 옛 서울. 물먹은 문지기(61), 비늘 사냥개(63), 종소리 해파리(66), 가라앉은 근위병(68). 둘씩 덤벼서 혼자서는 버겁습니다. 우두머리 늘 울리던 종의 메아리(70).</p></div>
+    <div class="box"><span class="lv">C8 · 71~80</span><h3>구름다리</h3><p>산맥을 잇는 다리와 하늘 신전. 구름 염소(71), 바람 매듭(73), 돌 수도승(76), 금빛 가면(78). 우두머리 모신 종의 대사제(80).</p></div>
+    <div class="box"><span class="lv">C9 · 81~90</span><h3>별못</h3><p>별이 떨어져 생긴 못. 별가루 나방(81), 못의 거울상(83), 떨어진 별 조각(86), 답 없는 메아리(88). 우두머리 깨진 종의 마지막 조각(90).</p></div>
+    <div class="box"><span class="lv">C10 · 91~100</span><h3>처음 모루</h3><p>장인들이 첫 종을 지은 자리. 식은 쇳물(91), 약속의 그림자(94), 첫 장인의 손(97). 우두머리 지어지지 않은 종(100).</p></div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="tag">D</span>메인 스토리</h2>
+  <p>지금 줄거리의 물음은 "띠링은 어디서 울리는가"입니다. 2부의 물음은 <b>"종은 하나뿐이었나"</b>, 3부의 물음은 <b>"약속은 누가 이어 가는가"</b>로 잇습니다.</p>
+  <p class="note">장인들은 종을 여덟 지었고, 시작 마을의 약속의 종은 막내였습니다. 나머지 일곱 곳 사람들은 저마다 제 종을 다르게 다뤘습니다. 지역마다 한 장이고, 지금처럼 장마다 푸는 길이 여럿입니다(싸움 · 만들기 · 말 · 몰래).</p>
+  <div class="scroll"><table>
+    <tr><th>장</th><th>지역</th><th>그곳의 종</th><th>줄거리</th><th>푸는 길 (예)</th></tr>
+    <tr><td>1~5</td><td>시작 마을~소리재</td><td>약속의 종</td><td>지금 그대로 (1부)</td><td>지금 그대로</td></tr>
+    <tr><td>D6</td><td>흰마루</td><td><b>얼린 종</b></td><td>종지기가 종이 닳을까 봐 얼려 재웠다. 마을에는 삼십 년째 띠링이 없고, 아무도 끝까지 하지 않는다</td><td>파수꾼을 쓰러뜨린다 · 얼음 낚시를 끝까지 해서 종을 깨운다 · 종지기를 설득한다</td></tr>
+    <tr><td>D7</td><td>소금벌</td><td><b>팔린 종</b></td><td>상단이 종을 쪼개 조각으로 판다. 돈을 내면 울린다. 진짜로 해낸 사람의 띠링과 구별이 안 된다</td><td>창고를 턴다 · 조각을 사 모아 다시 잇는다(큰돈) · 저울꾼들을 내 편으로</td></tr>
+    <tr><td>D8</td><td>잿골</td><td><b>벼린 종</b></td><td>종을 녹여 무기를 지었다. 이긴 사람에게만 울린다. 진 사람은 대장간에서 평생 풀무를 민다</td><td>망치를 꺾는다 · 더 좋은 무기를 지어 보인다 · 풀무꾼들과 불을 끈다</td></tr>
+    <tr><td>D9</td><td>안개늪</td><td><b>잊힌 종</b></td><td>아무도 끝까지 하지 않아 종이 울릴 일이 없었다. 이끼에 덮였고, 마지막 종지기는 종과 한 몸이 되었다</td><td>종지기를 쉬게 한다 · 이끼를 손으로 다 걷는다 · 늪 사람 하나를 끝까지 가르친다</td></tr>
+    <tr><td>D10</td><td>잠긴 도성</td><td><b>늘 울리던 종</b></td><td>임금이 모든 백성에게 날마다 울리게 했다. 종은 닳아 터졌고 도성은 가라앉았다. 거저 준 것의 끝</td><td>메아리를 잠재운다 · 잠긴 종루를 다시 짓는다 · 마지막 근위병의 맹세를 풀어 준다</td></tr>
+    <tr><td>D11</td><td>구름다리</td><td><b>모신 종</b></td><td>신전이 종을 신으로 모셔 사제만 듣는다. 미루의 신전이 여기서 갈라져 나왔다</td><td>대사제를 쓰러뜨린다 · 기도를 끝까지 올려 스스로 듣는다 · 미루와 함께 문을 연다</td></tr>
+    <tr><td>D12</td><td>별못</td><td><b>깨진 종</b></td><td>종이 깨진 뒤 사람들이 서로에게 답하며 산다. 종 없이도 되는가를 여기서 본다</td><td>마지막 조각을 거둔다 · 조각으로 작은 종들을 지어 나눈다 · 그대로 둔다</td></tr>
+    <tr><td>D13</td><td>처음 모루</td><td>아직 없는 종</td><td>일곱 곳에서 한 선택이 여기서 고를 수 있는 끝을 정한다. 새 약속을 짓는다</td><td>끝 여럿 + 숨은 끝 (지금 5장과 같은 짜임)</td></tr>
+  </table></div>
+</section>
+
+<section>
+  <h2><span class="tag">E</span>서브 퀘스트와 히든 퀘스트</h2>
+  <p class="note">지역마다 서브 둘, 히든 하나. 히든의 조건은 지금처럼 게임 안에서 알려 주지 않습니다. 남들이 그만둔 뒤에도 계속한 사람에게만 열립니다.</p>
+  <div class="scroll"><table>
+    <tr><th>지역</th><th>서브 퀘스트</th><th>히든 퀘스트 (조건은 화면에 안 나옴)</th></tr>
+    <tr><td>E3 흰마루</td><td>얼음 구멍의 임자(낚시터 다툼) · 굶는 겨울(사냥감 나르기)</td><td><b>삼십 년 만의 한 번</b>: 종루 앞에서 밤을 서른 번 새운다</td></tr>
+    <tr><td>E4 소금벌</td><td>가짜 띠링 감정(조각 가려내기) · 떼인 삯(용병의 외상)</td><td><b>값을 매기지 않는 사람</b>: 장터에서 한 번도 값을 깎지 않고 백 번 판다</td></tr>
+    <tr><td>E5 잿골</td><td>풀무꾼의 팔(일 대신 해 주기) · 식은 가마(불씨 구하기)</td><td><b>지고도 다시 온 사람</b>: 같은 우두머리에게 열 번 지고 다시 선다</td></tr>
+    <tr><td>E6 안개늪</td><td>길 잃은 등불(늪 길 표시) · 약초꾼의 제자</td><td><b>이끼 한 장</b>: 종의 이끼를 손으로 천 번 걷는다</td></tr>
+    <tr><td>E7 잠긴 도성</td><td>젖은 족보(기록 건지기) · 근위병의 마지막 순찰</td><td><b>받지 않은 사람</b>: 도성의 거저 주는 상자를 끝까지 열지 않는다</td></tr>
+    <tr><td>E8 구름다리</td><td>다리 고치는 이들(재료 대기) · 견습 사제의 의심</td><td><b>듣지 못한 기도</b>: 답이 없는 기도를 삼백 번 올린다</td></tr>
+    <tr><td>E9 별못</td><td>서로 답하는 마을(심부름 잇기) · 조각을 줍는 아이</td><td><b>내가 울린 띠링</b>: 마을 사람 일곱의 일을 끝까지 지켜본다</td></tr>
+    <tr><td>E10 처음 모루</td><td>장인들의 연장(일곱 지역 재료 모으기)</td><td><b>여덟 번째 망치질</b>: 일곱 지역의 히든을 모두 푼 사람에게만</td></tr>
+  </table></div>
+</section>
+
+<section>
+  <h2><span class="tag">F</span>구간 장비와 제작 단계</h2>
+  <p>지역의 몬스터와 캐는 곳에서 그 구간의 재료가 나오고, 그 재료로 그 구간의 장비를 짓습니다. 제작 레벨은 단계마다 넷씩이라 지금의 1~4가 그대로 1단계가 됩니다.</p>
+  <div class="scroll"><table>
+    <tr><th>단계</th><th>구간</th><th>쇠 · 가죽</th><th class="n">제작 레벨</th><th class="n">무기 공격력</th><th class="n">방어구 합</th><th>승급작 (다음 단계를 여는 물건)</th></tr>
+    <tr><td>F1</td><td>1~10</td><td>구리·철 · 멧돼지 가죽 <span class="keep">지금</span></td><td class="n">1~4</td><td class="n">14</td><td class="n">19</td><td>철검</td></tr>
+    <tr><td>F2</td><td>11~20</td><td>강철 · 곰 가죽 <span class="new">새로</span></td><td class="n">5~8</td><td class="n">24</td><td class="n">32</td><td>강철 갑옷</td></tr>
+    <tr><td>F3</td><td>21~30</td><td>서릿쇠 · 흰털 가죽</td><td class="n">9~12</td><td class="n">36</td><td class="n">47</td><td>서릿쇠 검</td></tr>
+    <tr><td>F4</td><td>31~40</td><td>소금강 · 전갈 껍질</td><td class="n">13~16</td><td class="n">50</td><td class="n">64</td><td>저울꾼의 방패</td></tr>
+    <tr><td>F5</td><td>41~50</td><td>잿쇠 · 도마뱀 비늘</td><td class="n">17~20</td><td class="n">66</td><td class="n">83</td><td>잿쇠 갑옷</td></tr>
+    <tr><td>F6</td><td>51~60</td><td>이끼쇠 · 안개실</td><td class="n">21~24</td><td class="n">84</td><td class="n">104</td><td>안개실 옷</td></tr>
+    <tr><td>F7</td><td>61~70</td><td>옛 청동 · 비늘 가죽</td><td class="n">25~28</td><td class="n">104</td><td class="n">127</td><td>근위병의 창</td></tr>
+    <tr><td>F8</td><td>71~80</td><td>구름은 · 염소털</td><td class="n">29~32</td><td class="n">126</td><td class="n">152</td><td>구름은 반지</td></tr>
+    <tr><td>F9</td><td>81~90</td><td>별쇠 · 나방 비단</td><td class="n">33~36</td><td class="n">150</td><td class="n">179</td><td>별쇠 검</td></tr>
+    <tr><td>F10</td><td>91~100</td><td>첫쇠 · 그림자 가죽</td><td class="n">37~40</td><td class="n">176</td><td class="n">208</td><td>(끝)</td></tr>
+  </table></div>
+  <div class="cols">
+    <div class="box"><h3>F11 제작 레벨이 오르는 길</h3><ul><li>지금처럼 만들수록 오릅니다. 대장, 바느질, 세공, 요리가 따로 오릅니다.</li><li>4, 8, 12… 에서 멈춥니다. 그 구간 거점의 장인에게 <b>승급작</b>을 하나 지어 보이면 다음 단계가 열립니다.</li><li>승급작은 그 단계에서 가장 어려운 것이라, 재료를 직접 모으고 여러 번 실패해 본 사람이 넘습니다.</li></ul></div>
+    <div class="box"><h3>F12 등급과 강화는 지금 그대로</h3><ul><li>만든 솜씨에 따라 등급과 옵션이 붙는 것, +10까지 강화하는 것은 그대로입니다.</li><li>앞 구간 장비를 +10까지 올리면 다음 구간의 갓 만든 장비와 비슷합니다. 파고든 사람은 한 구간을 더 버팁니다.</li></ul></div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="tag">G</span>경매장</h2>
+  <div class="cols">
+    <div class="box"><h3>G1 무엇이 올라오나</h3><ul><li>내가 <b>가 본 거점의 구간까지</b> 재료와 장비가 올라옵니다. 안 가 본 구간의 물건은 어디에도 나오지 않습니다.</li><li>재료는 늘 조금씩, 장비는 일반·고급 등급만. 희귀 이상은 내가 만들거나 드물게만 나옵니다.</li><li>하급·중급·상급 칸은 지금 그대로, 내 구간을 따라 물건이 바뀝니다.</li></ul></div>
+    <div class="box"><h3>G2 값</h3><ul><li>재료는 직접 모으는 수고의 두 배쯤, 장비는 재료값의 두세 배.</li><li>급할 때 사서 넘어갈 수는 있지만, 직접 캐고 만드는 쪽이 늘 쌉니다. 내가 만든 것을 올려 파는 길도 그대로입니다.</li><li>수수료가 신전으로 가는 것(지금 설정)도 그대로입니다.</li></ul></div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="tag">H</span>버프와 용병</h2>
+  <div class="scroll"><table>
+    <tr><th>번호</th><th>무엇</th><th>어디서</th><th>힘</th><th>얼마나 가나</th><th>언제부터</th></tr>
+    <tr><td>H1</td><td><b>음식</b></td><td>공용주방에서 요리 (그 구간 재료)</td><td>공격력·방어력 +9% (흰마루) → +16% (처음 모루). 한 번에 하나</td><td>세 때 (지금과 같음)</td><td>21부터 도움, 31부터 필요</td></tr>
+    <tr><td>H2</td><td><b>성수</b> (지금 것 + 윗단계 둘: 깊은 성수 61부터, 별빛 성수 81부터)</td><td>신전에서 사거나, 기도 숙련으로 직접 축성 <span class="new">새로</span></td><td>공격력·방어력 +6% → +11%. 저주를 한 번 막음. 음식과 겹침</td><td>두 때</td><td>41부터 도움, 51부터 필요</td></tr>
+    <tr><td>H3</td><td><b>용병</b> (때리는 이, 막는 이)</td><td>거점 훈련소. 그 구간의 용병이 따로 있음</td><td>때리는 이: 내 공격력의 절반쯤을 보탬. 막는 이: 내가 맞을 것의 3분의 1을 대신 맞음</td><td>날마다 삯</td><td>51부터 도움, 61부터 하나, 71부터 둘</td></tr>
+    <tr><td>H4</td><td><b>버프 용병</b> <span class="new">새로</span></td><td>구름다리부터의 거점</td><td>북 치는 이: 일행 공격력·방어력 +10% → +14%. 싸우지는 않음</td><td>날마다 삯</td><td>71부터 도움, 81부터 필요</td></tr>
+  </table></div>
+  <p class="note">H5 삯과 값: 용병 하나의 하루 삯은 그 구간에서 하루 사냥해 버는 은화의 15~20%, 음식 한 끼는 그 구간 몬스터 두 마리가 떨구는 재료쯤으로 잡습니다. 준비물을 다 갖추면 번 것의 절반쯤이 나가고 절반이 남습니다.</p>
+</section>
+
+<section>
+  <h2><span class="tag">I</span>몬스터 강함: 계산한 숫자</h2>
+  <p>구간 가운데 레벨(5, 15, … 95)의 보통 몬스터를, 그 구간 장비를 갖춘 사람 기준으로 맞췄습니다. 칸의 숫자는 <b>한 판에 잃는 생명력 / 걸리는 턴</b>입니다. 테두리 친 칸이 그 구간에서 갖추라고 한 준비물입니다.</p>
+  <div class="scroll"><table>
+    <tr><th>구간</th><th class="n">몬스터 생명</th><th class="n">공격</th><th class="n">방어</th><th class="n">레벨당 마릿수</th><th class="n">장비만</th><th class="n">+음식</th><th class="n">+성수</th><th class="n">+용병 하나</th><th class="n">+용병 둘</th><th class="n">+버프 용병</th><th class="n">5레벨 더 키우고 한 단계 덜 갖춤</th></tr>
+    <tr><td>1~10</td><td class="n">86</td><td class="n">38</td><td class="n">13</td><td class="n">6</td><td class="n ok pick">31% / 5</td><td class="n">—</td><td class="n">—</td><td class="n ok">25% / 4</td><td class="n ok">16% / 4</td><td class="n">—</td><td class="n ok">13% / 4</td></tr>
+    <tr><td>11~20</td><td class="n">187</td><td class="n">64</td><td class="n">23</td><td class="n">8</td><td class="n ok pick">32% / 6</td><td class="n">—</td><td class="n">—</td><td class="n ok">27% / 5</td><td class="n ok">17% / 5</td><td class="n">—</td><td class="n ok">18% / 5</td></tr>
+    <tr><td>21~30</td><td class="n">325</td><td class="n">94</td><td class="n">34</td><td class="n">10</td><td class="n ok pick">38% / 7</td><td class="n ok">25% / 6</td><td class="n">—</td><td class="n ok">21% / 5</td><td class="n ok">14% / 5</td><td class="n">—</td><td class="n ok">25% / 6</td></tr>
+    <tr><td>31~40</td><td class="n">555</td><td class="n">130</td><td class="n">50</td><td class="n">12</td><td class="n warn">55% / 9</td><td class="n ok pick">38% / 8</td><td class="n">—</td><td class="n ok">33% / 7</td><td class="n ok">22% / 7</td><td class="n">—</td><td class="n ok">40% / 8</td></tr>
+    <tr><td>41~50</td><td class="n">816</td><td class="n">166</td><td class="n">64</td><td class="n">15</td><td class="n warn">69% / 11</td><td class="n ok pick">42% / 9</td><td class="n ok">30% / 8</td><td class="n ok">27% / 7</td><td class="n ok">17% / 7</td><td class="n">—</td><td class="n warn">54% / 10</td></tr>
+    <tr><td>51~60</td><td class="n">1,207</td><td class="n">210</td><td class="n">84</td><td class="n">18</td><td class="n bad">91% / 13</td><td class="n warn">58% / 11</td><td class="n ok pick">42% / 10</td><td class="n ok">34% / 8</td><td class="n ok">22% / 8</td><td class="n">—</td><td class="n ok">45% / 10</td></tr>
+    <tr><td>61~70</td><td class="n">2,016</td><td class="n">250</td><td class="n">103</td><td class="n">22</td><td class="n bad">진다</td><td class="n warn">75% / 15</td><td class="n warn">53% / 14</td><td class="n ok pick">42% / 11</td><td class="n ok">27% / 11</td><td class="n">—</td><td class="n ok">42% / 13</td></tr>
+    <tr><td>71~80</td><td class="n">2,645</td><td class="n">318</td><td class="n">122</td><td class="n">26</td><td class="n bad">진다</td><td class="n bad">진다</td><td class="n bad">81% / 15</td><td class="n warn">65% / 12</td><td class="n ok pick">42% / 12</td><td class="n ok">25% / 10</td><td class="n warn">53% / 11</td></tr>
+    <tr><td>81~90</td><td class="n">3,700</td><td class="n">394</td><td class="n">158</td><td class="n">30</td><td class="n bad">진다</td><td class="n bad">진다</td><td class="n bad">진다</td><td class="n bad">진다</td><td class="n warn">71% / 16</td><td class="n ok pick">42% / 13</td><td class="n warn">61% / 15</td></tr>
+    <tr><td>91~100</td><td class="n">4,685</td><td class="n">466</td><td class="n">186</td><td class="n">35</td><td class="n bad">진다</td><td class="n bad">진다</td><td class="n bad">진다</td><td class="n bad">진다</td><td class="n bad">84% / 17</td><td class="n warn pick">48% / 14</td><td class="n warn">78% / 17</td></tr>
+  </table></div>
+  <div class="legend"><span><i style="background:var(--mint)"></i>45% 이하: 쉬지 않고 두 판</span><span><i style="background:var(--honey-soft)"></i>46~79%: 한 판 하고 쉬어야 함</span><span><i style="background:var(--cinnamon-soft)"></i>80% 이상: 지거나 아슬아슬</span></div>
+  <ul class="note">
+    <li>기준이 된 사람: 스탯 점수의 절반을 힘에, 40%를 체력에 넣고, 그 구간 장비를 강화 없이 찬 사람입니다.</li>
+    <li>1~20의 숫자는 이 계산이 낸 값이고, 실제로는 지금 몬스터를 그대로 둡니다(B1). 지금 값이 이보다 조금 순합니다.</li>
+    <li>우두머리는 보통 몬스터의 생명력 4배, 공격력 1.25배로 잡습니다. 그 구간 준비물보다 한 단계 더 갖추면 편합니다.</li>
+    <li>이 숫자는 계산한 것이고 게임에 넣어 돌려 본 것은 아닙니다. 태세(버티기·피하기), 스킬, 속성, 강화는 계산에 넣지 않았습니다. 만들 때 무작위 플레이로 다시 맞춥니다.</li>
+  </ul>
+</section>
+
+<section>
+  <h2><span class="tag">K</span>가게, 공방, 상단: 내가 움직일 때만 도는 경영</h2>
+  <p>뒤 구간에서는 음식·성수·삯으로 은화가 많이 나갑니다. 그것을 받쳐 줄 내 살림을 차립니다. 원칙은 하나입니다. <b>내가 열 번 일하면 일꾼이 한 번 일합니다.</b> 게임을 꺼 두거나 쉬기만 눌러서는 아무것도 쌓이지 않습니다.</p>
+  <div class="cols">
+    <div class="box"><span class="lv">K1 · 31부터 · 소금벌 장터</span><h3>가게</h3><ul><li>내가 만든 물건을 진열대에 올려 둡니다. 칸 여섯.</li><li>내가 스무 번 일할 때마다 손님이 한 번 옵니다. 진열한 것 가운데 하나를 제값에 사 갑니다.</li><li>경매장보다 값은 낮지만 수수료가 없고 기다릴 일이 없습니다.</li><li>명성이 높을수록, 등급이 높을수록 먼저 팔립니다.</li></ul></div>
+    <div class="box"><span class="lv">K2 · 51부터 · 안개늪</span><h3>공방과 견습</h3><ul><li>공방을 사면 견습 한 명을 들일 수 있습니다. 61에 둘, 81에 셋.</li><li>견습은 내가 열 번 일할 때마다 한 번 만듭니다. 재료는 내 보관함에서 씁니다.</li><li>내 제작 단계보다 <b>한 단계 아래</b> 물건만, 일반 등급으로만 만듭니다. 재료 다듬기, 앞 구간 장비, 음식 밑손질이 견습 몫입니다.</li><li>날마다 삯을 받습니다. 못 주면 떠납니다(용병과 같음).</li></ul></div>
+    <div class="box"><span class="lv">K3 · 71부터 · 구름다리</span><h3>상단</h3><ul><li>짐꾼을 두어 거점 사이로 물건을 보냅니다. 지역마다 흔한 것과 귀한 것이 달라 값이 다릅니다.</li><li>짐은 내가 서른 번 일하면 다음 거점에 닿습니다. 가는 길 위험도만큼 잃을 수 있고, 용병을 붙이면 줄어듭니다.</li><li>무엇을 어디로 보낼지는 내가 정합니다. 값은 소문과 게시판으로만 알 수 있습니다.</li></ul></div>
+  </div>
+  <div class="scroll"><table>
+    <tr><th>번호</th><th>자라는 것</th><th>어떻게</th><th>처음</th><th>끝까지 키우면</th></tr>
+    <tr><td>K4</td><td>견습의 손</td><td>견습이 만든 수만큼 오름. 내가 곁에서 같은 것을 만들면 두 배로 오름</td><td class="n">내 10번에 1번</td><td class="n">내 5번에 1번</td></tr>
+    <tr><td>K5</td><td>견습의 단계</td><td>내가 승급할 때 견습도 승급작을 지어 보이면 따라 오름</td><td class="n">두 단계 아래</td><td class="n">한 단계 아래</td></tr>
+    <tr><td>K6</td><td>가게 손님</td><td>판 수만큼 단골이 늘어남</td><td class="n">내 20번에 1명</td><td class="n">내 8번에 1명</td></tr>
+    <tr><td>K7</td><td>공방 크기</td><td>은화와 그 구간 재료로 넓힘</td><td class="n">견습 1, 진열 6</td><td class="n">견습 3, 진열 18</td></tr>
+  </table></div>
+  <div class="box">
+    <h3>K8 따라가 본 하루 (레벨 55, 안개늪, 견습 둘)</h3>
+    <p>하루에 탐색과 싸움으로 150번쯤 누른다고 치면, 견습 둘이 15개씩 서른 개를 만듭니다. 이끼쇠를 다듬어 두게 하면 내가 승급작에 쓸 재료 손질이 끝나 있고, 앞 구간 잿쇠 검을 짓게 하면 가게에서 손님 일곱이 사 갑니다. 그날 음식과 성수 값의 절반쯤이 가게에서 나옵니다. 삯과 재료는 내가 댔고, 그날 쉬기만 했다면 견습도 손을 놓았을 것입니다.</p>
+  </div>
+  <ul class="note">
+    <li>K9 "일"로 치는 것: 탐색, 싸움의 한 턴, 만들기의 망치질 한 번, 캐기, 낚시, 일터의 일. 치지 않는 것: 쉬기, 잠, 길 가기, 창 열기, 사고팔기. 쉬기만 눌러 날을 넘기는 길을 막습니다.</li>
+    <li>K10 견습이 만든 것에는 띠링이 울리지 않습니다. 숙련도도, 히든 횟수도 내가 누른 것만 셉니다.</li>
+    <li>K11 다시 태어나면 공방과 가게는 남고(보관함이 남는 것과 같음) 견습은 떠납니다.</li>
+    <li>K12 화면: "공방" 창 하나에 진열대, 견습 칸, 맡긴 일이 보입니다. 사기 전에는 어디에도 나오지 않습니다(숨김).</li>
+  </ul>
+</section>
+
+<section>
+  <h2><span class="tag">L</span>은화: 벌이와 씀씀이</h2>
+  <p>지금 게임에서 괴물은 은화를 직접 주지 않습니다. 벌이는 전리품을 파는 값과 의뢰 삯입니다. 그 틀을 그대로 100까지 늘렸습니다. 한 구간 오를 때마다 벌이가 1.65배가 되고, 준비물 값은 그 구간 하루 벌이의 몫으로 정했습니다.</p>
+  <div class="scroll"><table>
+    <tr><th>구간</th><th class="n">한 판 벌이</th><th class="n">하루 벌이</th><th class="n">음식 (하루)</th><th class="n">성수 (한 병)</th><th class="n">용병 삯 (한 명)</th><th class="n">수리·잠·치료</th><th class="n">준비물이 먹는 몫</th><th class="n">가게·공방이 보탬</th><th class="n">하루에 남음</th><th class="n">구간 동안 모임</th></tr>
+    <tr><td>1~10</td><td class="n">8</td><td class="n">100</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">8</td><td class="n ok">8%</td><td class="n">—</td><td class="n">96</td><td class="n">570</td></tr>
+    <tr><td>11~20</td><td class="n">13</td><td class="n">170</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">14</td><td class="n ok">8%</td><td class="n">—</td><td class="n">160</td><td class="n">1,300</td></tr>
+    <tr><td>21~30</td><td class="n">22</td><td class="n">280</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">23</td><td class="n ok">8%</td><td class="n">—</td><td class="n">260</td><td class="n">2,600</td></tr>
+    <tr><td>31~40</td><td class="n">36</td><td class="n">470</td><td class="n">47</td><td class="n">—</td><td class="n">—</td><td class="n">37</td><td class="n ok">18%</td><td class="n">37</td><td class="n">420</td><td class="n">5,000</td></tr>
+    <tr><td>41~50</td><td class="n">59</td><td class="n">770</td><td class="n">77</td><td class="n">—</td><td class="n">—</td><td class="n">62</td><td class="n ok">18%</td><td class="n">62</td><td class="n">690</td><td class="n">10,400</td></tr>
+    <tr><td>51~60</td><td class="n">98</td><td class="n">1,300</td><td class="n">130</td><td class="n">64</td><td class="n">—</td><td class="n">100</td><td class="n ok">28%</td><td class="n">250</td><td class="n">1,200</td><td class="n">21,100</td></tr>
+    <tr><td>61~70</td><td class="n">160</td><td class="n">2,100</td><td class="n">210</td><td class="n">100</td><td class="n">250</td><td class="n">170</td><td class="n warn">40%</td><td class="n">420</td><td class="n">1,700</td><td class="n">36,900</td></tr>
+    <tr><td>71~80</td><td class="n">270</td><td class="n">3,500</td><td class="n">350</td><td class="n">170</td><td class="n">420 × 2</td><td class="n">280</td><td class="n warn">52%</td><td class="n">690</td><td class="n">2,400</td><td class="n">61,200</td></tr>
+    <tr><td>81~90</td><td class="n">440</td><td class="n">5,700</td><td class="n">570</td><td class="n">290</td><td class="n">690 × 3</td><td class="n">460</td><td class="n warn">64%</td><td class="n">1,100</td><td class="n">3,200</td><td class="n">96,000</td></tr>
+    <tr><td>91~100</td><td class="n">730</td><td class="n">9,400</td><td class="n">940</td><td class="n">470</td><td class="n">1,100 × 3</td><td class="n">750</td><td class="n warn">64%</td><td class="n">1,900</td><td class="n">5,300</td><td class="n">184,800</td></tr>
+  </table></div>
+  <ul class="note">
+    <li>L1 하루는 지금 게임대로 행동 150번(한 때 50번 × 세 때)이고, 그 안에 사냥 10판을 한다고 잡았습니다. 의뢰 삯은 사냥 벌이의 30%로 잡았습니다.</li>
+    <li>L2 1~20의 벌이는 지금 게임의 값과 맞습니다(지금 한 판에 전리품 1~27, 가게에 팔면 그 40%에 의뢰 삯 14~34). 지금 용병 삯 60~80은 그 구간 하루 벌이의 절반이라, 앞 구간에서 용병은 사치입니다. 그대로 둡니다.</li>
+    <li>L3 성수는 하루에 두 병 쓴다고 보고 한 병 값을 적었습니다. 지금 성수 값(60)이 51~60 구간 값(64)과 거의 같아서 지금 성수를 그대로 그 구간에 씁니다.</li>
+  </ul>
+  <div class="scroll"><table>
+    <tr><th>번호</th><th>큰돈이 드는 곳</th><th>값 매기는 법</th><th>예</th></tr>
+    <tr><td>L4</td><td>경매장에서 구간 장비 한 벌</td><td>그 구간 엿새 벌이</td><td>흰마루 1,700 · 안개늪 7,600 · 별못 34,300</td></tr>
+    <tr><td>L5</td><td>강화 한 번</td><td>지금은 5 × (강화 수 + 1)로 고정. 구간 한 판 벌이의 60% × (강화 수 + 1)로</td><td>잿골 +5 → +6: 36 × 6 = 216</td></tr>
+    <tr><td>L6</td><td>가게 · 공방 · 상단</td><td>그 구간 8일 · 10일 · 12일 벌이</td><td>3,800 · 13,000 · 42,000</td></tr>
+    <tr><td>L7</td><td>승급작 재료를 사서 채울 때</td><td>그 구간 사흘 벌이쯤. 직접 모으면 0</td><td>구름다리 10,500</td></tr>
+  </table></div>
+  <div class="box">
+    <h3>L8 따라가 본 한 구간 (61~70, 잠긴 도성)</h3>
+    <p>하루에 2,100을 법니다. 음식 210, 성수 두 병 200, 용병 하나 250, 수리와 잠 170이 나가 840을 씁니다. 가게와 공방이 420을 보태 하루 1,700쯤이 남습니다. 이 구간을 지나는 스물이틀 동안 36,900이 모이고, 그 돈으로 다음 구간 장비 한 벌(20,800)을 사거나, 직접 만들고 상단(42,000)을 향해 모읍니다. 준비물을 안 갖추고 다섯 레벨을 더 키우는 사람은 돈은 더 남지만 날이 더 듭니다.</p>
+  </div>
+  <h3>지금 규칙 가운데 100까지 가면 어긋나는 것</h3>
+  <div class="scroll"><table>
+    <tr><th>번호</th><th>지금</th><th>100까지 가면</th><th>이렇게</th></tr>
+    <tr><td>L9</td><td>보관함에 맡긴 은화에 날마다 이자 1%, 상한 없음 (사용자 결정)</td><td>70일에 2배, 182일(100까지 드는 날)에 6배, 한 해에 38배. 뒤 구간에서는 사냥보다 이자가 더 벌고, 잠만 자서 날을 넘겨도 붙습니다</td><td>이자율과 상한 없음은 그대로 두고, <b>그날 일을 서른 번 넘게 한 날에만</b> 붙게 (추천). 공방의 "내가 움직일 때만"과 같은 원칙</td></tr>
+    <tr><td>L10</td><td>도적: 지닌 은화와 장비 값이 1,000 늘 때마다 도적 레벨 +1, 나올 확률 +1%</td><td>지닌 것이 10만이면 도적이 레벨 +100. 뒤 구간에서는 누구나 걸립니다</td><td>1,000이 아니라 <b>그 구간 닷새 벌이</b>마다 한 칸으로. 뜻(눈에 띄게 많이 지니면 노린다)은 그대로</td></tr>
+    <tr><td>L11</td><td>고정된 값들: 여인숙 10, 뱃삯 100, 강화 5 × (강화 수 + 1)</td><td>뒤 구간에서는 0이나 다름없습니다</td><td>새 지역의 것은 그 구간 벌이에 맞춰 새로 매깁니다. 지금 지역의 값은 그대로</td></tr>
+  </table></div>
+  <p class="note">L12 치료비(레벨 × 10)와 축복 값(겹 × 레벨 × 5), 쓰러지면 5%를 흘리는 것은 레벨이나 지닌 돈을 따라 오르므로 그대로 둡니다. 다만 치료비는 벌이보다 느리게 올라 뒤로 갈수록 가벼워집니다(레벨 95에 950, 하루 벌이의 10%).</p>
+</section>
+
+<section>
+  <h2><span class="tag">M</span>오래 해도 새롭게: 더한 일곱 가지</h2>
+  <p>다른 게임들이 뒤 구간에서 자주 넘어지는 곳은 셋입니다. 새 규칙이 끊기고 숫자만 오르는 것, 옛 일이 잡일로 남는 것, 끝없이 늘이다 지루해지는 것. 그 셋을 막는 장입니다.</p>
+
+  <h3>M1 지역마다 그곳에서만 통하는 규칙 하나</h3>
+  <div class="scroll"><table>
+    <tr><th>지역</th><th>규칙</th><th>어떻게 버티나</th><th>잘 다루면 얻는 것</th></tr>
+    <tr><td>시작 마을 · 나루 · 소리재</td><td>허기와 피로 <span class="keep">지금</span></td><td>먹고 잔다</td><td>—</td></tr>
+    <tr><td>흰마루</td><td><b>추위</b>: 들판에 오래 있으면 몸이 식어 피로가 빨리 쌓인다</td><td>횃불, 뜨거운 음식, 털옷</td><td>얼음 구멍 낚시는 식은 몸으로만 잡히는 고기가 있다</td></tr>
+    <tr><td>소금벌</td><td><b>갈증</b>: 물주머니가 비면 생명력이 깎인다. 장터 값이 날마다 바뀐다</td><td>물주머니(지금 있는 물건), 우물 자리 외우기</td><td>싼 날 사서 비싼 날 팔기</td></tr>
+    <tr><td>잿골</td><td><b>열기</b>: 쇠 장비의 내구도가 두 배로 닳는다</td><td>가죽·비늘 장비, 자주 고치기</td><td>달궈진 채로 벼리면 등급 확률이 오른다</td></tr>
+    <tr><td>안개늪</td><td><b>저주와 안개</b>: 맞으면 저주가 쌓이고, 지도가 보이지 않는다</td><td>성수, 등불, 길 표시 해 두기</td><td>저주를 안고 이기면 히든 횟수가 쌓인다</td></tr>
+    <tr><td>잠긴 도성</td><td><b>숨</b>: 물 아래 방은 숨 눈금이 있다. 적이 둘씩 온다</td><td>공기 주머니, 막는 용병</td><td>숨을 참고 들어간 방에만 있는 보물</td></tr>
+    <tr><td>구름다리</td><td><b>바람</b>: 때마다 바람이 바뀌어 활과 피하기가 세지거나 약해진다</td><td>바람을 보고 태세를 바꾼다</td><td>바람을 탄 공격은 한 번 더 들어간다</td></tr>
+    <tr><td>별못</td><td><b>거울</b>: 적이 내 장비와 태세를 비춘다. 내가 셀수록 적도 세다</td><td>태세를 섞어 쓴다. 한 가지만 쓰면 읽힌다</td><td>나를 이긴 만큼 숙련도가 더 오른다</td></tr>
+    <tr><td>처음 모루</td><td><b>벼리며 싸우기</b>: 싸움 중에 망치질 칸이 열린다</td><td>싸움과 제작을 번갈아</td><td>싸움 중에 지은 것은 그 자리에서 쓴다</td></tr>
+  </table></div>
+
+  <div class="cols">
+    <div class="box"><h3>M2 싸우지 않는 길로도 100까지</h3><ul><li>지금 경험치는 싸움과 의뢰에서만 나옵니다. <b>만들기에도 경험치</b>를 줍니다. 그 구간 물건 하나가 그 구간 몬스터 한 마리의 40%, 승급작은 열 마리치. 망치질 수가 싸움 한 판의 누르기 수와 비슷해서 드는 손은 같습니다.</li><li>재료는 사거나(경매장), <b>용병의 호위를 받아 캡니다</b>. 용병이 싸우는 동안 나는 캐고, 그 싸움의 경험치는 절반만 받습니다.</li><li>조각 걸작, 요리 새 조합, 납품 의뢰도 같은 틀로 줍니다.</li><li>I장의 숫자는 힘·체력을 올린 싸움꾼 기준입니다. 만들 때 <b>직업 다섯(전사, 궁수, 마법사, 사제, 도적)마다</b> 무작위 플레이로 다시 맞춥니다. 약속은 "어느 직업이든 준비물을 갖추면 한 판에 35~50%"입니다.</li><li>스탯을 다시 찍는 망각의 물(지금 400)은 구간 사흘 벌이로 값을 올립니다.</li></ul></div>
+    <div class="box"><h3>M3 스스로 고르는 환생</h3><ul><li>지금은 쓰러졌을 때 운(다섯에 하나)으로만 다시 태어납니다. 그것은 그대로 두고, <b>신전에서 스스로 고르는 길</b>을 더합니다.</li><li>조건: 지금 구간의 메인 장을 끝낸 뒤에만. 도망치는 길이 되지 않게 합니다.</li><li>고른 환생의 덤: 끝낸 메인 장 하나마다 남는 경험치가 0.5%p씩 늘고(열세 장을 다 끝내면 1% → 7.5%), 출신 패를 한 장 더 뒤집습니다.</li><li>다시 태어난 삶은 끝낸 장을 <b>건너뛰거나, 다른 길로 다시 풉니다</b>. 삶마다 다른 푸는 길과 다른 끝을 봅니다.</li><li>남는 것(숙련도, 제작 레벨, 지도, 공방)은 운으로 태어날 때와 같습니다.</li></ul></div>
+    <div class="box"><h3>M4 100 뒤에 할 일</h3><ul><li>이야기는 13장에서 끝납니다. 레벨은 100이 끝이고, 그 뒤 경험치는 계속 쌓여 환생 때 남는 몫으로 들어갑니다(버려지지 않음).</li><li>끝이 보이는 목표만 둡니다: 지역 여덟의 히든 퀘스트, 이름난 개체 전부, 도감, 승급작 열 개를 걸작 등급으로, 못 본 끝 보기, 가상 유저 랭킹.</li><li>끝없이 세지는 탑이나 무한 구간은 넣지 않습니다.</li></ul></div>
+    <div class="box"><h3>M5 옛 구간이 잡일이 되지 않게</h3><ul><li>견습 하나를 <b>앞 구간 재료 모으기</b>로 돌릴 수 있습니다(두 단계 아래까지, 내 열 번에 하나).</li><li>지나온 구간의 재료는 경매장 하급 칸에서 값이 내려갑니다.</li><li>게시판 의뢰는 내 구간과 그 앞뒤 한 구간 것만 보입니다.</li><li>누르기 돕기는 지금 그대로 씁니다.</li></ul></div>
+    <div class="box"><h3>M6 가상 유저의 세계도 100까지</h3><ul><li>랭킹의 가상 유저들도 구간을 오릅니다. 나보다 조금 앞선 무리와 뒤처진 무리가 늘 있습니다.</li><li>새 지역마다 최초 발견 목록이 따로 있고, 소문이 다음 지역을 미리 흘립니다.</li><li><b>뒤 구간일수록 그곳의 유저가 줄어듭니다.</b> 시작 마을에는 수십, 처음 모루에는 한둘. "남들이 그만둔 뒤에도 계속한 사람"이라는 것이 눈에 보입니다.</li></ul></div>
+  </div>
+
+  <h3>M7 만드는 양과 내는 순서</h3>
+  <p class="note">한 구간의 양: 몬스터 넷과 우두머리, 던전 하나, 메인 한 장, 서브 둘과 히든 하나, 설계도 열두 개쯤, 요리 셋, 지역 규칙 하나. 구간 하나씩 내고, 낼 때마다 무작위 플레이로 I장 표의 그 줄이 10%p 안에 드는지 확인합니다.</p>
+  <div class="scroll"><table>
+    <tr><th>차례</th><th>내는 것</th><th>같이 들어가는 시스템</th></tr>
+    <tr><td>M7-0</td><td>바탕</td><td>재료 단계와 제작 레벨 40 틀, 비율로 붙는 버프, 은화 규칙(L9~L11), 직업별 균형을 뽑는 계산 도구</td></tr>
+    <tr><td>M7-1</td><td>11~20 채우기</td><td>강철 단계, 19~20 몬스터, 만들기 경험치(M2)</td></tr>
+    <tr><td>M7-2</td><td>흰마루 (21~30)</td><td>2부 시작, 추위, 승급작</td></tr>
+    <tr><td>M7-3</td><td>소금벌 (31~40)</td><td>갈증과 바뀌는 값, 가게, 스스로 고르는 환생(M3)</td></tr>
+    <tr><td>M7-4</td><td>잿골 (41~50)</td><td>열기</td></tr>
+    <tr><td>M7-5</td><td>안개늪 (51~60)</td><td>저주와 안개, 윗단계 성수, 공방과 견습</td></tr>
+    <tr><td>M7-6</td><td>잠긴 도성 (61~70)</td><td>숨, 구간 용병, 호위받는 채집</td></tr>
+    <tr><td>M7-7</td><td>구름다리 (71~80)</td><td>바람, 버프 용병, 상단</td></tr>
+    <tr><td>M7-8</td><td>별못 (81~90)</td><td>거울, 일행 셋</td></tr>
+    <tr><td>M7-9</td><td>처음 모루 (91~100)</td><td>벼리며 싸우기, 마지막 장과 끝, 100 뒤 목표(M4)</td></tr>
+  </table></div>
+</section>
+
+<section>
+  <h2><span class="tag">J</span>말이 되나 점검</h2>
+  <div class="scroll"><table>
+    <tr><th>물음</th><th>답</th></tr>
+    <tr><td>J1 가볍게 하는 사람도 100까지 가나</td><td>갑니다. 준비물이 모자라면 다섯 레벨 더 키우면 됩니다(I장 맨 오른쪽 칸). 다만 91~100은 그래도 빠듯해서(78%) 일행 셋은 갖춰야 합니다</td></tr>
+    <tr><td>J2 파고든 사람이 더 얻나</td><td>얻습니다. 강화, 높은 등급 제작, 히든 퀘스트가 그대로 힘이 되고, 상한으로 깎는 곳이 없습니다</td></tr>
+    <tr><td>J3 거저 주는 곳이 있나</td><td>없습니다. 버프와 용병은 재료와 삯이 듭니다. 경매장은 직접 만드는 것보다 비쌉니다</td></tr>
+    <tr><td>J4 100까지 얼마나 걸리나</td><td>제 레벨 몬스터만 잡아 약 1,820판. 한 판이 5~14번 누르기이니 싸움만 2만 번쯤 누릅니다. 제작·퀘스트는 따로입니다</td></tr>
+    <tr><td>J5 지금 저장은 어떻게 되나</td><td>그대로 이어집니다. 1~20이 바뀌지 않으니 지금 캐릭터는 새 지역이 열리기만 합니다</td></tr>
+    <tr><td>J6 지금 규칙과 부딪히나</td><td>일행이 둘까지라는 규칙(81부터 셋으로), 음식 버프가 고정값이라는 것(21부터 비율로), 이 둘이 바뀝니다</td></tr>
+    <tr><td>J7 공방이 "한 번 누르면 한 번"을 깨나</td><td>내 누르기는 그대로 한 번에 한 번입니다. 견습의 몫은 내가 누른 수의 10분의 1에서 5분의 1이고, 내가 멈추면 같이 멈춥니다. 다만 "여러 번을 한꺼번에 처리하는 길을 열지 않는다"는 규칙에 예외 하나가 생기므로, 확정하시면 규칙 문서에 "누르기 돕기"와 나란히 적습니다</td></tr>
+    <tr><td>J8 공방이 "거저 주지 않는다"를 깨나</td><td>삯과 재료를 내가 대고, 내가 일한 만큼만 돕니다. 꺼 둔 사이·쉬는 사이에는 0입니다. 견습 것에는 띠링·숙련도·히든이 붙지 않습니다(K10)</td></tr>
+    <tr><td>J9 공방이 내 제작을 쓸모없게 하나</td><td>아닙니다. 견습은 한 단계 아래, 일반 등급만 만듭니다. 제 구간 장비와 높은 등급, 승급작은 내 손으로만 나옵니다</td></tr>
+  </table></div>
+</section>
+
+<section>
+  <div class="ask">
+    <h2>정하실 것 다섯 가지</h2>
+    <ol>
+      <li><b>지금 1~20을 그대로 두고 새 지역 여덟을 잇는다</b>(추천, 이 시안). 아니면 지금 지역 셋도 1~30으로 다시 나눠 몬스터를 새로 맞춘다. 뒤쪽은 지금 저장과 테스트를 많이 건드립니다.</li>
+      <li><b>81부터 일행을 셋으로</b> 늘린다(추천). 아니면 둘로 두고 버프 용병이 때리는 용병 자리를 대신하게 한다.</li>
+      <li><b>"필요"의 세기</b>: 다섯 레벨 더 키우면 준비물 한 단계를 건너뛸 수 있다(추천). 더 빡빡하게, 또는 더 느슨하게도 됩니다.</li>
+      <li><b>보관함 이자</b>: 일을 서른 번 넘게 한 날에만 붙게 한다(추천, L9). 아니면 지금 그대로 둔다. 그대로 두면 뒤 구간의 은화 균형은 이자가 정하게 됩니다.</li>
+      <li><b>스스로 고르는 환생</b>을 더한다(추천, M3). "환생은 운이 정한다"는 직접 정하신 규칙이라 여쭙니다. 운으로 태어나는 것은 그대로 남습니다.</li>
+    </ol>
+    <p class="note">추천대로 정해 둔 것: 지역·몬스터·퀘스트의 이름 전부, 재료 단계 이름, 버프 크기(H장), 레벨당 마릿수(I장), 승급작 방식(F11), 경매 값(G2), 가게·공방·상단이 열리는 레벨과 "열 번에 한 번" 같은 비율(K장), 구간마다 벌이 1.65배와 준비물 값의 몫(L장), 지역 규칙 여덟과 만들기 경험치 40%, 내는 순서(M장). 마음에 안 드는 것은 번호(C5, D8, F11처럼)로 짚어 주세요.</p>
+  </div>
+</section>
+</main>
+
+</body></html>
