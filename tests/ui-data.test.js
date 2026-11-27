@@ -44,8 +44,10 @@ test('계산된 값을 누르면 셈이 보인다 (G2-2)', () => {
   // 삼백 번을 치면 배가 고파져서 벌이 붙는다. 셈에 그 줄까지 보인다. 치는 사이 힘이 드물게 오른다 (Z61)
   const str = s.stats.str;
   assert.ok(str > 12, '삼백 번 치면 힘이 한 번은 오른다');
-  assert.equal(attack.value, str + 7);
-  assert.equal(formula(attack), `힘 ${str} + 무기 6 + 치기 숙련 3 − 굶주림 2`);
+  const hungry = -attack.parts.find((x) => x.label.startsWith('굶주림')).value; // 벌은 공격력에 비례한다
+  assert.ok(hungry > 0);
+  assert.equal(attack.value, str + 9 - hungry);
+  assert.equal(formula(attack), `힘 ${str} + 무기 6 + 치기 숙련 3 − 굶주림 ${hungry}`);
   dispatch(s, { type: 'use', index: s.bag.findIndex((x) => x.id === 'riceball') });
   const fed = derived(s).find((d) => d.id === 'attack');
   assert.equal(fed.value, str + 9);

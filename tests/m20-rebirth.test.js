@@ -9,7 +9,7 @@ import { derived } from '../src/core/derived.js';
 import { valueOf as hiddenValue, hiddenById } from '../src/core/hidden.js';
 import { grantTitle } from '../src/core/social.js';
 import { parseSave } from '../src/core/save.js';
-import { SAVE_VERSION } from '../src/core/migrate.js';
+import { SAVE_VERSION, migrate } from '../src/core/migrate.js';
 
 const make = (origin = 'bard', seed = 'rb') => createGame({ name: '환', origin, rolled: rollDice('same'), seed });
 const atk = (s) => derived(s).find((d) => d.id === 'attack').value;
@@ -163,4 +163,28 @@ test('환생: 숙련도 전부, 제작 레벨, 던전 지도, 경험치의 1%가
   // 저장했다 읽어도 같다
   const back = parseSave(JSON.stringify({ v: SAVE_VERSION, rev: 1, savedAt: 1, state: n })).state;
   assert.deepEqual(back.dmem, n.dmem);
+});
+
+test('일로 오른 스탯은 환생해도 남는다 (Z101). 삶을 거듭해도 이어 쌓인다', () => {
+  const s = make('bard', 'toil');
+  s.place = 'temple';
+  const before = s.stats.wis;
+  let n = 0;
+  while ((s.toilGained.wis || 0) < 2 && n++ < 3000) { s.tired = 0; s.full = 80; dispatch(s, { type: 'act', id: 'pray' }); }
+  assert.equal(s.toilGained.wis, 2, '기도로 지혜가 두 번 올랐다');
+  assert.equal(s.stats.wis, before + 2);
+  const plain = createGame({ name: '새', origin: 'farmer', rolled: rollDice('same'), seed: 'new' });
+  for (const chosen of [false, true]) {
+    const carry = rebirthCarry(s, { chosen });
+    assert.equal(carry.toilGained.wis, 2);
+    const next = createGame({ name: '새', origin: 'farmer', rolled: rollDice('same'), seed: 'new', carry });
+    assert.equal(next.toilGained.wis, 2, '다음 삶에서도 세어 둔다');
+    // 가져온 경험치로 레벨이 올라도 스탯은 점수로만 오른다: 지혜는 일로 오른 만큼만 더 높다
+    assert.equal(next.stats.wis, plain.stats.wis + 2);
+    next.toilGained.wis += 1;
+    assert.equal(rebirthCarry(next).toilGained.wis, 3, '세 번째 삶으로도 이어진다');
+  }
+  // 이 칸이 없던 옛 저장은 0에서 센다
+  const old = JSON.parse(JSON.stringify(s)); delete old.toilGained;
+  assert.deepEqual(migrate(old).toilGained, { str: 0, agi: 0, con: 0, wis: 0 });
 });

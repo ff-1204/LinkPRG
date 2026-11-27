@@ -28,7 +28,7 @@ function toLevel5(s) {
 }
 
 test('도현 1: 레벨 5가 되자 직업 고르기가 열리고, 전사를 고르자 단축 칸에 방패 올리기가 놓인다', () => {
-  const s = createGame({ name: '도현', origin: 'smithboy', spent: { str: 3, con: 2 }, seed: 'dohyun-1' });
+  const s = createGame({ name: '도현', origin: 'smithboy', spent: { str: 3, con: 2 }, seed: 'dohyun-1b' });
   assert.ok(!canChooseJob(s));
   toLevel5(s);
   while (s.battle) dispatch(s, { type: 'battle', choice: enemyView(s).next.kind === 'charge' ? 'defend' : 'attack' });

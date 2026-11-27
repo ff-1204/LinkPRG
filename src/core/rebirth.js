@@ -2,10 +2,10 @@
 // 몸은 처음부터 다시지만, 종이 기억한 것(히든 스탯, 다시 일어선 몸으로 오른 스탯, 칭호, 도감), 보관함은 가지고 간다.
 // 손에 익은 것도 남는다 (Z98, 사용자 결정): 숙련도 전부, 제작 레벨, 던전 지도, 그리고 쌓은 경험치의 1%(그만큼 레벨과 스탯 점수가 다시 붙는다).
 
-import { shopCarry } from './workshop.js?v=91cafab';
-import { HIDDEN } from './hidden.js?v=91cafab';
-import { xpNeeded, MAX_GRADE } from './skills.js?v=91cafab';
-import { xpToNext, gainXp } from './level.js?v=91cafab';
+import { shopCarry } from './workshop.js?v=ee566ac';
+import { HIDDEN } from './hidden.js?v=ee566ac';
+import { xpNeeded, MAX_GRADE } from './skills.js?v=ee566ac';
+import { xpToNext, gainXp } from './level.js?v=ee566ac';
 
 export const SKILL_KEEP = 1; // 숙련도의 이만큼을 가지고 간다 (Z98: 5% → 전부)
 export const XP_KEEP = 0.01; // 레벨에 쌓은 경험치의 이만큼을 가지고 간다 (Z98)
@@ -38,7 +38,7 @@ function fromTotal(total) {
   while (grade < MAX_GRADE && xp >= xpNeeded(grade)) { xp -= xpNeeded(grade); grade++; }
   return { grade, xp };
 }
-import { JOBS, HIDDEN_JOBS } from '../data/jobs.js?v=91cafab';
+import { JOBS, HIDDEN_JOBS } from '../data/jobs.js?v=ee566ac';
 const jobName = (id) => (id ? (JOBS[id] || HIDDEN_JOBS[id])?.name || id : null);
 
 const STATS = ['str', 'agi', 'con', 'wis'];
@@ -59,6 +59,7 @@ export function rebirthCarry(state, { chosen = false } = {}) {
   const hidden = {};
   for (const [id, slot] of Object.entries(state.hidden || {})) if (slot && slot.value > 0) hidden[id] = { value: slot.value, half: true };
   const toughGained = Object.fromEntries(STATS.map((k) => [k, state.toughGained?.[k] || 0]));
+  const toilGained = Object.fromEntries(STATS.map((k) => [k, state.toilGained?.[k] || 0])); // 몸을 쓰는 일로 오른 스탯도 남는다 (Z101)
   return {
     lives: (state.lives || 1) + 1,
     cid: state.cid || null, // 같은 캐릭터의 다음 삶이다 (Z96)
@@ -93,6 +94,7 @@ export function rebirthCarry(state, { chosen = false } = {}) {
     pastHidden,
     hidden,
     toughGained,
+    toilGained,
     tough: Object.fromEntries(STATS.map((k) => [k, state.tough?.[k] || 0])),
     titles: (state.titles || []).map((t) => ({ ...t })),
     title: state.title || null,
@@ -164,7 +166,8 @@ export function applyCarry(state, carry) {
   state.hidden = Object.fromEntries(Object.entries(carry.hidden).map(([id, s]) => [id, { ...s }]));
   state.toughGained = { ...carry.toughGained };
   state.tough = { ...carry.tough };
-  for (const k of STATS) state.stats[k] += carry.toughGained[k] || 0;
+  state.toilGained = Object.fromEntries(STATS.map((k) => [k, carry.toilGained?.[k] || 0]));
+  for (const k of STATS) state.stats[k] += (carry.toughGained[k] || 0) + state.toilGained[k];
   state.titles = carry.titles.map((t) => ({ ...t }));
   state.title = carry.title && state.titles.some((t) => t.id === carry.title) ? carry.title : null;
   state.world = JSON.parse(JSON.stringify(carry.world));

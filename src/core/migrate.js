@@ -1,22 +1,22 @@
 // 저장의 판(버전)과, 옛 저장을 지금 꼴로 올리는 길.
 // 저장 형식을 바꾸면 SAVE_VERSION을 올리고 여기에 한 단계를 더한다.
 
-import { makeItem } from './inventory.js?v=91cafab';
-import { valueOf } from './derived.js?v=91cafab';
-import { worldFields } from './world.js?v=91cafab';
-import { auctionFields } from './auction.js?v=91cafab';
+import { makeItem } from './inventory.js?v=ee566ac';
+import { valueOf } from './derived.js?v=ee566ac';
+import { worldFields } from './world.js?v=ee566ac';
+import { auctionFields } from './auction.js?v=ee566ac';
 
-import { endingFields } from './ending.js?v=91cafab';
-import { MAIN } from '../data/quests.js?v=91cafab';
-import { ITEMS } from '../data/items.js?v=91cafab';
-import { ADVANCED } from '../data/jobs.js?v=91cafab';
-import { nativeWork } from './work.js?v=91cafab';
-import { deliverMail } from './mail.js?v=91cafab';
-import { cidFrom } from './rng.js?v=91cafab';
-import { tierOfLv } from '../data/bands.js?v=91cafab';
-import { ashFields } from './heat.js?v=91cafab';
-import { marshFields } from './marsh.js?v=91cafab';
-import { sunkenFields, SUNKEN } from './sunken.js?v=91cafab';
+import { endingFields } from './ending.js?v=ee566ac';
+import { MAIN } from '../data/quests.js?v=ee566ac';
+import { ITEMS } from '../data/items.js?v=ee566ac';
+import { ADVANCED } from '../data/jobs.js?v=ee566ac';
+import { nativeWork } from './work.js?v=ee566ac';
+import { deliverMail } from './mail.js?v=ee566ac';
+import { cidFrom } from './rng.js?v=ee566ac';
+import { tierOfLv } from '../data/bands.js?v=ee566ac';
+import { ashFields } from './heat.js?v=ee566ac';
+import { marshFields } from './marsh.js?v=ee566ac';
+import { sunkenFields, SUNKEN } from './sunken.js?v=ee566ac';
 const ORIGIN_NATIVE = new Proxy({}, { get: (_, id) => nativeWork(id) });
 
 export { worldFields, auctionFields, endingFields };
@@ -286,6 +286,7 @@ function mend(state) {
   if (!state.lore || !Array.isArray(state.lore.hints)) state.lore = { hints: [] };
   if (!state.tough) state.tough = { str: 0, agi: 0, con: 0, wis: 0 };
   if (!state.toughGained) state.toughGained = { str: 0, agi: 0, con: 0, wis: 0 };
+  if (!state.toilGained) state.toilGained = { str: 0, agi: 0, con: 0, wis: 0 }; // 이 칸이 생기기 전에 오른 것은 세어 두지 않아 알 수 없다 (Z101)
   // 하루 쇠약은 죽음의 그림자가 되었다 (Z31): 아직 쇠약하던 사람은 한 겹을 안고 온다
   if (!Number.isInteger(state.shadow)) {
     const w = state.weak;
