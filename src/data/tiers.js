@@ -2,7 +2,7 @@
 // 지역을 낼 때(M15~M22) 곳과 사냥터에 잇는다. 이름과 글은 사용자가 읽고 확정하기 전의 처음 값이다.
 // 숫자는 구간 자료(bands.js)에서 나온다. 이 파일은 다른 자료 파일을 부르지 않는다(물건·설계도 파일이 이 파일을 부른다).
 
-import { BANDS, foodRate, BOSS, normalAt } from './bands.js?v=ee566ac';
+import { BANDS, foodRate, BOSS, normalAt } from './bands.js?v=a145911';
 
 /** metal·hide·meat: [id, 이름, 한 줄]. sword·shield·body: 시안이 따로 이름 붙인 승급작 (LV-F). dish: [id, 이름, 버프 이름, 귀띔]. */
 export const TIERS = [
@@ -63,8 +63,9 @@ export function tierItems() {
     out[`dish_${t.dish[0]}`] = { name: t.dish[1], kind: 'eat', tier: t.n, weight: 1, icon: 'item-meat', price: r(b.day * 0.1), eat: { full: 70, dish: t.dish[0], ...(t.n === 3 ? { warm: 40 } : {}), ...(t.n === 4 ? { salty: 1 } : {}) }, desc: `먹으면 ${t.dish[2]}(공격력·방어력 +${rate}%).${t.n === 3 ? ' 뜨거워서 식은 몸이 풀린다(체온 +40).' : ''}${t.n === 4 ? ' 짜서 소금벌에서는 물이 한 모금 더 준다.' : ''}` };
   }
   // 윗단계 성수 (LV-H2): 깊은 성수는 61부터, 별빛 성수는 81부터. 지금 성수(5%)보다 센 가호를 건다
-  out.deepholy = { name: '깊은 성수', kind: 'eat', tier: 7, weight: 1, icon: 'item-water', price: 130, eat: { grace: 0.09, shadow: true }, desc: '잠긴 종루의 물로 축복한 성수. 마시면 죽음의 그림자가 걷히고 더 깊은 가호(공격력·방어력 +9%)가 두 때 동안 붙는다.' };
-  out.starholy = { name: '별빛 성수', kind: 'eat', tier: 9, weight: 1, icon: 'item-water', price: 380, eat: { grace: 0.11, shadow: true }, desc: '별못의 물로 축복한 성수. 마시면 죽음의 그림자가 걷히고 별빛 가호(공격력·방어력 +11%)가 두 때 동안 붙는다.' };
+  // 사는 값은 지금 성수(레벨 × 6)처럼 레벨을 따라 오른다 (Z102): 깊은 성수 × 9, 별빛 성수 × 12. price는 되팔 때의 바탕값이다
+  out.deepholy = { name: '깊은 성수', kind: 'eat', tier: 7, weight: 1, icon: 'item-water', price: 130, perLevel: 9, eat: { grace: 0.09, shadow: true }, desc: '잠긴 종루의 물로 축복한 성수. 마시면 죽음의 그림자가 걷히고 더 깊은 가호(공격력·방어력 +9%)가 두 때 동안 붙는다. 값은 레벨 × 9.' };
+  out.starholy = { name: '별빛 성수', kind: 'eat', tier: 9, weight: 1, icon: 'item-water', price: 380, perLevel: 12, eat: { grace: 0.11, shadow: true }, desc: '별못의 물로 축복한 성수. 마시면 죽음의 그림자가 걷히고 별빛 가호(공격력·방어력 +11%)가 두 때 동안 붙는다. 값은 레벨 × 12.' };
   return out;
 }
 

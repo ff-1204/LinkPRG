@@ -1,18 +1,18 @@
 // 상점과 보관함 (E24, E25, E28, H1-5, H1-6, R2-4).
 // 돈은 은화 한 가지. 팔 때는 값의 40%. 등급이 높으면 값도 높다.
 
-import { INTEREST_WORK } from '../data/bands.js?v=ee566ac';
-import { pushLine } from './log.js?v=ee566ac';
-import { itemDef, GRADE_MULT, gradeName } from '../data/items.js?v=ee566ac';
-import { addItem, removeAt, itemWeight } from './inventory.js?v=ee566ac';
-import { SHOPS, DAILY_SWING, MARKET_SWING, MARKET_FLAT, MARKET_GOODS, MARKET_GOODS_AT } from '../data/shops.js?v=ee566ac';
-import { seedFrom } from './rng.js?v=ee566ac';
-import { discountOf as socialDiscount } from './social.js?v=ee566ac';
-import { placeById } from '../data/places.js?v=ee566ac';
-import { guildPerk } from './guild.js?v=ee566ac';
-import { gearName } from './gear.js?v=ee566ac';
-import { eulReul, iGa } from './ko.js?v=ee566ac';
-import { hasTitle } from './titles.js?v=ee566ac';
+import { INTEREST_WORK } from '../data/bands.js?v=a145911';
+import { pushLine } from './log.js?v=a145911';
+import { itemDef, GRADE_MULT, gradeName } from '../data/items.js?v=a145911';
+import { addItem, removeAt, itemWeight } from './inventory.js?v=a145911';
+import { SHOPS, DAILY_SWING, MARKET_SWING, MARKET_FLAT, MARKET_GOODS, MARKET_GOODS_AT } from '../data/shops.js?v=a145911';
+import { seedFrom } from './rng.js?v=a145911';
+import { discountOf as socialDiscount } from './social.js?v=a145911';
+import { placeById } from '../data/places.js?v=a145911';
+import { guildPerk } from './guild.js?v=a145911';
+import { gearName } from './gear.js?v=a145911';
+import { eulReul, iGa } from './ko.js?v=a145911';
+import { hasTitle } from './titles.js?v=a145911';
 
 export const SELL_RATE = 0.4;
 export const APPRAISE_SELL = 0.01;
@@ -35,7 +35,7 @@ export function worth(item) {
  * @returns {{base:number, now:number, why:string}}
  */
 export function buyPrice(state, id) {
-  // 레벨 따라 값이 오르는 것 (Z77 성수: 레벨 × 6). 신전 축복(레벨 × 5)보다 늘 조금 비싸게, 깎아 주지 않는다
+  // 레벨 따라 값이 오르는 것 (Z77 성수: 레벨 × 6, Z102 깊은 성수 × 9·별빛 성수 × 12). 신전 축복(레벨 × 5)보다 늘 조금 비싸게, 깎아 주지 않는다
   const per = itemDef(id).perLevel;
   if (per) { const v = Math.max(per, (state.level || 1) * per); return { base: v, now: v, why: '' }; }
   let base = worth({ id, grade: itemDef(id).grade || 0 });

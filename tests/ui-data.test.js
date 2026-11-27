@@ -70,3 +70,13 @@ test('글과 그림 파일이 모두 있다', () => {
   for (const p of Object.values(PLACES)) names.push(p.strip.day, p.strip.night);
   for (const n of names) assert.ok(existsSync(new URL(`../art/pixel/out/${n}.png`, import.meta.url)), `${n}.png`);
 });
+
+test('기본 스탯은 기본 + 장비 + 추가로 나뉘어 보인다 (Z103). 0인 몫은 글에서 빠진다', async () => {
+  const { statParts } = await import('../src/core/derived.js');
+  const s = createGame({ name: '셈', origin: 'smithboy', spent: { str: 1 }, seed: 'parts' });
+  const str = s.stats.str;
+  assert.deepEqual(statParts(s, 'str'), { total: str, base: str, gear: 0, extra: 0, text: `기본 ${str}` });
+  s.stats.str += 4; s.toilGained.str = 3; s.toughGained.str = 1;
+  assert.deepEqual(statParts(s, 'str'), { total: str + 4, base: str, gear: 0, extra: 4, text: `기본 ${str} + 추가 4` });
+  for (const k of ['str', 'agi', 'con', 'wis']) { const p = statParts(s, k); assert.equal(p.base + p.gear + p.extra, s.stats[k]); }
+});

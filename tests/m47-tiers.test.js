@@ -125,3 +125,16 @@ test('윗단계 성수는 지금 성수보다 센 가호를 건다 (LV-H2)', asy
   assert.equal(ITEMS.deepholy.tier, 7);
   assert.equal(ITEMS.starholy.tier, 9);
 });
+
+test('성수 값은 셋 다 레벨을 따라 오르고, 더 센 성수가 늘 더 비싸다 (Z102)', async () => {
+  const { buyPrice } = await import('../src/core/trade.js');
+  const s = createGame({ name: '값', origin: 'farmer', rolled: rollDice('same'), seed: 'holyprice' });
+  for (const lv of [1, 34, 61, 65, 85, 100]) {
+    s.level = lv;
+    const [plain, deep, star] = ['holywater', 'deepholy', 'starholy'].map((id) => buyPrice(s, id).now);
+    assert.deepEqual([plain, deep, star], [lv * 6, lv * 9, lv * 12], `레벨 ${lv}`);
+    assert.ok(plain < deep && deep < star);
+  }
+  s.level = 65; s.place = 'bridgemarket';
+  assert.equal(buyPrice(s, 'deepholy').now, 585, '장터의 그날 시세도 타지 않는다');
+});

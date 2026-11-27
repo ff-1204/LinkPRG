@@ -52,6 +52,7 @@ h1, h2, h3, p { margin: 0; }
 .create aside { background: var(--sand); padding: 2.1rem 1.9rem; display: flex; flex-direction: column; gap: .4rem; }
 .statline { display: flex; align-items: center; gap: .5rem; padding: .45rem 0; border-bottom: 1px dashed var(--line2); font-size: 1.05rem; }
 .statline > span:first-child { flex: 1; }
+.statline .statsum { display: block; font-size: .82rem; color: var(--muted); }
 .pm { width: 2.75rem; min-height: 2.75rem; border-radius: 8px; border: 1.5px solid var(--cinnamon); background: var(--paper); color: var(--cinnamon); font-size: 1.25rem; }
 .pm:disabled { border-color: var(--line2); color: var(--line2); }
 .namebox { display: flex; gap: 1rem; align-items: flex-end; }

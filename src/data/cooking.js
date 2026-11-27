@@ -33,7 +33,7 @@ export const MUSH = { name: '먹을 수는 있는 것', full: 15 };
 export const COOK_LINES = ['모닥불에 올렸다. 연기가 오른다.', '모닥불에 올렸다. 지글거린다.', '모닥불에 올렸다. 냄새가 번진다.'];
 
 // 3~10단계의 요리 (LV-H1): 비율로 붙는다. 그 지역을 낼 때까지는 재료를 구할 수 없다
-import { tierDishes, TIERS } from './tiers.js?v=ee566ac';
+import { tierDishes, TIERS } from './tiers.js?v=a145911';
 Object.assign(DISHES, tierDishes());
 DISH_ORDER.push(...TIERS.map((t) => t.dish[0]));
 INGREDIENTS.push(...TIERS.map((t) => t.meat[0]));

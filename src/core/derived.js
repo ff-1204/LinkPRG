@@ -1,10 +1,10 @@
 // 계산된 값과 그 셈 (R2-1, R2-2, G2-2). 누르면 셈이 풀려 보인다.
 
-import { equipPower, usable } from './inventory.js?v=ee566ac';
-import { itemDef } from '../data/items.js?v=ee566ac';
-import { buffOf, foodBuff, restBuff, graceBuff, murderBuff, drumBuff } from './buffs.js?v=ee566ac';
-import { ADVANCED } from '../data/jobs.js?v=ee566ac';
-import { coldAttackCut } from './cold.js?v=ee566ac';
+import { equipPower, usable } from './inventory.js?v=a145911';
+import { itemDef } from '../data/items.js?v=a145911';
+import { buffOf, foodBuff, restBuff, graceBuff, murderBuff, drumBuff } from './buffs.js?v=a145911';
+import { ADVANCED } from '../data/jobs.js?v=a145911';
+import { coldAttackCut } from './cold.js?v=a145911';
 
 /** 숙련 보너스: 등급 두 칸마다 1. */
 export function skillBonus(skill) {
@@ -39,6 +39,20 @@ function gritCut(state) {
 }
 function penaltyRate(state) {
   return 0.10 * gritCut(state);
+}
+
+/**
+ * 기본 스탯 하나가 어디서 왔는지 (Z103): 기본(주사위·출신·레벨업 점수) + 장비 + 추가(일로 오른 것, 다시 일어선 몸).
+ * 지금은 스탯을 올려 주는 장비가 없어 장비 몫은 늘 0이다. 0인 몫은 글에서 뺀다.
+ * @returns {{total:number, base:number, gear:number, extra:number, text:string}}
+ */
+export function statParts(state, key) {
+  const total = state.stats[key] || 0;
+  const gear = 0;
+  const extra = Math.min(total, (state.toilGained?.[key] || 0) + (state.toughGained?.[key] || 0));
+  const base = total - gear - extra;
+  const text = [`기본 ${base}`, gear ? `장비 ${gear}` : '', extra ? `추가 ${extra}` : ''].filter(Boolean).join(' + ');
+  return { total, base, gear, extra, text };
 }
 
 /**
