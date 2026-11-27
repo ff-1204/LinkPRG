@@ -1,40 +1,40 @@
 // 퀘스트 네 갈래를 굴린다 (Q1~Q4, E19~E23, S1).
 // 의뢰(게시판) · 서브(사람이 준다, 선택으로 갈린다) · 히든(조건을 채우면 나타난다) · 메인(장마다 길 여럿)
 
-import { seedFrom, next, chance } from './rng.js?v=f30e95b';
-import { pushLine, ding } from './log.js?v=f30e95b';
-import { JOBS, JOB_LIMIT, JOB_DAYS, BOARD_SIZE, SUBS, SUB_ORDER, STAT_CHECKS, HIDDENS, HIDDEN_ORDER, MAIN, SALT_ROAD, SALT_ROAD_SAY, PERSUADE_SAY, BELL_NIGHTS, FAIR_SALES, ASH_ROAD, ASH_ROAD_SAY, SHARD, SHARD_SAY, TURN_SAY, MARSH_ROAD, MARSH_ROAD_SAY, SUNKEN_ROAD, SUNKEN_ROAD_SAY, CLOUD_ROAD, CLOUD_ROAD_SAY, POND_ROAD, POND_ROAD_SAY, ANVIL_ROAD, SHARDS, PRIEST, PRIEST_LINES, ECHO, ECHO_LINES, MOSS, QUENCH_PUMPS, HANG, HANG_SAY, QUENCH_SAY, BOSS_LOSSES, EMBER, EMBER_LINES } from '../data/quests.js?v=f30e95b';
-import { WEIGHERS, BELLOWERS } from '../data/people.js?v=f30e95b';
-import { rollOptions, gearName } from './gear.js?v=f30e95b';
-import { ARENA } from './arena.js?v=f30e95b';
-import { stageNow, SHOP } from './workshop.js?v=f30e95b';
-import { relievedPosts } from './dungeon.js?v=f30e95b';
-import { underwater } from './sunken.js?v=f30e95b';
-import { YARD, answeredPeople, answeredAll, bellsHung } from './pond.js?v=f30e95b';
-import { ANVIL, ANVIL_ENDS, anvilAfterText, hiddenAnvilEnd, stepsView } from './anvil.js?v=f30e95b';
-import { PEOPLE, REGULAR, PEOPLE_ORDER, BONDS } from '../data/people.js?v=f30e95b';
-import { itemDef } from '../data/items.js?v=f30e95b';
-import { monsterDef } from '../data/monsters.js?v=f30e95b';
-import { placeById, PLACES } from '../data/places.js?v=f30e95b';
-import { countOf, takeById, addItem } from './inventory.js?v=f30e95b';
-import { grantXp } from './reward.js?v=f30e95b';
-import { bondOf, bondBy, addFame, fameOf, grantTitle, checkChance, rollCheck, CHECKS } from './social.js?v=f30e95b';
-import { SKILL_NAMES, gradeLabel } from './skills.js?v=f30e95b';
-import { addStanding, standingOf, previewEffects } from './factions.js?v=f30e95b';
-import { offerHiddenJob } from './jobs.js?v=f30e95b';
-import { cross } from './party.js?v=f30e95b';
-import { SEARCH_NEED } from '../data/lines.js?v=f30e95b';
-import { endingChoices, afterText, ENDINGS, MASTER_GRADE } from './ending.js?v=f30e95b';
-import { HIDDEN_JOBS } from '../data/jobs.js?v=f30e95b';
-import { iGa, eulReul } from './ko.js?v=f30e95b';
-import { WILDS } from '../data/wild.js?v=f30e95b';
-import { rootOf } from '../data/origins.js?v=f30e95b';
-import { MONSTERS } from '../data/monsters.js?v=f30e95b';
-import { SHOPS } from '../data/shops.js?v=f30e95b';
-import { hasTitle } from './titles.js?v=f30e95b';
-import { MAIN_HOW, SUB_GOAL_AT, HIDDEN_GOAL_AT } from '../data/questhow.js?v=f30e95b';
-import { DUNGEONS } from '../data/dungeon.js?v=f30e95b';
-import { TOWNS } from '../data/places.js?v=f30e95b';
+import { seedFrom, next, chance } from './rng.js?v=4f00195';
+import { pushLine, ding } from './log.js?v=4f00195';
+import { JOBS, JOB_LIMIT, JOB_DAYS, BOARD_SIZE, SUBS, SUB_ORDER, STAT_CHECKS, HIDDENS, HIDDEN_ORDER, MAIN, SALT_ROAD, SALT_ROAD_SAY, PERSUADE_SAY, BELL_NIGHTS, FAIR_SALES, ASH_ROAD, ASH_ROAD_SAY, SHARD, SHARD_SAY, TURN_SAY, MARSH_ROAD, MARSH_ROAD_SAY, SUNKEN_ROAD, SUNKEN_ROAD_SAY, CLOUD_ROAD, CLOUD_ROAD_SAY, POND_ROAD, POND_ROAD_SAY, ANVIL_ROAD, SHARDS, PRIEST, PRIEST_LINES, ECHO, ECHO_LINES, MOSS, QUENCH_PUMPS, HANG, HANG_SAY, QUENCH_SAY, BOSS_LOSSES, EMBER, EMBER_LINES } from '../data/quests.js?v=4f00195';
+import { WEIGHERS, BELLOWERS } from '../data/people.js?v=4f00195';
+import { rollOptions, gearName } from './gear.js?v=4f00195';
+import { ARENA } from './arena.js?v=4f00195';
+import { stageNow, SHOP } from './workshop.js?v=4f00195';
+import { relievedPosts } from './dungeon.js?v=4f00195';
+import { underwater } from './sunken.js?v=4f00195';
+import { YARD, answeredPeople, answeredAll, bellsHung } from './pond.js?v=4f00195';
+import { ANVIL, ANVIL_ENDS, anvilAfterText, hiddenAnvilEnd, stepsView } from './anvil.js?v=4f00195';
+import { PEOPLE, REGULAR, PEOPLE_ORDER, BONDS } from '../data/people.js?v=4f00195';
+import { itemDef } from '../data/items.js?v=4f00195';
+import { monsterDef } from '../data/monsters.js?v=4f00195';
+import { placeById, PLACES } from '../data/places.js?v=4f00195';
+import { countOf, takeById, addItem } from './inventory.js?v=4f00195';
+import { grantXp } from './reward.js?v=4f00195';
+import { bondOf, bondBy, addFame, fameOf, grantTitle, checkChance, rollCheck, CHECKS } from './social.js?v=4f00195';
+import { SKILL_NAMES, gradeLabel } from './skills.js?v=4f00195';
+import { addStanding, standingOf, previewEffects } from './factions.js?v=4f00195';
+import { offerHiddenJob } from './jobs.js?v=4f00195';
+import { cross } from './party.js?v=4f00195';
+import { SEARCH_NEED } from '../data/lines.js?v=4f00195';
+import { endingChoices, afterText, ENDINGS, MASTER_GRADE } from './ending.js?v=4f00195';
+import { HIDDEN_JOBS } from '../data/jobs.js?v=4f00195';
+import { iGa, eulReul } from './ko.js?v=4f00195';
+import { WILDS } from '../data/wild.js?v=4f00195';
+import { rootOf } from '../data/origins.js?v=4f00195';
+import { MONSTERS } from '../data/monsters.js?v=4f00195';
+import { SHOPS } from '../data/shops.js?v=4f00195';
+import { hasTitle } from './titles.js?v=4f00195';
+import { MAIN_HOW, SUB_GOAL_AT, HIDDEN_GOAL_AT } from '../data/questhow.js?v=4f00195';
+import { DUNGEONS } from '../data/dungeon.js?v=4f00195';
+import { TOWNS } from '../data/places.js?v=4f00195';
 
 const FAVOR_STRIKES = 300;
 const FAMILY = 4; // '가족 같은 사이'
@@ -63,6 +63,13 @@ export function goTo(state, placeId) {
   return { id: gate.id, name: p.town, here: false, action: { type: 'travel', to: gate.id } };
 }
 const goList = (state, at) => [goTo(state, at)].filter(Boolean);
+/** 상세 위치 (Z111): "나루 > 상단 지부". 들판은 이름만, 던전은 들머리 뒤에 붙는다("언못 > 종루 아래 > 얼음 종루"). */
+export function placePath(placeId) {
+  const dg = typeof placeId === 'string' && placeId[0] === '@' ? DUNGEONS[placeId.slice(1)] : null;
+  const p = PLACES[dg ? dg.from : placeId];
+  if (!p) return '';
+  return [p.wild || !p.town || p.town === p.name ? null : p.town, p.name, dg ? dg.name : null].filter(Boolean).join(' > ');
+}
 /** 의뢰를 끝내는 게시판이 있는 곳. */
 const boardPlace = (d) => Object.values(PLACES).find((p) => p.board === (d.at || 'plaza'))?.id || 'plaza';
 
@@ -133,7 +140,7 @@ export function jobsView(state) {
   return state.jobs.map((j) => {
     const d = JOBS[j.id];
     const have = jobProgress(state, j);
-    return { id: j.id, where: whereOf(d, state), go: goPlaces(d, state), rank: d.rank, name: d.name, by: d.by, have, n: d.n, ready: have >= d.n, back: goList(state, boardPlace(d)), backName: PLACES[boardPlace(d)].name, due: j.due, left: j.due - state.day, silver: d.silver, xp: d.xp, fame: d.fame, what: d.kind === 'bring' ? `${eulReul(itemDef(d.item).name)} 모아 게시판에 낸다` : `${eulReul(monsterDef(d.mon).name)} 잡고 게시판에 알린다` };
+    return { id: j.id, where: whereOf(d, state), go: goPlaces(d, state), rank: d.rank, name: d.name, by: d.by, have, n: d.n, ready: have >= d.n, back: goList(state, boardPlace(d)), backName: `${placePath(boardPlace(d))} > 게시판`, due: j.due, left: j.due - state.day, silver: d.silver, xp: d.xp, fame: d.fame, what: d.kind === 'bring' ? `${eulReul(itemDef(d.item).name)} 모아 게시판에 낸다` : `${eulReul(monsterDef(d.mon).name)} 잡고 게시판에 알린다` };
   });
 }
 
@@ -255,9 +262,7 @@ export function subView(state, id) {
 function subHow(state, id, step) {
   const at = step.goal ? SUB_GOAL_AT[id] : step.at;
   if (!at || !PLACES[at]) return { how: '', go: [] };
-  const p = PLACES[at];
-  const where = p.wild || !p.town ? p.name : `${p.town}의 ${p.name}`;
-  return { how: step.goal ? `어디서: ${where}` : `어디서: ${where}. 거기서 이 창을 열어 정한다.`, go: goList(state, at) };
+  return { how: step.goal ? '' : '거기서 이 창을 열어 정한다.', where: placePath(at), go: goList(state, at) };
 }
 
 function goalText(state, goal, st) {
@@ -411,7 +416,7 @@ export function hiddenView(state) {
     const step = st.status === 'active' ? q.steps.find((s) => s.id === st.step) : null;
     const at = step ? (step.goal?.talk ? PEOPLE[step.goal.talk]?.place : HIDDEN_GOAL_AT[id]) : null;
     const p = at ? PLACES[at] : null;
-    return { id, name: q.name, kind: q.kind, status: st.status, why: q.why, step: step ? { text: step.text, goal: goalText(state, step.goal, st), how: p ? `어디서: ${p.wild || !p.town ? p.name : `${p.town}의 ${p.name}`}` : '', go: p ? goList(state, at) : [] } : null };
+    return { id, name: q.name, kind: q.kind, status: st.status, why: q.why, step: step ? { text: step.text, goal: goalText(state, step.goal, st), how: '', where: p ? placePath(at) : '', go: p ? goList(state, at) : [] } : null };
   });
 }
 
@@ -540,7 +545,7 @@ export function mainView(state) {
   // 13장을 끝낸 뒤 (CM-E): 새긴 끝과 그 뒤의 세계
   if (!m && state.anvil?.end) return { chapter: ch, name: `끝난 뒤: ${ANVIL_ENDS[state.anvil.end].name}`, text: anvilAfterText(state), paths: [], nearest: null, done: doneChapters(state), past: pastChapters(state), called: state.main.called, after: true };
   // 13장은 푸는 길 대신 할 일 셋이 보인다 (CM-D). 끝들의 이름은 종을 다 짓기 전에는 어디에도 없다
-  const how = (id) => { const x = MAIN_HOW[ch]?.[id]; return x ? { how: x[1], go: goList(state, x[0]) } : { how: '', go: [] }; };
+  const how = (id) => { const x = MAIN_HOW[ch]?.[id]; return x ? { how: x[1], where: x[0] ? placePath(x[0]) : '', go: goList(state, x[0]) } : { how: '', go: [] }; };
   if (m?.steps) { const steps = stepsView(state).map((p) => ({ ...p, ...(p.closed || p.have >= p.need ? { how: '', go: [] } : how(p.id)) })); return { chapter: ch, name: m.name, text: m.text, paths: steps, nearest: steps.find((p) => !p.closed && p.have < p.need) || null, done: doneChapters(state), past: pastChapters(state), called: state.main.called, steps: true }; }
   if (!m) return { chapter: ch, name: state.ending ? `끝난 뒤: ${ENDINGS[state.ending].name}` : '', text: state.ending ? `${afterText(state)}${road}` : `다음 장은 아직 쓰이지 않았다.${road}`, paths: [], nearest: null, done: doneChapters(state), past: pastChapters(state), called: state.main.called };
   const paths = m.paths.map((p) => {
