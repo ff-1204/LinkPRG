@@ -153,6 +153,10 @@ h1, h2, h3, p { margin: 0; }
 .helplist { list-style: none; padding: 0; display: flex; flex-direction: column; max-width: 46rem; }
 .helplist li { position: relative; padding: 9px 0 9px 20px; line-height: 1.75; border-bottom: 1px dashed var(--line2); }
 .helplist li:last-child { border-bottom: 0; }
+.helplist li.helphead { padding: 18px 0 4px; border-bottom: 2px solid var(--line); }
+.helplist li.helphead:first-child { padding-top: 4px; }
+.helplist li.helphead::before { content: none; }
+.helplist li.helphead h3 { font-family: var(--serif); font-size: 1.12rem; }
 .helplist li::before { content: ''; position: absolute; left: 3px; top: 1.15em; width: 7px; height: 7px; background: var(--cinnamon); }
 .helplist b { color: var(--cinnamon); }
 .helpnext { display: flex; justify-content: space-between; gap: 8px; margin-top: 6px; }

@@ -1,73 +1,73 @@
 // 화면 본체. 규칙(core)을 불러 상태를 고치고, 상태를 그린다.
 // 시안 번호: 화면 틀 D1~D6, 캐릭터 만들기 T1~T3, 상태·스킬 창 G2, 저장·설정 G4, 도움말 H2, 그림 X1·X3.
 
-import { h, pixel, fill, add } from './dom.js?v=a145911';
-import { createWindows } from './windows.js?v=a145911';
-import { loadSettings, saveSettings, applySettings, SETTING_GROUPS } from './settings.js?v=a145911';
-import { playDing } from './sound.js?v=a145911';
-import { HELP, helpBody } from './help.js?v=a145911';
+import { h, pixel, fill, add } from './dom.js?v=2134347';
+import { createWindows } from './windows.js?v=2134347';
+import { loadSettings, saveSettings, applySettings, SETTING_GROUPS } from './settings.js?v=2134347';
+import { playDing } from './sound.js?v=2134347';
+import { HELP, HELP_HEAD, helpBody } from './help.js?v=2134347';
 import {
   createGame, dispatch, usersHere, whenLabel, isNight, scarecrowStage, DING_LEVELS,
   slotsNow, mapView, bodyView, clockOf, enemyView, choiceView, craftView,
-} from '../core/game.js?v=a145911';
-import { recipeList, craftLvView } from '../core/craft.js?v=a145911';
-import { wealthFeel } from '../core/explore.js?v=a145911';
-import { ORDER_OF, BRANCHES, BRANCH_ORDER } from '../data/recipes.js?v=a145911';
-import { jobDef as jobDefOf } from '../data/jobs.js?v=a145911';
-import { evolveView, pendingEvolves, branchOf } from '../core/evolve.js?v=a145911';
-import { shopView, storeView, pricesView } from '../core/trade.js?v=a145911';
-import { stallView } from '../core/stall.js?v=a145911';
-import { caravanView } from '../core/caravan.js?v=a145911';
-import { workshopView } from '../core/workshop.js?v=a145911';
-import { peopleHere, bondName, helloOf, spokeToday, titleView, peopleDex, fameOf, fameRank } from '../core/social.js?v=a145911';
-import { offersOf, subView, boardView, jobsView, questBook, mainView, hiddenView } from '../core/quests.js?v=a145911';
-import { SUBS } from '../data/quests.js?v=a145911';
-import { jobChoices, jobName, skillsNow, canChooseJob, hiddenJobTraces, advanceView } from '../core/jobs.js?v=a145911';
-import { factionView, leanName } from '../core/factions.js?v=a145911';
-import { sculptMenu, sculptView, worksView, statueOf, exhibitView } from '../core/sculpt.js?v=a145911';
+} from '../core/game.js?v=2134347';
+import { recipeList, craftLvView } from '../core/craft.js?v=2134347';
+import { wealthFeel } from '../core/explore.js?v=2134347';
+import { ORDER_OF, BRANCHES, BRANCH_ORDER } from '../data/recipes.js?v=2134347';
+import { jobDef as jobDefOf } from '../data/jobs.js?v=2134347';
+import { evolveView, pendingEvolves, branchOf } from '../core/evolve.js?v=2134347';
+import { shopView, storeView, pricesView } from '../core/trade.js?v=2134347';
+import { stallView } from '../core/stall.js?v=2134347';
+import { caravanView } from '../core/caravan.js?v=2134347';
+import { workshopView } from '../core/workshop.js?v=2134347';
+import { peopleHere, bondName, helloOf, spokeToday, titleView, peopleDex, fameOf, fameRank } from '../core/social.js?v=2134347';
+import { offersOf, subView, boardView, jobsView, questBook, mainView, hiddenView } from '../core/quests.js?v=2134347';
+import { SUBS } from '../data/quests.js?v=2134347';
+import { jobChoices, jobName, skillsNow, canChooseJob, hiddenJobTraces, advanceView } from '../core/jobs.js?v=2134347';
+import { factionView, leanName } from '../core/factions.js?v=2134347';
+import { sculptMenu, sculptView, worksView, statueOf, exhibitView } from '../core/sculpt.js?v=2134347';
 
-import { buffRows } from '../core/buffs.js?v=a145911';
-import { partyView, mercView, mercHost, mercElsewhere, mercSeats, fullPartyView, partyFees } from '../core/party.js?v=a145911';
-import { WORK_GRADES } from '../data/works.js?v=a145911';
-import { REGULAR, BONDS } from '../data/people.js?v=a145911';
-import { bondOf } from '../core/social.js?v=a145911';
-import { MERC_FEE, partyMax } from '../data/companions.js?v=a145911';
-import { roomView, dungeonMap } from '../core/dungeon.js?v=a145911';
-import { noticesView, ranking, rumorsView, sinceLast, markSeen } from '../core/world.js?v=a145911';
-import { auctionView } from '../core/auction.js?v=a145911';
-import { RANKS } from '../data/world.js?v=a145911';
-import { townRooms, BOAT_NEEDS, BOAT_FEE, OFFER_FEE, countOf, regenRate, chosenRebirth, canChooseRebirth } from '../core/game.js?v=a145911';
-import { townOf } from '../core/social.js?v=a145911';
-import { DUNGEONS } from '../data/dungeon.js?v=a145911';
-import { FAME, TITLES, PEOPLE } from '../data/people.js?v=a145911';
-import { RECIPES } from '../data/recipes.js?v=a145911';
-import { ITEMS } from '../data/items.js?v=a145911';
-import { GRADES } from '../data/items.js?v=a145911';
-import { bagView, tabCounts, previewEquip, iconOf, itemPower, itemWeight, slotFor, equipWeight } from '../core/inventory.js?v=a145911';
-import { BAG_TABS, EQUIP_SLOTS, itemDef, gradeName } from '../data/items.js?v=a145911';
-import { monsterDef } from '../data/monsters.js?v=a145911';
-import { originById, dealOrigins, ROOTS, ORIGIN_GRADES, STAT_NAMES, STAT_USES, rollDice, DICE_TOTAL, DICE_MIN, DICE_FREE_AT } from '../data/origins.js?v=a145911';
-import { placeById, PLACES, TOWN_ORDER, PHASES, ACTIONS, PHASE_TICKS } from '../data/places.js?v=a145911';
-import { SKILL_NAMES, gradeLabel, progress, skillEffect } from '../core/skills.js?v=a145911';
-import { hiddenSlots, foundCount, hiddenTotal, hiddenById } from '../core/hidden.js?v=a145911';
-import { rebirthCarry, rebirthLoss } from '../core/rebirth.js?v=a145911';
-import { createCloud } from './cloud.js?v=a145911';
-import { mailView, unreadMail } from '../core/mail.js?v=a145911';
-import { shadowView, BLESSERS } from '../core/fall.js?v=a145911';
-import { ringView, afterText } from '../core/ending.js?v=a145911';
-import { afterView } from '../core/after.js?v=a145911';
-import { derived, formula, valueOf, statParts } from '../core/derived.js?v=a145911';
-import { saveTo, loadFrom, listSlots, exportText, importText, shouldAutosave, revOf, SaveConflict } from '../core/save.js?v=a145911';
-import { createPressGuard, keyDecision, slotIndex } from '../core/press.js?v=a145911';
-import { createAssist, assistable } from '../core/assist.js?v=a145911';
-import { STANCES, stanceOf, wisResist } from '../core/battle.js?v=a145911';
-import { gearName, optionLines, maxDur, repairCost, enhanceView, mendHere } from '../core/gear.js?v=a145911';
-import { guildView, DONATE } from '../core/guild.js?v=a145911';
-import { DRINK_HOSTS } from '../core/social.js?v=a145911';
-import { TEACHERS, learnableHere, KNOWN_BOND } from '../core/work.js?v=a145911';
-import { rootOf } from '../data/origins.js?v=a145911';
-import { recordError, readErrors, clearErrors } from '../core/errors.js?v=a145911';
-import { ro, iGa, waGwa, eulReul, eunNeun } from '../core/ko.js?v=a145911';
+import { buffRows } from '../core/buffs.js?v=2134347';
+import { partyView, mercView, mercHost, mercElsewhere, mercSeats, fullPartyView, partyFees } from '../core/party.js?v=2134347';
+import { WORK_GRADES } from '../data/works.js?v=2134347';
+import { REGULAR, BONDS } from '../data/people.js?v=2134347';
+import { bondOf } from '../core/social.js?v=2134347';
+import { MERC_FEE, partyMax } from '../data/companions.js?v=2134347';
+import { roomView, dungeonMap } from '../core/dungeon.js?v=2134347';
+import { noticesView, ranking, rumorsView, sinceLast, markSeen } from '../core/world.js?v=2134347';
+import { auctionView } from '../core/auction.js?v=2134347';
+import { RANKS } from '../data/world.js?v=2134347';
+import { townRooms, BOAT_NEEDS, BOAT_FEE, OFFER_FEE, countOf, regenRate, chosenRebirth, canChooseRebirth } from '../core/game.js?v=2134347';
+import { townOf } from '../core/social.js?v=2134347';
+import { DUNGEONS } from '../data/dungeon.js?v=2134347';
+import { FAME, TITLES, PEOPLE } from '../data/people.js?v=2134347';
+import { RECIPES } from '../data/recipes.js?v=2134347';
+import { ITEMS } from '../data/items.js?v=2134347';
+import { GRADES } from '../data/items.js?v=2134347';
+import { bagView, tabCounts, previewEquip, iconOf, itemPower, itemWeight, slotFor, equipWeight } from '../core/inventory.js?v=2134347';
+import { BAG_TABS, EQUIP_SLOTS, itemDef, gradeName } from '../data/items.js?v=2134347';
+import { monsterDef } from '../data/monsters.js?v=2134347';
+import { originById, dealOrigins, ROOTS, ORIGIN_GRADES, STAT_NAMES, STAT_USES, rollDice, DICE_TOTAL, DICE_MIN, DICE_FREE_AT } from '../data/origins.js?v=2134347';
+import { placeById, PLACES, TOWN_ORDER, PHASES, ACTIONS, PHASE_TICKS } from '../data/places.js?v=2134347';
+import { SKILL_NAMES, gradeLabel, progress, skillEffect } from '../core/skills.js?v=2134347';
+import { hiddenSlots, foundCount, hiddenTotal, hiddenById } from '../core/hidden.js?v=2134347';
+import { rebirthCarry, rebirthLoss } from '../core/rebirth.js?v=2134347';
+import { createCloud } from './cloud.js?v=2134347';
+import { mailView, unreadMail } from '../core/mail.js?v=2134347';
+import { shadowView, BLESSERS } from '../core/fall.js?v=2134347';
+import { ringView, afterText } from '../core/ending.js?v=2134347';
+import { afterView } from '../core/after.js?v=2134347';
+import { derived, formula, valueOf, statParts } from '../core/derived.js?v=2134347';
+import { saveTo, loadFrom, listSlots, exportText, importText, shouldAutosave, revOf, SaveConflict } from '../core/save.js?v=2134347';
+import { createPressGuard, keyDecision, slotIndex } from '../core/press.js?v=2134347';
+import { createAssist, assistable } from '../core/assist.js?v=2134347';
+import { STANCES, stanceOf, wisResist } from '../core/battle.js?v=2134347';
+import { gearName, optionLines, maxDur, repairCost, enhanceView, mendHere } from '../core/gear.js?v=2134347';
+import { guildView, DONATE } from '../core/guild.js?v=2134347';
+import { DRINK_HOSTS } from '../core/social.js?v=2134347';
+import { TEACHERS, learnableHere, KNOWN_BOND } from '../core/work.js?v=2134347';
+import { rootOf } from '../data/origins.js?v=2134347';
+import { recordError, readErrors, clearErrors } from '../core/errors.js?v=2134347';
+import { ro, iGa, waGwa, eulReul, eunNeun } from '../core/ko.js?v=2134347';
 
 const SCARECROW_ALT = ['멀쩡한 허수아비', '짚이 빠지기 시작한 허수아비', '한쪽으로 기운 허수아비', '터져서 짚이 흩날리는 허수아비'];
 const SCARECROW_SAY = ['아직 멀쩡하다', '짚이 빠지기 시작했다', '한쪽으로 기울었다', '터졌다. 기둥만 남았다'];
@@ -2608,7 +2608,7 @@ export function start(root, storage = globalThis.localStorage) {
             h('h2', {}, topic.title),
             topic.lead ? h('p', { class: 'helplead' }, topic.lead) : null,
             // 한 문단이 한 줄. 화면에 보이는 이름("잠자기" 같은 것)은 굵게 해서 눈에 걸리게 한다
-            h('ul', { class: 'helplist' }, helpBody(topic, { white: Object.keys(game?.dex?.places || {}).some((id) => PLACES[id]?.band === 3), salt: Object.keys(game?.dex?.places || {}).some((id) => PLACES[id]?.band === 4), stall: !!game?.stall, reborn: !!game && canChooseRebirth(game), ash: Object.keys(game?.dex?.places || {}).some((id) => PLACES[id]?.band === 5), hot: !!game?.flags?.sawHot, marsh: Object.keys(game?.dex?.places || {}).some((id) => PLACES[id]?.band === 6), shop: !!game?.shop, sunken: Object.keys(game?.dex?.places || {}).some((id) => PLACES[id]?.band === 7), escort: !!game?.flags?.sawEscort, cloud: Object.keys(game?.dex?.places || {}).some((id) => PLACES[id]?.band === 8), bard: !!game?.dex?.places?.goathut, three: !!game && partyMax(game) > 2, caravan: !!game?.caravan, pond: Object.keys(game?.dex?.places || {}).some((id) => PLACES[id]?.band === 9), anvil: Object.keys(game?.dex?.places || {}).some((id) => PLACES[id]?.band === 10), bell: !!game?.flags?.sawBell }).map((p) => h('li', {}, p.split(/"([^"]+)"/).map((part, i) => (i % 2 ? h('b', {}, part) : part))))),
+            h('ul', { class: 'helplist' }, helpBody(topic, { white: Object.keys(game?.dex?.places || {}).some((id) => PLACES[id]?.band === 3), salt: Object.keys(game?.dex?.places || {}).some((id) => PLACES[id]?.band === 4), stall: !!game?.stall, reborn: !!game && canChooseRebirth(game), ash: Object.keys(game?.dex?.places || {}).some((id) => PLACES[id]?.band === 5), hot: !!game?.flags?.sawHot, marsh: Object.keys(game?.dex?.places || {}).some((id) => PLACES[id]?.band === 6), shop: !!game?.shop, sunken: Object.keys(game?.dex?.places || {}).some((id) => PLACES[id]?.band === 7), escort: !!game?.flags?.sawEscort, cloud: Object.keys(game?.dex?.places || {}).some((id) => PLACES[id]?.band === 8), bard: !!game?.dex?.places?.goathut, three: !!game && partyMax(game) > 2, caravan: !!game?.caravan, pond: Object.keys(game?.dex?.places || {}).some((id) => PLACES[id]?.band === 9), anvil: Object.keys(game?.dex?.places || {}).some((id) => PLACES[id]?.band === 10), bell: !!game?.flags?.sawBell }).map((p) => (p.startsWith(HELP_HEAD) ? h('li', { class: 'helphead' }, h('h3', {}, p.slice(HELP_HEAD.length))) : h('li', {}, p.split(/"([^"]+)"/).map((part, i) => (i % 2 ? h('b', {}, part) : part)))))),
             h('div', { class: 'helpnext' },
               (() => { const i = HELP.indexOf(topic); const prev = HELP[i - 1], next = HELP[i + 1]; const go = (t) => () => { current = t.id; rerender(); document.querySelector('.helpgrid article')?.scrollIntoView({ block: 'start' }); document.querySelector(`[data-help="${t.id}"]`)?.focus(); };
                 return [prev ? h('button', { class: 'btn sm', type: 'button', onclick: go(prev) }, `이전: ${prev.title}`) : h('span', {}), next ? h('button', { class: 'btn sm go', type: 'button', onclick: go(next) }, `다음: ${next.title}`) : h('span', {})]; })()))));

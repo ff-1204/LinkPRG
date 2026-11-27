@@ -1,17 +1,17 @@
 // 요리 (N3). 재료를 셋까지 넣어 조합을 찾는다.
 
-import { next } from './rng.js?v=a145911';
-import { pushLine, ding } from './log.js?v=a145911';
-import { countOf, takeById, addItem } from './inventory.js?v=a145911';
-import { craftLvOf, addCraftXp, grantMakeXp } from './craft.js?v=a145911';
-import { CRAFT_LV } from '../data/recipes.js?v=a145911';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=a145911';
-import { itemDef } from '../data/items.js?v=a145911';
-import { placeById } from '../data/places.js?v=a145911';
-import { jobXp } from './jobs.js?v=a145911';
-import { COOK_MAX, COOK_DIFFICULTY, INGREDIENTS, DISHES, DISH_ORDER, MUSH, COOK_LINES } from '../data/cooking.js?v=a145911';
-import { iGa, eulReul, eunNeun } from './ko.js?v=a145911';
-import { foodBuff, xpBoost } from './buffs.js?v=a145911';
+import { next } from './rng.js?v=2134347';
+import { pushLine, ding } from './log.js?v=2134347';
+import { countOf, takeById, addItem } from './inventory.js?v=2134347';
+import { craftLvOf, addCraftXp, grantMakeXp } from './craft.js?v=2134347';
+import { CRAFT_LV } from '../data/recipes.js?v=2134347';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=2134347';
+import { itemDef } from '../data/items.js?v=2134347';
+import { placeById } from '../data/places.js?v=2134347';
+import { jobXp } from './jobs.js?v=2134347';
+import { COOK_MAX, COOK_DIFFICULTY, INGREDIENTS, DISHES, DISH_ORDER, MUSH, COOK_LINES } from '../data/cooking.js?v=2134347';
+import { iGa, eulReul, eunNeun } from './ko.js?v=2134347';
+import { foodBuff, xpBoost } from './buffs.js?v=2134347';
 
 export { foodBuff };
 
