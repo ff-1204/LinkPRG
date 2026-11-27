@@ -315,3 +315,57 @@ test('망가진 세계·경매 칸은 걸러진다', () => {
   ];
   for (const b of bads) assert.throws(() => parseSave(wrap({ ...good, ...b })), /망가졌습니다/, JSON.stringify(b).slice(0, 80));
 });
+
+test('암시장 (Z104): 신전지기와 벗이 되면 신전에 칸이 생기고, 오늘 경매 물건을 입찰가 +10%에 바로 산다', async () => {
+  const { blackView, blackOpen, blackPrice, lotsLeft, BLACK } = await import('../src/core/auction.js');
+  const { slotsNow } = await import('../src/core/game.js');
+  const { HELP, HELP_MORE } = await import('../src/ui/help.js');
+  const s = fresh('black'); s.place = 'temple'; s.silver = 100000;
+  const labels = () => slotsNow(s).map((x) => x.label);
+  // 친해지기 전에는 칸도, 사는 길도, 도움말의 말도 없다
+  s.people.priest = { ...(s.people.priest || {}), pts: 69 };
+  assert.ok(!blackOpen(s) && !labels().includes('암시장') && labels().includes('경매장'));
+  const first = lotsToday(s)[0];
+  assert.throws(() => dispatch(s, { type: 'auction', op: 'buy', key: first.key }), /할 수 없는/);
+  assert.ok(!JSON.stringify([HELP, HELP_MORE]).includes('암시장'));
+  // 벗이 되면 열린다
+  s.people.priest.pts = 70;
+  assert.ok(blackOpen(s) && labels().includes('암시장'));
+  assert.equal(BLACK.rate, 0.10);
+  const v = blackView(s);
+  assert.equal(v.lots.length, lotsToday(s).length);
+  const lot = lotsToday(s).find((l) => !l.fixed);
+  const price = Math.ceil(lot.ask * 1.1);
+  assert.equal(v.lots.find((l) => l.key === lot.key).price, price);
+  const had = countOf(s, lot.item.id);
+  dispatch(s, { type: 'auction', op: 'buy', key: lot.key });
+  assert.equal(s.silver, 100000 - price);
+  assert.equal(countOf(s, lot.item.id), had + lot.item.n, '그 자리에서 가방에 들어온다');
+  // 산 물건은 그날 목록에서 빠지고, 다시 사거나 입찰할 수 없다
+  assert.ok(!lotsLeft(s).some((l) => l.key === lot.key) && !blackView(s).lots.some((l) => l.key === lot.key), '암시장에서는 빠진다');
+  assert.equal(auctionView(s).lots.find((l) => l.key === lot.key).stopped, true, '경매장에는 판매 중단으로 남는다');
+  assert.equal(auctionView(s).lots.filter((l) => l.stopped).length, 1);
+  assert.throws(() => dispatch(s, { type: 'auction', op: 'buy', key: lot.key }), /판매가 중단된/);
+  assert.throws(() => dispatch(s, { type: 'auction', op: 'bid', key: lot.key, amount: lot.ask }), /판매가 중단된/);
+  assert.equal(auctionView(s).history[0].text.includes('암시장'), true);
+  // 이미 부른 값이 있으면 그 값에 10%를 얹고, 묶여 있던 은화는 돌아온다
+  const two = lotsLeft(s).find((l) => !l.fixed);
+  dispatch(s, { type: 'auction', op: 'bid', key: two.key, amount: two.ask + 50 });
+  const before = s.silver;
+  assert.equal(blackPrice(s, two), Math.ceil((two.ask + 50) * 1.1));
+  dispatch(s, { type: 'auction', op: 'buy', key: two.key });
+  assert.equal(s.silver, before + (two.ask + 50) - Math.ceil((two.ask + 50) * 1.1));
+  assert.ok(!s.auction.bids.some((b) => b.key === two.key), '날이 바뀌어도 그 입찰로 또 받지 않는다');
+  // 은화가 모자라면 못 산다. 다른 곳에서는 못 산다
+  const three = lotsLeft(s)[0];
+  s.silver = 0;
+  assert.throws(() => dispatch(s, { type: 'auction', op: 'buy', key: three.key }), /은화가 모자랍니다/);
+  s.silver = 100000; s.place = 'plaza';
+  assert.throws(() => dispatch(s, { type: 'auction', op: 'buy', key: three.key }), /할 수 없는/);
+  // 날이 바뀌면 지난 표시는 지워지고, 저장은 그대로 읽힌다
+  s.place = 'temple';
+  nextDay(s);
+  assert.deepEqual(s.auction.bought, []);
+  const old = JSON.parse(JSON.stringify(s)); delete old.auction.bought;
+  assert.deepEqual(parseSave(JSON.stringify({ v: SAVE_VERSION, rev: 1, savedAt: 1, state: old })).state.auction.bought, []);
+});

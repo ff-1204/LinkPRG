@@ -32,7 +32,7 @@ export const PLACES = {
     strip: { day: 'strip-temple-day', night: 'strip-temple-night' },
     stripAlt: '신전. 돌기둥과 높은 창, 작은 종탑',
     users: [3, 4, 1],
-    actions: ['pray', 'heal', 'shop', 'auction', 'talk', 'rest'], // 축복받기는 없앴다(그림자는 성수와 기도로 걷는다). 빵은 공용주방에서 (Z92). 경매장은 예술협회에서 옮겨 왔다 (Z99)
+    actions: ['pray', 'heal', 'shop', 'auction', 'blackmarket', 'talk', 'rest'], // 축복받기는 없앴다(그림자는 성수와 기도로 걷는다). 빵은 공용주방에서 (Z92). 경매장은 예술협회에서 옮겨 왔다 (Z99)
   },
   forge: {
     id: 'forge', name: '대장간', town: '시작 마을', danger: '안전',
@@ -676,6 +676,7 @@ export const ACTIONS = {
   talk: { id: 'talk', label: '말 걸기', ticks: 0, open: 'talk' },
   board: { id: 'board', label: '게시판', ticks: 0, open: 'board' },
   auction: { id: 'auction', label: '경매장', ticks: 0, open: 'auction' },
+  blackmarket: { id: 'blackmarket', label: '암시장', ticks: 0, open: 'blackmarket' }, // 신전지기와 벗이 된 뒤에만 (Z104)
   rumor: { id: 'rumor', label: '소문 게시판', ticks: 0, open: 'rumor' },
   sculpt: { id: 'sculpt', label: '조각', ticks: 0, open: 'sculpt' },
   cook: { id: 'cook', label: '요리', ticks: 0, open: 'cook' },

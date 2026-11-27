@@ -1,22 +1,22 @@
 // 던전 (T15~T19). 층과 방을 방 목록으로 옮겨 다닌다. 지나온 방만 지도에 그려진다.
 // 나가면 지도와 연 문·챙긴 보물은 남고, 괴물과 쉼터는 다시 찬다.
 
-import { next } from './rng.js?v=2134347';
-import { pushLine, ding } from './log.js?v=2134347';
-import { DUNGEONS, REST_HEAL, KEEPER } from '../data/dungeon.js?v=2134347';
-import { STAT_NAMES } from '../data/origins.js?v=2134347';
-import { itemDef } from '../data/items.js?v=2134347';
-import { monsterDef } from '../data/monsters.js?v=2134347';
-import { addItem, countOf, takeById } from './inventory.js?v=2134347';
-import { startBattle } from './battle.js?v=2134347';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=2134347';
-import { valueOf } from './derived.js?v=2134347';
-import { jobXp, adv } from './jobs.js?v=2134347';
-import { partyRest } from './party.js?v=2134347';
-import { iGa, eulReul, ro } from './ko.js?v=2134347';
-import { hasTitle } from './titles.js?v=2134347';
-import { fillBreath } from './sunken.js?v=2134347';
-import { ECHO, ECHO_LINES } from '../data/quests.js?v=2134347';
+import { next } from './rng.js?v=3174526';
+import { pushLine, ding } from './log.js?v=3174526';
+import { DUNGEONS, REST_HEAL, KEEPER } from '../data/dungeon.js?v=3174526';
+import { STAT_NAMES } from '../data/origins.js?v=3174526';
+import { itemDef } from '../data/items.js?v=3174526';
+import { monsterDef } from '../data/monsters.js?v=3174526';
+import { addItem, countOf, takeById } from './inventory.js?v=3174526';
+import { startBattle } from './battle.js?v=3174526';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=3174526';
+import { valueOf } from './derived.js?v=3174526';
+import { jobXp, adv } from './jobs.js?v=3174526';
+import { partyRest } from './party.js?v=3174526';
+import { iGa, eulReul, ro } from './ko.js?v=3174526';
+import { hasTitle } from './titles.js?v=3174526';
+import { fillBreath } from './sunken.js?v=3174526';
+import { ECHO, ECHO_LINES } from '../data/quests.js?v=3174526';
 
 const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
 const defOf = (state) => DUNGEONS[state.dungeon.id];

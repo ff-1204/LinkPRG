@@ -1,22 +1,22 @@
 // 저장의 판(버전)과, 옛 저장을 지금 꼴로 올리는 길.
 // 저장 형식을 바꾸면 SAVE_VERSION을 올리고 여기에 한 단계를 더한다.
 
-import { makeItem } from './inventory.js?v=2134347';
-import { valueOf } from './derived.js?v=2134347';
-import { worldFields } from './world.js?v=2134347';
-import { auctionFields } from './auction.js?v=2134347';
+import { makeItem } from './inventory.js?v=3174526';
+import { valueOf } from './derived.js?v=3174526';
+import { worldFields } from './world.js?v=3174526';
+import { auctionFields } from './auction.js?v=3174526';
 
-import { endingFields } from './ending.js?v=2134347';
-import { MAIN } from '../data/quests.js?v=2134347';
-import { ITEMS } from '../data/items.js?v=2134347';
-import { ADVANCED } from '../data/jobs.js?v=2134347';
-import { nativeWork } from './work.js?v=2134347';
-import { deliverMail } from './mail.js?v=2134347';
-import { cidFrom } from './rng.js?v=2134347';
-import { tierOfLv } from '../data/bands.js?v=2134347';
-import { ashFields } from './heat.js?v=2134347';
-import { marshFields } from './marsh.js?v=2134347';
-import { sunkenFields, SUNKEN } from './sunken.js?v=2134347';
+import { endingFields } from './ending.js?v=3174526';
+import { MAIN } from '../data/quests.js?v=3174526';
+import { ITEMS } from '../data/items.js?v=3174526';
+import { ADVANCED } from '../data/jobs.js?v=3174526';
+import { nativeWork } from './work.js?v=3174526';
+import { deliverMail } from './mail.js?v=3174526';
+import { cidFrom } from './rng.js?v=3174526';
+import { tierOfLv } from '../data/bands.js?v=3174526';
+import { ashFields } from './heat.js?v=3174526';
+import { marshFields } from './marsh.js?v=3174526';
+import { sunkenFields, SUNKEN } from './sunken.js?v=3174526';
 const ORIGIN_NATIVE = new Proxy({}, { get: (_, id) => nativeWork(id) });
 
 export { worldFields, auctionFields, endingFields };
@@ -286,6 +286,7 @@ function mend(state) {
   if (!state.lore || !Array.isArray(state.lore.hints)) state.lore = { hints: [] };
   if (!state.tough) state.tough = { str: 0, agi: 0, con: 0, wis: 0 };
   if (!state.toughGained) state.toughGained = { str: 0, agi: 0, con: 0, wis: 0 };
+  if (state.auction && !Array.isArray(state.auction.bought)) state.auction.bought = []; // 암시장으로 넘어간 오늘 물건 (Z104)
   if (!state.toilGained) state.toilGained = { str: 0, agi: 0, con: 0, wis: 0 }; // 이 칸이 생기기 전에 오른 것은 세어 두지 않아 알 수 없다 (Z101)
   // 하루 쇠약은 죽음의 그림자가 되었다 (Z31): 아직 쇠약하던 사람은 한 겹을 안고 온다
   if (!Number.isInteger(state.shadow)) {

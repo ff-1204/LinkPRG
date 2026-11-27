@@ -1,14 +1,14 @@
 // 100 뒤에 할 일 (CM-E, LV-M4): 13장을 끝낸 뒤의 "끝난 뒤" 화면에 남은 것을 보인다.
 // 끝이 보이는 것만이다. 끝없이 세지는 탑, 무한 구간, 날마다 해야 하는 일은 없다 (CM-E3).
 
-import { LEVEL_MAX } from '../data/bands.js?v=2134347';
-import { MONSTERS } from '../data/monsters.js?v=2134347';
-import { ITEMS } from '../data/items.js?v=2134347';
-import { RECIPES } from '../data/recipes.js?v=2134347';
-import { REGION_HIDDENS } from '../data/anvil.js?v=2134347';
-import { endsSeen } from './anvil.js?v=2134347';
-import { ranking } from './world.js?v=2134347';
-import { xpToNext } from './level.js?v=2134347';
+import { LEVEL_MAX } from '../data/bands.js?v=3174526';
+import { MONSTERS } from '../data/monsters.js?v=3174526';
+import { ITEMS } from '../data/items.js?v=3174526';
+import { RECIPES } from '../data/recipes.js?v=3174526';
+import { REGION_HIDDENS } from '../data/anvil.js?v=3174526';
+import { endsSeen } from './anvil.js?v=3174526';
+import { ranking } from './world.js?v=3174526';
+import { xpToNext } from './level.js?v=3174526';
 
 /** 숨은 이야기 여덟: 일곱 지역의 것과 처음 모루의 것 (LV-E3 ~ LV-E10). 이름과 조건은 내보내지 않는다. */
 export const STORY_HIDDENS = [...REGION_HIDDENS, 'eighth'];

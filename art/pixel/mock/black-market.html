@@ -1,0 +1,118 @@
+<title>암시장 시안</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  /* 틀: 게임 화면과 같은 크림 종이 위에, 창 시안 → 규칙 표 → 정할 것 순서로 한 줄기 */
+  :root {
+    --cream: #FBF5E6; --paper: #FFFDF6; --sand: #F3E9D2; --line2: #CDBE9E; --ink: #3A2A1E; --muted: #6B5443;
+    --deep: #1E140D; --cinnamon: #8A4F2B; --mint: #BFE3D0; --mint-ink: #1F4A3A; --honey: #F2B63C;
+    --serif: 'Gowun Batang', 'Noto Serif KR', serif; --sans: 'Gowun Dodum', 'Malgun Gothic', sans-serif;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--cream); color: var(--ink); font: 16px/1.65 var(--sans); word-break: keep-all;
+    padding-block: 24px 60px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .wrap { max-width: 920px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
+  h1 { font: 700 27px/1.3 var(--serif); text-wrap: balance; }
+  h2 { font: 700 20px/1.3 var(--serif); margin-top: 26px; padding-top: 10px; border-top: 2px solid var(--deep); }
+  .note { color: var(--muted); max-width: 54rem; }
+  .cap { font-size: .86rem; color: var(--muted); max-width: 680px; }
+  .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 14px; align-items: start; }
+  .pair > * { min-width: 0; }
+  .lab { font: 700 15px var(--serif); margin-bottom: 6px; }
+  .bar { display: grid; grid-template-columns: 1.5fr repeat(4, 1fr); gap: 6px; }
+  .sl { min-height: 58px; border: 1.5px solid var(--line2); border-radius: 10px; background: var(--paper); padding: 5px 8px; font-weight: 700; font-size: .92rem; display: flex; flex-direction: column; justify-content: space-between; }
+  .sl i { font-style: normal; font-weight: 400; font-size: .72rem; color: var(--muted); }
+  .sl.go { background: var(--cinnamon); border-color: var(--cinnamon); color: #fff; }
+  .sl.go i { color: var(--cream); }
+  .sl.none { border-style: dashed; background: transparent; font-weight: 400; color: var(--muted); font-size: .78rem; }
+  .sl.new { outline: 3px solid var(--honey); outline-offset: 2px; }
+  .win { width: min(680px, 100%); border: 3px solid var(--deep); border-radius: 6px; background: var(--cream); box-shadow: 8px 8px 0 rgba(30,20,13,.25); }
+  .wt { padding: 9px 14px; background: var(--sand); border-bottom: 3px solid var(--deep); display: flex; justify-content: space-between; gap: 10px; font-weight: 700; }
+  .wt span:last-child { font-weight: 400; }
+  .wt small { font-weight: 400; color: var(--muted); margin-left: 8px; }
+  .wb { padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .say { font-family: var(--serif); }
+  .rowx { display: flex; justify-content: space-between; border-bottom: 1px dashed var(--line2); padding: 3px 0; }
+  .tier { display: flex; gap: 6px; }
+  .btn { min-height: 34px; border: 1.5px solid var(--line2); border-radius: 8px; background: var(--paper); font: .9rem var(--sans); padding: 0 12px; color: var(--ink); }
+  .tier .btn { flex: 1; }
+  .btn.on { background: var(--mint); border-color: var(--mint-ink); color: var(--mint-ink); font-weight: 700; }
+  .btn.go { background: var(--cinnamon); border-color: var(--cinnamon); color: #fff; }
+  .num { display: inline-block; margin-left: 4px; min-width: 1.2rem; padding: 0 .35rem; border-radius: 999px; background: var(--cinnamon); color: #fff; font-size: .72rem; }
+  .card { background: var(--paper); border: 1px solid var(--line2); border-radius: 8px; padding: 9px 12px; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; justify-content: space-between; }
+  .card > div { min-width: 0; flex: 1 1 260px; display: flex; flex-direction: column; }
+  .card small, .card .d { color: var(--muted); font-size: .88rem; }
+  .tablebox { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; min-width: 560px; background: var(--paper); font-size: .94rem; font-variant-numeric: tabular-nums; }
+  th, td { border-bottom: 1px dashed var(--line2); padding: 7px 9px; text-align: left; vertical-align: top; }
+  th { border-bottom: 2px solid var(--deep); }
+  .opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+  .opt { background: var(--paper); border: 1px solid var(--line2); border-radius: 10px; padding: 12px 14px; min-width: 0; }
+  .opt b.t { font: 700 16px var(--serif); display: block; margin-bottom: 4px; }
+  .tag { display: inline-block; font-size: 12px; padding: 0 8px; border-radius: 999px; background: var(--cinnamon); color: #fff; margin-left: 6px; vertical-align: 2px; }
+  ul { padding-left: 1.2rem; }
+</style>
+<div class="wrap">
+<h1>암시장 시안</h1>
+<p class="note">시작 마을 신전지기와 가까워지면 신전에 "암시장" 칸이 생깁니다. 오늘 경매에 나온 물건을, 다른 사람과 겨루지 않고 입찰가에 10%를 얹어 그 자리에서 삽니다. 아래는 지금 넣어 둔 모습이고, 맨 아래 세 가지는 제가 처음 값으로 정한 것이라 바꿀 수 있습니다.</p>
+
+<h2>1. 신전의 단축 칸</h2>
+<div class="pair">
+  <div><p class="lab">가까워지기 전</p>
+    <div class="bar"><div class="sl go"><i>1</i>기도</div><div class="sl"><i>2</i>치료받기</div><div class="sl"><i>3</i>상점</div><div class="sl"><i>4</i>경매장</div><div class="sl none"><i>5</i>비어 있음</div></div></div>
+  <div><p class="lab">신전지기와 '벗'이 된 뒤</p>
+    <div class="bar"><div class="sl go"><i>1</i>기도</div><div class="sl"><i>2</i>치료받기</div><div class="sl"><i>3</i>상점</div><div class="sl"><i>4</i>경매장</div><div class="sl new"><i>5</i>암시장</div></div></div>
+</div>
+<p class="cap">그 전에는 칸도, 말도, 도움말의 글도 없습니다. 있다는 것 자체가 숨겨져 있습니다.</p>
+
+<h2>2. 암시장 창</h2>
+<div class="win">
+  <div class="wt"><span>암시장<small>신전 뒷문</small></span><span>닫기</span></div>
+  <div class="wb">
+    <p class="say">신전지기가 뒷문을 열어 준다. "경매에 오른 것을 미리 빼 주는 걸세. 기다릴 것 없이, 값만 조금 더 얹게."</p>
+    <p class="cap">오늘 경매에 나온 물건을 입찰가에 10%를 얹어 그 자리에서 산다. 다른 사람과 겨루지 않는다. 그 물건에 부른 은화가 있으면 돌아온다.</p>
+    <div class="rowx"><span>보유 은화</span><b>500</b></div>
+    <div class="tier"><button class="btn on" type="button">하급<span class="num">5</span></button><button class="btn" type="button">중급<span class="num">3</span></button><button class="btn" type="button">상급<span class="num">0</span></button></div>
+    <div class="card"><div><span><b>횃불 5개</b> <small>올린 이 '반딧팽이'</small></span><span class="d">싸움에서 휘두른다. 불 속성으로 16 피해.</span><span>입찰가 은화 21 + 10%</span></div><button class="btn go" type="button">은화 24 구매</button></div>
+    <div class="card"><div><span><b>가죽 장화</b> <small>올린 이 '느린망치'</small></span><span class="d">무두질한 가죽을 꿰매 지은 장화. 발목까지 감싼다.</span><span>입찰가 은화 32 + 10%</span></div><button class="btn go" type="button">은화 36 구매</button></div>
+    <div class="card"><div><span><b>철검</b> <small>올린 이 '빨간차'</small></span><span class="d">쇠를 두드려 편 검. 등급이 높을수록 날빛이 다르다.</span><span>입찰가 은화 51 + 10%</span></div><button class="btn go" type="button">은화 57 구매</button></div>
+  </div>
+</div>
+<p class="cap">경매장 창의 "경매 목록"과 같은 물건, 같은 하급·중급·상급 칸입니다. 단추 하나에 한 개를 삽니다. 산 물건은 암시장에서 빠지고, 경매장에는 "판매 중단"으로 남습니다.</p>
+
+<h2>암시장에서 산 뒤의 경매장</h2>
+<div class="win">
+  <div class="wt"><span>경매장</span><span>닫기</span></div>
+  <div class="wb">
+    <div class="tier"><button class="btn on" type="button">하급<span class="num">5</span></button><button class="btn" type="button">중급<span class="num">3</span></button><button class="btn" type="button">상급<span class="num">0</span></button></div>
+    <div class="card"><div><span><b>횃불 5개</b> <small>올린 이 '반딧팽이'</small></span><span class="d">싸움에서 휘두른다. 불 속성으로 16 피해.</span><span>판매 중단</span></div><button class="btn" type="button" disabled>판매 중단</button></div>
+    <div class="card"><div><span><b>가죽 장화</b> <small>올린 이 '느린망치'</small></span><span class="d">무두질한 가죽을 꿰매 지은 장화. 발목까지 감싼다.</span><span>시작가: 은화 32</span></div><button class="btn" type="button">은화 32 입찰</button></div>
+  </div>
+</div>
+<p class="cap">암시장으로 넘어간 물건은 경매 목록에 그대로 보이지만 입찰할 수 없습니다. 날이 바뀌면 다른 물건들과 함께 사라집니다.</p>
+
+<h2>3. 경매장과 암시장</h2>
+<div class="tablebox"><table>
+  <tr><th></th><th>경매장 입찰</th><th>암시장</th></tr>
+  <tr><td>내는 값</td><td>입찰가 이상으로 부른 값</td><td>입찰가 × 1.1 (올림)</td></tr>
+  <tr><td>받는 때</td><td>다음 날, 이겼을 때만</td><td>그 자리에서</td></tr>
+  <tr><td>다른 사람</td><td>더 높이 부르면 뺏긴다 (은화는 돌아온다)</td><td>겨루지 않는다</td></tr>
+  <tr><td>이미 부른 값이 있으면</td><td>더 높이 다시 부른다</td><td>부른 값 × 1.1을 내고, 묶인 은화는 돌아온다</td></tr>
+  <tr><td>열리는 때</td><td>처음부터</td><td>신전지기와 '벗'이 된 뒤</td></tr>
+  <tr><td>산 뒤</td><td>낙찰되면 목록에서 끝난다</td><td>경매 목록에 "판매 중단"으로 남는다</td></tr>
+  <tr><td>하는 곳</td><td>경매장이 있는 곳 어디서나</td><td>시작 마을 신전에서만</td></tr>
+</table></div>
+<p class="cap">경매에 나온 값은 제값의 60~100%이고, 다른 사람이 부르는 값은 제값의 85~130%입니다. 그래서 시작가로 부르면 자주 뺏깁니다. 암시장은 제값의 66~110%에 반드시 손에 들어옵니다.</p>
+
+<h2>4. 제가 처음 값으로 정한 것</h2>
+<div class="opts">
+  <div class="opt"><b class="t">"친해지면"은 '벗' <span class="tag">지금</span></b>
+    사이 다섯 단계(남 · 낯익은 사이 · 단골 · 벗 · 가족 같은 사이) 가운데 넷째입니다. 친밀도 70부터입니다. '단골'(30)로 낮추면 훨씬 일찍 열립니다.</div>
+  <div class="opt"><b class="t">가면도 살 수 있다 <span class="tag">지금</span></b>
+    드물게 나오는 암살자의 가면(은화 5000)도 5500에 바로 삽니다. 원래도 그 값을 부르면 뺏기지 않는 물건이라, 암시장에서는 하루를 덜 기다리는 대신 500을 더 냅니다.</div>
+  <div class="opt"><b class="t">시작 마을 신전에서만 <span class="tag">지금</span></b>
+    소리재 큰 시장, 저울 마당, 다리 장터에도 경매장이 있지만 암시장은 신전지기가 여는 것이라 시작 마을에만 두었습니다.</div>
+</div>
+<p class="cap">셋 다 숫자 하나나 줄 하나로 바뀝니다.</p>
+</div>
