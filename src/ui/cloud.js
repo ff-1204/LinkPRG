@@ -4,10 +4,10 @@
 // 로그인 유지 (Z91): 한 번 연결한 기기에서는 토큰이 끝나 가거나 풀렸을 때, 다음에 화면을 누르는 순간
 // (지도 이동, 단추 무엇이든) 구글에 조용히 다시 받아 온다. 브라우저는 누른 순간에만 로그인 창을 허락하기 때문이다.
 
-import { createDrive } from './drive.js?v=fb79329';
-import { syncPlan } from '../core/sync.js?v=fb79329';
-import { cidOfState } from '../core/migrate.js?v=fb79329';
-import { metaOf, exportText, importText, parseSave, clearSlot, SLOT_COUNT } from '../core/save.js?v=fb79329';
+import { createDrive } from './drive.js?v=8bcdbdb';
+import { syncPlan } from '../core/sync.js?v=8bcdbdb';
+import { cidOfState } from '../core/migrate.js?v=8bcdbdb';
+import { metaOf, exportText, importText, parseSave, clearSlot, SLOT_COUNT } from '../core/save.js?v=8bcdbdb';
 
 export const CLIENT_ID = '782176240387-mi4cvftsmbefiddvd25rul2mvtf09adp.apps.googleusercontent.com';
 const SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
@@ -17,6 +17,7 @@ const WANT_KEY = 'ttiring.cloud'; // 로그인한 적이 있다(토큰은 아니
 const LOG_KEY = 'ttiring.cloud.log'; // 이 기기에서 드라이브에 올린 기록. 최근 셋만 둔다 (보기만 한다, Z113)
 const GONE_KEY = 'ttiring.cloud.gone'; // 이 기기에서 지웠는데 드라이브에서는 아직 못 지운 캐릭터: { [slot]: { cid, rev } } (Z96)
 export const LOG_KEEP = 3;
+export const LOG_GAP = 10 * 60 * 1000; // 같은 칸을 잇달아 올리면 10분 동안은 한 줄로 고친다. 그 뒤의 올리기는 새 줄이다 (Z114)
 export const RENEW_BEFORE = 10 * 60 * 1000; // 끝나기 10분 전부터 다시 받는다
 export const RENEW_GAP = 2 * 60 * 1000; // 조용히 다시 받기는 2분에 한 번까지만 해 본다
 
@@ -164,12 +165,14 @@ export function createCloud({ storage, session, onChange }) {
     remote[slot] = { id, rev, savedAt, cid };
     delete clashes[slot];
     lastUp = Date.now();
-    // 올린 기록 (최근 셋): 언제, 어느 칸, 누구, 며칠째. 같은 칸을 잇달아 올리면 한 줄로 고친다
+    // 올린 기록 (최근 셋): 언제, 어느 칸, 누구, 며칠째. 맨 위 줄이 같은 칸이고 그 줄을 시작한 지 10분이 안 됐으면 그 줄을 고친다 (Z114)
     try {
       const st = JSON.parse(raw).state || {};
-      const entry = { at: lastUp, slot, name: st.name || '', level: st.level || 1, day: st.day || 1 };
-      const log = readLog().filter((x) => x.slot !== slot);
-      storage.setItem(LOG_KEY, JSON.stringify([entry, ...log].slice(0, LOG_KEEP)));
+      const log = readLog();
+      const top = log[0];
+      const same = !!top && top.slot === slot && lastUp - (top.since || top.at) < LOG_GAP;
+      const entry = { at: lastUp, since: same ? top.since || top.at : lastUp, slot, name: st.name || '', level: st.level || 1, day: st.day || 1 };
+      storage.setItem(LOG_KEY, JSON.stringify([entry, ...(same ? log.slice(1) : log)].slice(0, LOG_KEEP)));
     } catch { /* 기록을 못 남겨도 올리기는 됐다 */ }
   }
 

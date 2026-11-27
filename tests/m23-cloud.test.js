@@ -67,8 +67,8 @@ test('드라이브: 로그인이 없거나 풀리면 알려 준다', async () =>
   await assert.rejects(() => expired.list(), /로그인이 풀렸습니다/);
 });
 
-test('올린 기록은 최근 셋만, 같은 칸은 한 줄로 고친다 (Z58)', async () => {
-  const { createCloud } = await import('../src/ui/cloud.js');
+test('올린 기록은 최근 셋만, 같은 칸을 잇달아 올리면 10분 동안 한 줄로 고친다 (Z58, Z114)', async () => {
+  const { createCloud, LOG_GAP } = await import('../src/ui/cloud.js');
   const mem = () => { const m = new Map(); return { getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: (k) => m.delete(k) }; };
   const storage = mem(), session = mem();
   session.setItem('ttiring.cloud.token', JSON.stringify({ token: 'TOKEN', exp: Date.now() + 3600e3 }));
@@ -77,14 +77,25 @@ test('올린 기록은 최근 셋만, 같은 칸은 한 줄로 고친다 (Z58)',
   const old = globalThis.fetch; globalThis.fetch = f.fetchFn;
   try {
     const cloud = createCloud({ storage, session, onChange() {} });
+    const days = () => cloud.log.map((x) => x.day);
+    const later = (ms) => { const log = JSON.parse(storage.getItem('ttiring.cloud.log')).map((x) => ({ ...x, at: x.at - ms, since: x.since - ms })); storage.setItem('ttiring.cloud.log', JSON.stringify(log)); };
+    // 잇달아 올리면 한 줄이다
     save(0, '하나', 2, 1); await cloud.upNow(0);
-    save(1, '둘', 5, 1); await cloud.upNow(1);
     save(0, '하나', 3, 2); await cloud.upNow(0);
-    assert.deepEqual(cloud.log.map((x) => [x.slot, x.name, x.day]), [[0, '하나', 3], [1, '둘', 5]]);
-    save(2, '셋', 9, 1); await cloud.upNow(2);
-    assert.deepEqual(cloud.log.map((x) => x.name), ['셋', '하나', '둘']);
-    save(1, '둘', 6, 2); await cloud.upNow(1);
-    assert.equal(cloud.log.length, 3, '최근 셋만');
-    assert.deepEqual(cloud.log.map((x) => [x.name, x.day]), [['둘', 6], ['셋', 9], ['하나', 3]]);
+    assert.deepEqual(days(), [3]);
+    // 10분이 지난 뒤의 올리기는 새 줄이다. 같은 캐릭터의 지난 올리기가 따로 남는다
+    later(LOG_GAP + 1);
+    save(0, '하나', 4, 3); await cloud.upNow(0);
+    assert.deepEqual(days(), [4, 3]);
+    // 줄을 시작한 때부터 잰다: 쉬지 않고 올려도 10분마다 새 줄이 난다
+    later(LOG_GAP - 1000);
+    save(0, '하나', 5, 4); await cloud.upNow(0);
+    assert.deepEqual(days(), [5, 3]);
+    later(2000);
+    save(0, '하나', 6, 5); await cloud.upNow(0);
+    assert.deepEqual(days(), [6, 5, 3]);
+    // 최근 셋만. 다른 칸은 늘 새 줄이다
+    save(1, '둘', 9, 1); await cloud.upNow(1);
+    assert.deepEqual(cloud.log.map((x) => [x.slot, x.day]), [[1, 9], [0, 6], [0, 5]]);
   } finally { globalThis.fetch = old; }
 });
