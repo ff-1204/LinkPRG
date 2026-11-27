@@ -44,13 +44,13 @@ test('처음엔 레벨 1. 철검은 잠겨 있다. 만들수록 레벨이 오르
 });
 
 test('예술협회: 조각·세공·경매장. 광장에는 없다. 세공으로 반지를 만든다', () => {
-  assert.deepEqual(placeById('artguild').actions, ['jewel', 'sort', 'shop', 'sculpt', 'auction', 'talk']);
-  assert.ok(placeById('artguild').auction && !placeById('plaza').auction);
+  assert.deepEqual(placeById('artguild').actions, ['jewel', 'sort', 'shop', 'sculpt', 'talk']);
+  assert.ok(placeById('temple').auction && placeById('temple').actions.includes('auction') && !placeById('artguild').auction && !placeById('plaza').auction, '경매장은 신전에 (Z99)');
   assert.ok(!placeById('plaza').actions.includes('sculpt'));
   assert.ok(TOWNS['시작 마을'].order.includes('artguild'));
   const s = make('jw');
   dispatch(s, { type: 'move', to: 'artguild' });
-  assert.deepEqual(slotsNow(s).map((x) => x.label), ['세공', '물건 살피기', '상점', '조각', '경매장'], '칸 순서 (Z92)');
+  assert.deepEqual(slotsNow(s).map((x) => x.label), ['세공', '물건 살피기', '상점', '조각'], '칸 순서 (Z92, 경매장은 신전으로 Z99)');
   addItem(s, 'copperore', 2);
   dispatch(s, { type: 'craft', recipe: 'copperring' });
   assert.equal(slotsNow(s)[0].label, '다듬기 0 / 8');

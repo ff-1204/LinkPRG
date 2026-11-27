@@ -2,11 +2,11 @@
 // 돈 10%와 가방 속 재료 절반을 두고 온다. 유품은 그 자리에 하루 남는다.
 // 레벨, 숙련도, 찬 장비는 잃지 않는다. 죽음의 그림자가 한 겹 쌓인다 (Z31).
 
-import { pushLine, ding } from './log.js?v=71fb80c';
-import { itemDef } from '../data/items.js?v=71fb80c';
-import { addItem } from './inventory.js?v=71fb80c';
-import { derived } from './derived.js?v=71fb80c';
-import { roll01 } from './rng.js?v=71fb80c';
+import { pushLine, ding } from './log.js?v=6ec1303';
+import { itemDef } from '../data/items.js?v=6ec1303';
+import { addItem } from './inventory.js?v=6ec1303';
+import { derived } from './derived.js?v=6ec1303';
+import { roll01 } from './rng.js?v=6ec1303';
 
 /** 쓰러지면 운이 정한다 (Z32): 넷에 하나 꼴이 아니라 다섯에 하나 꼴로 다시 태어난다. 나머지는 신전에서 눈을 뜬다. */
 export const REBIRTH_FATE = 0.20;

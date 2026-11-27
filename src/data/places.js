@@ -27,12 +27,12 @@ export const PLACES = {
     actions: ['strike', 'merc', 'talk', 'rest'],
   },
   temple: {
-    id: 'temple', name: '신전', town: '시작 마을', danger: '안전',
-    room: '향 냄새가 난다. 높은 창으로 빛이 들고, 어디선가 종소리 같은 것이 길게 울린다.',
+    id: 'temple', name: '신전', town: '시작 마을', danger: '안전', auction: true,
+    room: '향 냄새가 난다. 높은 창으로 빛이 들고, 어디선가 종소리 같은 것이 길게 울린다. 문 옆 회랑에 경매 게시판이 걸려 있고, 그 앞에 사람들이 모여 있다.',
     strip: { day: 'strip-temple-day', night: 'strip-temple-night' },
     stripAlt: '신전. 돌기둥과 높은 창, 작은 종탑',
     users: [3, 4, 1],
-    actions: ['pray', 'heal', 'shop', 'talk', 'rest'], // 축복받기는 없앴다(그림자는 성수와 기도로 걷는다). 빵은 공용주방에서 (Z92)
+    actions: ['pray', 'heal', 'shop', 'auction', 'talk', 'rest'], // 축복받기는 없앴다(그림자는 성수와 기도로 걷는다). 빵은 공용주방에서 (Z92). 경매장은 예술협회에서 옮겨 왔다 (Z99)
   },
   forge: {
     id: 'forge', name: '대장간', town: '시작 마을', danger: '안전',
@@ -42,14 +42,14 @@ export const PLACES = {
     users: [4, 6, 2],
     actions: ['craft', 'bellows', 'shop', 'talk'],
   },
-  // 예술협회 (Z80): 조각, 세공(반지), 경매장. 광장에서 옮겨 왔다. 작품은 그대로 광장 받침대에 세운다
+  // 예술협회 (Z80): 조각, 세공(반지). 경매장은 신전으로 옮겼다 (Z99). 작품은 그대로 광장 받침대에 세운다
   artguild: {
-    id: 'artguild', name: '예술협회', town: '시작 마을', danger: '안전', auction: true,
-    room: '천장이 높은 돌집. 벽마다 조각과 그림이 걸려 있고, 안쪽 탁자에서는 누군가 작은 반지를 다듬고 있다. 경매 게시판 앞에 사람들이 모여 있고, 문 옆에는 잡화점 할머니가 저울과 선반을 옮겨 놓고 앉아 있다.',
+    id: 'artguild', name: '예술협회', town: '시작 마을', danger: '안전',
+    room: '천장이 높은 돌집. 벽마다 조각과 그림이 걸려 있고, 안쪽 탁자에서는 누군가 작은 반지를 다듬고 있다. 문 옆에는 잡화점 할머니가 저울과 선반을 옮겨 놓고 앉아 있다.',
     strip: { day: 'strip-plaza-empty', night: 'strip-plaza-empty' },
     stripAlt: '예술협회. 집 둘, 나무, 분수',
     users: [6, 9, 2],
-    actions: ['jewel', 'sort', 'shop', 'sculpt', 'auction', 'talk'], // 칸 순서: 세공·물건 살피기·상점·조각·경매장 (Z92) // 잡화점의 상점·물건 살피기·할머니가 옮겨 왔다 (Z82)
+    actions: ['jewel', 'sort', 'shop', 'sculpt', 'talk'], // 칸 순서: 세공·물건 살피기·상점·조각 (Z92, 경매장은 신전으로 Z99) // 잡화점의 상점·물건 살피기·할머니가 옮겨 왔다 (Z82)
   },
   // 의류점 (Z74): 가죽과 천을 다룬다. 바느질, 몸·발 장비 손질, 실 잣기
   tailor: {

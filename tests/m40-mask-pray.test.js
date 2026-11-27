@@ -20,10 +20,10 @@ test('가면은 드물게 은화 5000에 나온다. 그 값을 부르면 낙찰�
   assert.ok(day, '400일 안에 한 번은 나온다');
   const lot = lotsToday(s).find((l) => l.fixed);
   assert.equal(lot.ask, MASK_LOT.price);
-  s.place = 'artguild'; s.silver = 6000;
+  s.place = 'temple'; s.silver = 6000;
   s.place = 'forest';
   const before = personChance(s);
-  s.place = 'artguild';
+  s.place = 'temple';
   dispatch(s, { type: 'auction', op: 'bid', key: lot.key, amount: lot.ask });
   s.day += 1; auctionDay(s, []);
   assert.equal(countOf(s, 'assassinmask'), 1);
@@ -34,7 +34,7 @@ test('가면은 드물게 은화 5000에 나온다. 그 값을 부르면 낙찰�
 
 test('기도 숙련도가 높으면 내 경매에 더 높은 값이 붙는다', () => {
   const run = (grade) => {
-    const s = make('pb'); s.place = 'artguild'; s.bag = [];
+    const s = make('pb'); s.place = 'temple'; s.bag = [];
     s.skills.pray = { grade, xp: 0, uses: 0 };
     addItem(s, 'ironsword', 1, { grade: 1, maker: s.name });
     dispatch(s, { type: 'auction', op: 'list', index: 0, start: 10, days: 3 });
