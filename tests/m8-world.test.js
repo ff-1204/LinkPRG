@@ -369,3 +369,45 @@ test('암시장 (Z104): 신전지기와 벗이 되면 신전에 칸이 생기고
   const old = JSON.parse(JSON.stringify(s)); delete old.auction.bought;
   assert.deepEqual(parseSave(JSON.stringify({ v: SAVE_VERSION, rev: 1, savedAt: 1, state: old })).state.auction.bought, []);
 });
+
+test('바티루스의 눈물 (Z105): 암시장에 드물게 나오고, 선물하면 누구와든 친밀도가 20 오른다', async () => {
+  const { blackView, charmToday, CHARM, lotPool } = await import('../src/core/auction.js');
+  const { bondOf } = await import('../src/core/social.js');
+  const { ITEMS } = await import('../src/data/items.js');
+  const s = fresh('charm'); s.place = 'temple'; s.silver = 100000; s.level = 13;
+  s.people.priest = { ...(s.people.priest || {}), pts: 70 };
+  // 다섯에 하나 꼴로 나온다
+  let days = 0, day = 0;
+  for (let d = 1; d <= 400; d++) { s.day = d; if (charmToday(s)) { days += 1; if (!day) day = d; } }
+  assert.ok(days > 400 * 0.12 && days < 400 * 0.28, `400일에 ${days}일`);
+  assert.equal(CHARM.chance, 0.2);
+  // 경매에는 오르지 않고, 팔 수도 먹을 수도 없다
+  assert.ok(ITEMS.charmpotion.nosell && ITEMS.charmpotion.kind === 'etc');
+  for (const g of [0, 1, 2, 3, 4]) assert.ok(!lotPool(g).includes('charmpotion'));
+  // 안 나온 날에는 살 수 없다
+  let none = 1; s.day = none; while (charmToday(s)) { none += 1; s.day = none; }
+  assert.equal(blackView(s).charm, null);
+  assert.throws(() => dispatch(s, { type: 'auction', op: 'buy', key: `${none}-charm` }), /오늘은 나오지 않았습니다/);
+  // 나온 날: 레벨 × 30에 한 병
+  s.day = day;
+  const c = blackView(s).charm;
+  assert.deepEqual([c.name, c.price], ['바티루스의 눈물', 390]);
+  dispatch(s, { type: 'auction', op: 'buy', key: c.key });
+  assert.equal(s.silver, 100000 - 390);
+  assert.equal(countOf(s, 'charmpotion'), 1);
+  assert.equal(blackView(s).charm, null, '하루에 한 병');
+  assert.throws(() => dispatch(s, { type: 'auction', op: 'buy', key: c.key }), /오늘은 나오지 않았습니다/);
+  s.level = 2; s.auction.bought = [];
+  assert.equal(charmToday(s).price, 150, '적어도 150');
+  // 친해지기 전에는 살 수 없다
+  s.people.priest.pts = 0;
+  assert.throws(() => dispatch(s, { type: 'auction', op: 'buy', key: c.key }), /할 수 없는/);
+  // 선물하면 +20. 한 사람에게 하루 한 번인 것은 그대로다
+  const before = s.people.priest.pts;
+  dispatch(s, { type: 'gift', npc: 'priest', index: s.bag.findIndex((x) => x.id === 'charmpotion') });
+  assert.equal(s.people.priest.pts, before + 20);
+  assert.equal(countOf(s, 'charmpotion'), 0);
+  assert.equal(bondOf(s, 'priest'), 1);
+  addItem(s, 'charmpotion', 1);
+  assert.throws(() => dispatch(s, { type: 'gift', npc: 'priest', index: s.bag.findIndex((x) => x.id === 'charmpotion') }), /오늘은 이미 선물했습니다/);
+});

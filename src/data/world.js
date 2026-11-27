@@ -135,7 +135,8 @@ export const LOT_TIERS = [
 export const LOT_GEAR_MIN = 20; // 중급·상급에 나오는 장비의 바탕 값 하한
 export const LOT_SKIP = ['mistrod', 'ruinkey', 'oddknife', 'carverknife', 'assassinmask'];
 /** 암살자의 가면 (Z88): 날마다 이 확률로 상급 칸에 은화 5000에 나온다. 그 값을 부르면 다른 사람에게 뺏기지 않는다. */
-export const MASK_LOT = { id: 'assassinmask', chance: 0.08, price: 5000 };
+// 암살자의 가면 (Z88 → Z106): 경매장에는 오르지 않고 암시장에만 드물게 나온다. 값은 3000으로 정해져 있다
+export const MASK_LOT = { id: 'assassinmask', chance: 0.08, price: 3000 };
 /** 시작가: 제값의 60~100% (사용자 요청으로 조금 올림. 전에는 50~90%) */
 export const LOT_ASK = { from: 0.6, span: 0.4 };
 export const BID_SAYS = ['이건 내 거', '어 싸다', '올립니다', '양보 못 함', 'ㅎㅎ 받고 더', '이 가격이면 삼', '누구 작품이지?', '자루에 이름 있네', '끝까지 간다'];

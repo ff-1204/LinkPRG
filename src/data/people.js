@@ -1,7 +1,7 @@
 // 마을 사람 (E26~E28, T14). 좋아하는 것·싫어하는 것과 속 스탯은 겪어 봐야 도감에 적힌다.
 // stats: 눈썰미(eye, 속임에 맞섬) · 배짱(guts, 위협에 맞섬) · 고집(will, 설득에 맞섬)
 
-import { TENT_PEOPLE } from './anvil.js?v=3174526';
+import { TENT_PEOPLE } from './anvil.js?v=3cfb5a9';
 
 /** 친밀도 다섯 단계 (E26)와 그 문턱, 그리고 값이 깎이는 몫 (E25). */
 export const BONDS = [
@@ -659,7 +659,7 @@ export const TITLES = {
   maker: { name: '이름을 새긴 이', effect: '만든 것을 팔 때 값 +10%', hint: '칼자루 밑의 이름을 보고 값을 더 쳐 주는 상인이 있다.' },
   survivor: { name: '세 번 일어난 이', effect: '쉴 때 생명력 회복 +10%p', hint: '신전지기가 얼굴을 외운 사람이 있다더라.' },
   neighbor: { name: '이웃', effect: '이야기를 들을 때 친밀도 +1 더', hint: '마을에서 한 사람 몫을 한 이를 그렇게 부른다.' },
-  assassin: { name: '암살자', effect: '들판의 기척이 모험가일 확률 +30%p', hint: '경매장에 드물게 검은 가면이 나온다더라. 값이 터무니없다고.' },
+  assassin: { name: '암살자', effect: '들판의 기척이 모험가일 확률 +30%p', hint: '어딘가에 드물게 검은 가면이 나온다더라. 경매장에는 오르지 않는다고.' },
   legend: { name: '전설을 두드린 자', effect: '만든 것의 내구도 +10%', hint: '쇠가 스스로 우는 날이 있다고, 대장장이들은 말한다.' },
   helper: { name: '손 내민 이', effect: '설득 판정 +5%', hint: '돌 밑에서 나온 사람이 은인의 이름을 찾고 있다더라.' },
 };

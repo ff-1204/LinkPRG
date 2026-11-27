@@ -1,19 +1,19 @@
 // 사람들과의 사이, 명성, 칭호, 대화 판정 (E25~E28, G3-1, T10~T14).
 
-import { tentHere } from '../data/anvil.js?v=3174526';
+import { tentHere } from '../data/anvil.js?v=3cfb5a9';
 
-import { next, pick, roll01 } from './rng.js?v=3174526';
-import { pushLine, ding } from './log.js?v=3174526';
-import { PEOPLE, PEOPLE_ORDER, BONDS, GIFT, TALK_POINT, FAME, TITLES, personById, REGULAR, CALLS } from '../data/people.js?v=3174526';
-import { itemDef } from '../data/items.js?v=3174526';
-import { removeAt } from './inventory.js?v=3174526';
-import { placeById, ACTIONS } from '../data/places.js?v=3174526';
-import { ROLE_BONUS, fullRoles } from '../data/companions.js?v=3174526';
-import { iGa, eulReul, ro, eunNeun } from './ko.js?v=3174526';
-import { TALKS } from '../data/talks.js?v=3174526';
-import { rootOf } from '../data/origins.js?v=3174526';
-import { smithMemory } from './memories.js?v=3174526';
-import { hasTitle } from './titles.js?v=3174526';
+import { next, pick, roll01 } from './rng.js?v=3cfb5a9';
+import { pushLine, ding } from './log.js?v=3cfb5a9';
+import { PEOPLE, PEOPLE_ORDER, BONDS, GIFT, TALK_POINT, FAME, TITLES, personById, REGULAR, CALLS } from '../data/people.js?v=3cfb5a9';
+import { itemDef } from '../data/items.js?v=3cfb5a9';
+import { removeAt } from './inventory.js?v=3cfb5a9';
+import { placeById, ACTIONS } from '../data/places.js?v=3cfb5a9';
+import { ROLE_BONUS, fullRoles } from '../data/companions.js?v=3cfb5a9';
+import { iGa, eulReul, ro, eunNeun } from './ko.js?v=3cfb5a9';
+import { TALKS } from '../data/talks.js?v=3cfb5a9';
+import { rootOf } from '../data/origins.js?v=3cfb5a9';
+import { smithMemory } from './memories.js?v=3cfb5a9';
+import { hasTitle } from './titles.js?v=3cfb5a9';
 
 const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
 
@@ -282,6 +282,14 @@ export function gift(state, events, id, index) {
   r.met = true;
   if (!state.counters.npcs.includes(id)) state.counters.npcs.push(id);
   removeAt(state, index, 1);
+  // 바티루스의 눈물 (Z105): 좋아하고 싫어하고를 가리지 않고 정해진 만큼 가까워진다
+  if (def.charm) {
+    pushLine(state, events, { k: 'me', text: `${p.name}에게 ${eulReul(def.name)} 건넸다.` });
+    pushLine(state, events, { k: 'npc', who: p.name, text: '…이상하군. 자네가 오늘따라 반갑네.', tone: 'mint' });
+    addPoints(state, events, id, def.charm);
+    events.push({ type: 'social' });
+    return { like: false, dislike: false, charm: true };
+  }
   const like = p.likes.includes(item.id);
   const dislike = p.dislikes.includes(item.id);
   pushLine(state, events, { k: 'me', text: `${p.name}에게 ${eulReul(def.name)} 건넸다.` });

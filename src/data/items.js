@@ -71,7 +71,7 @@ export const ITEMS = {
   waterpouch: { name: '물 주머니', kind: 'eat', weight: 1, icon: 'item-water', price: 8, throw: { element: '물', dmg: 16 }, desc: '싸움에서 던진다. 물 속성으로 16 피해. 불에 약한 것에게는 더 아프다.' },
   emptypouch: { name: '빈 물 주머니', kind: 'material', weight: 0, icon: 'item-water', price: 2, desc: '물을 다 마신 주머니. 우물에서 다시 채운다.' }, // 소금벌 (SB-B3): 마신 주머니는 비고, 우물에서 다시 찬다
   torch: { name: '횃불', kind: 'eat', weight: 1, icon: 'item-branch', price: 6, throw: { element: '불', dmg: 16 }, desc: '싸움에서 휘두른다. 불 속성으로 16 피해.' },
-  assassinmask: { name: '암살자의 가면', kind: 'etc', weight: 0, icon: 'item-unknown', price: 5000, desc: '눈구멍만 뚫린 검은 가면. 손에 넣으면 칭호 "암살자"가 생긴다.' },
+  assassinmask: { name: '암살자의 가면', kind: 'etc', weight: 0, icon: 'item-unknown', price: 3000, desc: '눈구멍만 뚫린 검은 가면. 손에 넣으면 칭호 "암살자"가 생긴다.' },
   shardkey: { name: '셋째 자물쇠의 열쇠', kind: 'etc', weight: 0, icon: 'item-unknown', price: 1, desc: '종 조각 창고 안쪽 문에 맞을 것 같다. 꼬리표에 값이 적혀 있다.' },
   icekey: { name: '얼음 낀 열쇠', kind: 'etc', weight: 0, icon: 'item-unknown', price: 1, desc: '얼음 종루 어딘가의 문에 맞을 것 같다. 손에 쥐면 시리다.' },
   ruinkey: { name: '녹슨 열쇠', kind: 'etc', weight: 0, icon: 'item-unknown', price: 1, desc: '폐허 어딘가의 문에 맞을 것 같다.' },
@@ -116,6 +116,8 @@ export const ITEMS = {
   dish_boarskewer: { name: '멧돼지 산열매 꼬치', kind: 'eat', weight: 1, icon: 'item-meat', price: 26, eat: { full: 55, dish: 'boarskewer' }, desc: '단내 나는 꼬치. 먹으면 사나운 입맛(공격력 +3, 방어력 +1).' },
   // 흰마루 (WM-B3, WM-F4): 식은 몸일 때만 얼음 구멍에서 문다. 잡아 보기 전에는 도감에 이름이 없다
   silverfish: { name: '얼음 밑 은어', kind: 'material', tier: 3, weight: 1, icon: 'item-fish', price: 66, desc: '얼음 바로 밑에 붙어 다니는 은빛 고기. 몸이 더운 사람의 줄에는 물지 않는다.' },
+  // 바티루스의 눈물 (Z105): 암시장에 드물게 나온다. 사람에게 선물하면 좋아하는 것보다 더 가까워진다. 먹을 수도 팔 수도 없다
+  charmpotion: { name: '바티루스의 눈물', kind: 'etc', grade: 2, weight: 1, icon: 'item-potion', price: 300, nosell: true, charm: 20, desc: '분홍빛이 도는 눈물 한 방울을 담은 작은 병. 누구에게든 선물로 건네면 사이가 부쩍 가까워진다. 한 사람에게 하루 한 번인 것은 다른 선물과 같다.' },
   redpotion: { name: '붉은 물약', kind: 'eat', grade: 1, weight: 1, icon: 'item-potion', price: 20, eat: { hpPct: 40 }, desc: '최대 생명력의 40%를 채운다.' },
   forgetwater: { name: '잊는 물', kind: 'etc', grade: 3, weight: 1, icon: 'item-water', price: 400, desc: '마시면 손에 익은 갈래 하나를 잊는다. 다시 고를 수 있게 된다. 아주 귀하다.' },
   oldrod: { name: '진흙투성이 낚싯대', kind: 'quest', weight: 1, icon: 'item-branch', desc: '강바닥에서 건져 올렸다. 손잡이 마디에 실이 곱게 감겨 있다.' },
@@ -136,5 +138,5 @@ export function gradeName(grade) {
 }
 
 // 3~10단계의 재료·장비·음식 (LV-F3~F10). 그 지역을 낼 때까지는 게임 안에서 닿지 않는다
-import { tierItems } from './tiers.js?v=3174526';
+import { tierItems } from './tiers.js?v=3cfb5a9';
 Object.assign(ITEMS, tierItems());

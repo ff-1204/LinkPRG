@@ -73,6 +73,10 @@
     <p class="say">신전지기가 뒷문을 열어 준다. "경매에 오른 것을 미리 빼 주는 걸세. 기다릴 것 없이, 값만 조금 더 얹게."</p>
     <p class="cap">오늘 경매에 나온 물건을 입찰가에 10%를 얹어 그 자리에서 산다. 다른 사람과 겨루지 않는다. 그 물건에 부른 은화가 있으면 돌아온다.</p>
     <div class="rowx"><span>보유 은화</span><b>500</b></div>
+    <p class="lab">오늘 들어온 것</p>
+    <div class="card"><div><span><b>바티루스의 눈물</b> <small>경매에는 오르지 않는다</small></span><span class="d">분홍빛이 도는 눈물 한 방울을 담은 작은 병. 누구에게든 선물로 건네면 사이가 부쩍 가까워진다. 한 사람에게 하루 한 번인 것은 다른 선물과 같다.</span></div><button class="btn go" type="button">은화 390 구매</button></div>
+    <div class="card"><div><span><b>암살자의 가면</b> <small>경매에는 오르지 않는다</small></span><span class="d">눈구멍만 뚫린 검은 가면. 손에 넣으면 칭호 "암살자"가 생긴다.</span></div><button class="btn go" type="button">은화 3000 구매</button></div>
+    <p class="lab">경매에 오른 것</p>
     <div class="tier"><button class="btn on" type="button">하급<span class="num">5</span></button><button class="btn" type="button">중급<span class="num">3</span></button><button class="btn" type="button">상급<span class="num">0</span></button></div>
     <div class="card"><div><span><b>횃불 5개</b> <small>올린 이 '반딧팽이'</small></span><span class="d">싸움에서 휘두른다. 불 속성으로 16 피해.</span><span>입찰가 은화 21 + 10%</span></div><button class="btn go" type="button">은화 24 구매</button></div>
     <div class="card"><div><span><b>가죽 장화</b> <small>올린 이 '느린망치'</small></span><span class="d">무두질한 가죽을 꿰매 지은 장화. 발목까지 감싼다.</span><span>입찰가 은화 32 + 10%</span></div><button class="btn go" type="button">은화 36 구매</button></div>
@@ -105,12 +109,31 @@
 </table></div>
 <p class="cap">경매에 나온 값은 제값의 60~100%이고, 다른 사람이 부르는 값은 제값의 85~130%입니다. 그래서 시작가로 부르면 자주 뺏깁니다. 암시장은 제값의 66~110%에 반드시 손에 들어옵니다.</p>
 
+<h2>바티루스의 눈물</h2>
+<div class="tablebox"><table>
+  <tr><th>무엇</th><th>값</th></tr>
+  <tr><td>나오는 때</td><td>날마다 20% 확률로 한 병. 나온 날은 맨 위 "오늘 들어온 것"에 보이고, 안 나온 날은 그 칸이 없다</td></tr>
+  <tr><td>사는 값</td><td>레벨 × 30 (적어도 150). 레벨 13이면 390. 깎아 주지 않는다</td></tr>
+  <tr><td>쓰는 법</td><td>사람에게 "선물"로 건넨다. 좋아하고 싫어하고를 가리지 않고 친밀도 +20</td></tr>
+  <tr><td>견주면</td><td>좋아하는 선물 +10, 보통 선물 +2, 이야기 듣기 +1. 벗까지 70, 가족 같은 사이까지 150</td></tr>
+  <tr><td>못 하는 것</td><td>한 사람에게 하루 두 번 선물하기, 먹기, 가게에 팔기, 경매에 올리기</td></tr>
+</table></div>
+<p class="cap">확률 20%, 값 레벨 × 30, 친밀도 +20은 제가 정한 처음 값입니다.</p>
+
+<h2>암살자의 가면</h2>
+<div class="tablebox"><table>
+  <tr><th>무엇</th><th>전</th><th>지금</th></tr>
+  <tr><td>파는 곳</td><td>경매장 상급 칸</td><td>암시장의 "오늘 들어온 것"에만</td></tr>
+  <tr><td>값</td><td>은화 5000 (암시장에서는 5500)</td><td>은화 3000, 얹는 것 없음</td></tr>
+  <tr><td>나오는 때</td><td>날마다 8%</td><td>날마다 8% (그대로)</td></tr>
+  <tr><td>받는 때</td><td>다음 날 낙찰</td><td>그 자리에서, 칭호 "암살자"도 바로</td></tr>
+</table></div>
+<p class="cap">암시장이 열리기 전에는 가면을 구할 길이 없습니다. 눈물과 가면이 같은 날 함께 나올 수도 있습니다.</p>
+
 <h2>4. 제가 처음 값으로 정한 것</h2>
 <div class="opts">
   <div class="opt"><b class="t">"친해지면"은 '벗' <span class="tag">지금</span></b>
     사이 다섯 단계(남 · 낯익은 사이 · 단골 · 벗 · 가족 같은 사이) 가운데 넷째입니다. 친밀도 70부터입니다. '단골'(30)로 낮추면 훨씬 일찍 열립니다.</div>
-  <div class="opt"><b class="t">가면도 살 수 있다 <span class="tag">지금</span></b>
-    드물게 나오는 암살자의 가면(은화 5000)도 5500에 바로 삽니다. 원래도 그 값을 부르면 뺏기지 않는 물건이라, 암시장에서는 하루를 덜 기다리는 대신 500을 더 냅니다.</div>
   <div class="opt"><b class="t">시작 마을 신전에서만 <span class="tag">지금</span></b>
     소리재 큰 시장, 저울 마당, 다리 장터에도 경매장이 있지만 암시장은 신전지기가 여는 것이라 시작 마을에만 두었습니다.</div>
 </div>

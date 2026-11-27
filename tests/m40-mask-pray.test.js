@@ -13,23 +13,37 @@ import { ITEMS } from '../src/data/items.js';
 
 const make = (seed = 'mk') => createGame({ name: '가', origin: 'bard', rolled: rollDice('same'), seed });
 
-test('가면은 드물게 은화 5000에 나온다. 그 값을 부르면 낙찰되고 칭호 암살자가 생긴다. 기척이 모험가일 확률 +30%p', () => {
+test('가면은 경매장에 오르지 않고 암시장에만 드물게 은화 3000에 나온다. 사면 칭호 암살자가 생긴다. 기척이 모험가일 확률 +30%p (Z106)', async () => {
+  const { maskToday, blackView } = await import('../src/core/auction.js');
   const s = make();
-  let day = 0;
-  for (let d = 1; d <= 400 && !day; d++) { s.day = d; if (lotsToday(s).some((l) => l.fixed)) day = d; }
-  assert.ok(day, '400일 안에 한 번은 나온다');
-  const lot = lotsToday(s).find((l) => l.fixed);
-  assert.equal(lot.ask, MASK_LOT.price);
-  s.place = 'temple'; s.silver = 6000;
+  s.people.priest = { ...(s.people.priest || {}), pts: 70 };
+  let day = 0, days = 0;
+  for (let d = 1; d <= 400; d++) {
+    s.day = d;
+    assert.ok(!lotsToday(s).some((l) => l.fixed || l.item.id === MASK_LOT.id), '경매에는 오르지 않는다');
+    if (maskToday(s)) { days += 1; if (!day) day = d; }
+  }
+  assert.ok(day && days > 400 * 0.03 && days < 400 * 0.14, `400일에 ${days}일`);
+  s.day = day;
+  const m = blackView(s).specials.find((x) => x.id === MASK_LOT.id);
+  assert.deepEqual([m.name, m.price, MASK_LOT.price], ['암살자의 가면', 3000, 3000]);
+  s.silver = 6000;
   s.place = 'forest';
   const before = personChance(s);
+  assert.throws(() => dispatch(s, { type: 'auction', op: 'buy', key: m.key }), /할 수 없는/);
   s.place = 'temple';
-  dispatch(s, { type: 'auction', op: 'bid', key: lot.key, amount: lot.ask });
-  s.day += 1; auctionDay(s, []);
+  dispatch(s, { type: 'auction', op: 'buy', key: m.key });
+  assert.equal(s.silver, 3000, '얹는 것 없이 3000');
   assert.equal(countOf(s, 'assassinmask'), 1);
-  assert.ok(hasTitle(s, 'assassin'));
+  assert.ok(hasTitle(s, 'assassin'), '그 자리에서 칭호가 붙는다');
+  assert.equal(maskToday(s), null);
+  assert.throws(() => dispatch(s, { type: 'auction', op: 'buy', key: m.key }), /오늘은 나오지 않았습니다/);
   s.place = 'forest';
   assert.ok(Math.abs(personChance(s) - before - 0.30) < 1e-9);
+  // 암시장이 열리기 전에는 살 수 없다
+  const t = make('closed'); t.day = day; t.place = 'temple'; t.silver = 6000;
+  let d2 = 1; t.day = d2; while (!maskToday(t)) { d2 += 1; t.day = d2; }
+  assert.throws(() => dispatch(t, { type: 'auction', op: 'buy', key: `${d2}-mask` }), /할 수 없는/);
 });
 
 test('기도 숙련도가 높으면 내 경매에 더 높은 값이 붙는다', () => {

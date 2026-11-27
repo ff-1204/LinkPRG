@@ -1,21 +1,21 @@
 // 경매장 (N6-1 ~ N6-3). 가상 유저가 입찰하고 한마디씩 남긴다.
 // 입찰은 씨앗과 날짜로 셈한다. 같은 씨앗이면 같은 값에 팔린다.
 
-import { PLACES } from '../data/places.js?v=3174526';
-import { reachedBand } from '../data/bands.js?v=3174526';
-import { seedFrom } from './rng.js?v=3174526';
-import { gearName } from './gear.js?v=3174526';
-import { pushLine } from './log.js?v=3174526';
-import { ITEMS, itemDef, gradeName } from '../data/items.js?v=3174526';
-import { addItem, removeAt } from './inventory.js?v=3174526';
-import { worth } from './trade.js?v=3174526';
-import { placeById } from '../data/places.js?v=3174526';
-import { standingOf } from './factions.js?v=3174526';
-import { FACTION_REGULAR } from '../data/factions.js?v=3174526';
-import { userBase } from './world.js?v=3174526';
-import { MASK_LOT, AUCTION_FEE, AUCTION_DAYS, LOT_TIERS, LOT_SKIP, LOT_ASK, LOT_GEAR_MIN, BID_SAYS, USER_COUNT } from '../data/world.js?v=3174526';
-import { eulReul, iGa, eunNeun } from './ko.js?v=3174526';
-import { grantTitle, bondOf } from './social.js?v=3174526';
+import { PLACES } from '../data/places.js?v=3cfb5a9';
+import { reachedBand } from '../data/bands.js?v=3cfb5a9';
+import { seedFrom } from './rng.js?v=3cfb5a9';
+import { gearName } from './gear.js?v=3cfb5a9';
+import { pushLine } from './log.js?v=3cfb5a9';
+import { ITEMS, itemDef, gradeName } from '../data/items.js?v=3cfb5a9';
+import { addItem, removeAt } from './inventory.js?v=3cfb5a9';
+import { worth } from './trade.js?v=3cfb5a9';
+import { placeById } from '../data/places.js?v=3cfb5a9';
+import { standingOf } from './factions.js?v=3cfb5a9';
+import { FACTION_REGULAR } from '../data/factions.js?v=3cfb5a9';
+import { userBase } from './world.js?v=3cfb5a9';
+import { MASK_LOT, AUCTION_FEE, AUCTION_DAYS, LOT_TIERS, LOT_SKIP, LOT_ASK, LOT_GEAR_MIN, BID_SAYS, USER_COUNT } from '../data/world.js?v=3cfb5a9';
+import { eulReul, iGa, eunNeun } from './ko.js?v=3cfb5a9';
+import { grantTitle, bondOf } from './social.js?v=3cfb5a9';
 
 // 끝 글자만 다른 글들도 고르게 흩어지도록 한 번 더 섞는다(전에는 같은 날 물건들의 시작가가 거의 같았다)
 const mix = (h) => { h ^= h >>> 16; h = Math.imul(h, 0x85ebca6b) >>> 0; h ^= h >>> 13; h = Math.imul(h, 0xc2b2ae35) >>> 0; h ^= h >>> 16; return h >>> 0; };
@@ -65,11 +65,7 @@ export function lotsToday(state, day = state.day) {
       });
     }
   }
-  // 암살자의 가면 (Z88): 드물게, 값은 정해져 있다
-  if (unit(state.seed, 'mask', day) < MASK_LOT.chance) {
-    out.push({ key: `${day}-mask`, tier: 'high', item: { id: MASK_LOT.id, grade: 3, n: 1 }, name: itemDef(MASK_LOT.id).name, fair: MASK_LOT.price, fixed: true,
-      seller: userBase(state, hash(state.seed, 'seller', 'mask', day) % USER_COUNT).name, ask: MASK_LOT.price, ends: day + 1 });
-  }
+  // 암살자의 가면은 경매에 오르지 않는다. 암시장에만 나온다 (Z106)
   return out;
 }
 
@@ -120,6 +116,24 @@ export function bid(state, events, key, amount) {
 // 시작 마을 신전지기와 '벗'이 되면 신전에 "암시장" 칸이 생긴다. 그 전에는 어디에도 나오지 않는다.
 // 오늘 경매에 나온 물건을 입찰가에 10%를 얹어 그 자리에서 산다. 다른 사람과 겨루지 않는다.
 export const BLACK = { who: 'priest', place: 'temple', bond: 3, rate: 0.10 };
+/** 바티루스의 눈물 (Z105): 날마다 다섯에 하나 꼴로 한 병이 나온다. 값은 레벨을 따라 오른다. */
+export const CHARM = { id: 'charmpotion', chance: 0.2, perLevel: 30, min: 150 };
+const charmKey = (day) => `${day}-charm`;
+/** 오늘 암시장에 나온 바티루스의 눈물. 없거나 이미 샀으면 null. */
+export function charmToday(state) {
+  const day = state.day;
+  if (unit(state.seed, 'charm', day) >= CHARM.chance || (state.auction.bought || []).includes(charmKey(day))) return null;
+  return { key: charmKey(day), id: CHARM.id, name: itemDef(CHARM.id).name, desc: itemDef(CHARM.id).desc, price: Math.max(CHARM.min, (state.level || 1) * CHARM.perLevel) };
+}
+const maskKey = (day) => `${day}-mask`;
+/** 오늘 암시장에 나온 암살자의 가면 (Z106). 없거나 이미 샀으면 null. 값은 정해져 있다. */
+export function maskToday(state) {
+  const day = state.day;
+  if (unit(state.seed, 'mask', day) >= MASK_LOT.chance || (state.auction.bought || []).includes(maskKey(day))) return null;
+  return { key: maskKey(day), id: MASK_LOT.id, name: itemDef(MASK_LOT.id).name, desc: itemDef(MASK_LOT.id).desc, price: MASK_LOT.price };
+}
+/** 암시장에만 들어오는 것들 (경매에는 오르지 않는다): 바티루스의 눈물, 암살자의 가면. */
+export const specialsToday = (state) => [charmToday(state), maskToday(state)].filter(Boolean);
 export const blackOpen = (state) => bondOf(state, BLACK.who) >= BLACK.bond;
 /** 암시장 값: 지금 입찰가(내가 이미 불렀으면 그 값)에 10%를 얹는다. */
 export function blackPrice(state, lot) {
@@ -129,6 +143,20 @@ export function blackPrice(state, lot) {
 /** 암시장에서 바로 산다. 그 물건에 묶어 둔 내 입찰은 돌아온다. */
 export function buyNow(state, events, key) {
   if (state.place !== BLACK.place || !blackOpen(state)) throw new Error('여기서는 할 수 없는 일입니다');
+  if (key === charmKey(state.day) || key === maskKey(state.day)) {
+    const c = specialsToday(state).find((x) => x.key === key);
+    if (!c) throw new Error('오늘은 나오지 않았습니다');
+    if (c.price > state.silver) throw new Error(`은화가 모자랍니다 (${state.silver} / ${c.price})`);
+    state.silver -= c.price;
+    addItem(state, c.id, 1);
+    if (!Array.isArray(state.auction.bought)) state.auction.bought = [];
+    state.auction.bought.push(c.key);
+    const text = `암시장에서 ${eulReul(c.name)} 은화 ${c.price}에 샀다.`;
+    pushLine(state, events, { k: 'me', text });
+    if (c.id === MASK_LOT.id) { grantTitle(state, events, 'assassin', '암시장에서 암살자의 가면을 손에 넣었다'); state.auction.history.push({ day: state.day, kind: 'black', text, amount: c.price }); }
+    events.push({ type: 'auction' });
+    return;
+  }
   if ((state.auction.bought || []).includes(key)) throw new Error('판매가 중단된 물건입니다');
   const lot = lotsLeft(state).find((l) => l.key === key);
   if (!lot) throw new Error('오늘 나온 물건이 아닙니다');
@@ -152,7 +180,7 @@ export function buyNow(state, events, key) {
 /** 암시장 창이 그릴 것. */
 export function blackView(state) {
   return {
-    open: blackOpen(state), rate: Math.round(BLACK.rate * 100),
+    open: blackOpen(state), rate: Math.round(BLACK.rate * 100), charm: charmToday(state), specials: specialsToday(state),
     tiers: LOT_TIERS.map((t) => ({ id: t.id, name: t.name })),
     lots: lotsLeft(state).map((l) => ({ key: l.key, tier: l.tier, name: l.name, seller: l.seller, ask: Math.max(l.ask, state.auction.bids.find((b) => b.key === l.key)?.amount || 0), price: blackPrice(state, l), desc: itemDef(l.item.id).desc })),
   };
