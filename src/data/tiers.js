@@ -2,7 +2,7 @@
 // 지역을 낼 때(M15~M22) 곳과 사냥터에 잇는다. 이름과 글은 사용자가 읽고 확정하기 전의 처음 값이다.
 // 숫자는 구간 자료(bands.js)에서 나온다. 이 파일은 다른 자료 파일을 부르지 않는다(물건·설계도 파일이 이 파일을 부른다).
 
-import { BANDS, foodRate, BOSS, normalAt } from './bands.js?v=f81b3db';
+import { BANDS, foodRate, BOSS, normalAt } from './bands.js?v=71fb80c';
 
 /** metal·hide·meat: [id, 이름, 한 줄]. sword·shield·body: 시안이 따로 이름 붙인 승급작 (LV-F). dish: [id, 이름, 버프 이름, 귀띔]. */
 export const TIERS = [
@@ -17,6 +17,8 @@ export const TIERS = [
 ];
 export const tierByNo = (n) => TIERS.find((t) => t.n === n);
 const short = (name) => name.replace(/ 덩이$/, '');
+/** 받침에 맞춰 "와/과"를 붙인다. */
+const wa = (word) => word + ((word.charCodeAt(word.length - 1) - 0xac00) % 28 ? '과' : '와');
 const r = Math.round;
 /** 그 단계 기도 구슬의 공격력: 그 단계 검의 이만큼 (M24-3. 계산 도구로 재서 사제가 전사의 10%p 안에 들게 잡았다). 1~20의 기도 구슬(방어력 2)은 그대로다. */
 export const BEADS = 0.5;
@@ -54,7 +56,7 @@ export function tierItems() {
       out[gid(t, key)] = {
         name, kind: 'gear', slot, tier: t.n, ...(attack ? { attack } : {}), ...(defense ? { defense } : {}), dur: 80 + t.n * 20, weight: slot === 'body' ? 7 : slot === 'ring' || slot === 'hand' ? 0 : 3,
         price: r((b.day * share) / 10) * 10, ...(job ? { job } : {}), ...(icon ? { icon } : { gradeIcon: 'sword' }), ...(key === 'gloves' || key === 'boots' ? { hideOf: t.hide[0] } : {}), // hideOf: 그 가죽으로 지은 것(흰털 가죽이면 털옷, WM-B3)
-        desc: `${short(t.metal[1])}와 ${t.hide[1]}의 단계에서 짓는 ${name}.${job ? ` ${{ archer: '궁수', rogue: '도적', mage: '마법사', warrior: '전사', priest: '사제' }[job]}만 쓴다.` : ''}`,
+        desc: `${wa(short(t.metal[1]))} ${t.hide[1]}의 단계에서 짓는 ${name}.${job ? ` ${{ archer: '궁수', rogue: '도적', mage: '마법사', warrior: '전사', priest: '사제' }[job]}만 쓴다.` : ''}`,
       };
     }
     const rate = r(foodRate(t.n) * 100);

@@ -513,8 +513,8 @@ html.calm .cool i { animation: none !important; }
   .mst.warn { background: rgba(242, 182, 60, .28); border-radius: 7px; padding: 3px 7px; margin: -3px -7px; }
   .mtags { grid-column: 1 / -1; display: flex; gap: 4px; flex-wrap: wrap; }
   /* 행동 칸: 크게, 1번은 넓게 */
-  .b5 { display: grid; grid-template-columns: 1.6fr repeat(4, minmax(0, 1fr)); gap: 8px; }
-  .b5 .sl { min-height: 64px; font-size: 1rem; }
+  .b5 { display: grid; grid-template-columns: minmax(min-content, 1.6fr) repeat(4, minmax(min-content, 1fr)); gap: 8px; }
+  .b5 .sl { min-height: 64px; font-size: 1rem; min-width: 0; word-break: keep-all; overflow-wrap: break-word; }
   .b5 .sl:first-child { font-size: 1.15rem; }
 }
 @media (max-width: 1000px) { .mst.wt { display: none; } }
