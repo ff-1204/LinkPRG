@@ -2,10 +2,10 @@
 // 몸은 처음부터 다시지만, 종이 기억한 것(히든 스탯, 다시 일어선 몸으로 오른 스탯, 칭호, 도감), 보관함은 가지고 간다.
 // 손에 익은 것도 남는다 (Z98, 사용자 결정): 숙련도 전부, 제작 레벨, 던전 지도, 그리고 쌓은 경험치의 1%(그만큼 레벨과 스탯 점수가 다시 붙는다).
 
-import { shopCarry } from './workshop.js?v=327d747';
-import { HIDDEN } from './hidden.js?v=327d747';
-import { xpNeeded, MAX_GRADE } from './skills.js?v=327d747';
-import { xpToNext, gainXp } from './level.js?v=327d747';
+import { shopCarry } from './workshop.js?v=f81b3db';
+import { HIDDEN } from './hidden.js?v=f81b3db';
+import { xpNeeded, MAX_GRADE } from './skills.js?v=f81b3db';
+import { xpToNext, gainXp } from './level.js?v=f81b3db';
 
 export const SKILL_KEEP = 1; // 숙련도의 이만큼을 가지고 간다 (Z98: 5% → 전부)
 export const XP_KEEP = 0.01; // 레벨에 쌓은 경험치의 이만큼을 가지고 간다 (Z98)
@@ -38,7 +38,7 @@ function fromTotal(total) {
   while (grade < MAX_GRADE && xp >= xpNeeded(grade)) { xp -= xpNeeded(grade); grade++; }
   return { grade, xp };
 }
-import { JOBS, HIDDEN_JOBS } from '../data/jobs.js?v=327d747';
+import { JOBS, HIDDEN_JOBS } from '../data/jobs.js?v=f81b3db';
 const jobName = (id) => (id ? (JOBS[id] || HIDDEN_JOBS[id])?.name || id : null);
 
 const STATS = ['str', 'agi', 'con', 'wis'];

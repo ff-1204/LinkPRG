@@ -1,16 +1,16 @@
 // 메인 5장 "마지막 울림"과 끝 넷 (S2). 지금까지 무엇으로 살았는지가 고를 수 있는 끝을 정한다.
 // 어느 끝도 나쁜 끝이 아니다. 끝난 뒤에도 게임은 이어지고, 고른 끝이 띠링의 규칙을 바꾼다.
 
-import { seedFrom } from './rng.js?v=327d747';
-import { pushLine, ding } from './log.js?v=327d747';
-import { PEOPLE, PEOPLE_PART1 as PEOPLE_ORDER } from '../data/people.js?v=327d747';
-import { FACTION_ORDER, FACTION_REGULAR } from '../data/factions.js?v=327d747';
-import { HIDDEN_JOBS } from '../data/jobs.js?v=327d747';
-import { bondOf } from './social.js?v=327d747';
-import { standingOf } from './factions.js?v=327d747';
-import { foundCount } from './hidden.js?v=327d747';
-import { userAt } from './world.js?v=327d747';
-import { USER_COUNT } from '../data/world.js?v=327d747';
+import { seedFrom } from './rng.js?v=f81b3db';
+import { pushLine, ding } from './log.js?v=f81b3db';
+import { PEOPLE, PEOPLE_PART1 as PEOPLE_ORDER } from '../data/people.js?v=f81b3db';
+import { FACTION_ORDER, FACTION_REGULAR } from '../data/factions.js?v=f81b3db';
+import { HIDDEN_JOBS } from '../data/jobs.js?v=f81b3db';
+import { bondOf } from './social.js?v=f81b3db';
+import { standingOf } from './factions.js?v=f81b3db';
+import { foundCount } from './hidden.js?v=f81b3db';
+import { userAt } from './world.js?v=f81b3db';
+import { USER_COUNT } from '../data/world.js?v=f81b3db';
 
 export const MASTER_GRADE = 27; // 달인 1
 const FAMILY = 4; // '가족 같은 사이'

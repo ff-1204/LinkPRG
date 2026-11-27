@@ -1,22 +1,22 @@
 // 저장의 판(버전)과, 옛 저장을 지금 꼴로 올리는 길.
 // 저장 형식을 바꾸면 SAVE_VERSION을 올리고 여기에 한 단계를 더한다.
 
-import { makeItem } from './inventory.js?v=327d747';
-import { valueOf } from './derived.js?v=327d747';
-import { worldFields } from './world.js?v=327d747';
-import { auctionFields } from './auction.js?v=327d747';
+import { makeItem } from './inventory.js?v=f81b3db';
+import { valueOf } from './derived.js?v=f81b3db';
+import { worldFields } from './world.js?v=f81b3db';
+import { auctionFields } from './auction.js?v=f81b3db';
 
-import { endingFields } from './ending.js?v=327d747';
-import { MAIN } from '../data/quests.js?v=327d747';
-import { ITEMS } from '../data/items.js?v=327d747';
-import { ADVANCED } from '../data/jobs.js?v=327d747';
-import { nativeWork } from './work.js?v=327d747';
-import { deliverMail } from './mail.js?v=327d747';
-import { cidFrom } from './rng.js?v=327d747';
-import { tierOfLv } from '../data/bands.js?v=327d747';
-import { ashFields } from './heat.js?v=327d747';
-import { marshFields } from './marsh.js?v=327d747';
-import { sunkenFields, SUNKEN } from './sunken.js?v=327d747';
+import { endingFields } from './ending.js?v=f81b3db';
+import { MAIN } from '../data/quests.js?v=f81b3db';
+import { ITEMS } from '../data/items.js?v=f81b3db';
+import { ADVANCED } from '../data/jobs.js?v=f81b3db';
+import { nativeWork } from './work.js?v=f81b3db';
+import { deliverMail } from './mail.js?v=f81b3db';
+import { cidFrom } from './rng.js?v=f81b3db';
+import { tierOfLv } from '../data/bands.js?v=f81b3db';
+import { ashFields } from './heat.js?v=f81b3db';
+import { marshFields } from './marsh.js?v=f81b3db';
+import { sunkenFields, SUNKEN } from './sunken.js?v=f81b3db';
 const ORIGIN_NATIVE = new Proxy({}, { get: (_, id) => nativeWork(id) });
 
 export { worldFields, auctionFields, endingFields };

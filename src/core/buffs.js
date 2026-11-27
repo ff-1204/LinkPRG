@@ -1,5 +1,5 @@
 // 지금 붙어 있는 힘: 감상 버프 하나와 음식 버프 하나 (N2-2, N3-5). 때가 지나면 사라진다.
-import { COMPANIONS, DRUM } from '../data/companions.js?v=327d747';
+import { COMPANIONS, DRUM } from '../data/companions.js?v=f81b3db';
 
 /**
  * 북소리 (LV-H4, GD-C2): 북 치는 이가 곁에 서 있는 동안 공격력·방어력이 비율로 오른다. 그날 못 쓰는 이(out)의 북은 울리지 않는다.

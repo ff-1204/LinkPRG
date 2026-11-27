@@ -1,11 +1,11 @@
 // 추위 (WM-B): 흰마루에서만 도는 체온 눈금. 흰마루 밖에서는 칸도 이름표도 없다 (WM-F2).
 // 들판(눈밭, 언 호수, 종루 안)에서 한 번 움직일 때마다 식고, 마을 안에서는 한 번 움직일 때마다 풀린다.
 
-import { placeById } from '../data/places.js?v=327d747';
-import { DUNGEONS } from '../data/dungeon.js?v=327d747';
-import { itemDef } from '../data/items.js?v=327d747';
-import { restBuff } from './buffs.js?v=327d747';
-import { pushLine } from './log.js?v=327d747';
+import { placeById } from '../data/places.js?v=f81b3db';
+import { DUNGEONS } from '../data/dungeon.js?v=f81b3db';
+import { itemDef } from '../data/items.js?v=f81b3db';
+import { restBuff } from './buffs.js?v=f81b3db';
+import { pushLine } from './log.js?v=f81b3db';
 
 export const WARM_MAX = 100;
 export const COOL_AT = 60; // 여기까지 내려오면 식은 몸 (시안의 따라가 보기: 40번 움직여 60이면 식은 몸이 된다)
