@@ -1,11 +1,11 @@
 // 스킬 진화 (N4-1, N4-2). 고른 갈래의 효과만 적용된다.
 
-import { pushLine, ding } from './log.js?v=81955bc';
-import { EVOLVE, EVOLVE_AT, FORGET_ITEM } from '../data/evolve.js?v=81955bc';
-import { SKILL_NAMES } from './skills.js?v=81955bc';
-import { countOf, takeById } from './inventory.js?v=81955bc';
-import { itemDef } from '../data/items.js?v=81955bc';
-import { eulReul } from './ko.js?v=81955bc';
+import { pushLine, ding } from './log.js?v=a3f4e98';
+import { EVOLVE, EVOLVE_AT, FORGET_ITEM } from '../data/evolve.js?v=a3f4e98';
+import { SKILL_NAMES } from './skills.js?v=a3f4e98';
+import { countOf, takeById } from './inventory.js?v=a3f4e98';
+import { itemDef } from '../data/items.js?v=a3f4e98';
+import { eulReul } from './ko.js?v=a3f4e98';
 
 /** 그 스킬에서 고른 갈래(없으면 null). */
 export function branchOf(state, skillId) {
