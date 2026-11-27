@@ -1,10 +1,10 @@
 // 출신의 옛 인연 (Z28). 뿌리마다 한 번, 지난날과 이어지는 작은 사건이 일어난다.
 // state.flags.memory: 없음 → 'carry'(물건을 들고 있음, 쇠의 사람) → 'done'
 
-import { pushLine, ding } from './log.js?v=a3f4e98';
-import { addItem, countOf, takeById } from './inventory.js?v=a3f4e98';
-import { rootOf } from '../data/origins.js?v=a3f4e98';
-import { addPoints, rememberHint } from './social.js?v=a3f4e98';
+import { pushLine, ding } from './log.js?v=f30e95b';
+import { addItem, countOf, takeById } from './inventory.js?v=f30e95b';
+import { rootOf } from '../data/origins.js?v=f30e95b';
+import { addPoints, rememberHint } from './social.js?v=f30e95b';
 
 const done = (state) => state.flags.memory === 'done';
 const journal = (state, text, note) => state.journal.push({ day: state.day, phase: state.phase, place: state.place, text, note });

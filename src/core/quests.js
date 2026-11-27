@@ -1,37 +1,40 @@
 // 퀘스트 네 갈래를 굴린다 (Q1~Q4, E19~E23, S1).
 // 의뢰(게시판) · 서브(사람이 준다, 선택으로 갈린다) · 히든(조건을 채우면 나타난다) · 메인(장마다 길 여럿)
 
-import { seedFrom, next, chance } from './rng.js?v=a3f4e98';
-import { pushLine, ding } from './log.js?v=a3f4e98';
-import { JOBS, JOB_LIMIT, JOB_DAYS, BOARD_SIZE, SUBS, SUB_ORDER, STAT_CHECKS, HIDDENS, HIDDEN_ORDER, MAIN, SALT_ROAD, SALT_ROAD_SAY, PERSUADE_SAY, BELL_NIGHTS, FAIR_SALES, ASH_ROAD, ASH_ROAD_SAY, SHARD, SHARD_SAY, TURN_SAY, MARSH_ROAD, MARSH_ROAD_SAY, SUNKEN_ROAD, SUNKEN_ROAD_SAY, CLOUD_ROAD, CLOUD_ROAD_SAY, POND_ROAD, POND_ROAD_SAY, ANVIL_ROAD, SHARDS, PRIEST, PRIEST_LINES, ECHO, ECHO_LINES, MOSS, QUENCH_PUMPS, HANG, HANG_SAY, QUENCH_SAY, BOSS_LOSSES, EMBER, EMBER_LINES } from '../data/quests.js?v=a3f4e98';
-import { WEIGHERS, BELLOWERS } from '../data/people.js?v=a3f4e98';
-import { rollOptions, gearName } from './gear.js?v=a3f4e98';
-import { ARENA } from './arena.js?v=a3f4e98';
-import { stageNow, SHOP } from './workshop.js?v=a3f4e98';
-import { relievedPosts } from './dungeon.js?v=a3f4e98';
-import { underwater } from './sunken.js?v=a3f4e98';
-import { YARD, answeredPeople, answeredAll, bellsHung } from './pond.js?v=a3f4e98';
-import { ANVIL, ANVIL_ENDS, anvilAfterText, hiddenAnvilEnd, stepsView } from './anvil.js?v=a3f4e98';
-import { PEOPLE, REGULAR, PEOPLE_ORDER, BONDS } from '../data/people.js?v=a3f4e98';
-import { itemDef } from '../data/items.js?v=a3f4e98';
-import { monsterDef } from '../data/monsters.js?v=a3f4e98';
-import { placeById, PLACES } from '../data/places.js?v=a3f4e98';
-import { countOf, takeById, addItem } from './inventory.js?v=a3f4e98';
-import { grantXp } from './reward.js?v=a3f4e98';
-import { bondOf, bondBy, addFame, fameOf, grantTitle, checkChance, rollCheck, CHECKS } from './social.js?v=a3f4e98';
-import { SKILL_NAMES, gradeLabel } from './skills.js?v=a3f4e98';
-import { addStanding, standingOf, previewEffects } from './factions.js?v=a3f4e98';
-import { offerHiddenJob } from './jobs.js?v=a3f4e98';
-import { cross } from './party.js?v=a3f4e98';
-import { SEARCH_NEED } from '../data/lines.js?v=a3f4e98';
-import { endingChoices, afterText, ENDINGS, MASTER_GRADE } from './ending.js?v=a3f4e98';
-import { HIDDEN_JOBS } from '../data/jobs.js?v=a3f4e98';
-import { iGa, eulReul } from './ko.js?v=a3f4e98';
-import { WILDS } from '../data/wild.js?v=a3f4e98';
-import { rootOf } from '../data/origins.js?v=a3f4e98';
-import { MONSTERS } from '../data/monsters.js?v=a3f4e98';
-import { SHOPS } from '../data/shops.js?v=a3f4e98';
-import { hasTitle } from './titles.js?v=a3f4e98';
+import { seedFrom, next, chance } from './rng.js?v=f30e95b';
+import { pushLine, ding } from './log.js?v=f30e95b';
+import { JOBS, JOB_LIMIT, JOB_DAYS, BOARD_SIZE, SUBS, SUB_ORDER, STAT_CHECKS, HIDDENS, HIDDEN_ORDER, MAIN, SALT_ROAD, SALT_ROAD_SAY, PERSUADE_SAY, BELL_NIGHTS, FAIR_SALES, ASH_ROAD, ASH_ROAD_SAY, SHARD, SHARD_SAY, TURN_SAY, MARSH_ROAD, MARSH_ROAD_SAY, SUNKEN_ROAD, SUNKEN_ROAD_SAY, CLOUD_ROAD, CLOUD_ROAD_SAY, POND_ROAD, POND_ROAD_SAY, ANVIL_ROAD, SHARDS, PRIEST, PRIEST_LINES, ECHO, ECHO_LINES, MOSS, QUENCH_PUMPS, HANG, HANG_SAY, QUENCH_SAY, BOSS_LOSSES, EMBER, EMBER_LINES } from '../data/quests.js?v=f30e95b';
+import { WEIGHERS, BELLOWERS } from '../data/people.js?v=f30e95b';
+import { rollOptions, gearName } from './gear.js?v=f30e95b';
+import { ARENA } from './arena.js?v=f30e95b';
+import { stageNow, SHOP } from './workshop.js?v=f30e95b';
+import { relievedPosts } from './dungeon.js?v=f30e95b';
+import { underwater } from './sunken.js?v=f30e95b';
+import { YARD, answeredPeople, answeredAll, bellsHung } from './pond.js?v=f30e95b';
+import { ANVIL, ANVIL_ENDS, anvilAfterText, hiddenAnvilEnd, stepsView } from './anvil.js?v=f30e95b';
+import { PEOPLE, REGULAR, PEOPLE_ORDER, BONDS } from '../data/people.js?v=f30e95b';
+import { itemDef } from '../data/items.js?v=f30e95b';
+import { monsterDef } from '../data/monsters.js?v=f30e95b';
+import { placeById, PLACES } from '../data/places.js?v=f30e95b';
+import { countOf, takeById, addItem } from './inventory.js?v=f30e95b';
+import { grantXp } from './reward.js?v=f30e95b';
+import { bondOf, bondBy, addFame, fameOf, grantTitle, checkChance, rollCheck, CHECKS } from './social.js?v=f30e95b';
+import { SKILL_NAMES, gradeLabel } from './skills.js?v=f30e95b';
+import { addStanding, standingOf, previewEffects } from './factions.js?v=f30e95b';
+import { offerHiddenJob } from './jobs.js?v=f30e95b';
+import { cross } from './party.js?v=f30e95b';
+import { SEARCH_NEED } from '../data/lines.js?v=f30e95b';
+import { endingChoices, afterText, ENDINGS, MASTER_GRADE } from './ending.js?v=f30e95b';
+import { HIDDEN_JOBS } from '../data/jobs.js?v=f30e95b';
+import { iGa, eulReul } from './ko.js?v=f30e95b';
+import { WILDS } from '../data/wild.js?v=f30e95b';
+import { rootOf } from '../data/origins.js?v=f30e95b';
+import { MONSTERS } from '../data/monsters.js?v=f30e95b';
+import { SHOPS } from '../data/shops.js?v=f30e95b';
+import { hasTitle } from './titles.js?v=f30e95b';
+import { MAIN_HOW, SUB_GOAL_AT, HIDDEN_GOAL_AT } from '../data/questhow.js?v=f30e95b';
+import { DUNGEONS } from '../data/dungeon.js?v=f30e95b';
+import { TOWNS } from '../data/places.js?v=f30e95b';
 
 const FAVOR_STRIKES = 300;
 const FAMILY = 4; // '가족 같은 사이'
@@ -39,6 +42,29 @@ const WHITE_GATE = 'icegate'; // 흰마루로 가는 길 (WM-A1)
 /** '이웃'이라고 / '깎는 이'라고 */
 const rago = (w) => { const c = w.charCodeAt(w.length - 1); return c >= 0xac00 && c <= 0xd7a3 && (c - 0xac00) % 28 !== 0 ? '이라고' : '라고'; };
 const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
+
+// ── 바로가기 (Z67, Z109) ─────────────────────────────────
+
+/**
+ * 그곳으로 가는 바로가기 하나. 지도와 방 목록으로 갈 수 있는 데까지만 데려간다:
+ * 같은 마을이면 그 방으로, 들판이면 그 들판으로, 다른 마을이면 그 마을 어귀로. 길을 모르는 곳은 없다(null).
+ */
+export function goTo(state, placeId) {
+  const at = typeof placeId === 'string' && placeId[0] === '@' ? DUNGEONS[placeId.slice(1)]?.from : placeId;
+  const p = at ? PLACES[at] : null;
+  if (!p) return null;
+  const here = placeById(state.place);
+  const known = (x) => !(x.locked && !state.opened.includes(x.opensWith || x.id));
+  if (p.id === here.id) return { id: p.id, name: p.name, here: true, action: null };
+  if (p.wild) return known(p) ? { id: p.id, name: p.name, here: false, action: { type: 'travel', to: p.id } } : null;
+  if (!here.wild && p.town === here.town) return { id: p.id, name: p.name, here: false, action: { type: 'move', to: p.id } };
+  const gate = PLACES[TOWNS[p.town]?.gate];
+  if (!gate || !known(gate) || !known(p)) return null;
+  return { id: gate.id, name: p.town, here: false, action: { type: 'travel', to: gate.id } };
+}
+const goList = (state, at) => [goTo(state, at)].filter(Boolean);
+/** 의뢰를 끝내는 게시판이 있는 곳. */
+const boardPlace = (d) => Object.values(PLACES).find((p) => p.board === (d.at || 'plaza'))?.id || 'plaza';
 
 // ── 의뢰 ────────────────────────────────────────────────
 
@@ -107,7 +133,7 @@ export function jobsView(state) {
   return state.jobs.map((j) => {
     const d = JOBS[j.id];
     const have = jobProgress(state, j);
-    return { id: j.id, where: whereOf(d, state), go: goPlaces(d, state), rank: d.rank, name: d.name, by: d.by, have, n: d.n, ready: have >= d.n, due: j.due, left: j.due - state.day, silver: d.silver, xp: d.xp, fame: d.fame, what: d.kind === 'bring' ? `${eulReul(itemDef(d.item).name)} 모아 게시판에 낸다` : `${eulReul(monsterDef(d.mon).name)} 잡고 게시판에 알린다` };
+    return { id: j.id, where: whereOf(d, state), go: goPlaces(d, state), rank: d.rank, name: d.name, by: d.by, have, n: d.n, ready: have >= d.n, back: goList(state, boardPlace(d)), backName: PLACES[boardPlace(d)].name, due: j.due, left: j.due - state.day, silver: d.silver, xp: d.xp, fame: d.fame, what: d.kind === 'bring' ? `${eulReul(itemDef(d.item).name)} 모아 게시판에 낸다` : `${eulReul(monsterDef(d.mon).name)} 잡고 게시판에 알린다` };
   });
 }
 
@@ -162,7 +188,8 @@ function appears(state, q) {
   const a = q.appear || {};
   if (a.bond && bondOf(state, a.bond[0]) < a.bond[1]) return false;
   if (a.fame && fameOf(state) < a.fame) return false;
-  if (a.main && !state.main.done.some((d) => d.chapter === a.main)) return false;
+  // 지난 삶에서 끝낸 장도 센다 (Z110): 그 장을 다시 풀려고 열어 둔 동안은 빼고
+  if (a.main && ![...state.main.done, ...(state.main.past || [])].some((d) => d.chapter === a.main)) return false;
   if (a.level && state.level < a.level) return false;
   if (a.duelWins && (state.ash?.duel?.wins || 0) < a.duelWins) return false; // 겨루기에서 이긴 수 (AG-C3)
   return true;
@@ -218,10 +245,19 @@ export function subView(state, id) {
   const last = q.steps[q.steps.length - 1];
   return {
     id, name: q.name, giver: PEOPLE[q.giver].name, done: st.done, ending: st.ending || null, more: !!q.more && !st.done,
-    step: step ? { id: step.id, text: step.text, at: step.at ? placeById(step.at).name : '', here: !step.at || step.at === state.place, goal: goalText(state, step.goal, st), choices: choicesOf(state, q, st, step) } : null,
+    step: step ? { id: step.id, text: step.text, at: step.at ? placeById(step.at).name : '', here: !step.at || step.at === state.place, goal: goalText(state, step.goal, st), choices: choicesOf(state, q, st, step), ...subHow(state, id, step) } : null,
     // 마지막 갈림은 미리 보인다 (Q3-2)
     ends: st.done ? [] : (last.choices || []).filter((c) => c.end && !c.when).map((c) => ({ label: c.label, need: c.needSay || (c.check ? `${STAT_CHECKS[c.check.kind]?.name || CHECKS[c.check.kind].name} 판정` : ''), free: c.free?.why || '' })),
   };
+}
+
+/** 서브 퀘스트의 지금 단계를 어디서 하는지와 바로가기 (Z109). */
+function subHow(state, id, step) {
+  const at = step.goal ? SUB_GOAL_AT[id] : step.at;
+  if (!at || !PLACES[at]) return { how: '', go: [] };
+  const p = PLACES[at];
+  const where = p.wild || !p.town ? p.name : `${p.town}의 ${p.name}`;
+  return { how: step.goal ? `어디서: ${where}` : `어디서: ${where}. 거기서 이 창을 열어 정한다.`, go: goList(state, at) };
 }
 
 function goalText(state, goal, st) {
@@ -373,7 +409,9 @@ export function hiddenView(state) {
     const q = HIDDENS[id];
     const st = state.hq[id];
     const step = st.status === 'active' ? q.steps.find((s) => s.id === st.step) : null;
-    return { id, name: q.name, kind: q.kind, status: st.status, why: q.why, step: step ? { text: step.text, goal: goalText(state, step.goal, st) } : null };
+    const at = step ? (step.goal?.talk ? PEOPLE[step.goal.talk]?.place : HIDDEN_GOAL_AT[id]) : null;
+    const p = at ? PLACES[at] : null;
+    return { id, name: q.name, kind: q.kind, status: st.status, why: q.why, step: step ? { text: step.text, goal: goalText(state, step.goal, st), how: p ? `어디서: ${p.wild || !p.town ? p.name : `${p.town}의 ${p.name}`}` : '', go: p ? goList(state, at) : [] } : null };
   });
 }
 
@@ -502,13 +540,14 @@ export function mainView(state) {
   // 13장을 끝낸 뒤 (CM-E): 새긴 끝과 그 뒤의 세계
   if (!m && state.anvil?.end) return { chapter: ch, name: `끝난 뒤: ${ANVIL_ENDS[state.anvil.end].name}`, text: anvilAfterText(state), paths: [], nearest: null, done: doneChapters(state), past: pastChapters(state), called: state.main.called, after: true };
   // 13장은 푸는 길 대신 할 일 셋이 보인다 (CM-D). 끝들의 이름은 종을 다 짓기 전에는 어디에도 없다
-  if (m?.steps) { const steps = stepsView(state); return { chapter: ch, name: m.name, text: m.text, paths: steps, nearest: steps.find((p) => !p.closed && p.have < p.need) || null, done: doneChapters(state), past: pastChapters(state), called: state.main.called, steps: true }; }
+  const how = (id) => { const x = MAIN_HOW[ch]?.[id]; return x ? { how: x[1], go: goList(state, x[0]) } : { how: '', go: [] }; };
+  if (m?.steps) { const steps = stepsView(state).map((p) => ({ ...p, ...(p.closed || p.have >= p.need ? { how: '', go: [] } : how(p.id)) })); return { chapter: ch, name: m.name, text: m.text, paths: steps, nearest: steps.find((p) => !p.closed && p.have < p.need) || null, done: doneChapters(state), past: pastChapters(state), called: state.main.called, steps: true }; }
   if (!m) return { chapter: ch, name: state.ending ? `끝난 뒤: ${ENDINGS[state.ending].name}` : '', text: state.ending ? `${afterText(state)}${road}` : `다음 장은 아직 쓰이지 않았다.${road}`, paths: [], nearest: null, done: doneChapters(state), past: pastChapters(state), called: state.main.called };
   const paths = m.paths.map((p) => {
     // 아직 모르는 길 (GD-G5): 그 동료를 들인 적이 없으면 이름도 조건도 보이지 않는다
     if (p.unknown && !state.flags[p.unknown]) return { id: p.id, name: '???', text: '', have: 0, need: 1, closed: '아직 모르는 길', ratio: -1, unknown: true };
     const [have, need] = pathProgress(state, ch, p.id);
-    return { id: p.id, name: p.name, text: p.text, have, need, closed: p.closed || '', ratio: p.closed ? -1 : have / need };
+    return { id: p.id, name: p.name, text: p.text, have, need, closed: p.closed || '', ratio: p.closed ? -1 : have / need, ...(p.closed ? { how: '', go: [] } : how(p.id)) };
   });
   const open = paths.filter((p) => !p.closed);
   const nearest = open.length ? open.reduce((a, b) => (b.ratio > a.ratio ? b : a)) : null;

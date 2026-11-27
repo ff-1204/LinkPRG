@@ -1,8 +1,8 @@
 // 대화방에 한 줄을 남기고 띠링을 울리는 일. 규칙의 모든 곳이 이것을 쓴다.
 
-import { PEOPLE } from '../data/people.js?v=a3f4e98';
-import { ANVIL_LINES, tentsHere, TENT_BY_ID } from '../data/anvil.js?v=a3f4e98';
-import { iGa } from './ko.js?v=a3f4e98';
+import { PEOPLE } from '../data/people.js?v=f30e95b';
+import { ANVIL_LINES, tentsHere, TENT_BY_ID } from '../data/anvil.js?v=f30e95b';
+import { iGa } from './ko.js?v=f30e95b';
 
 export const LOG_KEEP = 300;
 /** 나누어 건 뒤 (CM-D6): 띠링에 이름이 붙을 만큼 사이가 깊은 사람들('단골'부터). */
