@@ -1,20 +1,20 @@
 // 저장 (G4-1, G4-2). 칸 셋, 저절로 저장, 되감는 저장 없음, 파일로 내보내기.
 // 저장소(storage)는 getItem/setItem/removeItem만 있으면 된다. 테스트에서는 가짜를 쓴다.
 
-import { SAVE_VERSION, migrate, cidOfState } from './migrate.js?v=69345ec';
-import { PHASES, PLACES } from '../data/places.js?v=69345ec';
-import { ITEMS } from '../data/items.js?v=69345ec';
-import { MONSTERS } from '../data/monsters.js?v=69345ec';
-import { originById } from '../data/origins.js?v=69345ec';
-import { jobDef, HIDDEN_JOBS, ADVANCED } from '../data/jobs.js?v=69345ec';
-import { RECIPES } from '../data/recipes.js?v=69345ec';
-import { JOBS, SUBS, HIDDENS } from '../data/quests.js?v=69345ec';
-import { INCIDENTS } from '../data/wild.js?v=69345ec';
-import { DUNGEONS } from '../data/dungeon.js?v=69345ec';
-import { FIRSTS } from '../data/world.js?v=69345ec';
-import { COMPANIONS } from '../data/companions.js?v=69345ec';
-import { SUBJECTS } from '../data/works.js?v=69345ec';
-import { PEOPLE } from '../data/people.js?v=69345ec';
+import { SAVE_VERSION, migrate, cidOfState } from './migrate.js?v=fb79329';
+import { PHASES, PLACES } from '../data/places.js?v=fb79329';
+import { ITEMS } from '../data/items.js?v=fb79329';
+import { MONSTERS } from '../data/monsters.js?v=fb79329';
+import { originById } from '../data/origins.js?v=fb79329';
+import { jobDef, HIDDEN_JOBS, ADVANCED } from '../data/jobs.js?v=fb79329';
+import { RECIPES } from '../data/recipes.js?v=fb79329';
+import { JOBS, SUBS, HIDDENS } from '../data/quests.js?v=fb79329';
+import { INCIDENTS } from '../data/wild.js?v=fb79329';
+import { DUNGEONS } from '../data/dungeon.js?v=fb79329';
+import { FIRSTS } from '../data/world.js?v=fb79329';
+import { COMPANIONS } from '../data/companions.js?v=fb79329';
+import { SUBJECTS } from '../data/works.js?v=fb79329';
+import { PEOPLE } from '../data/people.js?v=fb79329';
 
 export const SLOT_COUNT = 3;
 const KEY = (slot) => `ttiring.save.${slot}`;

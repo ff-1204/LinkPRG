@@ -2,7 +2,7 @@
 // 지역을 낼 때(M15~M22) 곳과 사냥터에 잇는다. 이름과 글은 사용자가 읽고 확정하기 전의 처음 값이다.
 // 숫자는 구간 자료(bands.js)에서 나온다. 이 파일은 다른 자료 파일을 부르지 않는다(물건·설계도 파일이 이 파일을 부른다).
 
-import { BANDS, foodRate, BOSS, normalAt } from './bands.js?v=69345ec';
+import { BANDS, foodRate, BOSS, normalAt } from './bands.js?v=fb79329';
 
 /** metal·hide·meat: [id, 이름, 한 줄]. sword·shield·body: 시안이 따로 이름 붙인 승급작 (LV-F). dish: [id, 이름, 버프 이름, 귀띔]. */
 export const TIERS = [

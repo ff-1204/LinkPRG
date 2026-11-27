@@ -4,19 +4,19 @@
 // 로그인 유지 (Z91): 한 번 연결한 기기에서는 토큰이 끝나 가거나 풀렸을 때, 다음에 화면을 누르는 순간
 // (지도 이동, 단추 무엇이든) 구글에 조용히 다시 받아 온다. 브라우저는 누른 순간에만 로그인 창을 허락하기 때문이다.
 
-import { createDrive } from './drive.js?v=69345ec';
-import { syncPlan } from '../core/sync.js?v=69345ec';
-import { cidOfState } from '../core/migrate.js?v=69345ec';
-import { metaOf, exportText, importText, parseSave, clearSlot, SLOT_COUNT } from '../core/save.js?v=69345ec';
+import { createDrive } from './drive.js?v=fb79329';
+import { syncPlan } from '../core/sync.js?v=fb79329';
+import { cidOfState } from '../core/migrate.js?v=fb79329';
+import { metaOf, exportText, importText, parseSave, clearSlot, SLOT_COUNT } from '../core/save.js?v=fb79329';
 
 export const CLIENT_ID = '782176240387-mi4cvftsmbefiddvd25rul2mvtf09adp.apps.googleusercontent.com';
 const SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
 const GIS = 'https://accounts.google.com/gsi/client';
 const TOKEN_KEY = 'ttiring.cloud.token';
 const WANT_KEY = 'ttiring.cloud'; // 로그인한 적이 있다(토큰은 아니다)
-const LOG_KEY = 'ttiring.cloud.log'; // 이 기기에서 드라이브에 올린 기록. 최근 둘만 둔다 (보기만 한다)
+const LOG_KEY = 'ttiring.cloud.log'; // 이 기기에서 드라이브에 올린 기록. 최근 셋만 둔다 (보기만 한다, Z113)
 const GONE_KEY = 'ttiring.cloud.gone'; // 이 기기에서 지웠는데 드라이브에서는 아직 못 지운 캐릭터: { [slot]: { cid, rev } } (Z96)
-export const LOG_KEEP = 2;
+export const LOG_KEEP = 3;
 export const RENEW_BEFORE = 10 * 60 * 1000; // 끝나기 10분 전부터 다시 받는다
 export const RENEW_GAP = 2 * 60 * 1000; // 조용히 다시 받기는 2분에 한 번까지만 해 본다
 
@@ -164,7 +164,7 @@ export function createCloud({ storage, session, onChange }) {
     remote[slot] = { id, rev, savedAt, cid };
     delete clashes[slot];
     lastUp = Date.now();
-    // 올린 기록 (최근 둘): 언제, 어느 칸, 누구, 며칠째. 같은 칸을 잇달아 올리면 한 줄로 고친다
+    // 올린 기록 (최근 셋): 언제, 어느 칸, 누구, 며칠째. 같은 칸을 잇달아 올리면 한 줄로 고친다
     try {
       const st = JSON.parse(raw).state || {};
       const entry = { at: lastUp, slot, name: st.name || '', level: st.level || 1, day: st.day || 1 };
@@ -186,7 +186,7 @@ export function createCloud({ storage, session, onChange }) {
   function forgetGone(slot) { const g = readGone(); delete g[slot]; writeGone(g); }
 
   return {
-    /** 최근에 올린 기록 둘 (보기만 한다. 옛 판을 받는 길은 없다) */
+    /** 최근에 올린 기록 셋 (보기만 한다. 옛 판을 받는 길은 없다) */
     get log() { return readLog(); },
     get status() { return status; },
     get message() { return message; },

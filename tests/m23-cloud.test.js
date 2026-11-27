@@ -67,7 +67,7 @@ test('드라이브: 로그인이 없거나 풀리면 알려 준다', async () =>
   await assert.rejects(() => expired.list(), /로그인이 풀렸습니다/);
 });
 
-test('올린 기록은 최근 둘만, 같은 칸은 한 줄로 고친다 (Z58)', async () => {
+test('올린 기록은 최근 셋만, 같은 칸은 한 줄로 고친다 (Z58)', async () => {
   const { createCloud } = await import('../src/ui/cloud.js');
   const mem = () => { const m = new Map(); return { getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: (k) => m.delete(k) }; };
   const storage = mem(), session = mem();
@@ -82,7 +82,9 @@ test('올린 기록은 최근 둘만, 같은 칸은 한 줄로 고친다 (Z58)',
     save(0, '하나', 3, 2); await cloud.upNow(0);
     assert.deepEqual(cloud.log.map((x) => [x.slot, x.name, x.day]), [[0, '하나', 3], [1, '둘', 5]]);
     save(2, '셋', 9, 1); await cloud.upNow(2);
-    assert.equal(cloud.log.length, 2, '최근 둘만');
-    assert.equal(cloud.log[0].name, '셋');
+    assert.deepEqual(cloud.log.map((x) => x.name), ['셋', '하나', '둘']);
+    save(1, '둘', 6, 2); await cloud.upNow(1);
+    assert.equal(cloud.log.length, 3, '최근 셋만');
+    assert.deepEqual(cloud.log.map((x) => [x.name, x.day]), [['둘', 6], ['셋', 9], ['하나', 3]]);
   } finally { globalThis.fetch = old; }
 });
