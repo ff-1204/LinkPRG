@@ -10,8 +10,9 @@ import { ACTION_LINES } from '../src/data/lines.js';
 import { existsSync } from 'node:fs';
 import { PLACES } from '../src/data/places.js';
 
-test('도움말 갈래는 열이고, 히든은 말하지 않는다 (H2-1, H2-3)', () => {
-  assert.equal(HELP.length, 10);
+test('도움말 갈래는 열하나이고, 히든은 말하지 않는다 (H2-1, H2-3, Z107)', () => {
+  assert.equal(HELP.length, 11);
+  assert.equal(HELP[0].id, 'start', '맨 앞은 "처음 하루" (Z107)');
   assert.equal(HELP.some((t) => t.id === 'hidden'), false);
   const all = JSON.stringify(HELP);
   for (const word of ['300', '인내', '삼백', '히든']) assert.equal(all.includes(word), false, `도움말이 "${word}"를 말하면 안 된다`);
@@ -79,4 +80,27 @@ test('기본 스탯은 기본 + 장비 + 추가로 나뉘어 보인다 (Z103). 0
   s.stats.str += 4; s.toilGained.str = 3; s.toughGained.str = 1;
   assert.deepEqual(statParts(s, 'str'), { total: str + 4, base: str, gear: 0, extra: 4, text: `기본 ${str} + 추가 4` });
   for (const k of ['str', 'agi', 'con', 'wis']) { const p = statParts(s, k); assert.equal(p.base + p.gear + p.extra, s.stats[k]); }
+});
+
+test('도움말: 작은 제목으로 묶고, 표를 짓고, 겪은 것 안에서만 찾는다 (Z107)', async () => {
+  const { helpSections, helpSearch, helpBody } = await import('../src/ui/help.js');
+  const fall = HELP.find((t) => t.id === 'fall');
+  const secs = helpSections(helpBody(fall, {}));
+  assert.ok(secs.length >= 5 && secs.every((x) => x.head && x.blocks.length));
+  const tired = secs.find((x) => x.head === '피로와 잠').blocks.find((b) => b.rows);
+  assert.deepEqual(tired.rows[0], ['피로', '일어나는 일']);
+  assert.equal(tired.rows.length, 4);
+  // 제목이 없는 갈래는 한 묶음이다
+  assert.deepEqual(helpSections(helpBody(HELP.find((t) => t.id === 'keys'), {})).map((x) => x.head), ['']);
+  // 찾기
+  assert.deepEqual(helpSearch('  ', {}), []);
+  const found = helpSearch('보관함', {});
+  assert.ok(found.length >= 2 && found.some((f) => f.id === 'fall' && f.head === '보관함') && found.some((f) => f.id === 'start'));
+  assert.equal(helpSearch('없는말없는말', {}).length, 0);
+  // 가 보지 않은 곳의 이야기는 찾아지지 않는다
+  assert.equal(helpSearch('깊은 성수', {}).length, 0);
+  assert.ok(helpSearch('깊은 성수', { sunken: true }).length >= 1);
+  assert.equal(helpSearch('체온', {}).length, 0);
+  assert.ok(helpSearch('체온', { white: true }).length >= 1);
+  assert.equal(helpSearch('암시장', { white: true, salt: true, sunken: true, pond: true }).length, 0, '암시장은 도움말에 없다');
 });
