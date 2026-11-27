@@ -1,21 +1,21 @@
 // 경매장 (N6-1 ~ N6-3). 가상 유저가 입찰하고 한마디씩 남긴다.
 // 입찰은 씨앗과 날짜로 셈한다. 같은 씨앗이면 같은 값에 팔린다.
 
-import { PLACES } from '../data/places.js?v=4f00195';
-import { reachedBand } from '../data/bands.js?v=4f00195';
-import { seedFrom } from './rng.js?v=4f00195';
-import { gearName } from './gear.js?v=4f00195';
-import { pushLine } from './log.js?v=4f00195';
-import { ITEMS, itemDef, gradeName } from '../data/items.js?v=4f00195';
-import { addItem, removeAt } from './inventory.js?v=4f00195';
-import { worth } from './trade.js?v=4f00195';
-import { placeById } from '../data/places.js?v=4f00195';
-import { standingOf } from './factions.js?v=4f00195';
-import { FACTION_REGULAR } from '../data/factions.js?v=4f00195';
-import { userBase } from './world.js?v=4f00195';
-import { MASK_LOT, AUCTION_FEE, AUCTION_DAYS, LOT_TIERS, LOT_SKIP, LOT_ASK, LOT_GEAR_MIN, BID_SAYS, USER_COUNT } from '../data/world.js?v=4f00195';
-import { eulReul, iGa, eunNeun } from './ko.js?v=4f00195';
-import { grantTitle, bondOf } from './social.js?v=4f00195';
+import { PLACES } from '../data/places.js?v=69345ec';
+import { reachedBand } from '../data/bands.js?v=69345ec';
+import { seedFrom } from './rng.js?v=69345ec';
+import { gearName } from './gear.js?v=69345ec';
+import { pushLine } from './log.js?v=69345ec';
+import { ITEMS, itemDef, gradeName } from '../data/items.js?v=69345ec';
+import { addItem, removeAt } from './inventory.js?v=69345ec';
+import { worth } from './trade.js?v=69345ec';
+import { placeById } from '../data/places.js?v=69345ec';
+import { standingOf } from './factions.js?v=69345ec';
+import { FACTION_REGULAR } from '../data/factions.js?v=69345ec';
+import { userBase } from './world.js?v=69345ec';
+import { MASK_LOT, AUCTION_FEE, AUCTION_DAYS, LOT_TIERS, LOT_SKIP, LOT_ASK, LOT_GEAR_MIN, BID_SAYS, USER_COUNT } from '../data/world.js?v=69345ec';
+import { eulReul, iGa, eunNeun } from './ko.js?v=69345ec';
+import { grantTitle, bondOf } from './social.js?v=69345ec';
 
 // 끝 글자만 다른 글들도 고르게 흩어지도록 한 번 더 섞는다(전에는 같은 날 물건들의 시작가가 거의 같았다)
 const mix = (h) => { h ^= h >>> 16; h = Math.imul(h, 0x85ebca6b) >>> 0; h ^= h >>> 13; h = Math.imul(h, 0xc2b2ae35) >>> 0; h ^= h >>> 16; return h >>> 0; };
@@ -113,9 +113,9 @@ export function bid(state, events, key, amount) {
 }
 
 // ── 암시장 (Z104, 사용자 요청) ──
-// 시작 마을 신전지기와 '벗'이 되면 신전에 "암시장" 칸이 생긴다. 그 전에는 어디에도 나오지 않는다.
+// 시작 마을 신전지기와 '단골'이 되면 신전에 (Z112, 처음에는 '벗') "암시장" 칸이 생긴다. 그 전에는 어디에도 나오지 않는다.
 // 오늘 경매에 나온 물건을 입찰가에 10%를 얹어 그 자리에서 산다. 다른 사람과 겨루지 않는다.
-export const BLACK = { who: 'priest', place: 'temple', bond: 3, rate: 0.10 };
+export const BLACK = { who: 'priest', place: 'temple', bond: 2, rate: 0.10 };
 /** 바티루스의 눈물 (Z105): 날마다 다섯에 하나 꼴로 한 병이 나온다. 값은 레벨을 따라 오른다. */
 export const CHARM = { id: 'charmpotion', chance: 0.2, perLevel: 30, min: 150 };
 const charmKey = (day) => `${day}-charm`;

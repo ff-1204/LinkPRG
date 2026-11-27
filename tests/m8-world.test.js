@@ -323,13 +323,13 @@ test('암시장 (Z104): 신전지기와 벗이 되면 신전에 칸이 생기고
   const s = fresh('black'); s.place = 'temple'; s.silver = 100000;
   const labels = () => slotsNow(s).map((x) => x.label);
   // 친해지기 전에는 칸도, 사는 길도, 도움말의 말도 없다
-  s.people.priest = { ...(s.people.priest || {}), pts: 69 };
+  s.people.priest = { ...(s.people.priest || {}), pts: 29 };
   assert.ok(!blackOpen(s) && !labels().includes('암시장') && labels().includes('경매장'));
   const first = lotsToday(s)[0];
   assert.throws(() => dispatch(s, { type: 'auction', op: 'buy', key: first.key }), /할 수 없는/);
   assert.ok(!JSON.stringify([HELP, HELP_MORE]).includes('암시장'));
-  // 벗이 되면 열린다
-  s.people.priest.pts = 70;
+  // 단골이 되면 열린다 (Z112)
+  s.people.priest.pts = 30;
   assert.ok(blackOpen(s) && labels().includes('암시장'));
   assert.equal(BLACK.rate, 0.10);
   const v = blackView(s);
