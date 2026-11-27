@@ -2,10 +2,26 @@
 // 몸은 처음부터 다시지만, 종이 기억한 것(히든 스탯, 다시 일어선 몸으로 오른 스탯, 칭호, 도감), 보관함은 가지고 간다.
 // 손에 익은 것도 남는다 (Z98, 사용자 결정): 숙련도 전부, 제작 레벨, 던전 지도, 그리고 쌓은 경험치의 1%(그만큼 레벨과 스탯 점수가 다시 붙는다).
 
-import { shopCarry } from './workshop.js?v=c4f04d2';
-import { HIDDEN } from './hidden.js?v=c4f04d2';
-import { xpNeeded, MAX_GRADE } from './skills.js?v=c4f04d2';
-import { xpToNext, gainXp } from './level.js?v=c4f04d2';
+import { shopCarry } from './workshop.js?v=ac59432';
+import { HIDDEN } from './hidden.js?v=ac59432';
+import { xpNeeded, MAX_GRADE } from './skills.js?v=ac59432';
+import { xpToNext, gainXp } from './level.js?v=ac59432';
+import { BONDS } from '../data/people.js?v=ac59432';
+
+/**
+ * 사람들과의 사이는 한 단계만 멀어진다 (Z115, 사용자 요청): 그 사람과의 사이가 '벗'이었으면 새 삶은 '단골'의 첫머리에서 시작한다.
+ * '낯익은 사이'는 '남'으로 돌아간다. 알아낸 좋아하는 것, 하루 한 번의 표시 같은 것은 지난 삶의 것이다.
+ */
+export function peopleCarry(state) {
+  const out = {};
+  for (const [id, r] of Object.entries(state.people || {})) {
+    const pts = r?.pts || 0;
+    let stage = 0;
+    for (let k = 0; k < BONDS.length; k++) if (pts >= BONDS[k].at) stage = k;
+    if (stage >= 2) out[id] = BONDS[stage - 1].at;
+  }
+  return out;
+}
 
 export const SKILL_KEEP = 1; // 숙련도의 이만큼을 가지고 간다 (Z98: 5% → 전부)
 export const XP_KEEP = 0.01; // 레벨에 쌓은 경험치의 이만큼을 가지고 간다 (Z98)
@@ -38,7 +54,7 @@ function fromTotal(total) {
   while (grade < MAX_GRADE && xp >= xpNeeded(grade)) { xp -= xpNeeded(grade); grade++; }
   return { grade, xp };
 }
-import { JOBS, HIDDEN_JOBS } from '../data/jobs.js?v=c4f04d2';
+import { JOBS, HIDDEN_JOBS } from '../data/jobs.js?v=ac59432';
 const jobName = (id) => (id ? (JOBS[id] || HIDDEN_JOBS[id])?.name || id : null);
 
 const STATS = ['str', 'agi', 'con', 'wis'];
@@ -95,6 +111,7 @@ export function rebirthCarry(state, { chosen = false } = {}) {
     hidden,
     toughGained,
     toilGained,
+    people: peopleCarry(state), // 사이는 한 단계만 멀어진다 (Z115)
     tough: Object.fromEntries(STATS.map((k) => [k, state.tough?.[k] || 0])),
     titles: (state.titles || []).map((t) => ({ ...t })),
     title: state.title || null,
@@ -115,6 +132,7 @@ export function rebirthLoss(state) {
     silver: state.silver,
     chapter: state.main?.chapter || 1,
     people: Object.keys(state.people || {}).length,
+    kept: Object.keys(peopleCarry(state)).length, // 한 단계 멀어진 채 남는 사람의 수 (Z115)
     guild: !!state.guild,
     stall: !!state.stall,
     shop: !!state.shop, hand: !!state.shop?.hand,
@@ -125,6 +143,12 @@ export function rebirthLoss(state) {
 /** 새로 만든 상태에 지난 삶의 것을 얹는다 (createGame이 부른다). */
 export function applyCarry(state, carry) {
   state.lives = carry.lives;
+  // 사이는 한 단계 멀어진 채 이어진다 (Z115). 출신이 처음부터 준 사이보다 낮추지는 않는다
+  for (const [id, pts] of Object.entries(carry.people || {})) {
+    const r = state.people[id] || (state.people[id] = { pts: 0, talked: 0, likes: [], dislikes: [], stats: [], met: false });
+    r.pts = Math.max(r.pts || 0, pts);
+    r.met = true;
+  }
   if (state.anvil && Array.isArray(carry.endsSeen)) state.anvil.seen = [...carry.endsSeen];
   if (Array.isArray(carry.promoBest) && carry.promoBest.length) state.promoBest = [...carry.promoBest];
   if (carry.stall) state.stall = JSON.parse(JSON.stringify(carry.stall));

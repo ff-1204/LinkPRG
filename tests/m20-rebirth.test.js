@@ -90,7 +90,7 @@ test('환생: 히든 스탯, 다시 일어선 몸으로 오른 스탯, 칭호 �
   assert.equal(n.dex.mon.rat.seen, 3);
   assert.equal(n.day, 22, '날짜는 이어 센다');
   assert.equal(n.flags.toughDay, 22, '같은 날 다시 일어선 몸을 또 쌓지 못한다');
-  assert.equal(Object.keys(n.people).length, Object.keys(plain.people).length, '사람들과의 사이는 처음부터');
+  assert.equal(Object.keys(n.people).length, Object.keys(plain.people).length, '가깝지 않던 사람과의 사이는 처음부터');
   // 다시 환생하면 지난 삶이 늘어난다
   const third = createGame({ name: '셋', origin: 'bard', rolled: rollDice('same'), seed: 'n3', carry: rebirthCarry(n) });
   assert.equal(third.lives, 3);
@@ -187,4 +187,26 @@ test('일로 오른 스탯은 환생해도 남는다 (Z101). 삶을 거듭해도
   // 이 칸이 없던 옛 저장은 0에서 센다
   const old = JSON.parse(JSON.stringify(s)); delete old.toilGained;
   assert.deepEqual(migrate(old).toilGained, { str: 0, agi: 0, con: 0, wis: 0 });
+});
+
+test('다시 태어나면 사람들과의 사이는 한 단계만 멀어진다 (Z115)', async () => {
+  const { bondOf } = await import('../src/core/social.js');
+  const { peopleCarry, rebirthLoss } = await import('../src/core/rebirth.js');
+  const s = createGame({ name: '하나', origin: 'hunter', rolled: rollDice('bond'), seed: 'b1' });
+  const rec = (pts) => ({ pts, talked: 9, likes: ['herb'], dislikes: [], stats: [], met: true, gifted: 5 });
+  s.people.priest = rec(200);  // 가족 같은 사이 → 벗
+  s.people.granny = rec(100);  // 벗 → 단골
+  s.people.keeper = rec(45);   // 단골 → 낯익은 사이
+  s.people.smith = rec(12);    // 낯익은 사이 → 남
+  assert.deepEqual(peopleCarry(s), { priest: 70, granny: 30, keeper: 10 });
+  assert.equal(rebirthLoss(s).kept, 3);
+  const n = createGame({ name: '둘', origin: 'hunter', rolled: rollDice('bond'), seed: 'b2', carry: rebirthCarry(s) });
+  assert.deepEqual(['priest', 'granny', 'keeper', 'smith'].map((id) => bondOf(n, id)), [3, 2, 1, 0]);
+  // 단계의 첫머리에서 시작한다. 알아낸 것과 하루 한 번의 표시는 지난 삶의 것이다
+  assert.equal(n.people.priest.pts, 70);
+  assert.deepEqual(n.people.priest.likes, []);
+  assert.equal(n.people.priest.gifted, undefined);
+  // 한 번 더 죽으면 또 한 단계
+  const third = createGame({ name: '셋', origin: 'hunter', rolled: rollDice('bond'), seed: 'b3', carry: rebirthCarry(n) });
+  assert.deepEqual(['priest', 'granny', 'keeper'].map((id) => bondOf(third, id)), [2, 1, 0]);
 });

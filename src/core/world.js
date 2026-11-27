@@ -1,18 +1,18 @@
 // 가상 유저의 세계: 명단, 날마다 자람, 세계 공지, 최초 발견, 랭킹, 소문 (N6-4 ~ N6-6, Q1-4, F08).
 // 가상 유저는 저장하지 않고 씨앗과 날짜로 셈한다. 같은 씨앗·같은 날이면 늘 같다.
 
-import { seedFrom } from './rng.js?v=c4f04d2';
-import { pushLine, ding } from './log.js?v=c4f04d2';
+import { seedFrom } from './rng.js?v=ac59432';
+import { pushLine, ding } from './log.js?v=ac59432';
 import {
   NAME_HEAD, NAME_TAIL, USER_COUNT, STYLES, STYLE_ORDER, RANKS, RANK_AROUND, FIRSTS, DAILY_NEWS,
   RUMORS_ABOUT_ME, RUMORS_HINT, RUMORS_WORLD, CLIMB, BAND_ROADS, RUMORS_AHEAD, RUMOR_NOBODY,
-} from '../data/world.js?v=c4f04d2';
-import { PLACES } from '../data/places.js?v=c4f04d2';
-import { reachedBand, LEVEL_MAX } from '../data/bands.js?v=c4f04d2';
-import { ANVIL, ANVIL_LINES } from '../data/anvil.js?v=c4f04d2';
-import { fameTotal } from './social.js?v=c4f04d2';
-import { foundCount } from './hidden.js?v=c4f04d2';
-import { iGa } from './ko.js?v=c4f04d2';
+} from '../data/world.js?v=ac59432';
+import { PLACES } from '../data/places.js?v=ac59432';
+import { reachedBand, LEVEL_MAX } from '../data/bands.js?v=ac59432';
+import { ANVIL, ANVIL_LINES } from '../data/anvil.js?v=ac59432';
+import { fameTotal } from './social.js?v=ac59432';
+import { foundCount } from './hidden.js?v=ac59432';
+import { iGa } from './ko.js?v=ac59432';
 
 const hash = (...parts) => seedFrom(parts.join('|'));
 const unit = (...parts) => hash(...parts) / 4294967296;

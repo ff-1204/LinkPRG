@@ -1,4 +1,4 @@
-import { LEVEL_MAX } from '../data/bands.js?v=c4f04d2';
+import { LEVEL_MAX } from '../data/bands.js?v=ac59432';
 // 레벨과 경험치 (E10~E12, R2-1). 경험치는 전투와 의뢰에서 온다.
 
 export const POINTS_PER_LEVEL = 3;
