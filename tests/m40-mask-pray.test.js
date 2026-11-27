@@ -50,3 +50,15 @@ test('머리·몸통은 대장간, 손·발은 의류점. 새 쇠 투구와 가�
   assert.equal(ITEMS.ironhelm.slot, 'head');
   assert.equal(ITEMS.leathergloves.slot, 'hand');
 });
+
+test('기도 한 번에 생명력이 1 돌아온다 (Z100). 가득 차 있으면 넘치지 않는다', () => {
+  const s = make('heal'); s.place = 'temple';
+  const max = s.hp;
+  dispatch(s, { type: 'act', id: 'pray' });
+  assert.equal(s.hp, max, '가득 찬 생명력은 넘치지 않는다');
+  s.hp = max - 5; s.tired = 0;
+  dispatch(s, { type: 'act', id: 'pray' });
+  assert.equal(s.hp, max - 4);
+  dispatch(s, { type: 'act', id: 'pray' });
+  assert.equal(s.hp, max - 3);
+});

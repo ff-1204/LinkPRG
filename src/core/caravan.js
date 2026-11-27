@@ -3,17 +3,17 @@
 // 닿으면 그곳의 그날 값으로 팔리고 은화가 우편함으로 온다. 가는 길에 잃을 수 있다 (GD-D5).
 // 그곳 값은 숫자로 보이지 않고 들은 소문만 적힌다 (GD-D7). 띠링은 울리지 않는다. 사기 전에는 어디에도 나오지 않는다 (GD-G3).
 
-import { PLACES, TOWNS } from '../data/places.js?v=6ec1303';
-import { BANDS } from '../data/bands.js?v=6ec1303';
-import { itemDef, gradeName } from '../data/items.js?v=6ec1303';
-import { COMPANIONS, partyMax } from '../data/companions.js?v=6ec1303';
-import { MARKET_SWING, MARKET_FLAT } from '../data/shops.js?v=6ec1303';
-import { pushLine, ding } from './log.js?v=6ec1303';
-import { roll01 } from './rng.js?v=6ec1303';
-import { worth, SELL_RATE } from './trade.js?v=6ec1303';
-import { gearName } from './gear.js?v=6ec1303';
-import { sendMail } from './mail.js?v=6ec1303';
-import { iGa, eulReul, eunNeun } from './ko.js?v=6ec1303';
+import { PLACES, TOWNS } from '../data/places.js?v=91cafab';
+import { BANDS } from '../data/bands.js?v=91cafab';
+import { itemDef, gradeName } from '../data/items.js?v=91cafab';
+import { COMPANIONS, partyMax } from '../data/companions.js?v=91cafab';
+import { MARKET_SWING, MARKET_FLAT } from '../data/shops.js?v=91cafab';
+import { pushLine, ding } from './log.js?v=91cafab';
+import { roll01 } from './rng.js?v=91cafab';
+import { worth, SELL_RATE } from './trade.js?v=91cafab';
+import { gearName } from './gear.js?v=91cafab';
+import { sendMail } from './mail.js?v=91cafab';
+import { iGa, eulReul, eunNeun } from './ko.js?v=91cafab';
 
 /**
  * price: 깃발 값 (LV-L6). fee: 짐꾼 삯 (GD-H7). weight: 짐 하나의 무게 (GD-D2). every: 거점 하나에 드는 내 일의 수 (GD-D3).

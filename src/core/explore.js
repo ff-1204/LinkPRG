@@ -1,33 +1,33 @@
 // 탐색과 랜덤 인카운터, 기척 (E1~E4, R2-3).
 // 탐색 한 번마다 전투·발견·사건·만남·희귀 가운데 하나. 싸울지는 되도록 내가 고른다.
 
-import { banditStep, bandOfPlace } from '../data/bands.js?v=6ec1303';
-import { next, pick, chance, roll01 } from './rng.js?v=6ec1303';
-import { addFame } from './social.js?v=6ec1303';
-import { pushLine } from './log.js?v=6ec1303';
-import { weighted, startBattle } from './battle.js?v=6ec1303';
-import { addItem, countOf, takeById } from './inventory.js?v=6ec1303';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=6ec1303';
-import { ding } from './log.js?v=6ec1303';
-import { monsterDef } from '../data/monsters.js?v=6ec1303';
-import { itemDef } from '../data/items.js?v=6ec1303';
-import { USERS } from '../data/lines.js?v=6ec1303';
-import { loseWater } from './thirst.js?v=6ec1303';
-import { BANDIT, BANDIT_FEEL, BANDIT_NAMES, WILDS, INCIDENTS, DANGER, DANGER_UP, OTHER_WEIGHTS, TENSION_STEP, TENSION_MAX, SCENT_TRIES, SCENT_PHASES } from '../data/wild.js?v=6ec1303';
-import { placeById } from '../data/places.js?v=6ec1303';
-import { iGa, eulReul, eunNeun } from './ko.js?v=6ec1303';
-import { hasTitle } from './titles.js?v=6ec1303';
-import { worth } from './trade.js?v=6ec1303';
-import { branchOf } from './evolve.js?v=6ec1303';
-import { answerHidden } from './quests.js?v=6ec1303';
-import { jobXp, hiddenJobView, answerHiddenJob } from './jobs.js?v=6ec1303';
-import { HIDDENS } from '../data/quests.js?v=6ec1303';
-import { dungeonChoiceView, dungeonChoose } from './dungeon.js?v=6ec1303';
-import { coldStage } from './cold.js?v=6ec1303';
-import { endingChoiceView, applyEnding } from './ending.js?v=6ec1303';
-import { anvilChoiceView, chooseAnvilEnd } from './anvil.js?v=6ec1303';
-import { memoryChoiceView, chooseMemory } from './memories.js?v=6ec1303';
-import { chestsLeft, openChest } from './sunken.js?v=6ec1303';
+import { banditStep, bandOfPlace } from '../data/bands.js?v=91cafab';
+import { next, pick, chance, roll01 } from './rng.js?v=91cafab';
+import { addFame } from './social.js?v=91cafab';
+import { pushLine } from './log.js?v=91cafab';
+import { weighted, startBattle } from './battle.js?v=91cafab';
+import { addItem, countOf, takeById } from './inventory.js?v=91cafab';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=91cafab';
+import { ding } from './log.js?v=91cafab';
+import { monsterDef } from '../data/monsters.js?v=91cafab';
+import { itemDef } from '../data/items.js?v=91cafab';
+import { USERS } from '../data/lines.js?v=91cafab';
+import { loseWater } from './thirst.js?v=91cafab';
+import { BANDIT, BANDIT_FEEL, BANDIT_NAMES, WILDS, INCIDENTS, DANGER, DANGER_UP, OTHER_WEIGHTS, TENSION_STEP, TENSION_MAX, SCENT_TRIES, SCENT_PHASES } from '../data/wild.js?v=91cafab';
+import { placeById } from '../data/places.js?v=91cafab';
+import { iGa, eulReul, eunNeun } from './ko.js?v=91cafab';
+import { hasTitle } from './titles.js?v=91cafab';
+import { worth } from './trade.js?v=91cafab';
+import { branchOf } from './evolve.js?v=91cafab';
+import { answerHidden } from './quests.js?v=91cafab';
+import { jobXp, hiddenJobView, answerHiddenJob } from './jobs.js?v=91cafab';
+import { HIDDENS } from '../data/quests.js?v=91cafab';
+import { dungeonChoiceView, dungeonChoose } from './dungeon.js?v=91cafab';
+import { coldStage } from './cold.js?v=91cafab';
+import { endingChoiceView, applyEnding } from './ending.js?v=91cafab';
+import { anvilChoiceView, chooseAnvilEnd } from './anvil.js?v=91cafab';
+import { memoryChoiceView, chooseMemory } from './memories.js?v=91cafab';
+import { chestsLeft, openChest } from './sunken.js?v=91cafab';
 
 const WORK = { smith: { name: '대장장이', who: '대장간 주인', skill: 'smithing' }, tailor: { name: '재봉사', who: '재봉사', skill: 'leather' }, chef: { name: '요리사', who: '주방장', skill: 'cooking' } };
 

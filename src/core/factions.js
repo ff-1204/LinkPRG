@@ -1,8 +1,8 @@
 // 세력과 성향 (T29~T33).
 
-import { pushLine, ding } from './log.js?v=6ec1303';
-import { FACTIONS, FACTION_ORDER, STANDINGS, HATED_BELOW, RIVAL_RATE, LEANS } from '../data/factions.js?v=6ec1303';
-import { iGa, ro } from './ko.js?v=6ec1303';
+import { pushLine, ding } from './log.js?v=91cafab';
+import { FACTIONS, FACTION_ORDER, STANDINGS, HATED_BELOW, RIVAL_RATE, LEANS } from '../data/factions.js?v=91cafab';
+import { iGa, ro } from './ko.js?v=91cafab';
 
 /** 세력과의 사이 번호: 0 미움, 1 남, 2 낯익음, 3 단골, 4 벗, 5 한편. */
 export function standingOf(state, id) {
