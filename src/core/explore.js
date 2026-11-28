@@ -1,34 +1,34 @@
 // 탐색과 랜덤 인카운터, 기척 (E1~E4, R2-3).
 // 탐색 한 번마다 전투·발견·사건·만남·희귀 가운데 하나. 싸울지는 되도록 내가 고른다.
 
-import { banditStep, bandOfPlace } from '../data/bands.js?v=9286de1';
-import { next, pick, chance, roll01 } from './rng.js?v=9286de1';
-import { addFame } from './social.js?v=9286de1';
-import { pushLine } from './log.js?v=9286de1';
-import { weighted, startBattle } from './battle.js?v=9286de1';
-import { addItem, countOf, takeById } from './inventory.js?v=9286de1';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=9286de1';
-import { ding } from './log.js?v=9286de1';
-import { monsterDef } from '../data/monsters.js?v=9286de1';
-import { itemDef } from '../data/items.js?v=9286de1';
-import { USERS } from '../data/lines.js?v=9286de1';
-import { loseWater } from './thirst.js?v=9286de1';
-import { BANDIT, BANDIT_FEEL, BANDIT_NAMES, WILDS, INCIDENTS, DANGER, DANGER_UP, OTHER_WEIGHTS, TENSION_STEP, TENSION_MAX, SCENT_TRIES, SCENT_PHASES } from '../data/wild.js?v=9286de1';
-import { placeById } from '../data/places.js?v=9286de1';
-import { iGa, eulReul, eunNeun } from './ko.js?v=9286de1';
-import { hasTitle } from './titles.js?v=9286de1';
-import { worth } from './trade.js?v=9286de1';
-import { branchOf } from './evolve.js?v=9286de1';
-import { answerHidden } from './quests.js?v=9286de1';
-import { jobXp, hiddenJobView, answerHiddenJob } from './jobs.js?v=9286de1';
-import { luckOf, hasGrace, GRACE_AGAIN } from './statplan.js?v=9286de1';
-import { HIDDENS } from '../data/quests.js?v=9286de1';
-import { dungeonChoiceView, dungeonChoose } from './dungeon.js?v=9286de1';
-import { coldStage } from './cold.js?v=9286de1';
-import { endingChoiceView, applyEnding } from './ending.js?v=9286de1';
-import { anvilChoiceView, chooseAnvilEnd } from './anvil.js?v=9286de1';
-import { memoryChoiceView, chooseMemory } from './memories.js?v=9286de1';
-import { chestsLeft, openChest } from './sunken.js?v=9286de1';
+import { banditStep, bandOfPlace } from '../data/bands.js?v=b94ad1e';
+import { next, pick, chance, roll01 } from './rng.js?v=b94ad1e';
+import { addFame } from './social.js?v=b94ad1e';
+import { pushLine } from './log.js?v=b94ad1e';
+import { weighted, startBattle } from './battle.js?v=b94ad1e';
+import { addItem, countOf, takeById } from './inventory.js?v=b94ad1e';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=b94ad1e';
+import { ding } from './log.js?v=b94ad1e';
+import { monsterDef } from '../data/monsters.js?v=b94ad1e';
+import { itemDef } from '../data/items.js?v=b94ad1e';
+import { USERS } from '../data/lines.js?v=b94ad1e';
+import { loseWater } from './thirst.js?v=b94ad1e';
+import { BANDIT, BANDIT_FEEL, BANDIT_NAMES, WILDS, INCIDENTS, DANGER, DANGER_UP, OTHER_WEIGHTS, TENSION_STEP, TENSION_MAX, SCENT_TRIES, SCENT_PHASES } from '../data/wild.js?v=b94ad1e';
+import { placeById } from '../data/places.js?v=b94ad1e';
+import { iGa, eulReul, eunNeun } from './ko.js?v=b94ad1e';
+import { hasTitle } from './titles.js?v=b94ad1e';
+import { worth } from './trade.js?v=b94ad1e';
+import { branchOf } from './evolve.js?v=b94ad1e';
+import { answerHidden } from './quests.js?v=b94ad1e';
+import { jobXp, hiddenJobView, answerHiddenJob } from './jobs.js?v=b94ad1e';
+import { luckOf, hasGrace, GRACE_AGAIN } from './statplan.js?v=b94ad1e';
+import { HIDDENS } from '../data/quests.js?v=b94ad1e';
+import { dungeonChoiceView, dungeonChoose } from './dungeon.js?v=b94ad1e';
+import { coldStage } from './cold.js?v=b94ad1e';
+import { endingChoiceView, applyEnding } from './ending.js?v=b94ad1e';
+import { anvilChoiceView, chooseAnvilEnd } from './anvil.js?v=b94ad1e';
+import { memoryChoiceView, chooseMemory } from './memories.js?v=b94ad1e';
+import { chestsLeft, openChest } from './sunken.js?v=b94ad1e';
 
 const WORK = { smith: { name: '대장장이', who: '대장간 주인', skill: 'smithing' }, tailor: { name: '재봉사', who: '재봉사', skill: 'leather' }, chef: { name: '요리사', who: '주방장', skill: 'cooking' } };
 

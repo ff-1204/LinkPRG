@@ -2,11 +2,11 @@
 // 몸은 처음부터 다시지만, 종이 기억한 것(히든 스탯, 다시 일어선 몸으로 오른 스탯, 칭호, 도감), 보관함은 가지고 간다.
 // 손에 익은 것도 남는다 (Z98, 사용자 결정): 숙련도 전부, 제작 레벨, 던전 지도, 그리고 쌓은 경험치의 1%(그만큼 레벨과 스탯 점수가 다시 붙는다).
 
-import { shopCarry } from './workshop.js?v=9286de1';
-import { HIDDEN } from './hidden.js?v=9286de1';
-import { xpNeeded, MAX_GRADE } from './skills.js?v=9286de1';
-import { xpToNext, gainXp } from './level.js?v=9286de1';
-import { BONDS } from '../data/people.js?v=9286de1';
+import { shopCarry } from './workshop.js?v=b94ad1e';
+import { HIDDEN } from './hidden.js?v=b94ad1e';
+import { xpNeeded, MAX_GRADE } from './skills.js?v=b94ad1e';
+import { xpToNext, gainXp } from './level.js?v=b94ad1e';
+import { BONDS } from '../data/people.js?v=b94ad1e';
 
 /**
  * 사람들과의 사이는 한 단계만 멀어진다 (Z115, 사용자 요청): 그 사람과의 사이가 '벗'이었으면 새 삶은 '단골'의 첫머리에서 시작한다.
@@ -54,7 +54,7 @@ function fromTotal(total) {
   while (grade < MAX_GRADE && xp >= xpNeeded(grade)) { xp -= xpNeeded(grade); grade++; }
   return { grade, xp };
 }
-import { JOBS, HIDDEN_JOBS } from '../data/jobs.js?v=9286de1';
+import { JOBS, HIDDEN_JOBS } from '../data/jobs.js?v=b94ad1e';
 const jobName = (id) => (id ? (JOBS[id] || HIDDEN_JOBS[id])?.name || id : null);
 
 const STATS = ['str', 'agi', 'con', 'wis'];
