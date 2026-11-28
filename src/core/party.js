@@ -1,17 +1,17 @@
 // 동료와 파티 (T20, T21, T25~T28, H1-1~H1-4). 파티는 나와 동료 둘까지.
 
-import { chance } from './rng.js?v=e3b52b1';
-import { pushLine, ding } from './log.js?v=e3b52b1';
-import { tentsHere } from '../data/anvil.js?v=e3b52b1';
-import { COMPANIONS, CROSS_LIMIT, MERC_FEE, MERC_ORDER, ROLE_BONUS, GUARD_RATE, ROLES, ROWS, PLANS, BAND_MERCS, FULL_PARTY, fullRoles, mercBand, mercsAt, partyMax } from '../data/companions.js?v=e3b52b1';
-import { drumBuff } from './buffs.js?v=e3b52b1';
-import { PLACES } from '../data/places.js?v=e3b52b1';
-import { SUBJECTS, ALIVE_COST } from '../data/works.js?v=e3b52b1';
-import { REGULAR, PEOPLE } from '../data/people.js?v=e3b52b1';
-import { bondOf } from './social.js?v=e3b52b1';
-import { placeById } from '../data/places.js?v=e3b52b1';
-import { workName } from './sculpt.js?v=e3b52b1';
-import { iGa, eulReul, waGwa } from './ko.js?v=e3b52b1';
+import { chance } from './rng.js?v=a5d0e2e';
+import { pushLine, ding } from './log.js?v=a5d0e2e';
+import { tentsHere } from '../data/anvil.js?v=a5d0e2e';
+import { COMPANIONS, CROSS_LIMIT, MERC_FEE, MERC_ORDER, ROLE_BONUS, GUARD_RATE, ROLES, ROWS, PLANS, BAND_MERCS, FULL_PARTY, fullRoles, mercBand, mercsAt, partyMax } from '../data/companions.js?v=a5d0e2e';
+import { drumBuff } from './buffs.js?v=a5d0e2e';
+import { PLACES } from '../data/places.js?v=a5d0e2e';
+import { SUBJECTS, ALIVE_COST } from '../data/works.js?v=a5d0e2e';
+import { REGULAR, PEOPLE } from '../data/people.js?v=a5d0e2e';
+import { bondOf } from './social.js?v=a5d0e2e';
+import { placeById } from '../data/places.js?v=a5d0e2e';
+import { workName } from './sculpt.js?v=a5d0e2e';
+import { iGa, eulReul, waGwa } from './ko.js?v=a5d0e2e';
 
 const def = (c) => COMPANIONS[c.id];
 

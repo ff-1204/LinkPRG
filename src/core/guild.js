@@ -1,9 +1,9 @@
 // 길드 (Z21). 가상 유저들의 길드에 들어가 한 일만큼 기여도를 쌓는다.
 // 기여도는 계급이 되고, 계급은 길드마다 다른 덕을 준다. 길드끼리는 날마다 순위를 다툰다.
 
-import { roll01 } from './rng.js?v=e3b52b1';
-import { pushLine, ding } from './log.js?v=e3b52b1';
-import { iGa, eulReul } from './ko.js?v=e3b52b1';
+import { roll01 } from './rng.js?v=a5d0e2e';
+import { pushLine, ding } from './log.js?v=a5d0e2e';
+import { iGa, eulReul } from './ko.js?v=a5d0e2e';
 
 export const GUILDS = {
   fang: { id: 'fang', name: '송곳니단', kind: 'fight', say: '사냥으로 말하는 사람들.', perk: '싸워서 얻는 경험치', per: 0.02, base: 1200, grow: 60 },

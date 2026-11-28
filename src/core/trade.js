@@ -1,18 +1,18 @@
 // 상점과 보관함 (E24, E25, E28, H1-5, H1-6, R2-4).
 // 돈은 은화 한 가지. 팔 때는 값의 40%. 등급이 높으면 값도 높다.
 
-import { INTEREST_WORK } from '../data/bands.js?v=e3b52b1';
-import { pushLine } from './log.js?v=e3b52b1';
-import { itemDef, GRADE_MULT, gradeName } from '../data/items.js?v=e3b52b1';
-import { addItem, removeAt, itemWeight } from './inventory.js?v=e3b52b1';
-import { SHOPS, DAILY_SWING, MARKET_SWING, MARKET_FLAT, MARKET_GOODS, MARKET_GOODS_AT } from '../data/shops.js?v=e3b52b1';
-import { seedFrom } from './rng.js?v=e3b52b1';
-import { discountOf as socialDiscount } from './social.js?v=e3b52b1';
-import { placeById } from '../data/places.js?v=e3b52b1';
-import { guildPerk } from './guild.js?v=e3b52b1';
-import { gearName } from './gear.js?v=e3b52b1';
-import { eulReul, iGa } from './ko.js?v=e3b52b1';
-import { hasTitle } from './titles.js?v=e3b52b1';
+import { INTEREST_WORK } from '../data/bands.js?v=a5d0e2e';
+import { pushLine } from './log.js?v=a5d0e2e';
+import { itemDef, GRADE_MULT, gradeName } from '../data/items.js?v=a5d0e2e';
+import { addItem, removeAt, itemWeight } from './inventory.js?v=a5d0e2e';
+import { SHOPS, DAILY_SWING, MARKET_SWING, MARKET_FLAT, MARKET_GOODS, MARKET_GOODS_AT } from '../data/shops.js?v=a5d0e2e';
+import { seedFrom } from './rng.js?v=a5d0e2e';
+import { discountOf as socialDiscount } from './social.js?v=a5d0e2e';
+import { placeById } from '../data/places.js?v=a5d0e2e';
+import { guildPerk } from './guild.js?v=a5d0e2e';
+import { gearName } from './gear.js?v=a5d0e2e';
+import { eulReul, iGa } from './ko.js?v=a5d0e2e';
+import { hasTitle } from './titles.js?v=a5d0e2e';
 
 export const SELL_RATE = 0.4;
 export const APPRAISE_SELL = 0.01;

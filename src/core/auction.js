@@ -1,21 +1,21 @@
 // 경매장 (N6-1 ~ N6-3). 가상 유저가 입찰하고 한마디씩 남긴다.
 // 입찰은 씨앗과 날짜로 셈한다. 같은 씨앗이면 같은 값에 팔린다.
 
-import { PLACES } from '../data/places.js?v=e3b52b1';
-import { reachedBand } from '../data/bands.js?v=e3b52b1';
-import { seedFrom } from './rng.js?v=e3b52b1';
-import { gearName } from './gear.js?v=e3b52b1';
-import { pushLine } from './log.js?v=e3b52b1';
-import { ITEMS, itemDef, gradeName } from '../data/items.js?v=e3b52b1';
-import { addItem, removeAt } from './inventory.js?v=e3b52b1';
-import { worth } from './trade.js?v=e3b52b1';
-import { placeById } from '../data/places.js?v=e3b52b1';
-import { standingOf } from './factions.js?v=e3b52b1';
-import { FACTION_REGULAR } from '../data/factions.js?v=e3b52b1';
-import { userBase } from './world.js?v=e3b52b1';
-import { MASK_LOT, AUCTION_FEE, AUCTION_DAYS, LOT_TIERS, LOT_SKIP, LOT_ASK, LOT_GEAR_MIN, BID_SAYS, USER_COUNT } from '../data/world.js?v=e3b52b1';
-import { eulReul, iGa, eunNeun } from './ko.js?v=e3b52b1';
-import { grantTitle, bondOf } from './social.js?v=e3b52b1';
+import { PLACES } from '../data/places.js?v=a5d0e2e';
+import { reachedBand } from '../data/bands.js?v=a5d0e2e';
+import { seedFrom } from './rng.js?v=a5d0e2e';
+import { gearName } from './gear.js?v=a5d0e2e';
+import { pushLine } from './log.js?v=a5d0e2e';
+import { ITEMS, itemDef, gradeName } from '../data/items.js?v=a5d0e2e';
+import { addItem, removeAt } from './inventory.js?v=a5d0e2e';
+import { worth } from './trade.js?v=a5d0e2e';
+import { placeById } from '../data/places.js?v=a5d0e2e';
+import { standingOf } from './factions.js?v=a5d0e2e';
+import { FACTION_REGULAR } from '../data/factions.js?v=a5d0e2e';
+import { userBase } from './world.js?v=a5d0e2e';
+import { MASK_LOT, AUCTION_FEE, AUCTION_DAYS, LOT_TIERS, LOT_SKIP, LOT_ASK, LOT_GEAR_MIN, BID_SAYS, USER_COUNT } from '../data/world.js?v=a5d0e2e';
+import { eulReul, iGa, eunNeun } from './ko.js?v=a5d0e2e';
+import { grantTitle, bondOf } from './social.js?v=a5d0e2e';
 
 // 끝 글자만 다른 글들도 고르게 흩어지도록 한 번 더 섞는다(전에는 같은 날 물건들의 시작가가 거의 같았다)
 const mix = (h) => { h ^= h >>> 16; h = Math.imul(h, 0x85ebca6b) >>> 0; h ^= h >>> 13; h = Math.imul(h, 0xc2b2ae35) >>> 0; h ^= h >>> 16; return h >>> 0; };

@@ -1,7 +1,7 @@
 // 마을 사람 (E26~E28, T14). 좋아하는 것·싫어하는 것과 속 스탯은 겪어 봐야 도감에 적힌다.
 // stats: 눈썰미(eye, 속임에 맞섬) · 배짱(guts, 위협에 맞섬) · 고집(will, 설득에 맞섬)
 
-import { TENT_PEOPLE } from './anvil.js?v=e3b52b1';
+import { TENT_PEOPLE } from './anvil.js?v=a5d0e2e';
 
 /** 친밀도 다섯 단계 (E26)와 그 문턱, 그리고 값이 깎이는 몫 (E25). */
 export const BONDS = [

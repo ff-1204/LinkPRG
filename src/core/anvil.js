@@ -1,12 +1,12 @@
 // 처음 모루 (CM-A ~ CM-G): 벼리며 싸우기, 마지막 싸움 "지어지지 않은 종", 13장의 끝 다섯.
 // 싸움에 걸리는 것은 battle.js가 여기 숫자와 함수를 불러 넣는다. 띠링의 규칙이 바뀌는 것은 log.js가 state.anvil.end를 본다.
 
-import { placeById } from '../data/places.js?v=e3b52b1';
-import { ANVIL, ANVIL_LINES, ANVIL_ENDS, ANVIL_END_ORDER, ANVIL_END_ALL, END_NEED, REGION_HIDDENS, MAIN13, kindCount } from '../data/anvil.js?v=e3b52b1';
-import { itemDef } from '../data/items.js?v=e3b52b1';
-import { monsterDef } from '../data/monsters.js?v=e3b52b1';
-import { pushLine, ding } from './log.js?v=e3b52b1';
-import { eulReul } from './ko.js?v=e3b52b1';
+import { placeById } from '../data/places.js?v=a5d0e2e';
+import { ANVIL, ANVIL_LINES, ANVIL_ENDS, ANVIL_END_ORDER, ANVIL_END_ALL, END_NEED, REGION_HIDDENS, MAIN13, kindCount } from '../data/anvil.js?v=a5d0e2e';
+import { itemDef } from '../data/items.js?v=a5d0e2e';
+import { monsterDef } from '../data/monsters.js?v=a5d0e2e';
+import { pushLine, ding } from './log.js?v=a5d0e2e';
+import { eulReul } from './ko.js?v=a5d0e2e';
 
 export { ANVIL, ANVIL_LINES, ANVIL_ENDS };
 
