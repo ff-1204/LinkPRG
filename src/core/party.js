@@ -1,17 +1,17 @@
 // 동료와 파티 (T20, T21, T25~T28, H1-1~H1-4). 파티는 나와 동료 둘까지.
 
-import { chance } from './rng.js?v=c392bbe';
-import { pushLine, ding } from './log.js?v=c392bbe';
-import { tentsHere } from '../data/anvil.js?v=c392bbe';
-import { COMPANIONS, CROSS_LIMIT, MERC_FEE, MERC_ORDER, ROLE_BONUS, GUARD_RATE, ROLES, ROWS, PLANS, BAND_MERCS, FULL_PARTY, fullRoles, mercBand, mercsAt, partyMax } from '../data/companions.js?v=c392bbe';
-import { drumBuff } from './buffs.js?v=c392bbe';
-import { PLACES } from '../data/places.js?v=c392bbe';
-import { SUBJECTS, ALIVE_COST } from '../data/works.js?v=c392bbe';
-import { REGULAR, PEOPLE } from '../data/people.js?v=c392bbe';
-import { bondOf } from './social.js?v=c392bbe';
-import { placeById } from '../data/places.js?v=c392bbe';
-import { workName } from './sculpt.js?v=c392bbe';
-import { iGa, eulReul, waGwa } from './ko.js?v=c392bbe';
+import { chance } from './rng.js?v=0cf2820';
+import { pushLine, ding } from './log.js?v=0cf2820';
+import { tentsHere } from '../data/anvil.js?v=0cf2820';
+import { COMPANIONS, CROSS_LIMIT, MERC_FEE, MERC_ORDER, ROLE_BONUS, GUARD_RATE, ROLES, ROWS, PLANS, BAND_MERCS, FULL_PARTY, fullRoles, mercBand, mercsAt, partyMax } from '../data/companions.js?v=0cf2820';
+import { drumBuff } from './buffs.js?v=0cf2820';
+import { PLACES } from '../data/places.js?v=0cf2820';
+import { SUBJECTS, ALIVE_COST } from '../data/works.js?v=0cf2820';
+import { REGULAR, PEOPLE } from '../data/people.js?v=0cf2820';
+import { bondOf } from './social.js?v=0cf2820';
+import { placeById } from '../data/places.js?v=0cf2820';
+import { workName } from './sculpt.js?v=0cf2820';
+import { iGa, eulReul, waGwa } from './ko.js?v=0cf2820';
 
 const def = (c) => COMPANIONS[c.id];
 
@@ -41,7 +41,8 @@ export function askToJoin(state, events, personId) {
   return join(state, events, d.id);
 }
 
-const feeOf = (d) => d.fee || MERC_FEE;
+/** 용병 삯. 용병단 막내는 20% 덜 낸다 (Z120). */
+const feeOf = (d, state = null) => Math.max(1, Math.round((d.fee || MERC_FEE) * (1 - (state?.flags?.mercCut || 0))));
 
 /** 용병을 고용한다. 삯은 용병마다 다르고 날이 바뀔 때 낸다 (T28). 시작 마을에서는 훈련소에서 구한다 (Z94). */
 export function hireMerc(state, events, id) {
@@ -51,7 +52,7 @@ export function hireMerc(state, events, id) {
   if (!d || d.way !== 'merc') throw new Error('모르는 용병입니다');
   // 구간 용병은 제 거점에서만 구한다. 지금 용병 셋은 훈련소와 모험가 회관에서 (JD-C3)
   if (!mercsAt(placeById(state.place), state).includes(id)) throw new Error(d.home ? `${d.name}${d.name.charCodeAt(d.name.length - 1) >= 0xac00 && (d.name.charCodeAt(d.name.length - 1) - 0xac00) % 28 ? '은' : '는'} ${PLACES[d.home].name}에서 구합니다` : '그 용병은 훈련소나 모험가 회관에서 구합니다');
-  const fee = feeOf(d);
+  const fee = feeOf(d, state);
   if (state.silver < fee) throw new Error(`하루 삯 은화 ${fee}은 가지고 있어야 합니다`);
   if (state.party.length >= partyMax(state)) throw new Error(`동료는 ${partyMax(state)}명까지입니다`);
   if (state.party.some((c) => c.id === id)) throw new Error('이미 함께 있습니다');
@@ -65,7 +66,7 @@ export function hireMerc(state, events, id) {
 export function mercView(state) {
   return mercsAt(placeById(state.place), state).map((id) => {
     const d = COMPANIONS[id];
-    const fee = feeOf(d);
+    const fee = feeOf(d, state);
     const joined = state.party.some((c) => c.id === id);
     const away = state.caravan?.load?.escort?.id === id; // 상단의 짐을 호위하러 나갔다 (GD-D5)
     const why = joined ? '함께 있다' : away ? '호위로 나가 있다' : state.party.length >= partyMax(state) ? `동료는 ${partyMax(state)}명까지` : state.silver < fee ? '은화가 모자란다' : '';
@@ -177,7 +178,7 @@ export function partyView(state) {
       hp: c.hp, maxHp: maxHpOf(c), down: c.down || c.out === state.day, attack: d.attack, heal: d.heal || 0,
       plan: c.plan, plans: PLANS[d.role], wants: d.wants, crossed: c.crossed, limit: CROSS_LIMIT,
       bond: c.bond, bondName: c.bond >= 40 ? '믿는 사이' : c.bond >= 15 ? '익숙한 사이' : '서먹한 사이',
-      canBack: d.role === 'healer' || !!d.back, fee: d.way === 'merc' ? feeOf(d) : 0, text: d.role === 'bard' ? d.text : '',
+      canBack: d.role === 'healer' || !!d.back, fee: d.way === 'merc' ? feeOf(d, state) : 0, text: d.role === 'bard' ? d.text : '',
     };
   });
 }
@@ -194,7 +195,7 @@ export function fullPartyView(state) {
 /** 일행 창의 "하루에 나가는 삯" 줄 (BM-C0): 삯을 받는 이의 수와 그 합. 없으면 null. */
 export function partyFees(state) {
   const paid = state.party.filter((c) => def(c).way === 'merc');
-  return paid.length ? { n: paid.length, silver: paid.reduce((a, c) => a + feeOf(def(c)), 0) } : null;
+  return paid.length ? { n: paid.length, silver: paid.reduce((a, c) => a + feeOf(def(c), state), 0) } : null;
 }
 
 /** 바라는 것을 거슬렀다. 세 번이면 떠난다 (T27, H1-3). */
@@ -225,7 +226,7 @@ export function partyDay(state, events) {
   for (const c of [...state.party]) {
     if (def(c).way !== 'merc') continue;
     if (c.paidDay != null && state.day <= c.paidDay + 1) continue; // 첫날 삯은 구할 때 냈다
-    const fee = feeOf(def(c));
+    const fee = feeOf(def(c), state);
     if (state.silver >= fee) { state.silver -= fee; pushLine(state, events, { k: 'sys', text: `${def(c).name}에게 하루 삯 은화 ${fee}을 냈다.` }); }
     else cross(state, events, 'unpaid');
   }

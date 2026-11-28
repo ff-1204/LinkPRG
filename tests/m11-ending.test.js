@@ -65,7 +65,7 @@ test('5장: 살아온 방식에 따라 고를 수 있는 끝이 다르다. 못 �
 
 test('끝 "잇는다": 띠링이 또렷해지고 새 히든 스탯이 하나 생긴다. 게임은 이어진다 (M11-2)', () => {
   const s = atBell('mend', { lode: 'miners', prep: (x) => { x.skills.smithing = { grade: 27, xp: 0, uses: 0 }; } });
-  assert.equal(hiddenTotal(s), 13);
+  assert.equal(hiddenTotal(s), 20);
   dispatch(s, { type: 'ending' });
   const ev = dispatch(s, { type: 'choose', id: 'mend' });
   assert.equal(s.ending, 'mend');
@@ -75,7 +75,7 @@ test('끝 "잇는다": 띠링이 또렷해지고 새 히든 스탯이 하나 생
   assert.ok(ev.some((e) => e.type === 'ding' && e.ding.kind === 'ending'));
   assert.ok(mainView(s).name.includes('끝난 뒤'));
   assert.ok(afterText(s).includes('또렷'));
-  assert.equal(hiddenTotal(s), 14);
+  assert.equal(hiddenTotal(s), 21);
   assert.ok(hiddenSlots(s).some((x) => x.id === 'echo' && !x.found && x.name === undefined), '새 히든도 찾기 전에는 이름이 없다');
   // 세계는 이어진다: 나가서 허수아비를 친다. 띠링이 쌓이면 열세 번째가 생긴다
   for (const id of ['f3-hall', 'f3-stair', 'f2-door', 'f2-vent', 'f2-row', 'f2-land', 'f1-stair', 'f1-watch', 'f1-store', 'f1-hall', 'f1-gate']) dispatch(s, { type: 'room', to: id });
@@ -96,7 +96,7 @@ test('끝 "푼다": 큰 띠링이 사라지고, 히든 스탯의 문턱이 모�
   dispatch(s, { type: 'choose', id: 'free' });
   assert.equal(s.ending, 'free');
   const open = hiddenSlots(s).filter((x) => !x.found);
-  assert.equal(open.length, 13);
+  assert.equal(open.length, 20);
   for (const x of open) { assert.ok(x.name && x.need > 0 && x.how && x.have >= 0, x.id); }
   assert.equal(open.find((x) => x.id === 'endure').need, 300);
   // 큰 띠링은 더 울리지 않는다

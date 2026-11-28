@@ -22,8 +22,8 @@ test('같은 씨앗으로 같은 행동을 두 번 돌리면 결과가 같다 (M
   assert.equal(run(), run());
 });
 
-test('출신 서른(뿌리 여섯), 시작 점수 5 (T1~T3, Z25)', () => {
-  assert.equal(ORIGINS.length, 30);
+test('출신 쉰넷(뿌리 여섯), 시작 점수 5 (T1~T3, Z25, Z120)', () => {
+  assert.equal(ORIGINS.length, 54);
   assert.equal(new Set(ORIGINS.map((o) => o.root)).size, 6);
   const { stats, unspent } = buildStats('smithboy', { str: 1, agi: 2 });
   assert.deepEqual(stats, { str: 12, agi: 11, con: 10, wis: 7 });
@@ -85,6 +85,7 @@ test('허수아비 그림은 100번마다 바뀌고 300번째에 터진다 (M1-1
 
 test('150번째에 "무언가 쌓이는 느낌", 300번째에 인내 (M1-12)', () => {
   const s = newGame();
+  s.hidden.drill = { value: 0, half: true }; // 치기의 단련(Z119)은 50번에 따로 귀띔한다. 여기서는 인내만 본다
   dispatch(s, { type: 'move', to: 'training' });
   const a = hit(s, 149);
   assert.ok(!a.some((e) => e.type === 'line' && e.line.text.includes('쌓이는 느낌')));
@@ -103,11 +104,11 @@ test('150번째에 "무언가 쌓이는 느낌", 300번째에 인내 (M1-12)', (
   assert.ok(d.some((e) => e.type === 'line' && e.line.who === '교관' && e.line.text === '이런 녀석은 처음 본다.'));
 });
 
-test('히든 스탯은 열세 칸이고, 못 찾은 칸에는 이름도 문턱도 없다 (Q5-5)', () => {
+test('히든 스탯은 스무 칸이고, 못 찾은 칸에는 이름도 문턱도 없다 (Q5-5)', () => {
   const s = newGame();
   const slots = hiddenSlots(s);
-  assert.equal(slots.length, 13);
-  assert.equal(HIDDEN.filter((h) => !h.after).length, 13, '열네 번째는 어떤 끝을 고른 뒤에만 생긴다');
+  assert.equal(slots.length, 20); // 일마다 일곱 (Z119)
+  assert.equal(HIDDEN.filter((h) => !h.after).length, 20, '스물한 번째는 어떤 끝을 고른 뒤에만 생긴다');
   // 못 찾은 칸이 내보내는 것은 이 넷뿐이다. 이름, 효과, 문턱, 진행률은 없다.
   const bare = (list) => list.filter((x) => !x.found).forEach((slot) => assert.deepEqual(Object.keys(slot).sort(), ['found', 'half', 'hints', 'id']));
   bare(slots);
@@ -116,7 +117,8 @@ test('히든 스탯은 열세 칸이고, 못 찾은 칸에는 이름도 문턱�
   const mid = hiddenSlots(s);
   bare(mid);
   assert.equal(mid.find((x) => x.id === 'endure').half, true);
-  assert.equal(mid.filter((x) => !x.found).length, 13, '절반을 넘어도 아직 찾은 것은 아니다');
+  assert.equal(mid.find((x) => x.id === 'endure').found, false, '절반을 넘어도 아직 찾은 것은 아니다');
+  assert.equal(mid.filter((x) => !x.found).length, 19, '치기 150번이면 단련(Z119)만 찾았다');
 });
 
 test('글 어디에도 히든 스탯의 문턱 숫자가 없다 (Q5-5, 규칙 4)', () => {

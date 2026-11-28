@@ -1,18 +1,18 @@
 // 상점과 보관함 (E24, E25, E28, H1-5, H1-6, R2-4).
 // 돈은 은화 한 가지. 팔 때는 값의 40%. 등급이 높으면 값도 높다.
 
-import { INTEREST_WORK } from '../data/bands.js?v=c392bbe';
-import { pushLine } from './log.js?v=c392bbe';
-import { itemDef, GRADE_MULT, gradeName } from '../data/items.js?v=c392bbe';
-import { addItem, removeAt, itemWeight } from './inventory.js?v=c392bbe';
-import { SHOPS, DAILY_SWING, MARKET_SWING, MARKET_FLAT, MARKET_GOODS, MARKET_GOODS_AT } from '../data/shops.js?v=c392bbe';
-import { seedFrom } from './rng.js?v=c392bbe';
-import { discountOf as socialDiscount } from './social.js?v=c392bbe';
-import { placeById } from '../data/places.js?v=c392bbe';
-import { guildPerk } from './guild.js?v=c392bbe';
-import { gearName } from './gear.js?v=c392bbe';
-import { eulReul, iGa } from './ko.js?v=c392bbe';
-import { hasTitle } from './titles.js?v=c392bbe';
+import { INTEREST_WORK } from '../data/bands.js?v=0cf2820';
+import { pushLine } from './log.js?v=0cf2820';
+import { itemDef, GRADE_MULT, gradeName } from '../data/items.js?v=0cf2820';
+import { addItem, removeAt, itemWeight } from './inventory.js?v=0cf2820';
+import { SHOPS, DAILY_SWING, MARKET_SWING, MARKET_FLAT, MARKET_GOODS, MARKET_GOODS_AT } from '../data/shops.js?v=0cf2820';
+import { seedFrom } from './rng.js?v=0cf2820';
+import { discountOf as socialDiscount } from './social.js?v=0cf2820';
+import { placeById } from '../data/places.js?v=0cf2820';
+import { guildPerk } from './guild.js?v=0cf2820';
+import { gearName } from './gear.js?v=0cf2820';
+import { eulReul, iGa } from './ko.js?v=0cf2820';
+import { hasTitle } from './titles.js?v=0cf2820';
 
 export const SELL_RATE = 0.4;
 export const APPRAISE_SELL = 0.01;
@@ -59,7 +59,8 @@ export function sellPrice(item, state = null) {
   const hide = state && state.flags.hideSeller && /hide/.test(item.id) ? 1.3 : 1; // 무두장이는 가죽 값을 더 받는다
   const eye = state ? 1 + (state.skills?.appraise?.grade || 0) * APPRAISE_SELL : 1; // 감정 (Z62): 등급마다 파는 값이 오른다. 상한 없음
   const market = state && SHOPS[state.place]?.market ? marketRate(state, item.id) : 1; // 저울목: 파는 값도 날마다 바뀐다 (SB-C1)
-  return Math.max(1, Math.floor(worth(item) * SELL_RATE * mine * hide * eye * market));
+  const gaze = state ? 1 + (state.hidden?.gaze?.value || 0) * 0.01 : 1; // 안목 (Z119)
+  return Math.max(1, Math.floor(worth(item) * SELL_RATE * mine * hide * eye * market * gaze));
 }
 
 /** 저울목의 오늘 값 (SB-C1): 제값의 몇 배인가. 나루 어시장과 같은 씨앗을 쓴다. 날이 바뀔 때 새로 붙는다. */

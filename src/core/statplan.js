@@ -3,8 +3,14 @@
 // - 직업을 고른 그때 한 번, 레벨로 받은 점수를 돌려받아 다시 나눈다. 처음 값(주사위)과 일로 오른 값, 히든 스탯은 그대로다.
 // - 사제는 행운(히든 스탯)이 1 이상이어야 고른다. 고르면 행운 +10과 "신의 은총"(희귀한 일을 절반의 확률로 한 번 더 센다).
 
-import { DICE_MIN, DICE_TOTAL, originById } from '../data/origins.js?v=c392bbe';
-import { pushLine } from './log.js?v=c392bbe';
+import { DICE_MIN, DICE_TOTAL, originById } from '../data/origins.js?v=0cf2820';
+
+/** 직업의 인연 (Z120): 출신이 이어진 직업을 골랐으면 그 효과(fx), 아니면 null. 2차 직업도 같은 뿌리 직업으로 본다. */
+export function bondFx(state) {
+  const o = originById(state.origin);
+  return o?.bond && o.job && o.job === state.job ? o.bond.fx : null;
+}
+import { pushLine } from './log.js?v=0cf2820';
 
 export const STATS = ['str', 'agi', 'con', 'wis'];
 export const MAIN = { every: 10, rate: 2, priestRate: 1, luck: 1 }; // 주 스탯 10마다 +2%(사제의 지혜는 +1%, Z117), 사제의 행운 1마다 +1%
@@ -38,7 +44,8 @@ export function mainParts(state, stats = state.stats) {
   return mainStatsOf(state).map((key) => {
     if (key === 'luck') { const v = luckOf(state); return { key, value: v, pct: v * MAIN.luck, next: 0 }; }
     const v = stats[key] || 0;
-    return { key, value: v, pct: Math.floor(v / MAIN.every) * (isPriest(state) ? MAIN.priestRate : MAIN.rate), next: MAIN.every - (v % MAIN.every) };
+    const rate = isPriest(state) ? MAIN.priestRate : bondFx(state)?.mainRate || MAIN.rate; // 방패잡이의 후예: 힘 10마다 +3% (Z120)
+    return { key, value: v, pct: Math.floor(v / MAIN.every) * rate, next: MAIN.every - (v % MAIN.every) };
   });
 }
 /** 내가 넣는 피해(사제는 치유도)에 곱하는 수. */

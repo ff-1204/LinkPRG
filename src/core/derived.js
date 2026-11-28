@@ -1,10 +1,10 @@
 // 계산된 값과 그 셈 (R2-1, R2-2, G2-2). 누르면 셈이 풀려 보인다.
 
-import { equipPower, usable } from './inventory.js?v=c392bbe';
-import { itemDef } from '../data/items.js?v=c392bbe';
-import { buffOf, foodBuff, restBuff, graceBuff, murderBuff, drumBuff } from './buffs.js?v=c392bbe';
-import { ADVANCED } from '../data/jobs.js?v=c392bbe';
-import { coldAttackCut } from './cold.js?v=c392bbe';
+import { equipPower, usable } from './inventory.js?v=0cf2820';
+import { itemDef } from '../data/items.js?v=0cf2820';
+import { buffOf, foodBuff, restBuff, graceBuff, murderBuff, drumBuff } from './buffs.js?v=0cf2820';
+import { ADVANCED } from '../data/jobs.js?v=0cf2820';
+import { coldAttackCut } from './cold.js?v=0cf2820';
 
 /** 숙련 보너스: 등급 두 칸마다 1. */
 export function skillBonus(skill) {
@@ -84,6 +84,10 @@ export function derived(state) {
   addTo('carry', `나르기 숙련 ${skillBonus(state.skills.haul)}`, skillBonus(state.skills.haul));
   addTo('maxHp', `지구력 숙련 ${skillBonus(state.skills.stamina) * 2}`, skillBonus(state.skills.stamina) * 2);
   if (state.flags?.carry5) addTo('carry', '짐꾼 5', 5);
+  // 출신의 덤 (Z120)
+  if (state.flags?.carryPlus) addTo('carry', `출신 ${state.flags.carryPlus}`, state.flags.carryPlus);
+  if (state.flags?.hpPlus) addTo('maxHp', `출신 ${state.flags.hpPlus}`, state.flags.hpPlus);
+  if (state.flags?.mpPlus) addTo('maxMp', `출신 ${state.flags.mpPlus}`, state.flags.mpPlus);
   const adv2 = ADVANCED[state.job2];
   if (adv2?.hp) addTo('maxHp', `${adv2.name} ${adv2.hp}`, adv2.hp);
   // 잘 잔 몸 (Z41): 뜨끈한 아랫목은 생명력과 힘을 조금 북돋는다

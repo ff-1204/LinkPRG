@@ -1,49 +1,50 @@
 // 전투 (E5~E9, R2-2). 한 턴에 행동 하나. 적의 다음 행동은 늘 미리 보인다.
 // 방어하면 피해가 절반이고, 돌진류는 막고 되받아친다.
 
-import { bandOfPlace } from '../data/bands.js?v=c392bbe';
-import { placeById } from '../data/places.js?v=c392bbe';
-import { next, chance } from './rng.js?v=c392bbe';
-import { pushLine, ding } from './log.js?v=c392bbe';
-import { monsterDef, STATUS } from '../data/monsters.js?v=c392bbe';
-import { itemDef, ITEMS, gradeName } from '../data/items.js?v=c392bbe';
-import { roll01 } from './rng.js?v=c392bbe';
-import { guildPerk } from './guild.js?v=c392bbe';
-import { rollOptions, gearName } from './gear.js?v=c392bbe';
-import { derived, skillBonus, attackStat } from './derived.js?v=c392bbe';
-import { addItem, removeAt, usable, totalWeight, equip, slotFor, equipPower } from './inventory.js?v=c392bbe';
-import { grantXp } from './reward.js?v=c392bbe';
-import { useSkill, emptySkill, gradeLabel, SKILL_NAMES } from './skills.js?v=c392bbe';
-import { fall } from './fall.js?v=c392bbe';
-import { iGa, eulReul, ro } from './ko.js?v=c392bbe';
-import { branchOf } from './evolve.js?v=c392bbe';
-import { skillsNow, jobXp, adv } from './jobs.js?v=c392bbe';
-import { guardFor, hitCompanion, companionsAct, afterBattle, roleBonus, cross } from './party.js?v=c392bbe';
-import { jobDef } from '../data/jobs.js?v=c392bbe';
-import { mainMult, healLuck, HEAL_LUCK } from './statplan.js?v=c392bbe';
-import { BEATS, WEAK_MULT, RESIST_MULT } from '../data/dungeon.js?v=c392bbe';
-import { HUNGRY, DUEL, DUEL_MOVES, BANDIT, BANDIT_MOVES } from '../data/wild.js?v=c392bbe';
-import { addFame } from './social.js?v=c392bbe';
-import { giveMurder, MURDER, giveGrace, GRACE } from './buffs.js?v=c392bbe';
-import { applyDish } from './cook.js?v=c392bbe';
-import { DISHES } from '../data/cooking.js?v=c392bbe';
-import { warmUp } from './cold.js?v=c392bbe';
-import { loseWater } from './thirst.js?v=c392bbe';
-import { wear } from './heat.js?v=c392bbe';
-import { normalAt } from '../data/bands.js?v=c392bbe';
-import { arenaIntent, neverRests, ARENA_FOE } from '../data/arena.js?v=c392bbe';
+import { bandOfPlace } from '../data/bands.js?v=0cf2820';
+import { placeById } from '../data/places.js?v=0cf2820';
+import { next, chance } from './rng.js?v=0cf2820';
+import { pushLine, ding } from './log.js?v=0cf2820';
+import { monsterDef, STATUS } from '../data/monsters.js?v=0cf2820';
+import { itemDef, ITEMS, gradeName } from '../data/items.js?v=0cf2820';
+import { roll01 } from './rng.js?v=0cf2820';
+import { guildPerk } from './guild.js?v=0cf2820';
+import { rollOptions, gearName } from './gear.js?v=0cf2820';
+import { derived, skillBonus, attackStat } from './derived.js?v=0cf2820';
+import { addItem, removeAt, usable, totalWeight, equip, slotFor, equipPower } from './inventory.js?v=0cf2820';
+import { grantXp } from './reward.js?v=0cf2820';
+import { useSkill, emptySkill, gradeLabel, SKILL_NAMES } from './skills.js?v=0cf2820';
+import { fall } from './fall.js?v=0cf2820';
+import { iGa, eulReul, ro } from './ko.js?v=0cf2820';
+import { branchOf } from './evolve.js?v=0cf2820';
+import { skillsNow, jobXp, adv } from './jobs.js?v=0cf2820';
+import { guardFor, hitCompanion, companionsAct, afterBattle, roleBonus, cross } from './party.js?v=0cf2820';
+import { jobDef } from '../data/jobs.js?v=0cf2820';
+import { mainMult, healLuck, HEAL_LUCK, bondFx } from './statplan.js?v=0cf2820';
+import { hv } from './hidden.js?v=0cf2820';
+import { BEATS, WEAK_MULT, RESIST_MULT } from '../data/dungeon.js?v=0cf2820';
+import { HUNGRY, DUEL, DUEL_MOVES, BANDIT, BANDIT_MOVES } from '../data/wild.js?v=0cf2820';
+import { addFame } from './social.js?v=0cf2820';
+import { giveMurder, MURDER, giveGrace, GRACE } from './buffs.js?v=0cf2820';
+import { applyDish } from './cook.js?v=0cf2820';
+import { DISHES } from '../data/cooking.js?v=0cf2820';
+import { warmUp } from './cold.js?v=0cf2820';
+import { loseWater } from './thirst.js?v=0cf2820';
+import { wear } from './heat.js?v=0cf2820';
+import { normalAt } from '../data/bands.js?v=0cf2820';
+import { arenaIntent, neverRests, ARENA_FOE } from '../data/arena.js?v=0cf2820';
 
 /** 사나움 (Z60): 세계의 날마다 괴물의 생명·공격과 경험치·떨굼 확률이 조금씩 오른다. 끝이 없다. 우두머리·던전도 같다. */
-import { curseOf, curseMult, curseHit, liftCurse, healCut } from './marsh.js?v=c392bbe';
-import { SUNKEN, SUNKEN_LINES, pairComes, holder, giftBoost, useAir } from './sunken.js?v=c392bbe';
-import { COMPANIONS } from '../data/companions.js?v=c392bbe';
-import { drumBuff } from './buffs.js?v=c392bbe';
-import { CLOUD, CLOUD_LINES, windIs, pushedLine } from './cloud.js?v=c392bbe';
-import { POND, READ_LINES, mirrored, isRead, readKey, readStep, readReset } from './pond.js?v=c392bbe';
-import { ANVIL, ANVIL_LINES, forged, temperMult, hammerInBattle, cooled, keptEdge, bellIntent, shellBroke, bellRound, leftBell, building, bellBuilt } from './anvil.js?v=c392bbe';
-import { monsterXp } from '../data/bands.js?v=c392bbe';
-import { xpToNext } from './level.js?v=c392bbe';
-import { addSkillXp } from './skills.js?v=c392bbe';
+import { curseOf, curseMult, curseHit, liftCurse, healCut } from './marsh.js?v=0cf2820';
+import { SUNKEN, SUNKEN_LINES, pairComes, holder, giftBoost, useAir } from './sunken.js?v=0cf2820';
+import { COMPANIONS } from '../data/companions.js?v=0cf2820';
+import { drumBuff } from './buffs.js?v=0cf2820';
+import { CLOUD, CLOUD_LINES, windIs, pushedLine } from './cloud.js?v=0cf2820';
+import { POND, READ_LINES, mirrored, isRead, readKey, readStep, readReset } from './pond.js?v=0cf2820';
+import { ANVIL, ANVIL_LINES, forged, temperMult, hammerInBattle, cooled, keptEdge, bellIntent, shellBroke, bellRound, leftBell, building, bellBuilt } from './anvil.js?v=0cf2820';
+import { monsterXp } from '../data/bands.js?v=0cf2820';
+import { xpToNext } from './level.js?v=0cf2820';
+import { addSkillXp } from './skills.js?v=0cf2820';
 export const FIERCE_PER = 0.0005;
 export const fierceOf = (day) => 1 + FIERCE_PER * Math.max(0, (day || 1) - 1);
 
@@ -132,7 +133,7 @@ export function fleeChance(state) {
   const m = mdef(state.battle);
   if (building(state.battle)) return 1; // 지어지지 않은 종은 쫓아오지 않는다: 망치를 내려놓으면 내려온다 (CM-D5)
   const over = totalWeight(state) > val(state, 'carry') ? 0.2 : 0;
-  return clamp(0.5 + (state.stats.agi - m.agi) * 0.03 - over + roleBonus(state) + (adv(state).flee || 0) + (state.flags.fleeEasy ? 0.1 : 0) + (windIs(state, 'tail') ? CLOUD.flee : 0), 0.05, 0.95); // 뒷바람이 등을 민다 (GD-B3)
+  return clamp(0.5 + (state.stats.agi - m.agi) * 0.03 - over + roleBonus(state) + (adv(state).flee || 0) + (state.flags.fleeEasy ? 0.1 : 0) + (bondFx(state)?.flee || 0) + (windIs(state, 'tail') ? CLOUD.flee : 0), 0.05, 0.95); // 뒷바람이 등을 민다 (GD-B3)
 }
 
 function critChance(a, b) {
@@ -239,11 +240,14 @@ function hitEnemy(state, events, power = 1, verb = null, opt = {}) {
   const a2 = adv(state);
   if (a2.rage && state.hp < val(state, 'maxHp') * 0.5) attack = Math.round(attack * a2.rage);
   if (a2.first && b.turn === 1) attack = Math.round(attack * a2.first);
+  const fx = bondFx(state) || {}; // 직업의 인연 (Z120)
+  if (fx.first && b.turn === 1) attack = Math.round(attack * fx.first);
   let dmg = damage(state, attack, power * (br?.dmg || 1) * (state.flags.knowsBoar && b.mon === 'boar' ? 1.15 : 1), opt.pierce ? 0 : m.defense); // 숲의 사람은 멧돼지 약점을 안다
-  dmg = Math.max(1, Math.round(dmg * mainMult(state))); // 주 스탯 보너스 (Z116)
-  const crit = opt.sure ? true : chance(state, Math.max(0, critChance(state.stats.agi, m.agi) + (br?.crit || 0) + (opt.crit || 0) + (a2.crit || 0) + (equipPower(state).crit || 0)));
+  dmg = Math.max(1, Math.round(dmg * mainMult(state) * (1 + hv(state, 'drill') * 0.01))); // 주 스탯 보너스 (Z116), 단련 (Z119)
+  const crit = opt.sure ? true : chance(state, Math.max(0, critChance(state.stats.agi, m.agi) + (br?.crit || 0) + (opt.crit || 0) + (a2.crit || 0) + (equipPower(state).crit || 0) + (fx.crit || 0)));
   if (crit) dmg = Math.round(dmg * 1.5);
   let em = elementMult(opt.element, m.element);
+  if (fx.fire && opt.element === '불') dmg = Math.max(1, Math.round(dmg * fx.fire)); // 불씨지기의 후예 (Z120)
   if (em > 1 && a2.weak) em = a2.weak;
   if (em !== 1) {
     dmg = Math.max(1, Math.round(dmg * em));
@@ -290,7 +294,7 @@ export const WIS_RESIST = ['bleed', 'poison', 'burn', 'stun']; // 공포는 담�
 export const RESIST_PER = 0.02, RESIST_MAX = 0.6, SHORTEN_AT = 20;
 /** 지혜가 덜 걸리게 하는 몫: 지혜 1마다 2%, 많아야 60%. */
 export function wisResist(state) {
-  return Math.min(RESIST_MAX, (state.stats.wis || 0) * RESIST_PER);
+  return Math.min(RESIST_MAX, (state.stats.wis || 0) * RESIST_PER + hv(state, 'calm') * 0.01 + (state.flags.resist || 0)); // 고요 (Z119), 안개 읽는 이 (Z120)
 }
 const RESISTED = {
   bleed: '상처가 깊지 않았다. 피가 곧 멎었다.',
@@ -504,7 +508,12 @@ function built(state, events) {
   const b = state.battle, m = mdef(b);
   keptEdge(state, events, b);
   const got = [`경험치 ${m.xp}`];
-  for (const d of m.drops) { if (!chance(state, d.p)) continue; addItem(state, d.id, 1); got.push(`${itemDef(d.id).name} 1`); }
+  for (const d of m.drops) {
+    if (!chance(state, d.p)) continue;
+    // 매사냥꾼 (Z120): 가죽이 한 장 더 나올 때가 있다
+    const n = state.flags.extraHide && /hide|fur|pelt|leather/.test(d.id) && chance(state, state.flags.extraHide) ? 2 : 1;
+    addItem(state, d.id, n); got.push(`${itemDef(d.id).name} ${n}`);
+  }
   state.dex.mon[b.mon] = { ...(state.dex.mon[b.mon] || { seen: 0, lost: 0 }), won: (state.dex.mon[b.mon]?.won || 0) + 1 };
   state.battle = null;
   state.status = [];
@@ -750,7 +759,7 @@ export function battleAct(state, events, choice, arg) {
       else {
         const maxMp = val(state, 'maxMp');
         const before = state.mp;
-        state.mp = Math.min(maxMp, state.mp + Math.max(1, Math.round(maxMp * 0.1)));
+        state.mp = Math.min(maxMp, state.mp + Math.max(1, Math.round(maxMp * 0.1 * (1 + hv(state, 'calm') * 0.05)))); // 고요 (Z119)
         b.focus = Math.min(2, (b.focus || 0) + 1);
         pushLine(state, events, { k: 'me', text: `숨을 고르고 힘을 모았다(${b.focus}번째).${state.mp > before ? ` 마나 +${state.mp - before}.` : ''}` });
       }
@@ -846,9 +855,10 @@ export const FOOD_HEAL = 0.5; // 음식의 포만감 1마다 생명력 0.5 (정�
 /** 먹거나 쓰면 차는 생명력. 물약은 최대 생명력의 비율(hpPct), 약초는 정해진 양(hp), 음식은 포만감의 절반만큼 정해진 양 */
 export function healOf(state, def, max) {
   const more = state.flags?.foodPlus ? 1.2 : 1;
+  const drug = def.eat?.hpPct ? state.flags?.potionPlus || 1 : def.eat?.hp ? Math.max(state.flags?.potionPlus || 1, state.flags?.herbPlus || 1) : 1; // 약방·산파 (Z120)
   const cut = healCut(state); // 깊은 저주(다섯 겹): 음식과 물약으로 차는 생명력이 절반 (AN-B3)
-  if (def.eat?.hpPct) return Math.round(max * def.eat.hpPct / 100 * more * cut);
-  if (def.eat?.hp) return Math.round(def.eat.hp * more * cut);
+  if (def.eat?.hpPct) return Math.round(max * def.eat.hpPct / 100 * more * cut * drug);
+  if (def.eat?.hp) return Math.round(def.eat.hp * more * cut * drug);
   if (def.eat?.full) return Math.round(def.eat.full * FOOD_HEAL * more * cut);
   return 0;
 }

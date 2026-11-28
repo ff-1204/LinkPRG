@@ -1,0 +1,91 @@
+<title>일마다 히든 스탯 시안</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap">
+<style>
+  /* 얼개: 일 일곱을 카드로 늘어놓고(일 → 히든 스탯 → 효과), 아래에 문턱 표와 규칙, 정할 것. 게임의 크림·시나몬·민트 한 가지 모습. */
+  :root {
+    --cream: #FBF4E6; --card: #FFFDF7; --line: #D9C7A8; --ink: #3A2A1E; --muted: #6B5443; --cinnamon: #8B4A2B; --mint: #D6F2E3; --mint-ink: #0B5A3C; --desk: #EFE4CF;
+    --serif: "Gowun Batang", "Noto Serif KR", serif; --sans: "Gowun Dodum", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--desk); color: var(--ink); font: 400 16px/1.65 var(--sans); word-break: keep-all; }
+  .page { max-width: 1000px; margin: 0 auto; padding-block: 28px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 26px; }
+  h1 { margin: 0; font: 700 clamp(25px, 4vw, 34px)/1.3 var(--serif); text-wrap: balance; }
+  h2 { margin: 0; font: 700 21px/1.35 var(--serif); }
+  p { margin: 0; }
+  .lede { color: var(--muted); max-width: 46em; margin-top: 8px; }
+  section { display: flex; flex-direction: column; gap: 12px; }
+  .note { font-size: 14.5px; color: var(--muted); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+  .card { background: var(--card); border: 2px solid var(--ink); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .from { font-size: 14px; color: var(--muted); }
+  .from b { color: var(--ink); }
+  .name { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .name b { font: 700 22px/1.25 var(--serif); }
+  .tag { font-size: 12.5px; padding: 1px 8px; border-radius: 999px; background: var(--mint); color: var(--mint-ink); font-weight: 700; }
+  .eff { padding: 8px 10px; border-radius: 8px; background: var(--mint); color: var(--mint-ink); font-size: 15px; }
+  .why { font: 400 14.5px/1.6 var(--serif); color: var(--muted); }
+  .tablewrap { overflow-x: auto; }
+  table { width: 100%; min-width: 520px; border-collapse: collapse; font-size: 14.5px; background: var(--card); border: 1.5px solid var(--line); }
+  th, td { text-align: left; vertical-align: top; padding: 9px 12px; border-top: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+  thead th { border-top: 0; background: var(--cream); }
+  .rules { margin: 0; padding: 0; list-style: none; background: var(--card); border: 1.5px solid var(--line); }
+  .rules li { padding: 10px 14px; border-top: 1px solid var(--line); }
+  .rules li:first-child { border-top: 0; }
+  .rules b { display: block; font-family: var(--serif); }
+  .choice { background: var(--cream); border: 1.5px dashed var(--cinnamon); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; }
+  .choice b { font-family: var(--serif); }
+</style>
+
+<div class="page">
+  <header>
+    <h1>일 일곱, 히든 스탯 일곱</h1>
+    <p class="lede">둘러보기, 치기, 풀무질, 실 잣기, 물건 살피기, 재료 다듬기, 기도. 그 일을 거듭한 사람에게만 생기는 히든 스탯을 하나씩 새로 둡니다. 지금의 "인내"(가장 많이 한 일 하나를 셈)와는 따로 셉니다.</p>
+  </header>
+
+  <section aria-labelledby="c-h">
+    <h2 id="c-h">새 히든 스탯</h2>
+    <div class="grid">
+      <article class="card"><span class="from">일: <b>둘러보기</b></span><div class="name"><b>견문</b><span class="tag">히든</span></div><div class="eff">1마다: 둘러볼 때 소문이나 귀띔을 하나 더 들을 확률 +3%</div><p class="why">많이 본 사람에게 사람들이 말을 건다.</p></article>
+      <article class="card"><span class="from">일: <b>치기</b></span><div class="name"><b>단련</b><span class="tag">히든</span></div><div class="eff">1마다: 내가 넣는 피해 +1%</div><p class="why">허수아비 앞에서 굳은 팔은 싸움에서도 같다.</p></article>
+      <article class="card"><span class="from">일: <b>풀무질</b></span><div class="name"><b>불심</b><span class="tag">히든</span></div><div class="eff">1마다: 열기에 2% 덜 지치고, 대장 숙련도 +1%</div><p class="why">불 앞에 오래 선 몸은 불을 덜 탄다.</p></article>
+      <article class="card"><span class="from">일: <b>실 잣기</b></span><div class="name"><b>손끝</b><span class="tag">히든</span></div><div class="eff">1마다: 가죽·재봉 제작에서 높은 등급 확률 +1%</div><p class="why">실 한 올의 굵기를 손끝이 먼저 안다.</p></article>
+      <article class="card"><span class="from">일: <b>물건 살피기</b></span><div class="name"><b>안목</b><span class="tag">히든</span></div><div class="eff">1마다: 가게에 팔 때 값 +1%</div><p class="why">좋은 물건을 많이 본 눈은 값도 안다.</p></article>
+      <article class="card"><span class="from">일: <b>재료 다듬기</b></span><div class="name"><b>알뜰</b><span class="tag">히든</span></div><div class="eff">1마다: 요리와 제작에서 재료 하나를 아낄 확률 +2%</div><p class="why">다듬어 본 손은 버리는 것이 적다.</p></article>
+      <article class="card"><span class="from">일: <b>기도</b></span><div class="name"><b>고요</b><span class="tag">히든</span></div><div class="eff">1마다: 쉴 때 차는 마나 +5%, 상태이상 내성 +1%</div><p class="why">답이 없어도 기도하던 마음은 흔들리지 않는다.</p></article>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-h">
+    <h2 id="t-h">문턱</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>값</th><th>그 일을 한 누적 횟수</th><th>예: 하루 30번씩</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>100번</td><td>나흘쯤</td></tr>
+        <tr><td>2</td><td>200번</td><td>일주일쯤</td></tr>
+        <tr><td>3</td><td>350번</td><td>열이틀쯤</td></tr>
+        <tr><td>4</td><td>550번</td><td>열아흐레쯤</td></tr>
+        <tr><td>5</td><td>800번</td><td>한 달쯤</td></tr>
+        <tr><td>…</td><td>그 뒤로 300, 350, 400…씩 늘어난다</td><td>상한 없음</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">지금 히든 스탯과 같은 셈(처음 문턱, 그 뒤 간격이 조금씩 늘어난다)입니다. 숫자는 처음 값입니다. 문턱 숫자는 화면에 내보내지 않고, 절반쯤에서 "무언가 쌓이고 있다"는 귀띔만 뜹니다.</p>
+  </section>
+
+  <section aria-labelledby="r-h">
+    <h2 id="r-h">규칙</h2>
+    <ul class="rules">
+      <li><b>세는 것</b>그 일을 실제로 한 횟수. 배우기 전의 "구경하기"는 세지 않는다. 한 번 누르면 한 번이다.</li>
+      <li><b>보이는 곳</b>처음 1이 생기기 전에는 이름도 빈 칸도 없다. 생기면 큰 띠링과 함께 상태창·도감의 히든 스탯에 이름과 효과가 나온다.</li>
+      <li><b>다시 태어나면</b>지금 히든 스탯처럼 쌓은 횟수를 종이 기억해 이어 센다.</li>
+      <li><b>인내와의 관계</b>인내는 그대로다. 실 잣기만 300번 하면 손끝 2와 인내 1이 함께 생긴다.</li>
+      <li><b>일로 오르는 스탯</b>지금의 2% 스탯 오름(힘·체력·지혜·민첩 +1)도 그대로다. 둘러보기는 스탯 오름이 없던 일이라 히든 스탯만 생긴다.</li>
+      <li><b>도움말</b>히든은 알려 주지 않는다는 규칙대로 도움말에는 적지 않는다.</li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="q-h">
+    <h2 id="q-h">정해 주실 것</h2>
+    <div class="choice"><b>이름과 효과</b><p>일곱 이름(견문, 단련, 불심, 손끝, 안목, 알뜰, 고요)과 효과는 처음 값입니다. 바꾸고 싶은 것이 있으면 말씀해 주세요. 확정되면 균형 도구로 단련(피해 +1%)이 싸움을 너무 쉽게 하지 않는지 견줍니다.</p></div>
+  </section>
+</div>

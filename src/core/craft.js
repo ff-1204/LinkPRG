@@ -2,24 +2,24 @@
 // 쇠는 식는다. 얼마나 늦었는지는 화면이 재서 알려 주고(late), 규칙은 그 값만 본다.
 // 그래서 같은 씨앗과 같은 입력이면 늘 같은 결과가 나온다.
 
-import { next } from './rng.js?v=c392bbe';
-import { rollOptions } from './gear.js?v=c392bbe';
-import { pushLine, ding } from './log.js?v=c392bbe';
-import { countOf, takeById, addItem } from './inventory.js?v=c392bbe';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=c392bbe';
-import { itemDef, GRADES } from '../data/items.js?v=c392bbe';
-import { RECIPES, RECIPE_ORDER, GRADE_BASE, PUSH, HAMMER_LINES, HAMMER_MARKS, recipeById, STITCH_LINES, JEWEL_LINES, COOK_STIR, BRANCHES, BRANCH_ORDER, CRAFT_LV, ORDER_OF } from '../data/recipes.js?v=c392bbe';
-import { branchOf } from './evolve.js?v=c392bbe';
-import { TIER_SIZE, CRAFT_LV_MAX, BAND_MAX, tierOfLv, makeXp, promoXp } from '../data/bands.js?v=c392bbe';
-import { grantXp } from './reward.js?v=c392bbe';
-import { xpToNext } from './level.js?v=c392bbe';
-import { DISHES, DISH_ORDER } from '../data/cooking.js?v=c392bbe';
-import { placeById } from '../data/places.js?v=c392bbe';
-import { applyDish } from './cook.js?v=c392bbe';
-import { iGa, eulReul } from './ko.js?v=c392bbe';
-import { jobXp } from './jobs.js?v=c392bbe';
-import { jobDef } from '../data/jobs.js?v=c392bbe';
-import { hasTitle } from './titles.js?v=c392bbe';
+import { next, chance } from './rng.js?v=0cf2820';
+import { rollOptions } from './gear.js?v=0cf2820';
+import { pushLine, ding } from './log.js?v=0cf2820';
+import { countOf, takeById, addItem } from './inventory.js?v=0cf2820';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=0cf2820';
+import { itemDef, GRADES } from '../data/items.js?v=0cf2820';
+import { RECIPES, RECIPE_ORDER, GRADE_BASE, PUSH, HAMMER_LINES, HAMMER_MARKS, recipeById, STITCH_LINES, JEWEL_LINES, COOK_STIR, BRANCHES, BRANCH_ORDER, CRAFT_LV, ORDER_OF } from '../data/recipes.js?v=0cf2820';
+import { branchOf } from './evolve.js?v=0cf2820';
+import { TIER_SIZE, CRAFT_LV_MAX, BAND_MAX, tierOfLv, makeXp, promoXp } from '../data/bands.js?v=0cf2820';
+import { grantXp } from './reward.js?v=0cf2820';
+import { xpToNext } from './level.js?v=0cf2820';
+import { DISHES, DISH_ORDER } from '../data/cooking.js?v=0cf2820';
+import { placeById } from '../data/places.js?v=0cf2820';
+import { applyDish } from './cook.js?v=0cf2820';
+import { iGa, eulReul } from './ko.js?v=0cf2820';
+import { jobXp } from './jobs.js?v=0cf2820';
+import { jobDef } from '../data/jobs.js?v=0cf2820';
+import { hasTitle } from './titles.js?v=0cf2820';
 
 export const WORK_XP = 1.5; // 일하는 직업이 맞으면 그 숙련도가 빨리 오른다 (T7)
 export const TANNER_XP = 1.2; // 무두장이 출신은 가죽 숙련도가 조금 빨리 오른다 (Z71)
@@ -132,6 +132,7 @@ export function pushOf(state, recipe, warmHits, quality) {
   const parts = [
     { label: `${SKILL_NAMES[recipe.skill]} 숙련도`, value: skill * PUSH.perSkillGrade },
     { label: '손재주', value: craft * PUSH.perCraft, hidden: true },
+    ...(recipe.sew ? [{ label: '손끝', value: (state.hidden.finger?.value || 0) * PUSH.perCraft, hidden: true }] : []), // 손끝 (Z119)
     { label: '재료 품질', value: quality * PUSH.perQuality },
   ];
   // 가죽은 식지 않는다: 땀 수만 센다 (Z71)
@@ -188,6 +189,14 @@ export function craftView(state) {
   };
 }
 
+/** 알뜰 (Z119): 재료 하나를 아낀다. 1마다 2%, 많아야 90%. */
+export function spare(state, events, id) {
+  const v = state.hidden?.thrift?.value || 0;
+  if (!id || !v || !chance(state, Math.min(0.9, v * 0.02))) return;
+  addItem(state, id, 1);
+  pushLine(state, events, { k: 'sys', tone: 'good', text: `${itemDef(id).name} 하나를 아꼈다.` });
+}
+
 export function startCraft(state, events, recipeId) {
   if (state.craft) throw new Error('이미 만들고 있는 것이 있습니다');
   const r = recipeById(recipeId);
@@ -198,6 +207,7 @@ export function startCraft(state, events, recipeId) {
   for (const n of r.needs) if (countOf(state, n.id) < n.n) throw new Error(`${iGa(itemDef(n.id).name)} 모자랍니다 (${countOf(state, n.id)} / ${n.n})`);
   const quality = qualityOf(state, r);
   for (const n of r.needs) takeById(state, n.id, n.n);
+  spare(state, events, r.needs[0]?.id); // 알뜰 (Z119)
   state.craft = { recipe: r.id, hits: 0, warm: 0, cold: false, quality };
   state.lastAction = null;
   const used = r.needs.map((n) => `${itemDef(n.id).name} ${n.n}`).join(', ');

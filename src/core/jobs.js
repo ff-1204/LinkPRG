@@ -1,16 +1,16 @@
 // 직업과 히든 직업 (T4~T9, N4-3, N4-4, N5).
 
-import { pushLine, ding } from './log.js?v=c392bbe';
-import { JOBS, JOB_ORDER, HIDDEN_JOBS, HIDDEN_JOB_ORDER, JOB_LEVEL, JOB_XP, SKILL_LEVELS, NAMELESS_LEVEL, jobDef, ADVANCED, ADVANCE_LEVEL } from '../data/jobs.js?v=c392bbe';
-import { placeById } from '../data/places.js?v=c392bbe';
-import { guildPerk } from './guild.js?v=c392bbe';
-import { SKILL_NAMES, gradeLabel } from './skills.js?v=c392bbe';
-import { itemDef } from '../data/items.js?v=c392bbe';
-import { addItem } from './inventory.js?v=c392bbe';
-import { eulReul, iGa } from './ko.js?v=c392bbe';
-import { xpBoost } from './buffs.js?v=c392bbe';
-import { priestOpen, PRIEST_LUCK } from './statplan.js?v=c392bbe';
-import { PRIEST_LOCK } from '../data/statinfo.js?v=c392bbe';
+import { pushLine, ding } from './log.js?v=0cf2820';
+import { JOBS, JOB_ORDER, HIDDEN_JOBS, HIDDEN_JOB_ORDER, JOB_LEVEL, JOB_XP, SKILL_LEVELS, NAMELESS_LEVEL, jobDef, ADVANCED, ADVANCE_LEVEL } from '../data/jobs.js?v=0cf2820';
+import { placeById } from '../data/places.js?v=0cf2820';
+import { guildPerk } from './guild.js?v=0cf2820';
+import { SKILL_NAMES, gradeLabel } from './skills.js?v=0cf2820';
+import { itemDef } from '../data/items.js?v=0cf2820';
+import { addItem } from './inventory.js?v=0cf2820';
+import { eulReul, iGa } from './ko.js?v=0cf2820';
+import { xpBoost } from './buffs.js?v=0cf2820';
+import { priestOpen, PRIEST_LUCK, bondFx } from './statplan.js?v=0cf2820';
+import { PRIEST_LOCK } from '../data/statinfo.js?v=0cf2820';
 
 /** 보이는 직업 이름. */
 export function jobName(state) {
@@ -47,7 +47,17 @@ export function chooseAdvance(state, events, id) {
 export function skillsNow(state) {
   const def = jobDef(state.job);
   if (!def) return [];
-  return def.skills.map((sk, i) => ({ ...sk, at: SKILL_LEVELS[i], open: state.level >= SKILL_LEVELS[i] }));
+  const fx = bondFx(state) || {}; // 직업의 인연 (Z120)
+  return def.skills.map((sk, i) => {
+    const out = { ...sk, at: SKILL_LEVELS[i], open: state.level >= SKILL_LEVELS[i] || !!fx.open?.includes(sk.id) };
+    if (fx.mp?.[sk.id]) out.mp = Math.max(1, sk.mp + fx.mp[sk.id]);
+    if (fx.skillCrit?.[sk.id]) out.crit = (sk.crit || 0) + fx.skillCrit[sk.id];
+    if (fx.weaken?.[sk.id] && sk.weaken) out.weaken = { ...sk.weaken, cut: fx.weaken[sk.id] };
+    if (fx.ward?.[sk.id] && sk.ward) out.ward = { ...sk.ward, turns: sk.ward.turns + fx.ward[sk.id] };
+    if (fx.guard?.[sk.id] && sk.guard) out.guard = sk.guard + fx.guard[sk.id];
+    if (fx.heal?.[sk.id] && sk.heal) out.heal = sk.heal * fx.heal[sk.id];
+    return out;
+  });
 }
 
 /** 피로 80 이상에서 일하면 숙련도가 1.5배로 오른다 (Z75, 사용자 요청). 싸우는 중은 일이 아니다. */
@@ -64,6 +74,7 @@ export function jobXp(state, skillId, repeated = false) {
   if (state.ending === 'free') m *= 1.1; // 푼 뒤: 재주는 다시 사람의 것. 모든 숙련도가 조금 빨리 오른다
   if (state.ending === 'mend') m *= 1 + (state.hidden?.echo?.value || 0) * 0.01;
   if (tiredPush(state)) m *= TIRED_PUSH.xp; // 피로 80 이상에서 하는 일 (Z75): 숙련도 1.5배. 싸움은 빼고
+  if (skillId === 'smithing') m *= 1 + (state.hidden?.blaze?.value || 0) * 0.01; // 불심 (Z119)
   if (!def) return m;
   if (def.fast?.includes(skillId)) m *= JOB_XP;
   if (def.fastAll && (def.id !== 'oneway' || repeated)) m *= def.fastAll;

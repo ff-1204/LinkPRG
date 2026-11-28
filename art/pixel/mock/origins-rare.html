@@ -1,0 +1,211 @@
+<title>전설·영웅 출신 시안</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap">
+<style>
+  /* 얼개: 출신 패 모양의 카드를 등급별로 늘어놓고(전설 위, 영웅 아래), 직업으로 걸러 본다. 맨 아래 숫자와 정할 것. 게임의 크림·시나몬·민트·꿀 한 가지 모습. */
+  :root {
+    --cream: #FBF4E6; --card: #FFFDF7; --line: #D9C7A8; --ink: #3A2A1E; --muted: #6B5443; --cinnamon: #8B4A2B; --mint: #D6F2E3; --mint-ink: #0B5A3C; --honey: #F2B63C; --desk: #EFE4CF; --legend: #6B3414;
+    --serif: "Gowun Batang", "Noto Serif KR", serif; --sans: "Gowun Dodum", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--desk); color: var(--ink); font: 400 16px/1.65 var(--sans); word-break: keep-all; }
+  .page { max-width: 1040px; margin: 0 auto; padding-block: 28px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 28px; }
+  h1 { margin: 0; font: 700 clamp(25px, 4vw, 34px)/1.3 var(--serif); text-wrap: balance; }
+  h2 { margin: 0; font: 700 22px/1.35 var(--serif); display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  h2 small { font: 400 14.5px var(--sans); color: var(--muted); }
+  p { margin: 0; }
+  .lede { color: var(--muted); max-width: 46em; margin-top: 8px; }
+  section { display: flex; flex-direction: column; gap: 12px; }
+  .note { font-size: 14.5px; color: var(--muted); }
+  :focus-visible { outline: 3px solid var(--cinnamon); outline-offset: 2px; }
+  .filters { display: flex; flex-wrap: wrap; gap: 6px; }
+  .filters button { padding: 7px 13px; border: 1.5px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink); font: 400 15px/1.2 var(--sans); cursor: pointer; }
+  .filters button[aria-pressed="true"] { border: 2.5px solid var(--cinnamon); font-weight: 700; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; }
+  .card { background: var(--card); border: 2px solid var(--ink); border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; }
+  .card .band { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 7px 12px; font-size: 13.5px; font-weight: 700; border-bottom: 2px solid var(--ink); }
+  .card.legend .band { background: var(--legend); color: #FFF6E0; }
+  .card.hero .band { background: var(--honey); color: var(--ink); }
+  .card .in { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 7px; flex: 1; }
+  .card b.name { font: 700 20px/1.3 var(--serif); }
+  .card .root { font-size: 13.5px; color: var(--muted); }
+  .card .story { font: 400 15px/1.6 var(--serif); color: var(--muted); }
+  .row { display: grid; grid-template-columns: 4.6em minmax(0, 1fr); gap: 2px 8px; font-size: 14.5px; }
+  .row dt { font-weight: 700; color: var(--muted); }
+  .row dd { margin: 0; }
+  .job { margin-top: auto; padding: 8px 10px; border-radius: 8px; background: var(--mint); color: var(--mint-ink); font-size: 14.5px; }
+  .job b { display: block; font-family: var(--serif); }
+  .new { font-size: 12px; padding: 0 7px; border: 1.5px solid currentColor; border-radius: 999px; }
+  .tablewrap { overflow-x: auto; }
+  table { width: 100%; min-width: 560px; border-collapse: collapse; font-size: 14.5px; background: var(--card); border: 1.5px solid var(--line); }
+  th, td { text-align: left; vertical-align: top; padding: 9px 12px; border-top: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+  thead th { border-top: 0; background: var(--cream); }
+  .choice { background: var(--cream); border: 1.5px dashed var(--cinnamon); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; }
+  .choice b { font-family: var(--serif); }
+  .tag { font-size: 12.5px; padding: 1px 8px; border-radius: 999px; background: var(--mint); color: var(--mint-ink); font-weight: 700; }
+</style>
+
+<div class="page">
+  <header>
+    <h1>전설 여섯, 영웅 열둘: 직업과 이어진 출신</h1>
+    <p class="lede">지금은 전설 1, 영웅 2뿐입니다. 직업마다 전설 하나와 영웅 둘을 새로 둡니다(전설 +5, 영웅 +10). 출신마다 "바로 받는 것"과, 그 직업을 고르면 열리는 "직업의 인연"이 있습니다. 직업을 고르지 않아도 출신 덤은 그대로라 손해는 없습니다.</p>
+  </header>
+
+  <div class="filters" role="group" aria-label="직업으로 거르기" id="filters"></div>
+
+  <section aria-labelledby="l-h">
+    <h2 id="l-h">전설 <small>지금 1 + 새로 5 = 6 · 직업마다 1, 모두 1 · 스탯 덤 합 +5</small></h2>
+    <div class="grid" id="legend"></div>
+  </section>
+
+  <section aria-labelledby="h-h">
+    <h2 id="h-h">영웅 <small>지금 2 + 새로 10 = 12 · 직업마다 2, 모두 2 · 스탯 덤 합 +4</small></h2>
+    <div class="grid" id="hero"></div>
+  </section>
+
+  <section aria-labelledby="g-h">
+    <h2 id="g-h">등급 낱말 <small>이름 앞의 꾸밈말로 등급을 느끼게 한다 · 덤과 뿌리는 그대로</small></h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>등급</th><th>꼴</th><th>쓰는 낱말</th></tr></thead>
+      <tbody>
+        <tr><td>전설</td><td>○○의 후예</td><td>핏줄을 잇는 이름</td></tr>
+        <tr><td>영웅</td><td>이름난 ○○</td><td>이름난, 손꼽히는</td></tr>
+        <tr><td>희귀</td><td>솜씨 좋은 ○○</td><td>솜씨 좋은, 눈썰미 좋은, 재주 많은</td></tr>
+        <tr><td>고급</td><td>믿음직한 ○○</td><td>믿음직한, 부지런한, 야무진, 넉살 좋은, 꿋꿋한</td></tr>
+        <tr><td>일반</td><td>지금 이름 그대로</td><td>꾸밈말 없음</td></tr>
+      </tbody>
+    </table></div>
+    <div class="tablewrap"><table>
+      <thead><tr><th>등급</th><th>지금 이름</th><th>바꿀 이름</th></tr></thead>
+      <tbody>
+        <tr><td>희귀</td><td>떠돌이 땜장이</td><td>솜씨 좋은 떠돌이 땜장이</td></tr>
+        <tr><td>희귀</td><td>약초꾼의 아이</td><td>눈썰미 좋은 약초꾼의 아이</td></tr>
+        <tr><td>희귀</td><td>덫놓이</td><td>솜씨 좋은 덫놓이</td></tr>
+        <tr><td>희귀</td><td>곡예단 막내</td><td>재주 많은 곡예단 막내</td></tr>
+        <tr><td>희귀</td><td>서기 견습</td><td>눈썰미 좋은 서기 견습</td></tr>
+        <tr><td>희귀</td><td>필경 견습</td><td>솜씨 좋은 필경 견습</td></tr>
+        <tr><td>고급</td><td>광부의 자식</td><td>부지런한 광부의 자식</td></tr>
+        <tr><td>고급</td><td>편자공의 조수</td><td>믿음직한 편자공의 조수</td></tr>
+        <tr><td>고급</td><td>나무꾼</td><td>부지런한 나무꾼</td></tr>
+        <tr><td>고급</td><td>양치기</td><td>믿음직한 양치기</td></tr>
+        <tr><td>고급</td><td>무두장이</td><td>야무진 무두장이</td></tr>
+        <tr><td>고급</td><td>뱃사공의 아이</td><td>야무진 뱃사공의 아이</td></tr>
+        <tr><td>고급</td><td>약장수의 조수</td><td>넉살 좋은 약장수의 조수</td></tr>
+        <tr><td>고급</td><td>몰락한 집안</td><td>꿋꿋한 몰락 가문의 아이</td></tr>
+        <tr><td>고급</td><td>순례자</td><td>부지런한 순례자</td></tr>
+        <tr><td>일반</td><td>대장간 심부름꾼, 숯쟁이, 농부의 자식, 방앗간 일꾼, 사냥꾼의 조수, 새잡이, 떠돌이 악사, 짐꾼, 가게 집 막내, 빚에 쫓기는 이, 신전 고아, 묘지기</td><td>그대로</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">영웅 열둘은 위 카드에 바꾼 이름으로 적었습니다("서고지기의 손자"는 "손주"로, "늪 안개를 읽는 이"는 짧게 "안개 읽는 이"로). 이름만 바뀌고 이미 이 출신으로 만든 캐릭터의 덤과 저장은 그대로입니다.</p>
+  </section>
+
+  <section aria-labelledby="r-h">
+    <h2 id="r-h">등급마다 직업 비율 <small>전설은 직업마다 1, 나머지 등급은 직업마다 2와 모두 2</small></h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>등급</th><th>전사</th><th>궁수</th><th>마법사</th><th>사제</th><th>도적</th><th>모두</th><th>합</th></tr></thead>
+      <tbody>
+        <tr><td>전설</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>6</td></tr>
+        <tr><td>영웅</td><td>2</td><td>2</td><td>2</td><td>2</td><td>2</td><td>2</td><td>12</td></tr>
+        <tr><td>희귀</td><td>2</td><td>2</td><td>2</td><td>2</td><td>2</td><td>2</td><td>12</td></tr>
+        <tr><td>고급</td><td>2</td><td>2</td><td>2</td><td>2</td><td>2</td><td>2</td><td>12</td></tr>
+        <tr><td>일반</td><td>2</td><td>2</td><td>2</td><td>2</td><td>2</td><td>2</td><td>12</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">"모두"는 어느 직업과도 묶이지 않은 출신입니다. 전설·영웅은 위 카드의 "직업의 인연"이 그 직업과 이어 주고, 희귀·고급·일반은 덤은 그대로 두고 만들기 화면의 출신 패에 "어울리는 직업"만 적습니다. 희귀는 여섯, 고급은 셋을 새로 둡니다(아래 굵은 글씨).</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>등급</th><th>전사</th><th>궁수</th><th>마법사</th><th>사제</th><th>도적</th><th>모두</th></tr></thead>
+      <tbody>
+        <tr><td>영웅</td><td>이름난 기사의 종자<br>이름난 용병단 막내</td><td>이름난 매사냥꾼<br>손꼽히는 국경 척후</td><td>이름난 서고지기의 손주<br>손꼽히는 안개 읽는 이</td><td>이름난 순례길 안내인<br>이름난 약방 할머니의 손주</td><td>손꼽히는 소매치기<br>이름난 밀수 뱃사람</td><td>이름난 숲지기의 아이<br>손꼽히는 광산 경비</td></tr>
+        <tr><td>희귀</td><td>솜씨 좋은 떠돌이 땜장이<br><b>솜씨 좋은 갑옷장이의 조수</b></td><td>솜씨 좋은 덫놓이<br><b>눈썰미 좋은 활 깎는 이</b></td><td>눈썰미 좋은 서기 견습<br><b>재주 많은 마술사 견습</b></td><td>눈썰미 좋은 약초꾼의 아이<br><b>솜씨 좋은 산파의 조수</b></td><td>재주 많은 곡예단 막내<br><b>눈썰미 좋은 열쇠공의 조수</b></td><td>솜씨 좋은 필경 견습<br><b>솜씨 좋은 요리사의 조수</b></td></tr>
+        <tr><td>고급</td><td>부지런한 광부의 자식<br>믿음직한 편자공의 조수</td><td>부지런한 나무꾼<br>야무진 무두장이</td><td>꿋꿋한 몰락 가문의 아이<br><b>야무진 점술가의 조수 (새로)</b></td><td>부지런한 순례자<br>믿음직한 양치기</td><td>야무진 뱃사공의 아이<br>넉살 좋은 약장수의 조수</td><td><b>부지런한 우편 심부름꾼</b><br><b>믿음직한 주막 일꾼</b></td></tr>
+        <tr><td>일반</td><td>대장간 심부름꾼<br>짐꾼</td><td>사냥꾼의 조수<br>새잡이</td><td>가게 집 막내<br>숯쟁이</td><td>신전 고아<br>묘지기</td><td>빚에 쫓기는 이<br>떠돌이 악사</td><td>농부의 자식<br>방앗간 일꾼</td></tr>
+      </tbody>
+    </table></div>
+    <div class="tablewrap"><table>
+      <thead><tr><th>새 출신</th><th>등급 · 직업</th><th>뿌리</th><th>스탯</th><th>받는 것</th></tr></thead>
+      <tbody>
+        <tr><td>솜씨 좋은 갑옷장이의 조수</td><td>희귀 · 전사</td><td>쇠의 사람</td><td>힘+2 체력+1</td><td>막기 숙련도 초급 3으로 시작</td></tr>
+        <tr><td>눈썰미 좋은 활 깎는 이</td><td>희귀 · 궁수</td><td>숲의 사람</td><td>민첩+2 지혜+1</td><td>채집 숙련도 초급 3, 참나무 가지 넷으로 시작</td></tr>
+        <tr><td>재주 많은 마술사 견습</td><td>희귀 · 마법사</td><td>길의 사람</td><td>지혜+3</td><td>최대 마나 +5</td></tr>
+        <tr><td>솜씨 좋은 산파의 조수</td><td>희귀 · 사제</td><td>땅의 사람</td><td>지혜+2 체력+1</td><td>약초로 채우는 생명력 +20%</td></tr>
+        <tr><td>눈썰미 좋은 열쇠공의 조수</td><td>희귀 · 도적</td><td>쇠의 사람</td><td>민첩+2 지혜+1</td><td>자물쇠 숙련도 초급 4로 시작</td></tr>
+        <tr><td>솜씨 좋은 요리사의 조수</td><td>희귀 · 모두</td><td>땅의 사람</td><td>체력+2 지혜+1</td><td>요리 숙련도 초급 4로 시작</td></tr>
+        <tr><td>야무진 점술가의 조수</td><td>고급 · 마법사</td><td>길의 사람</td><td>지혜+2</td><td>감정 숙련도 초급 2로 시작</td></tr>
+        <tr><td>부지런한 우편 심부름꾼</td><td>고급 · 모두</td><td>길의 사람</td><td>민첩+1 체력+1</td><td>피로가 더디게 쌓인다</td></tr>
+        <tr><td>믿음직한 주막 일꾼</td><td>고급 · 모두</td><td>땅의 사람</td><td>체력+2</td><td>주먹밥 셋, 요리 숙련도 초급 2로 시작</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">스탯 덤 합은 등급마다 지금과 같습니다(희귀 +3, 고급 +2). 어울리는 직업을 고른 까닭: 스탯 덤이 그 직업의 주 스탯과 맞거나, 덤이 그 직업의 일과 닿는 것(숯쟁이의 불 → 마법사, 악사의 말재주 → 도적, 양치기의 순한 손 → 사제).</p>
+  </section>
+
+  <section aria-labelledby="n-h">
+    <h2 id="n-h">숫자</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>등급</th><th>지금 수</th><th>새 수</th><th>패 한 장이 이 등급일 확률 (무게 그대로)</th><th>무게를 나눠 지금 확률 지키기</th></tr></thead>
+      <tbody>
+        <tr><td>일반</td><td>12</td><td>12</td><td>61% → 48%</td><td>61%</td></tr>
+        <tr><td>고급</td><td>9</td><td>12</td><td>28% → 29%</td><td>28%</td></tr>
+        <tr><td>희귀</td><td>6</td><td>12</td><td>9% → 14%</td><td>9%</td></tr>
+        <tr><td>영웅</td><td>2</td><td>12</td><td>1.5% → 7%</td><td>1.5%</td></tr>
+        <tr><td>전설</td><td>1</td><td>6</td><td>0.3% → 1.2%</td><td>0.3%</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">패는 다섯 장을 뒤집습니다. 무게 그대로면 다섯 장 가운데 전설이 하나라도 나올 확률이 약 1% → 7%, 영웅은 약 7% → 36%로 오릅니다(표의 확률은 지금 뽑는 무게로 어림한 값입니다). 출신을 여러 번 뒤집을 수 있는 길(다시 태어나기, 스스로 고른 삶의 패 +1)이 있어 높은 등급은 노력으로 닿습니다.</p>
+  </section>
+
+  <section aria-labelledby="c-h">
+    <h2 id="c-h">정해 주실 것</h2>
+    <div class="choice"><b>1. 높은 등급이 나오는 확률</b><p>가) 등급마다 지금 확률을 지킨다: 같은 등급끼리 무게를 나눠 갖는다. 전설은 지금처럼 0.3% <span class="tag">권함</span></p><p>나) 출신마다 무게를 그대로 둔다: 출신이 늘어난 만큼 전설·영웅이 자주 나온다(위 표).</p></div>
+    <div class="choice"><b>2. 사제 전설 "기적을 본 아이"</b><p>태어날 때부터 행운 1을 지녀 레벨 5에 바로 사제를 고를 수 있습니다. 카드에는 "드문 운이 따른다"라고만 적고 행운이라는 이름은 내지 않습니다(게임을 시작하면 상태창에 히든 스탯으로 보입니다).</p></div>
+    <p class="note">스탯 덤과 숫자는 처음 값입니다. 이름과 이야기는 소설의 이름·설정을 쓰지 않고 이 세계의 말(종, 쇠, 늪, 뱃길)로 지었습니다. 확정되면 균형 도구로 직업마다 견주고 테스트를 더합니다.</p>
+  </section>
+</div>
+
+<script>
+(function () {
+  var JOBS = { all: '모두', warrior: '전사', archer: '궁수', mage: '마법사', priest: '사제', rogue: '도적' };
+  // [등급, 직업, 이름, 뿌리, 스탯, 바로 받는 것, 직업의 인연, 이야기, 지금 있는 것]
+  var O = [
+    ['legend', 'all', '회귀자의 후예', '신전의 사람', '힘+1 민첩+1 체력+1 지혜+2', '모든 숙련도가 5% 빨리 오른다', '', '윗대 어른 가운데 한 사람이 같은 생을 두 번 살았다는 이야기가 집안에 내려온다. 처음 해 보는 일인데 손이 먼저 안다.', true],
+    ['legend', 'warrior', '방패잡이의 후예', '이름 있는 사람', '힘+3 체력+2', '낡은 방패로 시작, 막기 숙련도 초급 5', '전사를 고르면 힘의 주 스탯 보너스가 10마다 +2% → +3%', '윗대 어른은 성문이 무너질 때 끝까지 서 있던 방패잡이다. 집안에 내려오는 방패에 그 자국이 남았다.'],
+    ['legend', 'archer', '하얀 눈의 후예', '숲의 사람', '민첩+4 지혜+1', '기척을 더 잘 알아채고, 들판 탐색에서 먼저 덮칠 확률 +10%p', '궁수를 고르면 급소 확률 +8%p, 겨냥 쏘기 마나 −1', '흰 눈밭에서 대대로 사냥해 온 집안이다. 눈 위에 남은 발자국 하나로 무엇이 언제 지나갔는지 읽는다. 열 살에 눈보라 속에서 날아가는 참새를 맞혔다는 말이 돈다.'],
+    ['legend', 'mage', '불씨지기의 후예', '쇠의 사람', '지혜+4 체력+1', '대장간 불 앞에서 덥지 않다(잿골의 열에 덜 지친다)', '마법사를 고르면 불씨와 얼음 못이 처음부터 열리고, 불 속성 피해 +15%', '꺼지지 않는 불씨를 대대로 지켜 온 집안이다. 아기 때 화로에 손을 넣었는데 데지 않았고, 그 뒤로 손끝이 늘 따뜻하다.'],
+    ['legend', 'priest', '기적을 본 아이', '신전의 사람', '지혜+3 체력+2', '드문 운이 따른다(태어날 때부터 행운 1), 기도 숙련도 초급 3', '사제를 레벨 5에 바로 고를 수 있다. 고르면 손 얹기의 치유 +20%', '죽어 가던 사람이 일어나는 것을 보았다. 아무도 믿지 않았지만 아이는 기억한다.'],
+    ['legend', 'rogue', '그림자 왕의 후예', '길의 사람', '민첩+3 힘+1 지혜+1', '자물쇠 숙련도 초급 5, 뒷골목과 \'낯익음\'으로 시작', '도적을 고르면 싸움의 첫 턴 피해 +20%, 연막 마나 −2', '옛날 뒷골목에는 얼굴을 본 사람이 없는 우두머리가 있었다. 사람들은 그를 그림자 왕이라 불렀다. 지금도 골목마다 인사를 하는 얼굴이 있지만, 다들 눈은 피한다.'],
+    ['hero', 'all', '이름난 숲지기의 아이', '숲의 사람', '민첩+3 체력+1', '기척을 더 잘 알아채고, 길에서 습격당하지 않는다', '', '숲길을 지켜 온 집안. 길 위의 것들이 먼저 비켜 간다.', true],
+    ['hero', 'warrior', '이름난 기사의 종자', '이름 있는 사람', '힘+2 체력+2', '낡은 방패를 들고, 막기 숙련도 초급 3', '전사를 고르면 방패 올리기의 막는 몫 +10%p', '주인을 따라 싸움터를 다녔다. 주인은 돌아오지 않았다.', true],
+    ['hero', 'warrior', '이름난 용병단 막내', '길의 사람', '힘+2 체력+2', '용병 삯 −20%', '전사를 고르면 함성의 약해지게 하는 몫 30% → 40%', '형들 틈에서 컸다. 밥은 늘 마지막에 먹었고, 덕분에 빨리 먹는다.'],
+    ['hero', 'all', '손꼽히는 광산 경비', '쇠의 사람', '체력+3 힘+1', '최대 생명력 +20', '', '갱도 입구를 십 년 지켰다. 무너지는 소리를 먼저 듣는다.'],
+    ['hero', 'archer', '이름난 매사냥꾼', '숲의 사람', '민첩+3 체력+1', '들짐승 가죽·깃털이 한 장 더 나올 때가 있다', '궁수를 고르면 두 발 쏘기의 급소 확률 +10%p', '매를 부르는 휘파람을 안다. 매보다 먼저 사냥감을 본다.'],
+    ['hero', 'archer', '손꼽히는 국경 척후', '땅의 사람', '민첩+2 체력+2', '길에서 습격당할 확률 절반', '궁수를 고르면 달아날 확률 +15%p', '밭 사이 경계석을 따라 걸으며 자랐다. 발소리가 없다.'],
+    ['hero', 'mage', '이름난 서고지기의 손주', '이름 있는 사람', '지혜+3 민첩+1', '최대 마나 +10, 감정 숙련도 초급 3', '마법사를 고르면 벼락 마나 −2', '책 냄새를 맡으며 잠들었다. 주문보다 목차를 먼저 외웠다.'],
+    ['hero', 'mage', '손꼽히는 안개 읽는 이', '땅의 사람', '지혜+3 체력+1', '상태이상에 덜 걸린다', '마법사를 고르면 안개 장막이 한 번 더 막는다', '안개가 오는 쪽을 맞힌다. 어른들은 그 아이에게 날씨를 물었다.'],
+    ['hero', 'priest', '이름난 순례길 안내인', '길의 사람', '지혜+2 체력+2', '기도 숙련도 초급 4, 신전의 빵을 하루에 둘', '사제를 고르면 가호가 한 번 더 막는다', '먼 신전까지 사람들을 데려다주었다. 돌아오는 길은 늘 혼자였다.'],
+    ['hero', 'priest', '이름난 약방 할머니의 손주', '땅의 사람', '지혜+2 체력+2', '물약과 약초로 채우는 생명력 +30%', '사제를 고르면 씻어 내기가 지혜 × 2만큼 채운다', '약초 이름보다 아픈 사람 얼굴을 먼저 외웠다.'],
+    ['hero', 'rogue', '손꼽히는 소매치기', '신전의 사람', '민첩+3 지혜+1', '자물쇠 숙련도 초급 4', '도적을 고르면 다리 걸기 마나 −2', '신전 앞 인파에서 컸다. 손이 먼저 움직이는 버릇을 고치는 중이다.'],
+    ['hero', 'rogue', '이름난 밀수 뱃사람', '길의 사람', '민첩+2 힘+1 체력+1', '무게 한도 +10, 도망이 쉽다', '도적을 고르면 난도질의 급소 확률 +10%p', '밤 뱃길만 다녔다. 등불 없이 노를 젓는다.']
+  ];
+  var filter = 'all';
+  function card(o) {
+    var d = document.createElement('article');
+    d.className = 'card ' + o[0];
+    d.innerHTML = '<div class="band"><span>' + (o[0] === 'legend' ? '전설' : '영웅') + (o[1] !== 'all' ? ' · ' + JOBS[o[1]] : '') + '</span>' + (o[8] ? '<span>지금 있음</span>' : '<span class="new">새로</span>') + '</div>' +
+      '<div class="in"><b class="name">' + o[2] + '</b><span class="root">' + o[3] + '</span><p class="story">' + o[7] + '</p>' +
+      '<dl class="row"><dt>스탯</dt><dd>' + o[4] + '</dd><dt>받는 것</dt><dd>' + o[5] + '</dd></dl>' +
+      (o[6] ? '<div class="job"><b>직업의 인연 (' + JOBS[o[1]] + ')</b>' + o[6] + '</div>' : '') + '</div>';
+    return d;
+  }
+  function draw() {
+    ['legend', 'hero'].forEach(function (g) {
+      var box = document.getElementById(g); box.innerHTML = '';
+      O.filter(function (o) { return o[0] === g && (filter === 'all' || o[1] === filter || o[1] === 'all'); }).forEach(function (o) { box.appendChild(card(o)); });
+    });
+    var f = document.getElementById('filters'); f.innerHTML = '';
+    Object.keys(JOBS).forEach(function (k) {
+      var b = document.createElement('button'); b.type = 'button'; b.textContent = JOBS[k]; b.setAttribute('aria-pressed', String(k === filter));
+      b.onclick = function () { filter = k; draw(); }; f.appendChild(b);
+    });
+  }
+  draw();
+})();
+</script>

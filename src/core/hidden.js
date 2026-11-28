@@ -32,9 +32,20 @@ export const HIDDEN = [
   { id: 'luck', name: '행운', effect: '희귀한 일이 일어날 확률 +0.2%p', how: '희귀한 일을 겪는다', count: (s) => s.counters.rare, first: 10, gap: [10, 5] },
   { id: 'faith', name: '신앙', effect: '치유 +2%, 기도로 그림자가 빨리 걷힌다', how: '바치고 보내 준다', count: (s) => Math.min(s.counters.offer, s.counters.sendoff * 2), first: 10, gap: [10, 5] },
   { id: 'kind', name: '친화', effect: '짐승이 덜 덤빈다. 10부터 길들인다', how: '짐승을 해치지 않는다', count: (s) => s.counters.kind, first: 20, gap: [15, 5] },
+  // 일마다 하나씩 (Z119, 사용자 요청): 그 일을 실제로 한 횟수로 센다(배우기 전 구경하기는 세지 않는다). 100번에 처음 1, 그 뒤 100·150·200…씩
+  { id: 'seen', name: '견문', effect: '둘러볼 때 소문이나 귀띔을 하나 더 들을 확률 +3%', how: '둘러본다', count: (s) => s.counters.act.look || 0, first: 100, gap: [100, 50] },
+  { id: 'drill', name: '단련', effect: '내가 넣는 피해 +1%', how: '친다', count: (s) => s.counters.act.strike || 0, first: 100, gap: [100, 50] },
+  { id: 'blaze', name: '불심', effect: '열기에 장비가 닳지 않을 확률 +2%, 대장 숙련도 +1%', how: '풀무를 민다', count: (s) => s.counters.act.bellows || 0, first: 100, gap: [100, 50] },
+  { id: 'finger', name: '손끝', effect: '가죽·재봉 제작에서 높은 등급 확률 +1%', how: '실을 잣는다', count: (s) => s.counters.act.spin || 0, first: 100, gap: [100, 50] },
+  { id: 'gaze', name: '안목', effect: '가게에 팔 때 값 +1%', how: '물건을 살핀다', count: (s) => s.counters.act.sort || 0, first: 100, gap: [100, 50] },
+  { id: 'thrift', name: '알뜰', effect: '요리와 제작에서 재료 하나를 아낄 확률 +2%', how: '재료를 다듬는다', count: (s) => s.counters.act.trim || 0, first: 100, gap: [100, 50] },
+  { id: 'calm', name: '고요', effect: '모으기로 차는 마나 +5%, 상태이상 내성 +1%', how: '기도한다', count: (s) => s.counters.act.pray || 0, first: 100, gap: [100, 50] },
   // 잇는다 뒤에만 생긴다: 새 종은 전에 답하지 못하던 것에도 답한다 (M11-2)
   { id: 'echo', name: '울림', after: 'mend', effect: '띠링을 들을 때마다 조금씩 쌓인다. 모든 숙련도 오름 +1%', how: '끝까지 해내고, 그 답을 듣는다', count: (s) => Math.max(0, s.dings.length - (s.dingsAtEnd || 0)), first: 20, gap: [20, 10] },
 ];
+
+/** 찾은 히든 스탯의 값(없으면 0). */
+export const hv = (state, id) => state.hidden?.[id]?.value || 0;
 
 export const HIDDEN_TOTAL = HIDDEN.filter((h) => !h.after).length;
 const live = (state) => HIDDEN.filter((h) => !h.after || state.ending === h.after);

@@ -4,10 +4,10 @@
 // 로그인 유지 (Z91): 한 번 연결한 기기에서는 토큰이 끝나 가거나 풀렸을 때, 다음에 화면을 누르는 순간
 // (지도 이동, 단추 무엇이든) 구글에 조용히 다시 받아 온다. 브라우저는 누른 순간에만 로그인 창을 허락하기 때문이다.
 
-import { createDrive } from './drive.js?v=c392bbe';
-import { syncPlan } from '../core/sync.js?v=c392bbe';
-import { cidOfState } from '../core/migrate.js?v=c392bbe';
-import { metaOf, exportText, importText, parseSave, clearSlot, SLOT_COUNT } from '../core/save.js?v=c392bbe';
+import { createDrive } from './drive.js?v=0cf2820';
+import { syncPlan } from '../core/sync.js?v=0cf2820';
+import { cidOfState } from '../core/migrate.js?v=0cf2820';
+import { metaOf, exportText, importText, parseSave, clearSlot, SLOT_COUNT } from '../core/save.js?v=0cf2820';
 
 export const CLIENT_ID = '782176240387-mi4cvftsmbefiddvd25rul2mvtf09adp.apps.googleusercontent.com';
 const SCOPE = 'https://www.googleapis.com/auth/drive.appdata';

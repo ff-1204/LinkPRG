@@ -1,34 +1,34 @@
 // 탐색과 랜덤 인카운터, 기척 (E1~E4, R2-3).
 // 탐색 한 번마다 전투·발견·사건·만남·희귀 가운데 하나. 싸울지는 되도록 내가 고른다.
 
-import { banditStep, bandOfPlace } from '../data/bands.js?v=c392bbe';
-import { next, pick, chance, roll01 } from './rng.js?v=c392bbe';
-import { addFame } from './social.js?v=c392bbe';
-import { pushLine } from './log.js?v=c392bbe';
-import { weighted, startBattle } from './battle.js?v=c392bbe';
-import { addItem, countOf, takeById } from './inventory.js?v=c392bbe';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=c392bbe';
-import { ding } from './log.js?v=c392bbe';
-import { monsterDef } from '../data/monsters.js?v=c392bbe';
-import { itemDef } from '../data/items.js?v=c392bbe';
-import { USERS } from '../data/lines.js?v=c392bbe';
-import { loseWater } from './thirst.js?v=c392bbe';
-import { BANDIT, BANDIT_FEEL, BANDIT_NAMES, WILDS, INCIDENTS, DANGER, DANGER_UP, OTHER_WEIGHTS, TENSION_STEP, TENSION_MAX, SCENT_TRIES, SCENT_PHASES } from '../data/wild.js?v=c392bbe';
-import { placeById } from '../data/places.js?v=c392bbe';
-import { iGa, eulReul, eunNeun } from './ko.js?v=c392bbe';
-import { hasTitle } from './titles.js?v=c392bbe';
-import { worth } from './trade.js?v=c392bbe';
-import { branchOf } from './evolve.js?v=c392bbe';
-import { answerHidden } from './quests.js?v=c392bbe';
-import { jobXp, hiddenJobView, answerHiddenJob } from './jobs.js?v=c392bbe';
-import { luckOf, hasGrace, GRACE_AGAIN } from './statplan.js?v=c392bbe';
-import { HIDDENS } from '../data/quests.js?v=c392bbe';
-import { dungeonChoiceView, dungeonChoose } from './dungeon.js?v=c392bbe';
-import { coldStage } from './cold.js?v=c392bbe';
-import { endingChoiceView, applyEnding } from './ending.js?v=c392bbe';
-import { anvilChoiceView, chooseAnvilEnd } from './anvil.js?v=c392bbe';
-import { memoryChoiceView, chooseMemory } from './memories.js?v=c392bbe';
-import { chestsLeft, openChest } from './sunken.js?v=c392bbe';
+import { banditStep, bandOfPlace } from '../data/bands.js?v=0cf2820';
+import { next, pick, chance, roll01 } from './rng.js?v=0cf2820';
+import { addFame } from './social.js?v=0cf2820';
+import { pushLine } from './log.js?v=0cf2820';
+import { weighted, startBattle } from './battle.js?v=0cf2820';
+import { addItem, countOf, takeById } from './inventory.js?v=0cf2820';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=0cf2820';
+import { ding } from './log.js?v=0cf2820';
+import { monsterDef } from '../data/monsters.js?v=0cf2820';
+import { itemDef } from '../data/items.js?v=0cf2820';
+import { USERS } from '../data/lines.js?v=0cf2820';
+import { loseWater } from './thirst.js?v=0cf2820';
+import { BANDIT, BANDIT_FEEL, BANDIT_NAMES, WILDS, INCIDENTS, DANGER, DANGER_UP, OTHER_WEIGHTS, TENSION_STEP, TENSION_MAX, SCENT_TRIES, SCENT_PHASES } from '../data/wild.js?v=0cf2820';
+import { placeById } from '../data/places.js?v=0cf2820';
+import { iGa, eulReul, eunNeun } from './ko.js?v=0cf2820';
+import { hasTitle } from './titles.js?v=0cf2820';
+import { worth } from './trade.js?v=0cf2820';
+import { branchOf } from './evolve.js?v=0cf2820';
+import { answerHidden } from './quests.js?v=0cf2820';
+import { jobXp, hiddenJobView, answerHiddenJob } from './jobs.js?v=0cf2820';
+import { luckOf, hasGrace, GRACE_AGAIN } from './statplan.js?v=0cf2820';
+import { HIDDENS } from '../data/quests.js?v=0cf2820';
+import { dungeonChoiceView, dungeonChoose } from './dungeon.js?v=0cf2820';
+import { coldStage } from './cold.js?v=0cf2820';
+import { endingChoiceView, applyEnding } from './ending.js?v=0cf2820';
+import { anvilChoiceView, chooseAnvilEnd } from './anvil.js?v=0cf2820';
+import { memoryChoiceView, chooseMemory } from './memories.js?v=0cf2820';
+import { chestsLeft, openChest } from './sunken.js?v=0cf2820';
 
 const WORK = { smith: { name: '대장장이', who: '대장간 주인', skill: 'smithing' }, tailor: { name: '재봉사', who: '재봉사', skill: 'leather' }, chef: { name: '요리사', who: '주방장', skill: 'cooking' } };
 
@@ -59,7 +59,7 @@ export function senseBars(state) {
 /** 기척을 먼저 알아챌 확률: 민첩 겨루기. */
 export function senseChance(state, monId) {
   const m = monsterDef(monId);
-  const keen = state.flags.keenSense ? 0.15 : 0;
+  const keen = (state.flags.keenSense ? 0.15 : 0) + (state.flags.senseBonus || 0); // 하얀 눈의 후예 (Z120)
   const stealth = (state.hidden.stealth?.value || 0) * 0.02;
   return clamp(0.5 + (state.stats.agi - m.agi) * 0.05 + keen + stealth, 0.05, 0.95);
 }

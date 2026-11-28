@@ -1,12 +1,12 @@
 // 갈증 (SB-B): 소금벌에서만 도는 물 눈금. 소금벌 밖에서는 칸도 이름표도 없다 (SB-I2).
 // 들판(소금 바닥, 마른 뱃길)에서 열 번 움직일 때마다 한 모금이 준다. 0 모금이면 움직일 때마다 생명력이 깎인다.
 
-import { placeById } from '../data/places.js?v=c392bbe';
-import { WILDS } from '../data/wild.js?v=c392bbe';
-import { pushLine } from './log.js?v=c392bbe';
-import { addItem, takeById, countOf } from './inventory.js?v=c392bbe';
-import { valueOf } from './derived.js?v=c392bbe';
-import { roll01 } from './rng.js?v=c392bbe';
+import { placeById } from '../data/places.js?v=0cf2820';
+import { WILDS } from '../data/wild.js?v=0cf2820';
+import { pushLine } from './log.js?v=0cf2820';
+import { addItem, takeById, countOf } from './inventory.js?v=0cf2820';
+import { valueOf } from './derived.js?v=0cf2820';
+import { roll01 } from './rng.js?v=0cf2820';
 
 export const WATER_MAX = 10;
 /** SB-B3의 숫자. per: 한 모금이 주는 걸음 수. dry: 마른 목일 때 한 번에 깎이는 몫. pouch: 물 주머니 하나의 모금. fee: 우물 값. */

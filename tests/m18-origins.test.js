@@ -14,12 +14,15 @@ import { SKILL_NAMES } from '../src/core/skills.js';
 
 const make = (origin, seed = 'o') => createGame({ name: '출신', origin, rolled: rollDice('same'), seed });
 
-test('출신은 서른 가지, 뿌리 여섯에 다섯씩. 등급은 일반 12, 고급 9, 희귀 6, 영웅 2, 전설 1', () => {
-  assert.equal(ORIGINS.length, 30);
-  assert.equal(new Set(ORIGINS.map((o) => o.id)).size, 30);
-  assert.equal(new Set(ORIGINS.map((o) => o.name)).size, 30);
-  for (const root of Object.keys(ROOTS)) assert.equal(ORIGINS.filter((o) => o.root === root).length, 5, root);
-  assert.deepEqual([0, 1, 2, 3, 4].map((g) => ORIGINS.filter((o) => o.grade === g).length), [12, 9, 6, 2, 1]);
+test('출신은 쉰네 가지, 뿌리 여섯. 등급은 일반·고급·희귀·영웅 12, 전설 6. 등급마다 직업 다섯이 같은 수 (Z120)', () => {
+  assert.equal(ORIGINS.length, 54);
+  assert.equal(new Set(ORIGINS.map((o) => o.id)).size, 54);
+  assert.equal(new Set(ORIGINS.map((o) => o.name)).size, 54);
+  for (const root of Object.keys(ROOTS)) assert.ok(ORIGINS.filter((o) => o.root === root).length >= 5, root);
+  assert.deepEqual([0, 1, 2, 3, 4].map((g) => ORIGINS.filter((o) => o.grade === g).length), [12, 12, 12, 12, 6]);
+  for (const job of ['warrior', 'archer', 'mage', 'priest', 'rogue', null]) assert.deepEqual([0, 1, 2, 3, 4].map((g) => ORIGINS.filter((o) => o.grade === g && o.job === job).length), [2, 2, 2, 2, 1], String(job));
+  // 인연은 전설·영웅에만, 그리고 직업과 이어진 출신에만
+  for (const o of ORIGINS) if (o.bond) assert.ok(o.grade >= 3 && o.job, o.name);
   // 등급이 높을수록 스탯이 많다
   const sum = (o) => Object.values(o.stats).reduce((a, b) => a + b, 0);
   for (const o of ORIGINS) {

@@ -26,16 +26,18 @@ test('서진: 퇴근 뒤, 허수아비 앞에서 (1~4단계)', () => {
   // 3. 300번째에 허수아비가 터지고 시스템 창이 뜬다. 대화방에도 한 줄이 남는다
   assert.equal(scarecrowStage(s), 3);
   const dings = all.filter((e) => e.type === 'ding').map((e) => e.ding);
-  const endure = dings.find((d) => d.level === 3);
-  assert.equal(endure.big, '인내 +1');
+  // 치기 100번에 단련(Z119)이 먼저 생기고, 300번째에 인내가 생긴다
+  assert.equal(dings.find((d) => d.level === 3).big, '단련 +1');
+  const endure = dings.find((d) => d.big === '인내 +1');
+  assert.ok(endure);
   assert.ok(lines.some((l) => l.k === 'ding' && l.text === "띠링! 새로운 스탯 '인내'가 생겼습니다"));
   assert.ok(endure.context.length > 0, '지난 알림에서 다시 볼 수 있게 그때의 대화방이 같이 남는다');
 
   // 4. 상태에서 새로 생긴 히든 스탯을 보고, 나머지 열한 칸이 "???"인 것을 확인한다
   const slots = hiddenSlots(s);
-  assert.equal(foundCount(s), 1);
-  assert.equal(slots.filter((x) => !x.found).length, HIDDEN_TOTAL - 1);
-  assert.deepEqual(slots.find((x) => x.found).name, '인내');
+  assert.equal(foundCount(s), 2, '단련과 인내 (Z119)');
+  assert.equal(slots.filter((x) => !x.found).length, HIDDEN_TOTAL - 2);
+  assert.deepEqual(slots.filter((x) => x.found).map((x) => x.name).sort(), ['단련', '인내']);
   assert.equal(skillLabel(s, 'strike'), '초급 7');
   assert.equal(skillLabel(s, 'fishing'), '안 해 봄');
 

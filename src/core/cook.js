@@ -1,17 +1,18 @@
 // 요리 (N3). 재료를 셋까지 넣어 조합을 찾는다.
 
-import { next } from './rng.js?v=c392bbe';
-import { pushLine, ding } from './log.js?v=c392bbe';
-import { countOf, takeById, addItem } from './inventory.js?v=c392bbe';
-import { craftLvOf, addCraftXp, grantMakeXp } from './craft.js?v=c392bbe';
-import { CRAFT_LV } from '../data/recipes.js?v=c392bbe';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=c392bbe';
-import { itemDef } from '../data/items.js?v=c392bbe';
-import { placeById } from '../data/places.js?v=c392bbe';
-import { jobXp } from './jobs.js?v=c392bbe';
-import { COOK_MAX, COOK_DIFFICULTY, INGREDIENTS, DISHES, DISH_ORDER, MUSH, COOK_LINES } from '../data/cooking.js?v=c392bbe';
-import { iGa, eulReul, eunNeun } from './ko.js?v=c392bbe';
-import { foodBuff, xpBoost } from './buffs.js?v=c392bbe';
+import { next } from './rng.js?v=0cf2820';
+import { pushLine, ding } from './log.js?v=0cf2820';
+import { countOf, takeById, addItem } from './inventory.js?v=0cf2820';
+import { spare } from './craft.js?v=0cf2820';
+import { craftLvOf, addCraftXp, grantMakeXp } from './craft.js?v=0cf2820';
+import { CRAFT_LV } from '../data/recipes.js?v=0cf2820';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=0cf2820';
+import { itemDef } from '../data/items.js?v=0cf2820';
+import { placeById } from '../data/places.js?v=0cf2820';
+import { jobXp } from './jobs.js?v=0cf2820';
+import { COOK_MAX, COOK_DIFFICULTY, INGREDIENTS, DISHES, DISH_ORDER, MUSH, COOK_LINES } from '../data/cooking.js?v=0cf2820';
+import { iGa, eulReul, eunNeun } from './ko.js?v=0cf2820';
+import { foodBuff, xpBoost } from './buffs.js?v=0cf2820';
 
 export { foodBuff };
 
@@ -62,6 +63,7 @@ export function cook(state, events, ids) {
   for (const id of ids) if (!INGREDIENTS.includes(id)) throw new Error('넣을 수 없는 것입니다');
   for (const id of new Set(ids)) { const n = ids.filter((x) => x === id).length; if (countOf(state, id) < n) throw new Error(`${iGa(itemDef(id).name)} 모자랍니다`); }
   for (const id of ids) takeById(state, id, 1);
+  spare(state, events, ids[0]); // 알뜰 (Z119)
   const key = keyOf(ids);
   const found = DISH_ORDER.find((d) => keyOf(DISHES[d].needs) === key);
   const tooHard = found && (DISHES[found].lv || 1) > craftLvOf(state, 'cook').lv; // 맞는 조합이어도 요리 레벨이 모자라면 망친다

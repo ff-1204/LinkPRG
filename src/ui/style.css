@@ -378,6 +378,7 @@ html.calm .cool i { animation: none !important; }
 .card5 .pick { position: absolute; top: -.7rem; left: 50%; transform: translateX(-50%); padding: 0 .5rem; border-radius: 999px; background: var(--deep); color: var(--cream); font-size: .75rem; line-height: 1.5; }
 .origincard { max-width: 46rem; min-height: 7.2rem; padding: .8rem 1rem; border: 3px solid var(--line2); border-radius: 12px; background: var(--paper); display: flex; flex-direction: column; gap: .2rem; }
 .origincard b { font-size: 1.35rem; }
+.origincard .bondline { color: var(--mint-ink); font-weight: 700; }
 .origincard.wait { border: 2px dashed var(--line2); color: var(--muted); align-items: center; justify-content: center; }
 .tagx.plain { border-color: var(--line2); color: var(--muted); }
 .tagx.mintx { border-color: var(--mint-ink); color: var(--mint-ink); background: var(--mint); }
