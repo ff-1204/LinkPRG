@@ -2,24 +2,24 @@
 // 쇠는 식는다. 얼마나 늦었는지는 화면이 재서 알려 주고(late), 규칙은 그 값만 본다.
 // 그래서 같은 씨앗과 같은 입력이면 늘 같은 결과가 나온다.
 
-import { next, chance } from './rng.js?v=333e2f8';
-import { rollOptions } from './gear.js?v=333e2f8';
-import { pushLine, ding } from './log.js?v=333e2f8';
-import { countOf, takeById, addItem } from './inventory.js?v=333e2f8';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=333e2f8';
-import { itemDef, GRADES } from '../data/items.js?v=333e2f8';
-import { RECIPES, RECIPE_ORDER, GRADE_BASE, PUSH, HAMMER_LINES, HAMMER_MARKS, recipeById, STITCH_LINES, JEWEL_LINES, COOK_STIR, BRANCHES, BRANCH_ORDER, CRAFT_LV, ORDER_OF } from '../data/recipes.js?v=333e2f8';
-import { branchOf } from './evolve.js?v=333e2f8';
-import { TIER_SIZE, CRAFT_LV_MAX, BAND_MAX, tierOfLv, makeXp, promoXp } from '../data/bands.js?v=333e2f8';
-import { grantXp } from './reward.js?v=333e2f8';
-import { xpToNext } from './level.js?v=333e2f8';
-import { DISHES, DISH_ORDER } from '../data/cooking.js?v=333e2f8';
-import { placeById } from '../data/places.js?v=333e2f8';
-import { applyDish } from './cook.js?v=333e2f8';
-import { iGa, eulReul } from './ko.js?v=333e2f8';
-import { jobXp } from './jobs.js?v=333e2f8';
-import { jobDef } from '../data/jobs.js?v=333e2f8';
-import { hasTitle } from './titles.js?v=333e2f8';
+import { next, chance } from './rng.js?v=472d163';
+import { rollOptions } from './gear.js?v=472d163';
+import { pushLine, ding } from './log.js?v=472d163';
+import { countOf, takeById, addItem } from './inventory.js?v=472d163';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=472d163';
+import { itemDef, GRADES } from '../data/items.js?v=472d163';
+import { RECIPES, RECIPE_ORDER, GRADE_BASE, PUSH, HAMMER_LINES, HAMMER_MARKS, recipeById, STITCH_LINES, JEWEL_LINES, COOK_STIR, BRANCHES, BRANCH_ORDER, CRAFT_LV, ORDER_OF } from '../data/recipes.js?v=472d163';
+import { branchOf } from './evolve.js?v=472d163';
+import { TIER_SIZE, CRAFT_LV_MAX, BAND_MAX, tierOfLv, makeXp, promoXp } from '../data/bands.js?v=472d163';
+import { grantXp } from './reward.js?v=472d163';
+import { xpToNext } from './level.js?v=472d163';
+import { DISHES, DISH_ORDER } from '../data/cooking.js?v=472d163';
+import { placeById } from '../data/places.js?v=472d163';
+import { applyDish } from './cook.js?v=472d163';
+import { iGa, eulReul } from './ko.js?v=472d163';
+import { jobXp } from './jobs.js?v=472d163';
+import { jobDef } from '../data/jobs.js?v=472d163';
+import { hasTitle } from './titles.js?v=472d163';
 
 export const WORK_XP = 1.5; // 일하는 직업이 맞으면 그 숙련도가 빨리 오른다 (T7)
 export const TANNER_XP = 1.2; // 무두장이 출신은 가죽 숙련도가 조금 빨리 오른다 (Z71)
