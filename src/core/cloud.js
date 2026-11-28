@@ -3,9 +3,9 @@
 // 바람마다 맞는 싸움법이 다르다. 다릿목과 하늘 신전 안에서는 불지 않고, 칸도 이름표도 없다 (GD-G2).
 // 싸움에 걸리는 것은 battle.js가 여기 숫자를 읽어 넣는다.
 
-import { placeById } from '../data/places.js?v=b94ad1e';
-import { roll01 } from './rng.js?v=b94ad1e';
-import { pushLine } from './log.js?v=b94ad1e';
+import { placeById } from '../data/places.js?v=c3aa7be';
+import { roll01 } from './rng.js?v=c3aa7be';
+import { pushLine } from './log.js?v=c3aa7be';
 
 /**
  * GD-A1, GD-B3의 숫자. road: 지붕마을에서 오르는 하루 길에 드는 때.

@@ -2,18 +2,18 @@
 // 내가 "일"(SB-D6)을 한 번 할 때마다 견습의 일이 한 칸 찬다. 쉬기, 잠, 길 가기, 사고팔기, 둘러보기로는 차지 않는다. 꺼 두면 아무것도 쌓이지 않는다.
 // 견습이 만든 것에는 띠링이 울리지 않고, 내 숙련도·제작 레벨·경험치도 오르지 않는다 (AN-C7). 사기 전에는 어디에도 나오지 않는다 (AN-F3).
 
-import { placeById, PLACES } from '../data/places.js?v=b94ad1e';
-import { itemDef } from '../data/items.js?v=b94ad1e';
-import { RECIPES } from '../data/recipes.js?v=b94ad1e';
-import { TIERS } from '../data/tiers.js?v=b94ad1e';
-import { tierOfLv, reachedBand } from '../data/bands.js?v=b94ad1e';
-import { PEOPLE } from '../data/people.js?v=b94ad1e';
-import { pushLine, ding } from './log.js?v=b94ad1e';
-import { makeItem } from './inventory.js?v=b94ad1e';
-import { craftTierOf, branchOfRecipe } from './craft.js?v=b94ad1e';
-import { gearName } from './gear.js?v=b94ad1e';
-import { STALL } from './stall.js?v=b94ad1e';
-import { iGa } from './ko.js?v=b94ad1e';
+import { placeById, PLACES } from '../data/places.js?v=c3aa7be';
+import { itemDef } from '../data/items.js?v=c3aa7be';
+import { RECIPES } from '../data/recipes.js?v=c3aa7be';
+import { TIERS } from '../data/tiers.js?v=c3aa7be';
+import { tierOfLv, reachedBand } from '../data/bands.js?v=c3aa7be';
+import { PEOPLE } from '../data/people.js?v=c3aa7be';
+import { pushLine, ding } from './log.js?v=c3aa7be';
+import { makeItem } from './inventory.js?v=c3aa7be';
+import { craftTierOf, branchOfRecipe } from './craft.js?v=c3aa7be';
+import { gearName } from './gear.js?v=c3aa7be';
+import { STALL } from './stall.js?v=c3aa7be';
+import { iGa } from './ko.js?v=c3aa7be';
 
 /**
  * price: 빈 공방의 값 (LV-L6). wage: 견습의 하루 삯 (AN-C4). seats: 처음의 견습 자리. second·third: 둘째·셋째 자리가 생기는 레벨 (AN-C8, LV-K2: 61에 둘, 81에 셋). hands: 들일 수 있는 사람들(차례대로).

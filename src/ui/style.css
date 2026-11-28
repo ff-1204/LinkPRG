@@ -23,6 +23,8 @@ button:disabled { cursor: default; }
 img.px { image-rendering: pixelated; display: block; }
 .serif { font-family: var(--serif); }
 .muted { color: var(--muted); }
+/* 같은 글이 거듭된 횟수 (Z118) */
+.msg .rep { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .qhow { font-size: .88rem; line-height: 1.5; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 h1, h2, h3, p { margin: 0; }

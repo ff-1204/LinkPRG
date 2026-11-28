@@ -3,18 +3,18 @@
 // 숨이 다하면 움직일 때마다 생명력이 깎인다. 물 위에서는 칸도 이름표도 없다 (JD-F2).
 // 여기 것들은 짝을 지어 다닌다: 하나를 쓰러뜨리면 둘째가 곧바로 덤빈다(연달아 두 판, JD-G1). 그 이음은 battle.js의 win()이 한다.
 
-import { placeById } from '../data/places.js?v=b94ad1e';
-import { DUNGEONS } from '../data/dungeon.js?v=b94ad1e';
-import { ITEMS, itemDef } from '../data/items.js?v=b94ad1e';
-import { COMPANIONS } from '../data/companions.js?v=b94ad1e';
-import { monsterDef } from '../data/monsters.js?v=b94ad1e';
-import { pushLine } from './log.js?v=b94ad1e';
-import { next, chance, roll01 } from './rng.js?v=b94ad1e';
-import { addItem, countOf, takeById } from './inventory.js?v=b94ad1e';
-import { valueOf } from './derived.js?v=b94ad1e';
-import { rollOptions, gearName } from './gear.js?v=b94ad1e';
-import { gradeName } from '../data/items.js?v=b94ad1e';
-import { iGa, waGwa } from './ko.js?v=b94ad1e';
+import { placeById } from '../data/places.js?v=c3aa7be';
+import { DUNGEONS } from '../data/dungeon.js?v=c3aa7be';
+import { ITEMS, itemDef } from '../data/items.js?v=c3aa7be';
+import { COMPANIONS } from '../data/companions.js?v=c3aa7be';
+import { monsterDef } from '../data/monsters.js?v=c3aa7be';
+import { pushLine } from './log.js?v=c3aa7be';
+import { next, chance, roll01 } from './rng.js?v=c3aa7be';
+import { addItem, countOf, takeById } from './inventory.js?v=c3aa7be';
+import { valueOf } from './derived.js?v=c3aa7be';
+import { rollOptions, gearName } from './gear.js?v=c3aa7be';
+import { gradeName } from '../data/items.js?v=c3aa7be';
+import { iGa, waGwa } from './ko.js?v=c3aa7be';
 
 /**
  * JD-B3, JD-C의 숫자. max: 가득 찬 숨. perGear: 비늘 가죽 장비 하나마다 더 가는 숨. choke: 막힌 숨에서 한 번에 깎이는 몫. bagAir: 공기 주머니 하나의 숨.

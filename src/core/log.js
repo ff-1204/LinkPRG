@@ -1,8 +1,8 @@
 // 대화방에 한 줄을 남기고 띠링을 울리는 일. 규칙의 모든 곳이 이것을 쓴다.
 
-import { PEOPLE } from '../data/people.js?v=b94ad1e';
-import { ANVIL_LINES, tentsHere, TENT_BY_ID } from '../data/anvil.js?v=b94ad1e';
-import { iGa } from './ko.js?v=b94ad1e';
+import { PEOPLE } from '../data/people.js?v=c3aa7be';
+import { ANVIL_LINES, tentsHere, TENT_BY_ID } from '../data/anvil.js?v=c3aa7be';
+import { iGa } from './ko.js?v=c3aa7be';
 
 export const LOG_KEEP = 300;
 /** 나누어 건 뒤 (CM-D6): 띠링에 이름이 붙을 만큼 사이가 깊은 사람들('단골'부터). */
@@ -16,8 +16,19 @@ const VOICES = [
   { who: '주점 주인', say: '봤네, 봤어.' }, { who: '견습 사제 미루', say: '저 봤어요!' }, { who: '늙은 뱃사공', say: '강 건너에서도 보이더군.' },
 ];
 
+/** 바로 앞 줄과 같은 글이면 새 줄을 내지 않고 앞 줄에 횟수만 더한다 (Z118). 띠링과 적의 다음 행동은 늘 새 줄이다. */
+const SAME_KEYS = ['k', 'who', 'text', 'tone'];
+const NO_MERGE = ['ding', 'intent'];
+
 /** 대화방에 한 줄. */
 export function pushLine(state, events, line) {
+  const prev = state.log[state.log.length - 1];
+  if (prev && !NO_MERGE.includes(line.k) && SAME_KEYS.every((key) => (prev[key] ?? null) === (line[key] ?? null)) && Object.keys(line).every((key) => SAME_KEYS.includes(key))) {
+    prev.rep = (prev.rep || 1) + 1;
+    prev.day = state.day; prev.phase = state.phase;
+    events.push({ type: 'line', line: prev, again: true });
+    return prev;
+  }
   const entry = { day: state.day, phase: state.phase, ...line };
   state.log.push(entry);
   if (state.log.length > LOG_KEEP) state.log.splice(0, state.log.length - LOG_KEEP);

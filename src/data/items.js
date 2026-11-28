@@ -138,5 +138,5 @@ export function gradeName(grade) {
 }
 
 // 3~10단계의 재료·장비·음식 (LV-F3~F10). 그 지역을 낼 때까지는 게임 안에서 닿지 않는다
-import { tierItems } from './tiers.js?v=b94ad1e';
+import { tierItems } from './tiers.js?v=c3aa7be';
 Object.assign(ITEMS, tierItems());
