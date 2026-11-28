@@ -2,14 +2,14 @@
 // 들판(재 비탈, 쇳물 내, 가마 안)에서 쇠 장비는 두 배로 닳고, 도마뱀 비늘 장비는 절반만 닳고, 잿쇠 장비는 보통으로 닳는다.
 // 들판의 싸움을 이기면 든 무기가 달아, 식기 전에 큰 대장간에서 강화하면 잘 먹는다.
 
-import { placeById } from '../data/places.js?v=472d163';
-import { DUNGEONS } from '../data/dungeon.js?v=472d163';
-import { itemDef } from '../data/items.js?v=472d163';
-import { pushLine } from './log.js?v=472d163';
-import { chance } from './rng.js?v=472d163';
-import { hv } from './hidden.js?v=472d163';
-import { usable, countOf, takeById } from './inventory.js?v=472d163';
-import { iGa, eulReul } from './ko.js?v=472d163';
+import { placeById } from '../data/places.js?v=d853788';
+import { DUNGEONS } from '../data/dungeon.js?v=d853788';
+import { itemDef } from '../data/items.js?v=d853788';
+import { pushLine } from './log.js?v=d853788';
+import { chance } from './rng.js?v=d853788';
+import { hv } from './hidden.js?v=d853788';
+import { usable, countOf, takeById } from './inventory.js?v=d853788';
+import { iGa, eulReul } from './ko.js?v=d853788';
 
 /** AG-B3의 숫자. iron: 쇠 장비가 닳는 배수. scale: 비늘 장비가 닳는 배수. soft: 무른 쇠가 되는 몫. whet: 숫돌 하나가 되살리는 내구도. hotMoves: 달궈진 쇠가 가는 걸음. plus: 강화 확률에 더하는 몫. repair: 고치는 값에 곱하는 몫. */
 export const HEAT = { iron: 2, scale: 0.5, soft: 0.2, whet: 20, hotMoves: 30, plus: 0.10, repair: 0.5, band: 5, scaleHide: 'lizardscale', forge: 'bigforge', stone: 'whetstone' };

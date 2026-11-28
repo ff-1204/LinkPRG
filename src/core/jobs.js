@@ -1,17 +1,17 @@
 // 직업과 히든 직업 (T4~T9, N4-3, N4-4, N5).
 
-import { pushLine, ding } from './log.js?v=472d163';
-import { JOBS, JOB_ORDER, HIDDEN_JOBS, HIDDEN_JOB_ORDER, JOB_LEVEL, JOB_XP, SKILL_LEVELS, NAMELESS_LEVEL, jobDef, ADVANCED, ADVANCE_LEVEL, TIER3, TIER4, TIER_LEVEL, SKILL_SLOTS } from '../data/jobs.js?v=472d163';
-import { placeById } from '../data/places.js?v=472d163';
-import { guildPerk } from './guild.js?v=472d163';
-import { SKILL_NAMES, gradeLabel } from './skills.js?v=472d163';
-import { itemDef } from '../data/items.js?v=472d163';
-import { addItem } from './inventory.js?v=472d163';
-import { eulReul, iGa } from './ko.js?v=472d163';
-import { xpBoost } from './buffs.js?v=472d163';
-import { priestOpen, PRIEST_LUCK, bondFx } from './statplan.js?v=472d163';
-import { PRIEST_LOCK } from '../data/statinfo.js?v=472d163';
-import { originById } from '../data/origins.js?v=472d163';
+import { pushLine, ding } from './log.js?v=d853788';
+import { JOBS, JOB_ORDER, HIDDEN_JOBS, HIDDEN_JOB_ORDER, JOB_LEVEL, JOB_XP, SKILL_LEVELS, NAMELESS_LEVEL, jobDef, ADVANCED, ADVANCE_LEVEL, TIER3, TIER4, TIER_LEVEL, SKILL_SLOTS } from '../data/jobs.js?v=d853788';
+import { placeById } from '../data/places.js?v=d853788';
+import { guildPerk } from './guild.js?v=d853788';
+import { SKILL_NAMES, gradeLabel } from './skills.js?v=d853788';
+import { itemDef } from '../data/items.js?v=d853788';
+import { addItem } from './inventory.js?v=d853788';
+import { eulReul, iGa } from './ko.js?v=d853788';
+import { xpBoost } from './buffs.js?v=d853788';
+import { priestOpen, PRIEST_LUCK, bondFx } from './statplan.js?v=d853788';
+import { PRIEST_LOCK } from '../data/statinfo.js?v=d853788';
+import { originById } from '../data/origins.js?v=d853788';
 
 /** 보이는 직업 이름. */
 export function jobName(state) {

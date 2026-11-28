@@ -386,6 +386,9 @@ html.calm .cool i { animation: none !important; }
 .statline .statsum.main { color: var(--cinnamon); font-weight: 700; }
 .respecpool { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .2rem 1rem; padding: .6rem .8rem; border-radius: 8px; background: var(--mint); color: var(--mint-ink); }
 .respecpool b { font-size: 1.2rem; }
+.fitnote { display: flex; flex-direction: column; gap: .15rem; padding: .5rem .8rem; border-left: 4px solid var(--mint-line); border-radius: 4px; background: var(--mint); color: var(--mint-ink); }
+.fitnote .fitjob { font-size: 1.15rem; color: var(--ink); }
+.fitnote.none { background: transparent; border-left-color: var(--line); color: var(--muted); }
 .resetnote { margin: 0; padding: .5rem .8rem; border-left: 4px solid var(--cinnamon); border-radius: 4px; background: color-mix(in srgb, var(--honey) 35%, transparent); }
 .respec { display: flex; flex-direction: column; gap: .3rem; padding: .7rem .8rem; border: 1px solid var(--line2); border-radius: 8px; }
 .respec.main { border: 2px solid var(--cinnamon); }

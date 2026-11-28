@@ -1,14 +1,14 @@
 // 장비의 이름, 수리, 강화, 옵션 (Z17~Z19). 템은 두드리고 고치고 키운 만큼 세진다.
 
-import { roll01 } from './rng.js?v=472d163';
-import { pushLine, ding } from './log.js?v=472d163';
-import { itemDef } from '../data/items.js?v=472d163';
-import { countOf, takeById } from './inventory.js?v=472d163';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=472d163';
-import { placeById } from '../data/places.js?v=472d163';
-import { iGa, eulReul } from './ko.js?v=472d163';
-import { jobXp } from './jobs.js?v=472d163';
-import { HEAT, hotAtForge } from './heat.js?v=472d163';
+import { roll01 } from './rng.js?v=d853788';
+import { pushLine, ding } from './log.js?v=d853788';
+import { itemDef } from '../data/items.js?v=d853788';
+import { countOf, takeById } from './inventory.js?v=d853788';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=d853788';
+import { placeById } from '../data/places.js?v=d853788';
+import { iGa, eulReul } from './ko.js?v=d853788';
+import { jobXp } from './jobs.js?v=d853788';
+import { HEAT, hotAtForge } from './heat.js?v=d853788';
 
 export const PLUS_MAX = 10;
 /** +0에서 +1로 갈 때부터의 성공 확률. 높을수록 어렵다. */
