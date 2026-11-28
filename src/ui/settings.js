@@ -11,6 +11,7 @@ export const DEFAULTS = {
   chatter: 'mid', // 가상 유저 잡담 low, mid, high
   dingWin: 2,     // 창으로 뜨는 띠링: 1 모두, 2 귀한 것부터, 3 아주 귀한 것만
   stripFolded: false,
+  autoEat: true,  // 자동 먹기 (Z131): 포만도가 바닥나면 가방의 먹을 것을 저절로 먹는다
   assist: 'off',  // 누르기 돕기: off 끔, hold 누르고 있기, toggle 한 번 눌러 이어 하기 (H2-5). 이 기기에만 남고 저장 칸에는 들어가지 않는다
 };
 
@@ -49,5 +50,6 @@ export const SETTING_GROUPS = [
     { key: 'chatter', label: '가상 유저 잡담', options: [['low', '적게'], ['mid', '보통'], ['high', '많이']] },
     { key: 'dingWin', label: '창으로 뜨는 띠링', options: [[1, '모두'], [2, '귀한 것부터'], [3, '아주 귀한 것만']] },
     { key: 'assist', label: '누르기 돕기 (1초에 한 번)', options: [['off', '끔'], ['hold', '누르고 있기'], ['toggle', '한 번 눌러 이어 하기']] },
+    { key: 'autoEat', label: '자동 먹기', options: [[true, '켬'], [false, '끔']] },
   ] },
 ];

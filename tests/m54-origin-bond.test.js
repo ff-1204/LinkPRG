@@ -28,7 +28,7 @@ test('인연은 이어진 직업을 골랐을 때만 열린다', () => {
 });
 
 test('스킬에 얹히는 인연: 마나, 급소, 약하게, 감싸기, 막기, 치유', () => {
-  const at = (origin, job, id) => { const s = make(origin, origin); if (origin === 'miraclekid' || job === 'priest') s.hidden.luck = { value: 1, half: true }; choose(s, job); return skillsNow(s).find((x) => x.id === id); };
+  const at = (origin, job, id) => { const s = make(origin, origin); if (job === 'priest') s.flags.fastPrayed = true; choose(s, job); return skillsNow(s).find((x) => x.id === id); };
   assert.equal(at('whitesnow', 'archer', 'aim').mp, 2);
   assert.equal(at('shadowking', 'rogue', 'smoke').mp, 3);
   assert.equal(at('archivist', 'mage', 'bolt').mp, 10);
@@ -48,7 +48,7 @@ test('방패잡이의 후예: 전사면 힘 10마다 +3%', () => {
   assert.equal(mainParts(s)[0].pct, 12);
 });
 
-test('기적을 본 아이는 드문 운을 안고 태어나 레벨 5에 바로 사제를 고를 수 있다', () => {
+test('기적을 본 아이는 드문 운을 안고 태어나 레벨 5에 바로 사제를 고를 수 있다 (굶으며 기도하지 않아도, Z131)', () => {
   const s = make('miraclekid');
   assert.equal(priestOpen(s), true);
   choose(s, 'priest');

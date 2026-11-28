@@ -132,7 +132,8 @@ test('다른 직업의 스킬과 장비는 쓰지 못한다 (T6)', () => {
 test('사제는 고치고 씻어 낸다. 도적의 연막은 반드시 달아난다', () => {
   const p = fresh('pr');
   lv(p, 15); // 정화(씻어 내기)는 이제 레벨 15 (Z126)
-  p.hidden.luck = { value: 1, half: true }; // 사제는 행운을 찾은 사람만 고른다 (Z116)
+  p.flags.fastPrayed = true; // 사제는 굶으며 기도한 사람만 고른다 (Z131)
+  p.hidden.luck = { value: 1, half: true }; // 아래 숫자는 행운 1을 찾은 사제로 센다
   dispatch(p, { type: 'career', op: 'choose', id: 'priest' });
   foe(p);
   p.hp = 10;

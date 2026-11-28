@@ -63,7 +63,7 @@ test('주 스탯 10마다 피해 +2%, 직업이 없으면 없다', () => {
   assert.equal(mainParts(s)[0].pct, 0);
 });
 
-test('사제는 행운을 찾은 사람만 고르고, 고르면 행운 +10과 신의 은총을 받는다. 지혜와 행운 둘 다 보너스다', () => {
+test('사제는 굶으며 기도한 사람만 고르고, 고르면 행운 +10과 신의 은총을 받는다. 지혜와 행운 둘 다 보너스다', () => {
   const s = fresh('pri');
   toLevel5(s);
   assert.equal(priestOpen(s), false);
@@ -72,9 +72,11 @@ test('사제는 행운을 찾은 사람만 고르고, 고르면 행운 +10과 �
   assert.ok(!JSON.stringify(card).includes('행운'), '찾기 전에는 행운이라는 말이 없다');
   assert.throws(() => dispatch(s, { type: 'career', op: 'choose', id: 'priest' }), /아직 고를 수 없는/);
   s.hidden.luck = { value: 2, half: true };
+  assert.equal(priestOpen(s), false, '행운으로는 열리지 않는다 (Z131)');
+  s.flags.fastPrayed = true;
   const open = jobChoices(s).find((j) => j.id === 'priest');
   assert.equal(open.lock, '');
-  assert.match(open.perk, /행운 \+10/);
+  assert.match(open.perk, /행운 \+10/, '행운을 찾은 사람에게는 행운 +10이 보인다');
   dispatch(s, { type: 'career', op: 'choose', id: 'priest' });
   assert.equal(luckOf(s), 12);
   assert.equal(s.hidden.luck.value, 2, '저장에는 찾은 행운만 남는다');

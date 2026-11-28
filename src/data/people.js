@@ -1,7 +1,7 @@
 // 마을 사람 (E26~E28, T14). 좋아하는 것·싫어하는 것과 속 스탯은 겪어 봐야 도감에 적힌다.
 // stats: 눈썰미(eye, 속임에 맞섬) · 배짱(guts, 위협에 맞섬) · 고집(will, 설득에 맞섬)
 
-import { TENT_PEOPLE } from './anvil.js?v=d853788';
+import { TENT_PEOPLE } from './anvil.js?v=e3b52b1';
 
 /** 친밀도 다섯 단계 (E26)와 그 문턱, 그리고 값이 깎이는 몫 (E25). */
 export const BONDS = [
@@ -662,4 +662,5 @@ export const TITLES = {
   assassin: { name: '암살자', effect: '들판의 기척이 모험가일 확률 +30%p', hint: '어딘가에 드물게 검은 가면이 나온다더라. 경매장에는 오르지 않는다고.' },
   legend: { name: '전설을 두드린 자', effect: '만든 것의 내구도 +10%', hint: '쇠가 스스로 우는 날이 있다고, 대장장이들은 말한다.' },
   helper: { name: '손 내민 이', effect: '설득 판정 +5%', hint: '돌 밑에서 나온 사람이 은인의 이름을 찾고 있다더라.' },
+  abstainer: { name: '절제하는 자', effect: '기도할 때 숙련도 +5%', hint: '빵을 쥐고도 먹지 않고 기도한 이가 있었다더라.' }, // 사제를 여는 열쇠 (Z133)
 };

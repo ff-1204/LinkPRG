@@ -1,16 +1,19 @@
 // 주 스탯과 스탯 다시 찍기 (Z116, 사용자 요청).
 // - 직업의 주 스탯 10마다 내가 넣는 피해 +2%. 사제는 지혜와 행운 둘 다: 지혜 10마다 +1%(Z117), 행운 1마다 +1%. 피해와 치유에 붙는다.
 // - 직업을 고른 그때 한 번, 레벨로 받은 점수를 돌려받아 다시 나눈다. 처음 값(주사위)과 일로 오른 값, 히든 스탯은 그대로다.
-// - 사제는 행운(히든 스탯)이 1 이상이어야 고른다. 고르면 행운 +10과 "신의 은총"(희귀한 일을 절반의 확률로 한 번 더 센다).
+// - 사제는 칭호 "절제하는 자"(먹을 것을 두고 포만도 0으로 기도)가 있어야 고른다(Z133, 전에는 행운 1 이상). 고르면 행운 +10과 "신의 은총"(희귀한 일을 절반의 확률로 한 번 더 센다).
 
-import { DICE_MIN, DICE_TOTAL, originById } from '../data/origins.js?v=d853788';
+import { DICE_MIN, DICE_TOTAL, originById } from '../data/origins.js?v=e3b52b1';
 
 /** 직업의 인연 (Z120): 출신이 이어진 직업을 골랐으면 그 효과(fx), 아니면 null. 2차 직업도 같은 뿌리 직업으로 본다. */
 export function bondFx(state) {
   const o = originById(state.origin);
   return o?.bond && o.job && o.job === state.job ? o.bond.fx : null;
 }
-import { pushLine } from './log.js?v=d853788';
+import { pushLine } from './log.js?v=e3b52b1';
+import { hasTitle } from './titles.js?v=e3b52b1';
+import { grantTitle } from './social.js?v=e3b52b1';
+import { itemDef } from '../data/items.js?v=e3b52b1';
 
 export const STATS = ['str', 'agi', 'con', 'wis'];
 export const MAIN = { every: 10, rate: 2, priestRate: 1, luck: 1 }; // 주 스탯 10마다 +2%(사제의 지혜는 +1%, Z117), 사제의 행운 1마다 +1%
@@ -25,8 +28,17 @@ export const foundLuck = (state) => state.hidden?.luck?.value || 0;
 /** 쓰이는 행운: 찾은 것에 사제의 몫을 더한다. 저장에는 찾은 것만 있다(다시 태어나면 사제의 몫은 직업과 함께 내려놓는다). */
 export const luckOf = (state) => foundLuck(state) + (isPriest(state) ? PRIEST_LUCK : 0);
 export const hasGrace = (state) => isPriest(state);
-/** 사제를 고를 수 있는가. */
-export const priestOpen = (state) => foundLuck(state) >= 1;
+/** 사제를 고를 수 있는가 (Z133): 칭호 "절제하는 자"가 있다. 칭호라 환생해도 남는다. 기적을 본 아이는 처음부터 열려 있다(flags.fastPrayed). 행운으로 열리던 길은 없앴다 (Z131). */
+export const priestOpen = (state) => hasTitle(state, 'abstainer') || !!state.flags?.fastPrayed;
+export const ABSTAIN_PRAY = 1.05; // 절제하는 자: 기도할 때 숙련도 +5%
+/** 먹을 것을 두고 주린 배로 드린 기도 (Z133). 기도를 마친 그때 포만도가 0이고 가방에 먹을 것이 있으면 칭호. 허겁지겁 먹기보다 먼저 본다. */
+export const FAST_PRAY_LINE = '가방 속 빵 냄새가 났다. 손을 풀지 않았다. 어디선가 종이 한 번 울린다.';
+export function fastPray(state, events) {
+  if (state.full !== 0 || hasTitle(state, 'abstainer')) return;
+  if (!state.bag.some((it) => { const d = itemDef(it.id); return d?.eat?.full > 0 && !d.throw; })) return;
+  pushLine(state, events, { k: 'sys', tone: 'good', text: FAST_PRAY_LINE });
+  grantTitle(state, events, 'abstainer', '먹을 것을 곁에 두고 주린 배로 기도했다');
+}
 
 /** 이 직업의 주 스탯. 히든 직업은 그 직업이 쓰는 스탯을 따른다(무명객은 가장 높은 것, 손빛은 싸우지 않아 없다). */
 export function mainStatsOf(state) {

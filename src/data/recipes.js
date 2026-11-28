@@ -144,7 +144,7 @@ RECIPES.cook_bearstew.promo = true;
 
 
 // 3~10단계의 설계도 (LV-F3~F10). 그 단계가 열리기 전에는 목록에 나오지 않는다
-import { tierRecipes } from './tiers.js?v=d853788';
+import { tierRecipes } from './tiers.js?v=e3b52b1';
 {
   const more = tierRecipes();
   for (const [branch, list] of Object.entries(more)) for (const r of list) { RECIPES[r.id] = r; ORDER_OF[branch].push(r.id); }

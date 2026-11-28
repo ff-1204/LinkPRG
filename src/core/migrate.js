@@ -1,23 +1,24 @@
 // 저장의 판(버전)과, 옛 저장을 지금 꼴로 올리는 길.
 // 저장 형식을 바꾸면 SAVE_VERSION을 올리고 여기에 한 단계를 더한다.
 
-import { makeItem } from './inventory.js?v=d853788';
-import { valueOf } from './derived.js?v=d853788';
-import { worldFields } from './world.js?v=d853788';
-import { auctionFields } from './auction.js?v=d853788';
+import { makeItem } from './inventory.js?v=e3b52b1';
+import { valueOf } from './derived.js?v=e3b52b1';
+import { worldFields } from './world.js?v=e3b52b1';
+import { auctionFields } from './auction.js?v=e3b52b1';
 
-import { endingFields } from './ending.js?v=d853788';
-import { MAIN } from '../data/quests.js?v=d853788';
-import { ITEMS } from '../data/items.js?v=d853788';
-import { ADVANCED } from '../data/jobs.js?v=d853788';
-import { nativeWork } from './work.js?v=d853788';
-import { deliverMail } from './mail.js?v=d853788';
-import { cidFrom } from './rng.js?v=d853788';
-import { guessLvPts } from './statplan.js?v=d853788';
-import { tierOfLv } from '../data/bands.js?v=d853788';
-import { ashFields } from './heat.js?v=d853788';
-import { marshFields } from './marsh.js?v=d853788';
-import { sunkenFields, SUNKEN } from './sunken.js?v=d853788';
+import { endingFields } from './ending.js?v=e3b52b1';
+import { MAIN } from '../data/quests.js?v=e3b52b1';
+import { ITEMS } from '../data/items.js?v=e3b52b1';
+import { ADVANCED } from '../data/jobs.js?v=e3b52b1';
+import { nativeWork } from './work.js?v=e3b52b1';
+import { deliverMail } from './mail.js?v=e3b52b1';
+import { cidFrom } from './rng.js?v=e3b52b1';
+import { guessLvPts } from './statplan.js?v=e3b52b1';
+import { syncBondFloor } from './social.js?v=e3b52b1';
+import { tierOfLv } from '../data/bands.js?v=e3b52b1';
+import { ashFields } from './heat.js?v=e3b52b1';
+import { marshFields } from './marsh.js?v=e3b52b1';
+import { sunkenFields, SUNKEN } from './sunken.js?v=e3b52b1';
 const ORIGIN_NATIVE = new Proxy({}, { get: (_, id) => nativeWork(id) });
 
 export { worldFields, auctionFields, endingFields };
@@ -185,6 +186,8 @@ function mend(state) {
   // 스탯 다시 찍기 (Z116): 찍은 자리가 없던 저장은 짐작하고, 직업이 있으면 한 번 다시 찍게 한다
   if (!state.lvPts && state.stats) state.lvPts = guessLvPts(state);
   if (state.respec === undefined) state.respec = state.job ? 'open' : null;
+  if (state.flags?.startRare && !state.flags.fastPrayed) state.flags.fastPrayed = true; // 기적을 본 아이는 사제의 길이 처음부터 열려 있다 (Z131)
+  if (state.people && state.skills) syncBondFloor(state); // 숙련도가 깔아 주는 마을 사람과의 바닥 (Z132). 말없이
   // 잡화점은 예술협회로 옮겨 갔다 (Z82)
   if (state.place === 'store') state.place = 'artguild';
   // 제작 레벨 (Z79): 없던 저장은 지금까지 만든 수로 처음 레벨을 정한다. 철검을 만들던 사람이 못 만들게 되지 않게 대장은 하나라도 만들었으면 3부터

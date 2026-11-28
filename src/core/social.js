@@ -1,19 +1,19 @@
 // 사람들과의 사이, 명성, 칭호, 대화 판정 (E25~E28, G3-1, T10~T14).
 
-import { tentHere } from '../data/anvil.js?v=d853788';
+import { tentHere } from '../data/anvil.js?v=e3b52b1';
 
-import { next, pick, roll01 } from './rng.js?v=d853788';
-import { pushLine, ding } from './log.js?v=d853788';
-import { PEOPLE, PEOPLE_ORDER, BONDS, GIFT, TALK_POINT, FAME, TITLES, personById, REGULAR, CALLS } from '../data/people.js?v=d853788';
-import { itemDef } from '../data/items.js?v=d853788';
-import { removeAt } from './inventory.js?v=d853788';
-import { placeById, ACTIONS } from '../data/places.js?v=d853788';
-import { ROLE_BONUS, fullRoles } from '../data/companions.js?v=d853788';
-import { iGa, eulReul, ro, eunNeun } from './ko.js?v=d853788';
-import { TALKS } from '../data/talks.js?v=d853788';
-import { rootOf } from '../data/origins.js?v=d853788';
-import { smithMemory } from './memories.js?v=d853788';
-import { hasTitle } from './titles.js?v=d853788';
+import { next, pick, roll01 } from './rng.js?v=e3b52b1';
+import { pushLine, ding } from './log.js?v=e3b52b1';
+import { PEOPLE, PEOPLE_ORDER, BONDS, GIFT, TALK_POINT, FAME, TITLES, personById, REGULAR, CALLS } from '../data/people.js?v=e3b52b1';
+import { itemDef } from '../data/items.js?v=e3b52b1';
+import { removeAt } from './inventory.js?v=e3b52b1';
+import { placeById, ACTIONS } from '../data/places.js?v=e3b52b1';
+import { ROLE_BONUS, fullRoles } from '../data/companions.js?v=e3b52b1';
+import { iGa, eulReul, ro, eunNeun } from './ko.js?v=e3b52b1';
+import { TALKS } from '../data/talks.js?v=e3b52b1';
+import { rootOf } from '../data/origins.js?v=e3b52b1';
+import { smithMemory } from './memories.js?v=e3b52b1';
+import { hasTitle } from './titles.js?v=e3b52b1';
 
 const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
 
@@ -57,6 +57,32 @@ export function addPoints(state, events, id, n) {
     pushLine(state, events, { k: 'sys', text: `${p.name}${josaWa(p.name)} 사이가 ${ro(`'${BONDS[after].name}'`)} 내려갔다.`, tone: 'warn' });
   }
   return after;
+}
+
+/** 시작 마을 사람마다 보는 숙련도 (Z132): 그 사람이 있는 곳에서 오르는 숙련도. 주점 사람은 없다. */
+export const VILLAGE_SKILL = { instructor: 'strike', smith: 'smithing', tailor: 'leather', artmaster: 'sculpting', granny: 'appraise', chef: 'cooking', priest: 'pray' };
+/** 숙련도 등급 번호가 이것에 닿으면 사이가 그 단계 아래로 내려가지 않는다: 초급 5 낯익은 사이, 중급 1 단골, 고급 1 벗, 달인 1 가족 같은 사이 */
+export const BOND_FLOOR_AT = [null, 4, 9, 18, 27];
+/** 숙련도가 깔아 주는 사이의 바닥 (0~4). */
+export function bondFloor(state, id) {
+  const sk = VILLAGE_SKILL[id];
+  if (!sk) return 0;
+  const g = state.skills?.[sk]?.grade || 0;
+  let f = 0;
+  for (let k = 1; k < BOND_FLOOR_AT.length; k++) if (g >= BOND_FLOOR_AT[k]) f = k;
+  return f;
+}
+/** 바닥보다 낮은 사이를 바닥까지 올린다. 쌓은 것을 깎지는 않는다. 오를 때 띠링은 지금과 같다. events가 없으면(새 삶, 옛 저장) 말없이 올린다. */
+export function syncBondFloor(state, events = null) {
+  for (const id of Object.keys(VILLAGE_SKILL)) {
+    const f = bondFloor(state, id);
+    if (!f) continue;
+    const r = rec(state, id);
+    if (r.pts >= BONDS[f].at) continue;
+    r.met = true;
+    if (events) addPoints(state, events, id, BONDS[f].at - r.pts);
+    else r.pts = BONDS[f].at;
+  }
 }
 
 function josaWa(word) {

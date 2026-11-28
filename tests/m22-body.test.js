@@ -59,15 +59,39 @@ test('사람들은 낯익은 사이부터 제 말투로 내 이름을 부른다.
   assert.ok(named > 0 && named < 30, `서른 번에 ${named}번`);
 });
 
-test('환생하면 숙련도를 그대로 가지고 간다 (Z98)', () => {
+test('환생하면 숙련도가 한 단계씩 내려간다. 그 등급 안의 경험치는 남는다 (Z132)', () => {
   const s = make('skill');
-  s.skills.strike = { grade: 10, xp: 50, uses: 900 };
-  const total = skillTotal(s.skills.strike);
+  s.skills.strike = { grade: 10, xp: 50, uses: 900 }; // 중급 2
+  s.skills.pray = { grade: 9, xp: 400, uses: 900 };   // 중급 1, 한 칸보다 많은 경험치
+  s.skills.cooking = { grade: 0, xp: 30, uses: 3 };   // 초급 1은 그대로
   const carry = rebirthCarry(s);
-  assert.equal(carry.skills.strike, total);
   const n = createGame({ name: '새', origin: 'bard', rolled: rollDice('same'), seed: 'n', carry });
-  assert.equal(skillTotal(n.skills.strike), total);
-  assert.deepEqual([n.skills.strike.grade, n.skills.strike.xp], [10, 50]);
+  assert.deepEqual([n.skills.strike.grade, n.skills.strike.xp], [9, 50], '중급 2 → 중급 1');
+  assert.equal(n.skills.pray.grade, 8, '중급 1 → 초급 9');
+  assert.ok(n.skills.pray.xp < 120 + 40 * 8, '내려간 등급의 한 칸을 넘지 않는다');
+  assert.deepEqual([n.skills.cooking.grade, n.skills.cooking.xp], [0, 30]);
+  assert.equal(skillTotal(n.skills.cooking), 30);
+});
+
+test('시작 마을 사람과의 사이는 그곳 숙련도가 받친다. 쌓은 것은 깎지 않고, 환생하면 바닥도 따라 내려간다 (Z132)', async () => {
+  const { bondOf, bondFloor } = await import('../src/core/social.js');
+  const s = make('floor');
+  s.place = 'training';
+  s.skills.strike = { grade: 8, xp: 150 + 40 * 8 - 1, uses: 500 }; // 초급 9, 곧 중급 1
+  s.tired = 0;
+  dispatch(s, { type: 'act', id: 'strike' });
+  assert.equal(s.skills.strike.grade, 9);
+  assert.equal(bondFloor(s, 'instructor'), 2);
+  assert.equal(bondOf(s, 'instructor'), 2, '교관과 단골');
+  assert.equal(bondFloor(s, 'keeper'), 0, '주점 주인은 숙련도와 상관없다');
+  s.people.smith = { pts: 80, talked: 0, likes: [], dislikes: [], stats: [], met: true };
+  s.skills.smithing = { grade: 5, xp: 0, uses: 1 };
+  dispatch(s, { type: 'act', id: 'strike' });
+  assert.equal(s.people.smith.pts, 80, '바닥보다 높으면 그대로');
+  // 환생: 치기 중급 1 → 초급 9. 교관은 단골 → 한 단계 멀어져 낯익은 사이, 바닥도 낯익은 사이
+  const n = createGame({ name: '새', origin: 'bard', rolled: rollDice('same'), seed: 'n2', carry: rebirthCarry(s) });
+  assert.equal(n.skills.strike.grade, 8);
+  assert.equal(bondOf(n, 'instructor'), 1);
 });
 
 test('배가 바닥나면 가방의 먹을 것을 허겁지겁 먹는다. 배를 가장 덜 채우는 것부터', () => {

@@ -1,17 +1,17 @@
 // 직업과 히든 직업 (T4~T9, N4-3, N4-4, N5).
 
-import { pushLine, ding } from './log.js?v=d853788';
-import { JOBS, JOB_ORDER, HIDDEN_JOBS, HIDDEN_JOB_ORDER, JOB_LEVEL, JOB_XP, SKILL_LEVELS, NAMELESS_LEVEL, jobDef, ADVANCED, ADVANCE_LEVEL, TIER3, TIER4, TIER_LEVEL, SKILL_SLOTS } from '../data/jobs.js?v=d853788';
-import { placeById } from '../data/places.js?v=d853788';
-import { guildPerk } from './guild.js?v=d853788';
-import { SKILL_NAMES, gradeLabel } from './skills.js?v=d853788';
-import { itemDef } from '../data/items.js?v=d853788';
-import { addItem } from './inventory.js?v=d853788';
-import { eulReul, iGa } from './ko.js?v=d853788';
-import { xpBoost } from './buffs.js?v=d853788';
-import { priestOpen, PRIEST_LUCK, bondFx } from './statplan.js?v=d853788';
-import { PRIEST_LOCK } from '../data/statinfo.js?v=d853788';
-import { originById } from '../data/origins.js?v=d853788';
+import { pushLine, ding } from './log.js?v=e3b52b1';
+import { JOBS, JOB_ORDER, HIDDEN_JOBS, HIDDEN_JOB_ORDER, JOB_LEVEL, JOB_XP, SKILL_LEVELS, NAMELESS_LEVEL, jobDef, ADVANCED, ADVANCE_LEVEL, TIER3, TIER4, TIER_LEVEL, SKILL_SLOTS } from '../data/jobs.js?v=e3b52b1';
+import { placeById } from '../data/places.js?v=e3b52b1';
+import { guildPerk } from './guild.js?v=e3b52b1';
+import { SKILL_NAMES, gradeLabel } from './skills.js?v=e3b52b1';
+import { itemDef } from '../data/items.js?v=e3b52b1';
+import { addItem } from './inventory.js?v=e3b52b1';
+import { eulReul, iGa } from './ko.js?v=e3b52b1';
+import { xpBoost } from './buffs.js?v=e3b52b1';
+import { priestOpen, PRIEST_LUCK, bondFx, foundLuck } from './statplan.js?v=e3b52b1';
+import { PRIEST_LOCK } from '../data/statinfo.js?v=e3b52b1';
+import { originById } from '../data/origins.js?v=e3b52b1';
 
 /** 보이는 직업 이름. */
 export function jobName(state) {
@@ -178,8 +178,10 @@ export function jobChoices(state) {
       origin: originById(state.origin)?.job === id,
       bond: originById(state.origin)?.job === id ? originById(state.origin)?.bond?.text || '' : '',
       lock: id === 'priest' && !priestOpen(state) ? PRIEST_LOCK : '',
-      perk: id === 'priest' && priestOpen(state) ? `고르면: 행운 +${PRIEST_LUCK}, 버프 "신의 은총"` : '',
-      mains: id === 'priest' ? (priestOpen(state) ? '지혜, 행운' : '지혜') : { warrior: '힘', archer: '민첩', mage: '지혜', rogue: '민첩' }[id],
+      // 행운을 찾기 전에는 행운이라는 말을 내지 않는다 (Z131). 고른 뒤 행운 +10을 받으며 처음 드러난다
+      perk: id === 'priest' && priestOpen(state) ? (foundLuck(state) >= 1 ? `고르면: 행운 +${PRIEST_LUCK}, 버프 "신의 은총"` : '고르면: 버프 "신의 은총"') : '',
+      rang: id === 'priest' && priestOpen(state),
+      mains: id === 'priest' ? (priestOpen(state) && foundLuck(state) >= 1 ? '지혜, 행운' : '지혜') : { warrior: '힘', archer: '민첩', mage: '지혜', rogue: '민첩' }[id],
     };
   });
 }

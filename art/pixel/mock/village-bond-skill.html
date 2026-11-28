@@ -1,0 +1,129 @@
+<title>숙련도와 마을 사이</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap">
+<style>
+  /* 얼개: 위 표(마을 사람 ↔ 그곳 숙련도), 숙련도 단계 ↔ 친밀도 바닥 표, 사람 창 예시, 환생 표, 지키는 것, 정할 것. 게임의 크림·시나몬·민트·꿀 한 가지 모습. */
+  :root {
+    --cream: #FBF4E6; --card: #FFFDF7; --line: #D9C7A8; --ink: #3A2A1E; --muted: #6B5443; --cinnamon: #8B4A2B;
+    --mint: #D6F2E3; --mint-ink: #0B5A3C; --mint-line: #2F7A5E; --honey: #FBE3A6; --honey-ink: #6A4A00; --desk: #EFE4CF;
+    --serif: "Gowun Batang", "Noto Serif KR", serif; --sans: "Gowun Dodum", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--desk); color: var(--ink); font: 400 16px/1.65 var(--sans); word-break: keep-all; }
+  .page { max-width: 900px; margin: 0 auto; padding-block: 28px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 28px; }
+  h1 { margin: 0; font: 700 clamp(25px, 4vw, 32px)/1.3 var(--serif); text-wrap: balance; }
+  h2 { margin: 0; font: 700 20px/1.35 var(--serif); }
+  p { margin: 0; }
+  .lede { color: var(--muted); max-width: 46em; margin-top: 8px; }
+  section { display: flex; flex-direction: column; gap: 10px; }
+  .step { font-size: 13px; letter-spacing: .04em; color: var(--cinnamon); font-weight: 700; }
+  .tablewrap { overflow-x: auto; }
+  table { width: 100%; min-width: 560px; border-collapse: collapse; font-size: 14.5px; background: var(--card); border: 1.5px solid var(--line); }
+  th, td { text-align: left; vertical-align: top; padding: 9px 12px; border-top: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+  thead th { border-top: 0; background: var(--cream); }
+  td.same { color: var(--muted); }
+  .win { background: var(--card); border: 2px solid var(--ink); border-radius: 10px; overflow: hidden; max-width: 560px; }
+  .win header { display: flex; justify-content: space-between; padding: 8px 14px; background: var(--cream); border-bottom: 1.5px solid var(--line); font-family: var(--serif); font-weight: 700; }
+  .win header span { font: 400 14px var(--sans); color: var(--muted); }
+  .win .body { padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .bondbar { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .meter { height: 10px; border-radius: 999px; background: var(--cream); border: 1px solid var(--line); overflow: hidden; position: relative; }
+  .meter i { position: absolute; inset: 0 auto 0 0; background: var(--mint-line); }
+  .meter b { position: absolute; top: -3px; bottom: -3px; width: 3px; background: var(--cinnamon); }
+  .new { background: var(--honey); color: var(--honey-ink); border-left: 4px solid #C98A00; padding: 6px 10px; border-radius: 4px; }
+  .new b { color: var(--ink); }
+  .muted { color: var(--muted); font-size: 14px; }
+  .rules { margin: 0; padding: 0; list-style: none; background: var(--card); border: 1.5px solid var(--line); }
+  .rules li { padding: 10px 14px; border-top: 1px solid var(--line); }
+  .rules li:first-child { border-top: 0; }
+  .rules b { display: block; font-family: var(--serif); }
+  .choice { background: var(--cream); border: 1.5px dashed var(--cinnamon); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; }
+  .choice b { font-family: var(--serif); }
+  .tag { font-size: 12.5px; padding: 1px 8px; border-radius: 999px; background: var(--mint); color: var(--mint-ink); font-weight: 700; }
+</style>
+
+<div class="page">
+  <header>
+    <h1>숙련도가 마을 사람과의 사이를 받친다</h1>
+    <p class="lede">시작 마을 사람마다 그 사람이 있는 곳에서 오르는 숙련도가 있습니다. 그 숙련도가 오를수록 그 사람과의 친밀도가 그 단계 아래로 내려가지 않습니다(바닥). 이야기와 선물, 의뢰로 얻는 친밀도는 지금처럼 그 위에 쌓입니다. 환생하면 숙련도가 하나씩 내려가고, 바닥도 따라 내려갑니다.</p>
+  </header>
+
+  <section aria-labelledby="a">
+    <p class="step">1</p>
+    <h2 id="a">사람마다 보는 숙련도</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>곳</th><th>사람</th><th>보는 숙련도</th><th>그곳에서 오르는 일</th></tr></thead>
+      <tbody>
+        <tr><td>훈련소</td><td>교관</td><td>치기</td><td>치기</td></tr>
+        <tr><td>대장간</td><td>대장간 주인</td><td>대장</td><td>만들기, 풀무질</td></tr>
+        <tr><td>의류점</td><td>재봉사</td><td>가죽</td><td>바느질, 실 잣기</td></tr>
+        <tr><td>예술협회</td><td>협회장</td><td>조각</td><td>조각, 세공</td></tr>
+        <tr><td>예술협회</td><td>잡화점 할머니</td><td>감정</td><td>물건 살피기</td></tr>
+        <tr><td>공용주방</td><td>주방장</td><td>요리</td><td>요리, 재료 다듬기</td></tr>
+        <tr><td>신전</td><td>신전지기</td><td>기도</td><td>기도</td></tr>
+        <tr><td>주점</td><td>주점 주인, 견습 사제 미루</td><td class="same">없음</td><td class="same">숙련도가 오르는 일이 없어 지금 그대로</td></tr>
+      </tbody>
+    </table></div>
+    <p class="muted">광장에는 머무는 사람이 없습니다. 다른 마을 사람(조합장, 뱃사공 등)은 이번에 바꾸지 않습니다.</p>
+  </section>
+
+  <section aria-labelledby="b">
+    <p class="step">2</p>
+    <h2 id="b">숙련도 단계 → 친밀도 바닥</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>그 숙련도</th><th>친밀도 바닥</th><th>예</th></tr></thead>
+      <tbody>
+        <tr><td>초급 1~4</td><td>남 (바닥 없음)</td><td>처음 온 사람</td></tr>
+        <tr><td>초급 5 부터</td><td>낯익은 사이</td><td>허수아비를 꽤 친 사람</td></tr>
+        <tr><td>중급 1 부터</td><td>단골</td><td>대장간 주인에게 사는 값 −10%</td></tr>
+        <tr><td>고급 1 부터</td><td>벗</td><td>먼저 말을 걸어온다</td></tr>
+        <tr><td>달인 1 부터</td><td>가족 같은 사이</td><td>사는 값 −20%</td></tr>
+      </tbody>
+    </table></div>
+    <p class="muted">숙련도는 초급·중급·고급·달인·대가, 단계마다 1~9입니다. 바닥에 닿는 순간 지금처럼 띠링("…와 '단골'이 되었습니다")이 뜹니다.</p>
+  </section>
+
+  <section aria-labelledby="c">
+    <p class="step">3</p>
+    <h2 id="c">사람 창에서는</h2>
+    <div class="win">
+      <header>대장간 주인 <span>단골</span></header>
+      <div class="body">
+        <div class="bondbar"><span>친밀도 34 / 70 (다음: 벗)</span></div>
+        <div class="meter" aria-hidden="true"><i style="width:48%"></i><b style="left:42%"></b></div>
+        <p class="new"><b>대장 숙련도 중급 2:</b> 이 사람과의 사이는 '단골' 아래로 내려가지 않는다.</p>
+        <p class="muted">막대의 시나몬 눈금이 바닥입니다. 바닥보다 위의 친밀도는 이야기·선물·의뢰로 쌓은 것입니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="d">
+    <p class="step">4</p>
+    <h2 id="d">환생하면 숙련도가 한 단계씩 내려간다</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>지난 삶</th><th>새 삶 (지금)</th><th>새 삶 (바꾼 뒤)</th></tr></thead>
+      <tbody>
+        <tr><td>대장 중급 2</td><td>대장 중급 2 (전부 가져감)</td><td><b>대장 중급 1</b></td></tr>
+        <tr><td>치기 중급 1</td><td>치기 중급 1</td><td><b>치기 초급 9</b> → 교관 바닥이 단골에서 낯익은 사이로</td></tr>
+        <tr><td>기도 초급 1</td><td>기도 초급 1</td><td>기도 초급 1 (더 내려가지 않는다)</td></tr>
+      </tbody>
+    </table></div>
+    <p class="muted">모든 숙련도가 숫자 하나씩(초급 7 → 초급 6, 중급 1 → 초급 9) 내려갑니다. 그 등급 안에서 쌓은 경험치는 그대로 둡니다. 새 출신이 처음부터 주는 숙련도는 그 위에 더합니다(지금과 같음). 환생 확인 창의 "가져가는 것"에 "숙련도: 모두 한 단계 낮아진다"를 적습니다.</p>
+  </section>
+
+  <section aria-labelledby="r">
+    <h2 id="r">지키는 것</h2>
+    <ul class="rules">
+      <li><b>바닥일 뿐, 깎지 않는다</b>숙련도가 낮다고 이미 쌓은 친밀도를 깎지 않는다. 친밀도는 "쌓은 것"과 "숙련도 바닥" 가운데 높은 쪽이다.</li>
+      <li><b>환생의 친밀도</b>지금처럼 한 단계 멀어진다(Z115). 그 뒤 새 삶의 숙련도 바닥이 더 높으면 바닥까지 올라온다.</li>
+      <li><b>한 일에서만</b>숙련도는 직접 한 일로만 오르니, 바닥도 한 일의 보상이다. 가만히 있어서는 오르지 않는다.</li>
+      <li><b>도움말</b>"마을 사람" 항목에 "그 사람이 있는 곳의 숙련도가 오르면 사이가 그 단계 아래로 내려가지 않습니다" 한 줄. "환생" 항목의 숙련도 줄을 "한 단계씩 낮아집니다"로 고친다.</li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="q">
+    <h2 id="q">정해 주실 것</h2>
+    <div class="choice"><b>1. 환생 때 "1단계"의 크기</b><p>숫자 하나(초급 7 → 초급 6) <span class="tag">권함</span>. 또는 이름 하나(중급 3 → 초급 3, 9칸 아래)도 됩니다.</p></div>
+    <div class="choice"><b>2. 바닥 문턱</b><p>초급 5 · 중급 1 · 고급 1 · 달인 1이 처음 값입니다 <span class="tag">권함</span>. 숫자는 바꿀 수 있습니다.</p></div>
+  </section>
+</div>

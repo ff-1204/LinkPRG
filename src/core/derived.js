@@ -1,11 +1,11 @@
 // 계산된 값과 그 셈 (R2-1, R2-2, G2-2). 누르면 셈이 풀려 보인다.
 
-import { adv, jobName } from './jobs.js?v=d853788';
-import { equipPower, usable } from './inventory.js?v=d853788';
-import { itemDef } from '../data/items.js?v=d853788';
-import { buffOf, foodBuff, restBuff, graceBuff, murderBuff, drumBuff } from './buffs.js?v=d853788';
-import { ADVANCED } from '../data/jobs.js?v=d853788';
-import { coldAttackCut } from './cold.js?v=d853788';
+import { adv, jobName } from './jobs.js?v=e3b52b1';
+import { equipPower, usable } from './inventory.js?v=e3b52b1';
+import { itemDef } from '../data/items.js?v=e3b52b1';
+import { buffOf, foodBuff, restBuff, graceBuff, murderBuff, drumBuff } from './buffs.js?v=e3b52b1';
+import { ADVANCED } from '../data/jobs.js?v=e3b52b1';
+import { coldAttackCut } from './cold.js?v=e3b52b1';
 
 /** 숙련 보너스: 등급 두 칸마다 1. */
 export function skillBonus(skill) {

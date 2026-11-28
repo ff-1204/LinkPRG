@@ -2,11 +2,12 @@
 // 몸은 처음부터 다시지만, 종이 기억한 것(히든 스탯, 다시 일어선 몸으로 오른 스탯, 칭호, 도감), 보관함은 가지고 간다.
 // 손에 익은 것도 남는다 (Z98, 사용자 결정): 숙련도 전부, 제작 레벨, 던전 지도, 그리고 쌓은 경험치의 1%(그만큼 레벨과 스탯 점수가 다시 붙는다).
 
-import { shopCarry } from './workshop.js?v=d853788';
-import { HIDDEN } from './hidden.js?v=d853788';
-import { xpNeeded, MAX_GRADE } from './skills.js?v=d853788';
-import { xpToNext, gainXp } from './level.js?v=d853788';
-import { BONDS } from '../data/people.js?v=d853788';
+import { shopCarry } from './workshop.js?v=e3b52b1';
+import { HIDDEN } from './hidden.js?v=e3b52b1';
+import { xpNeeded, MAX_GRADE } from './skills.js?v=e3b52b1';
+import { xpToNext, gainXp } from './level.js?v=e3b52b1';
+import { BONDS } from '../data/people.js?v=e3b52b1';
+import { syncBondFloor } from './social.js?v=e3b52b1';
 
 /**
  * 사람들과의 사이는 한 단계만 멀어진다 (Z115, 사용자 요청): 그 사람과의 사이가 '벗'이었으면 새 삶은 '단골'의 첫머리에서 시작한다.
@@ -42,6 +43,12 @@ export function levelTotal(state) {
   for (let l = 1; l < (state.level || 1); l++) t += xpToNext(l);
   return t;
 }
+/** 환생하면 숙련도가 한 단계 내려간다 (Z132): 등급 번호 하나(초급 7 → 초급 6, 중급 1 → 초급 9). 그 등급 안의 경험치는 남기되 한 칸을 넘지 않게. 초급 1은 그대로. */
+export function skillDown(sk) {
+  const g = sk?.grade || 0;
+  if (g <= 0) return { grade: 0, xp: sk?.xp || 0 };
+  return { grade: g - 1, xp: Math.min(sk.xp || 0, xpNeeded(g - 1) - 1) };
+}
 /** 숙련도에 쌓인 경험치 전부. */
 export function skillTotal(sk) {
   let t = sk.xp || 0;
@@ -54,7 +61,7 @@ function fromTotal(total) {
   while (grade < MAX_GRADE && xp >= xpNeeded(grade)) { xp -= xpNeeded(grade); grade++; }
   return { grade, xp };
 }
-import { JOBS, HIDDEN_JOBS } from '../data/jobs.js?v=d853788';
+import { JOBS, HIDDEN_JOBS } from '../data/jobs.js?v=e3b52b1';
 const jobName = (id) => (id ? (JOBS[id] || HIDDEN_JOBS[id])?.name || id : null);
 
 const STATS = ['str', 'agi', 'con', 'wis'];
@@ -81,7 +88,7 @@ export function rebirthCarry(state, { chosen = false } = {}) {
     cid: state.cid || null, // 같은 캐릭터의 다음 삶이다 (Z96)
     // 보관함은 통째로 남는다 (Z42): 맡긴 은화와 물건
     bank: Object.fromEntries(Object.entries(state.store || {}).filter(([, box]) => (box.silver || 0) > 0 || (box.items || []).length).map(([town, box]) => [town, { silver: box.silver || 0, items: JSON.parse(JSON.stringify(box.items || [])) }])),
-    skills: Object.fromEntries(Object.entries(state.skills || {}).map(([id, sk]) => [id, Math.floor(skillTotal(sk) * SKILL_KEEP)]).filter(([, n]) => n > 0)),
+    skills: Object.fromEntries(Object.entries(state.skills || {}).map(([id, sk]) => [id, Math.floor(skillTotal(skillDown(sk)) * SKILL_KEEP)]).filter(([, n]) => n > 0)),
     xp: Math.floor(levelTotal(state) * xpKeepOf(state, chosen)),
     xpRate: xpKeepOf(state, chosen),
     // 가게는 남는다 (LV-K11, SB-E2). 찾은 옛 우물도 지도와 함께 남는다
@@ -171,11 +178,12 @@ export function applyCarry(state, carry) {
   // 맡긴 은화는 장부에 남아 있다 (Z42). 그 마을 보관함에 들르면 주인이 알아본다
   for (const [town, box] of Object.entries(carry.bank || {})) state.store[town] = { items: JSON.parse(JSON.stringify(box.items || [])), silver: box.silver || 0 };
   if (Object.keys(carry.bank || {}).length) state.flags.pastBank = Object.keys(carry.bank);
-  // 숙련도의 5%: 새 출신이 처음부터 가진 숙련도 위에 더한다
+  // 한 단계 내린 숙련도(Z132): 새 출신이 처음부터 가진 숙련도 위에 더한다
   for (const [id, n] of Object.entries(carry.skills || {})) {
     const sk = state.skills[id] || { grade: 0, xp: 0, uses: 0 };
     state.skills[id] = { ...sk, ...fromTotal(skillTotal(sk) + n) };
   }
+  syncBondFloor(state); // 새 삶의 숙련도가 마을 사람과의 바닥을 깐다 (Z132). 말없이
   // 경험치의 1%: 그만큼 레벨이 오르고, 오른 레벨만큼 스탯 점수가 붙는다 (Z98)
   if (carry.xp > 0) gainXp(state, carry.xp);
   // 제작 레벨은 그대로 (새 출신이 더 높으면 높은 쪽)
