@@ -42,6 +42,9 @@ const texts = (s) => s.log.map((l) => l.text).join('\n');
 const labels = (s) => slotsNow(s).map((x) => x.label.replace(/ \(.*/, ''));
 
 // ── M17-1 곳 (AG-A, AG-F1) ──
+/** 모으다 덤비는 것(Z124)을 끈다: 친화 10이면 확률이 0 아래로 내려간다. 이 테스트는 모으기 자체를 본다 */
+const calmGather = (s) => { s.hidden.kind = { value: 10, half: true }; return s; };
+
 test('M17-1 7장을 끝내기 전에는 잿골이 지도·소문·저울목의 칸 어디에도 없다 (AG-F1)', () => {
   const s = salted('noash');
   const rows = mapView(s);
@@ -301,7 +304,7 @@ test('M17-2 15판 저장은 지금 판으로 올라온다: 달궈진 쇠는 식�
 const winIn = (s, mon = 'ashlizard') => { startBattle(s, [], mon); s.battle.hp = 1; dispatch(s, { type: 'battle', choice: 'attack' }); assert.equal(s.battle, null); };
 
 test('M17-3 들판의 싸움을 이기면 든 무기가 달아 서른 번 움직이는 동안 간다. 처음 달기 전에는 도움말에도 없다 (AG-B3, AG-F3)', () => {
-  const s = ashed('hot', { at: 'ashslope' });
+  const s = calmGather(ashed('hot', { at: 'ashslope' }));
   s.equip.weapon = gear('ashiron_sword');
   assert.equal(bodyView(s).heat.hot, null);
   const seen = (st) => ({ ash: true, hot: !!st.flags.sawHot });
@@ -708,11 +711,11 @@ test('M17-7 서브 "풀무꾼의 팔": 사흘 동안 하루 서른 번씩 풀무
 });
 
 test('M17-7 서브 "식은 가마": 쇳물 내에서 식지 않은 재 다섯 줌을 날라 불씨를 살린다. 가는 동안 식으면 처음부터다 (AG-D7)', () => {
-  const s = ashed('ember', { at: 'bellowsrow' });
+  const s = calmGather(ashed('ember', { at: 'bellowsrow' }));
   s.equip.weapon = gear('ashiron_sword');
   dispatch(s, { type: 'greet', npc: 'b_sol' });
   // 퀘스트를 받기 전에는 캐도 재가 나오지 않는다
-  const before = ashed('noember', { at: 'moltenbrook' });
+  const before = calmGather(ashed('noember', { at: 'moltenbrook' }));
   for (let i = 0; i < 5; i++) dispatch(before, { type: 'act', id: 'dig' });
   assert.equal(count(before, 'hotash'), 0);
   dispatch(s, { type: 'quest', op: 'accept', id: 'coldkiln' });

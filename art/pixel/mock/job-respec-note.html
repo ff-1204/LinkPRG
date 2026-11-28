@@ -1,0 +1,95 @@
+<title>직업 고르기 스탯 안내</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap">
+<style>
+  /* 얼개: 위에서 아래로 실제 흐름 세 단계(직업 고르기 창 → 확인 창 → 스탯 다시 찍기 창). 바뀌는 줄은 꿀색 띠로 표시. 게임의 크림·시나몬·민트·꿀 한 가지 모습. */
+  :root {
+    --cream: #FBF4E6; --card: #FFFDF7; --line: #D9C7A8; --ink: #3A2A1E; --muted: #6B5443; --cinnamon: #8B4A2B;
+    --mint: #D6F2E3; --mint-ink: #0B5A3C; --honey: #FBE3A6; --honey-ink: #6A4A00; --desk: #EFE4CF;
+    --serif: "Gowun Batang", "Noto Serif KR", serif; --sans: "Gowun Dodum", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--desk); color: var(--ink); font: 400 16px/1.65 var(--sans); word-break: keep-all; }
+  .page { max-width: 860px; margin: 0 auto; padding-block: 28px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 26px; }
+  h1 { margin: 0; font: 700 clamp(25px, 4vw, 32px)/1.3 var(--serif); text-wrap: balance; }
+  h2 { margin: 0; font: 700 20px/1.35 var(--serif); }
+  p { margin: 0; }
+  .lede { color: var(--muted); max-width: 46em; margin-top: 8px; }
+  section { display: flex; flex-direction: column; gap: 10px; }
+  .step { font-size: 13px; letter-spacing: .04em; color: var(--cinnamon); font-weight: 700; }
+  .win { background: var(--card); border: 2px solid var(--ink); border-radius: 10px; overflow: hidden; max-width: 620px; }
+  .win header { display: flex; justify-content: space-between; align-items: center; padding: 8px 14px; background: var(--cream); border-bottom: 1.5px solid var(--line); font-family: var(--serif); font-weight: 700; }
+  .win header span { font: 400 14px var(--sans); color: var(--muted); }
+  .win .body { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .new { background: var(--honey); color: var(--honey-ink); border-left: 4px solid #C98A00; padding: 8px 12px; border-radius: 4px; }
+  .new b { color: var(--ink); }
+  .old { color: var(--muted); text-decoration: line-through; font-size: 14px; }
+  .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn { border: 1.5px solid var(--cinnamon); border-radius: 8px; padding: 7px 16px; background: var(--card); color: var(--cinnamon); font: 700 15px var(--sans); }
+  .btn.go { background: var(--cinnamon); color: var(--card); }
+  .card { border: 1.5px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--cream); }
+  .tag { font-size: 12.5px; padding: 1px 8px; border-radius: 999px; background: var(--mint); color: var(--mint-ink); font-weight: 700; margin-left: 6px; }
+  .pool { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .note { font-size: 14.5px; color: var(--muted); }
+  .rules { margin: 0; padding: 0; list-style: none; background: var(--card); border: 1.5px solid var(--line); }
+  .rules li { padding: 10px 14px; border-top: 1px solid var(--line); }
+  .rules li:first-child { border-top: 0; }
+  .rules b { display: block; font-family: var(--serif); }
+</style>
+
+<div class="page">
+  <header>
+    <h1>직업을 고르면 스탯을 다시 찍는다</h1>
+    <p class="lede">지금도 직업을 고르면 "스탯 다시 찍기" 창이 뜨지만, 고르기 전에는 그런 말이 없습니다. 고르기 전 두 곳에 미리 적고, 뜨는 창 제목 밑에도 까닭을 한 줄 적습니다. 꿀색 줄이 새로 들어가는 글입니다.</p>
+  </header>
+
+  <section aria-labelledby="s1">
+    <p class="step">1단계</p>
+    <h2 id="s1">직업 고르기 창</h2>
+    <div class="win">
+      <header>직업 고르기 <span>레벨 5</span></header>
+      <div class="body">
+        <p>다섯 가운데 하나를 고른다. 한 번 고르면 되돌릴 수 없다. 고르지 않아도 된다.</p>
+        <p class="new"><b>직업을 고르면 스탯이 초기화된다.</b> 레벨로 받은 점수를 모두 돌려받아, 그 직업에 맞게 다시 찍는다. 전에 찍은 대로 둘 수도 있다.</p>
+        <div class="card"><b>마법사</b><span class="tag">내 출신하고 맞음</span><br>속성 마법으로 여럿을 친다 · 주 스탯: 지혜</div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="s2">
+    <p class="step">2단계</p>
+    <h2 id="s2">고른 뒤 확인 창</h2>
+    <div class="win">
+      <header>마법사의 길로 갈까요? <span>닫기</span></header>
+      <div class="body">
+        <p>직업은 한 번만 고른다. 되돌릴 수 없다.</p>
+        <p class="new"><b>고르면 바로 스탯 초기화 창이 뜬다.</b> 레벨로 받은 점수를 모두 돌려받는다.</p>
+        <div class="btns"><span class="btn">취소</span><span class="btn go">마법사 전직</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="s3">
+    <p class="step">3단계</p>
+    <h2 id="s3">스탯 다시 찍기 창</h2>
+    <div class="win">
+      <header>스탯 다시 찍기 <span>마법사 · 레벨 5</span></header>
+      <div class="body">
+        <p class="new"><b>직업을 골라 스탯이 초기화되었다.</b> 주 스탯 지혜에 찍으면 스킬이 세진다.</p>
+        <div class="pool"><span>레벨로 받은 점수를 모두 돌려받았다. 다시 나눈다.</span><span>남은 점수 <b>20</b></span></div>
+        <div class="btns"><span class="btn go">이대로 정한다</span><span class="btn">전에 찍은 대로 둔다</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="r">
+    <h2 id="r">지키는 것</h2>
+    <ul class="rules">
+      <li><b>초기화되는 것은 레벨 점수뿐</b>출신 주사위로 받은 처음 스탯, 장비·칭호·히든에서 오는 몫은 그대로다. 글에도 "레벨로 받은 점수"라고 적는다.</li>
+      <li><b>숨은 직업을 받아들일 때도 같다</b>그때 뜨는 확인 창에도 같은 한 줄을 넣는다. 숨은 직업 이름은 받아들이기 전에는 내지 않는다.</li>
+      <li><b>도움말</b>"직업" 항목에 "직업을 고르면 스탯이 초기화되어 다시 찍는다(전에 찍은 대로 둘 수도 있다)"를 한 줄 더한다.</li>
+      <li><b>규칙은 그대로</b>글만 더한다. 지금처럼 다시 찍기는 직업을 고를 때 한 번 열린다.</li>
+    </ul>
+    <p class="note">"초기화"라는 말은 사용자가 쓴 말을 그대로 씁니다. 대신 "점수를 돌려받는다"를 붙여, 잃는 것이 아님을 함께 적습니다.</p>
+  </section>
+</div>

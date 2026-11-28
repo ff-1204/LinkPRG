@@ -20,6 +20,9 @@ const fresh = (seed = 'm4', origin = 'farmer', spent = {}) => createGame({ name:
 const go = (s, to) => { if (s.place !== to) dispatch(s, { type: 'move', to }); };
 const befriend = (s, id, stage) => { s.people[id] = { pts: BONDS[stage].at, talked: 0, likes: [], dislikes: [], stats: [], met: true }; };
 
+/** 모으다 덤비는 것(Z124)을 끈다: 친화 10이면 확률이 0 아래로 내려간다. 이 테스트는 모으기 자체를 본다 */
+const calmGather = (s) => { s.hidden.kind = { value: 10, half: true }; return s; };
+
 test('선물: 좋아하는 것을 주면 낯익은 사이가 되고, 말투와 값이 바뀐다 (E26, E27)', () => {
   const s = fresh();
   go(s, 'artguild');
@@ -161,7 +164,7 @@ test('서브 퀘스트는 조건을 채워야 나타난다. 이름 옆 숫자가
 });
 
 const withRod = (seed, origin = 'farmer') => {
-  const s = fresh(seed, origin);
+  const s = calmGather(fresh(seed, origin));
   befriend(s, 'granny', 1);
   go(s, 'artguild');
   dispatch(s, { type: 'quest', op: 'accept', id: 'rod' });

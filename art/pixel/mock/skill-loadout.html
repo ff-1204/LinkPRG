@@ -1,0 +1,146 @@
+<title>스킬 장착 시안</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap">
+<style>
+  /* 얼개: 왼쪽 스킬 창(장착 세 칸 + 익힌 스킬 목록), 오른쪽 싸움 화면(둘째 칸을 누르면 장착한 셋만). 위의 단추로 싸움 밖/싸움 중을 바꿔 본다. 아래 규칙과 정할 것. */
+  :root {
+    --cream: #FBF4E6; --card: #FFFDF7; --line: #D9C7A8; --ink: #3A2A1E; --muted: #6B5443; --cinnamon: #8B4A2B; --mint: #D6F2E3; --mint-ink: #0B5A3C; --honey: #F2B63C; --rose: #F6DED6; --rose-ink: #7A2E1D; --desk: #EFE4CF;
+    --serif: "Gowun Batang", "Noto Serif KR", serif; --sans: "Gowun Dodum", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--desk); color: var(--ink); font: 400 16px/1.65 var(--sans); word-break: keep-all; }
+  .page { max-width: 1040px; margin: 0 auto; padding-block: 28px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 22px; }
+  h1 { margin: 0; font: 700 clamp(25px, 4vw, 34px)/1.3 var(--serif); text-wrap: balance; }
+  h2 { margin: 0; font: 700 21px/1.35 var(--serif); }
+  p { margin: 0; }
+  .lede { color: var(--muted); max-width: 48em; margin-top: 8px; }
+  section { display: flex; flex-direction: column; gap: 12px; }
+  .note { font-size: 14.5px; color: var(--muted); }
+  :focus-visible { outline: 3px solid var(--cinnamon); outline-offset: 2px; }
+  .toggle { display: flex; gap: 6px; flex-wrap: wrap; }
+  .toggle button { padding: 8px 14px; border: 1.5px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink); font: 400 15px/1.2 var(--sans); cursor: pointer; }
+  .toggle button[aria-pressed="true"] { border: 2.5px solid var(--cinnamon); font-weight: 700; }
+  .two { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 14px; align-items: start; }
+  @media (max-width: 760px) { .two { grid-template-columns: minmax(0, 1fr); } }
+  .win { background: var(--card); border: 2px solid var(--ink); border-radius: 10px; overflow: hidden; }
+  .win .bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 14px; background: var(--cream); border-bottom: 2px solid var(--ink); font-weight: 700; }
+  .win .bar small { font-weight: 400; color: var(--muted); }
+  .win .body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 10px; }
+  .slots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .slot { min-height: 76px; border: 2px dashed var(--line); border-radius: 10px; padding: 8px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; font-size: 14px; color: var(--muted); }
+  .slot.on { border: 2px solid var(--cinnamon); background: #FFF8EA; color: var(--ink); }
+  .slot b { font-family: var(--serif); font-size: 15.5px; }
+  .slot small { font-size: 12.5px; color: var(--muted); }
+  .skl { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; align-items: center; border: 1.5px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+  .skl b { font-family: var(--serif); }
+  .skl .txt { grid-column: 1; font-size: 13.5px; color: var(--muted); }
+  .skl button, .btn { padding: 7px 12px; border: 1.5px solid var(--ink); border-radius: 8px; background: var(--card); color: var(--ink); font: 700 14px/1.2 var(--sans); cursor: pointer; white-space: nowrap; }
+  .skl button.on { background: var(--cinnamon); color: #fff; }
+  button:disabled { opacity: .45; cursor: default; }
+  .kind { display: inline-block; margin-left: 6px; font-size: 11.5px; padding: 0 7px; border-radius: 999px; font-weight: 700; vertical-align: 2px; }
+  .kind.atk { background: var(--rose); color: var(--rose-ink); }
+  .kind.job { background: var(--mint); color: var(--mint-ink); }
+  .kind.ult { background: var(--ink); color: #FFF3D6; }
+  .kind.pas { background: var(--cream); color: var(--muted); border: 1px solid var(--line); }
+  .lock { padding: 8px 10px; border-radius: 8px; background: var(--rose); color: var(--rose-ink); font-size: 14px; }
+  .five { display: grid; grid-template-columns: 1.4fr repeat(4, minmax(0, 1fr)); gap: 6px; }
+  .five div { border: 1.5px solid var(--line); border-radius: 8px; padding: 8px 6px; text-align: center; font-size: 13.5px; background: var(--card); }
+  .five .one { background: var(--cinnamon); color: #fff; border-color: var(--ink); }
+  .five .two2 { border: 2px solid var(--cinnamon); }
+  .pick { display: flex; flex-direction: column; gap: 6px; }
+  .pick button { text-align: left; padding: 9px 12px; border: 1.5px solid var(--ink); border-radius: 8px; background: var(--card); font: 400 15px/1.3 var(--sans); cursor: pointer; }
+  .rules { margin: 0; padding: 0; list-style: none; background: var(--card); border: 1.5px solid var(--line); }
+  .rules li { padding: 10px 14px; border-top: 1px solid var(--line); }
+  .rules li:first-child { border-top: 0; }
+  .rules b { display: block; font-family: var(--serif); }
+  .choice { background: var(--cream); border: 1.5px dashed var(--cinnamon); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; }
+  .choice b { font-family: var(--serif); }
+  .tag { font-size: 12.5px; padding: 1px 8px; border-radius: 999px; background: var(--mint); color: var(--mint-ink); font-weight: 700; }
+</style>
+
+<div class="page">
+  <header>
+    <h1>스킬은 셋까지 장착한다</h1>
+    <p class="lede">익힌 스킬 가운데 싸움에 가져갈 셋을 골라 장착합니다. 싸움에서는 장착한 셋만 쓰고, 싸우는 동안에는 바꿀 수 없습니다. 늘 붙는 효과는 장착하지 않아도 붙습니다. 아래는 레벨 30 기사의 예입니다(눌러 볼 수 있습니다).</p>
+  </header>
+
+  <div class="toggle" role="group" aria-label="보기"><button type="button" id="out" aria-pressed="true">싸움 밖</button><button type="button" id="in" aria-pressed="false">싸우는 중</button></div>
+
+  <div class="two">
+    <div class="win">
+      <div class="bar"><span>스킬</span><small>기사 · 레벨 30</small></div>
+      <div class="body">
+        <span style="font-weight:700">장착 (최대 셋)</span>
+        <div class="slots" id="slots"></div>
+        <div id="lockmsg"></div>
+        <span style="font-weight:700">익힌 스킬</span>
+        <div id="list" style="display:flex;flex-direction:column;gap:6px"></div>
+      </div>
+    </div>
+    <div class="win">
+      <div class="bar"><span>싸움</span><small>숲 늑대</small></div>
+      <div class="body">
+        <div class="five"><div class="one">1<br>공격</div><div class="two2" id="skbtn" role="button">2<br>스킬<br><small id="sksub"></small></div><div>3<br>방어</div><div>4<br>아이템</div><div>5<br>도망</div></div>
+        <span style="font-weight:700">둘째 칸을 누르면</span>
+        <div class="pick" id="pick"></div>
+        <p class="note">장착한 스킬만 나온다. 마나가 모자란 것은 흐리게. 장착한 것이 하나뿐이면 고르지 않고 바로 쓴다.</p>
+      </div>
+    </div>
+  </div>
+
+  <section aria-labelledby="r-h">
+    <h2 id="r-h">규칙</h2>
+    <ul class="rules">
+      <li><b>장착</b>스킬 창(일지의 스킬 탭)에서 익힌 스킬 옆 "장착"을 누른다. 세 칸이 차면 하나를 빼야 넣을 수 있다. 공격·직업·궁극 모두 같은 세 칸을 쓴다. 늘 붙는 효과는 칸을 쓰지 않는다.</li>
+      <li><b>싸우는 동안</b>장착을 바꿀 수 없다. 스킬 창은 열리지만 "장착/빼기"가 꺼지고 "싸우는 중에는 바꿀 수 없다"가 뜬다. 던전 안이라도 싸움 밖이면 바꿀 수 있다.</li>
+      <li><b>처음에는 저절로</b>새 스킬이 열릴 때 빈 칸이 있으면 저절로 장착된다. 그래서 레벨 15까지는 신경 쓰지 않아도 된다. 넷째부터는 직접 고른다("새 스킬이 열렸다. 스킬 창에서 장착할 수 있다").</li>
+      <li><b>지금 저장</b>이미 넷 이상 열린 캐릭터는 열린 차례대로 앞의 셋이 장착된 채로 시작한다(공격 스킬이 앞에 오도록 바꾼 차례로).</li>
+      <li><b>둘째 칸</b>지금 "스킬" 칸(싸우는 중에 고르기)은 그대로이고, 고르는 목록이 장착한 셋으로 줄어든다.</li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="q-h">
+    <h2 id="q-h">정해 주실 것</h2>
+    <div class="choice"><b>궁극 스킬(4차)도 세 칸 안에</b><p>가) 같은 세 칸을 쓴다: 궁극을 넣으면 다른 하나를 빼야 한다 <span class="tag">권함</span> 나) 궁극은 따로 한 칸(장착 셋 + 궁극 하나)</p></div>
+  </section>
+</div>
+
+<script>
+(function () {
+  var SK = [
+    ['strike', '강타', 'atk', 6, '힘으로 1.7배'], ['block', '방패 막기', 'job', 3, '이번 턴 피해 −70%'], ['wall', '철벽', 'job', 6, '적 공격 세 번 40% 덜'],
+    ['shout', '전투 함성', 'job', 8, '한 턴 묶고 적 공격 약하게'], ['bash', '방패 강타', 'atk', 7, '힘으로 1.4배, 한 턴 묶음'], ['stance', '수호 태세', 'job', 8, '적 공격 네 번 50% 덜']
+  ];
+  var equip = ['strike', 'block', 'bash'], fighting = false;
+  var $ = function (id) { return document.getElementById(id); };
+  var KIND = { atk: '공격', job: '직업', ult: '궁극', pas: '효과' };
+  function draw() {
+    $('out').setAttribute('aria-pressed', String(!fighting)); $('in').setAttribute('aria-pressed', String(fighting));
+    $('slots').innerHTML = [0, 1, 2].map(function (i) {
+      var s = SK.find(function (x) { return x[0] === equip[i]; });
+      return s ? '<div class="slot on"><b>' + s[1] + '</b><small>' + KIND[s[2]] + ' · 마나 ' + s[3] + '</small></div>' : '<div class="slot">빈 칸</div>';
+    }).join('');
+    $('lockmsg').innerHTML = fighting ? '<div class="lock">싸우는 중에는 바꿀 수 없다.</div>' : '';
+    $('list').innerHTML = '';
+    SK.forEach(function (s) {
+      var on = equip.indexOf(s[0]) >= 0;
+      var d = document.createElement('div'); d.className = 'skl';
+      d.innerHTML = '<span><b>' + s[1] + '</b><span class="kind ' + s[2] + '">' + KIND[s[2]] + '</span> <small style="color:var(--muted)">마나 ' + s[3] + '</small></span>';
+      var b = document.createElement('button'); b.type = 'button'; b.className = on ? 'on' : ''; b.textContent = on ? '빼기' : '장착';
+      b.disabled = fighting || (!on && equip.length >= 3);
+      b.title = fighting ? '싸우는 중에는 바꿀 수 없다' : (!on && equip.length >= 3 ? '세 칸이 다 찼다. 하나를 빼야 한다' : '');
+      b.onclick = function () { if (on) equip.splice(equip.indexOf(s[0]), 1); else equip.push(s[0]); draw(); };
+      d.appendChild(b);
+      var t = document.createElement('span'); t.className = 'txt'; t.textContent = s[4] + (!on && equip.length >= 3 && !fighting ? ' · 세 칸이 다 찼다' : ''); d.appendChild(t);
+      $('list').appendChild(d);
+    });
+    var d2 = document.createElement('div'); d2.className = 'skl'; d2.innerHTML = '<span><b>굳은 성문</b><span class="kind pas">효과</span></span><span style="font-size:13px;color:var(--muted)">늘 붙는다</span><span class="txt">레벨 50에 열린다 · 장착하지 않아도 붙는다</span>';
+    $('list').appendChild(d2);
+    $('sksub').textContent = equip.length + '가지 가운데';
+    $('pick').innerHTML = equip.map(function (id) { var s = SK.find(function (x) { return x[0] === id; }); return '<button type="button">' + s[1] + ' (마나 ' + s[3] + ')</button>'; }).join('') || '<p class="note">장착한 스킬이 없다. 둘째 칸이 꺼진다.</p>';
+  }
+  $('out').onclick = function () { fighting = false; draw(); };
+  $('in').onclick = function () { fighting = true; draw(); };
+  draw();
+})();
+</script>

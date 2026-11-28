@@ -50,6 +50,9 @@ const bare = (job, seed = 'jobw') => {
   return s;
 };
 
+/** 모으다 덤비는 것(Z124)을 끈다: 친화 10이면 확률이 0 아래로 내려간다. 이 테스트는 모으기 자체를 본다 */
+const calmGather = (s) => { s.hidden.kind = { value: 10, half: true }; return s; };
+
 test('M16-1 직업 무기를 든 그 직업은 힘 대신 제 스탯으로 친다: 레벨 25 마법사의 서릿쇠 고리 지팡이는 80 (SB-G1, M23-2)', () => {
   const s = bare('mage');
   assert.equal(ITEMS.frostiron_wand.attack, 32, '지팡이는 검(36)의 0.9배다 (M23-2. 앞서는 0.3배인 11이었다)');
@@ -171,7 +174,7 @@ test('M16-4 물 칸은 소금벌에서만 보인다. 들판에서 열 번 움직
   assert.equal(bodyView(out).thirst, null);
   out.place = 'snowfield';
   assert.ok(!slotsNow(out).some((x) => /물/.test(x.label)));
-  const s = salted('sip', { at: 'saltgate' });
+  const s = calmGather(salted('sip', { at: 'saltgate' }));
   assert.deepEqual([bodyView(s).thirst.water, bodyView(s).thirst.max, bodyView(s).thirst.tag], [10, 10, null]);
   assert.equal(bodyView(s).cold, null, '체온은 흰마루에서만');
   // 마을 안에서는 줄지 않는다

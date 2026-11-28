@@ -28,6 +28,9 @@ const smith = (seed = 'm3') => {
 };
 const hammerAll = (s) => { let ev = []; while (s.craft) { ev = ev.concat(dispatch(s, { type: 'hammer' })); s.full = 80; } return ev; };
 
+/** 모으다 덤비는 것(Z124)을 끈다: 친화 10이면 확률이 0 아래로 내려간다. 이 테스트는 모으기 자체를 본다 */
+const calmGather = (s) => { s.hidden.kind = { value: 10, half: true }; return s; };
+
 test('검 한 자루는 망치질 열두 번이다. 한 번에 여러 번 치는 길은 없다 (N1-1)', () => {
   const s = smith();
   const ev = dispatch(s, { type: 'craft', recipe: 'ironsword' });
@@ -179,7 +182,7 @@ test('높은 등급을 띄울수록 손재주의 재료가 많이 쌓이고, 전
 });
 
 test('스킬 진화: 중급이 되면 갈래 둘이 뜨고, 고른 쪽 효과만 적용된다 (N4-1)', () => {
-  const s = createGame({ name: '덕수', origin: 'farmer', spent: {}, seed: 'ev' });
+  const s = calmGather(createGame({ name: '덕수', origin: 'farmer', spent: {}, seed: 'ev' }));
   s.place = 'mine';
   s.skills.mining = { grade: EVOLVE_AT - 1, xp: 0, uses: 0 };
   assert.deepEqual(pendingEvolves(s), []);
@@ -201,7 +204,7 @@ test('스킬 진화: 중급이 되면 갈래 둘이 뜨고, 고른 쪽 효과만
   assert.throws(() => dispatch(s, { type: 'evolve', skill: 'mining', branch: 'steady' }), /이미 골랐/);
 
   const count = (branch) => {
-    const t = createGame({ name: '덕수', origin: 'farmer', spent: {}, seed: 'cmp' });
+    const t = calmGather(createGame({ name: '덕수', origin: 'farmer', spent: {}, seed: 'cmp' }));
     t.place = 'mine'; t.bag = [];
     t.skills.mining = { grade: EVOLVE_AT, xp: 0, uses: 0 };
     if (branch) t.evolve.mining = branch;

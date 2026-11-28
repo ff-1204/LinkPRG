@@ -1,50 +1,50 @@
 // 전투 (E5~E9, R2-2). 한 턴에 행동 하나. 적의 다음 행동은 늘 미리 보인다.
 // 방어하면 피해가 절반이고, 돌진류는 막고 되받아친다.
 
-import { bandOfPlace } from '../data/bands.js?v=d86445b';
-import { placeById } from '../data/places.js?v=d86445b';
-import { next, chance } from './rng.js?v=d86445b';
-import { pushLine, ding } from './log.js?v=d86445b';
-import { monsterDef, STATUS } from '../data/monsters.js?v=d86445b';
-import { itemDef, ITEMS, gradeName } from '../data/items.js?v=d86445b';
-import { roll01 } from './rng.js?v=d86445b';
-import { guildPerk } from './guild.js?v=d86445b';
-import { rollOptions, gearName } from './gear.js?v=d86445b';
-import { derived, skillBonus, attackStat } from './derived.js?v=d86445b';
-import { addItem, removeAt, usable, totalWeight, equip, slotFor, equipPower } from './inventory.js?v=d86445b';
-import { grantXp } from './reward.js?v=d86445b';
-import { useSkill, emptySkill, gradeLabel, SKILL_NAMES } from './skills.js?v=d86445b';
-import { fall } from './fall.js?v=d86445b';
-import { iGa, eulReul, ro } from './ko.js?v=d86445b';
-import { branchOf } from './evolve.js?v=d86445b';
-import { skillsNow, jobXp, adv } from './jobs.js?v=d86445b';
-import { guardFor, hitCompanion, companionsAct, afterBattle, roleBonus, cross } from './party.js?v=d86445b';
-import { jobDef } from '../data/jobs.js?v=d86445b';
-import { mainMult, healLuck, HEAL_LUCK, bondFx } from './statplan.js?v=d86445b';
-import { hv } from './hidden.js?v=d86445b';
-import { BEATS, WEAK_MULT, RESIST_MULT } from '../data/dungeon.js?v=d86445b';
-import { HUNGRY, DUEL, DUEL_MOVES, BANDIT, BANDIT_MOVES } from '../data/wild.js?v=d86445b';
-import { addFame } from './social.js?v=d86445b';
-import { giveMurder, MURDER, giveGrace, GRACE } from './buffs.js?v=d86445b';
-import { applyDish } from './cook.js?v=d86445b';
-import { DISHES } from '../data/cooking.js?v=d86445b';
-import { warmUp } from './cold.js?v=d86445b';
-import { loseWater } from './thirst.js?v=d86445b';
-import { wear } from './heat.js?v=d86445b';
-import { normalAt } from '../data/bands.js?v=d86445b';
-import { arenaIntent, neverRests, ARENA_FOE } from '../data/arena.js?v=d86445b';
+import { bandOfPlace } from '../data/bands.js?v=333e2f8';
+import { placeById } from '../data/places.js?v=333e2f8';
+import { next, chance } from './rng.js?v=333e2f8';
+import { pushLine, ding } from './log.js?v=333e2f8';
+import { monsterDef, STATUS } from '../data/monsters.js?v=333e2f8';
+import { itemDef, ITEMS, gradeName } from '../data/items.js?v=333e2f8';
+import { roll01 } from './rng.js?v=333e2f8';
+import { guildPerk } from './guild.js?v=333e2f8';
+import { rollOptions, gearName } from './gear.js?v=333e2f8';
+import { derived, skillBonus, attackStat } from './derived.js?v=333e2f8';
+import { addItem, removeAt, usable, totalWeight, equip, slotFor, equipPower } from './inventory.js?v=333e2f8';
+import { grantXp } from './reward.js?v=333e2f8';
+import { useSkill, emptySkill, gradeLabel, SKILL_NAMES } from './skills.js?v=333e2f8';
+import { fall } from './fall.js?v=333e2f8';
+import { iGa, eulReul, ro } from './ko.js?v=333e2f8';
+import { branchOf } from './evolve.js?v=333e2f8';
+import { skillsNow, jobXp, adv, loadoutOf } from './jobs.js?v=333e2f8';
+import { guardFor, hitCompanion, companionsAct, afterBattle, roleBonus, cross, maxHpOf } from './party.js?v=333e2f8';
+import { jobDef } from '../data/jobs.js?v=333e2f8';
+import { mainMult, healLuck, HEAL_LUCK, bondFx } from './statplan.js?v=333e2f8';
+import { hv } from './hidden.js?v=333e2f8';
+import { BEATS, WEAK_MULT, RESIST_MULT } from '../data/dungeon.js?v=333e2f8';
+import { HUNGRY, DUEL, DUEL_MOVES, BANDIT, BANDIT_MOVES } from '../data/wild.js?v=333e2f8';
+import { addFame } from './social.js?v=333e2f8';
+import { giveMurder, MURDER, giveGrace, GRACE } from './buffs.js?v=333e2f8';
+import { applyDish } from './cook.js?v=333e2f8';
+import { DISHES } from '../data/cooking.js?v=333e2f8';
+import { warmUp } from './cold.js?v=333e2f8';
+import { loseWater } from './thirst.js?v=333e2f8';
+import { wear } from './heat.js?v=333e2f8';
+import { normalAt } from '../data/bands.js?v=333e2f8';
+import { arenaIntent, neverRests, ARENA_FOE } from '../data/arena.js?v=333e2f8';
 
 /** 사나움 (Z60): 세계의 날마다 괴물의 생명·공격과 경험치·떨굼 확률이 조금씩 오른다. 끝이 없다. 우두머리·던전도 같다. */
-import { curseOf, curseMult, curseHit, liftCurse, healCut } from './marsh.js?v=d86445b';
-import { SUNKEN, SUNKEN_LINES, pairComes, holder, giftBoost, useAir } from './sunken.js?v=d86445b';
-import { COMPANIONS } from '../data/companions.js?v=d86445b';
-import { drumBuff } from './buffs.js?v=d86445b';
-import { CLOUD, CLOUD_LINES, windIs, pushedLine } from './cloud.js?v=d86445b';
-import { POND, READ_LINES, mirrored, isRead, readKey, readStep, readReset } from './pond.js?v=d86445b';
-import { ANVIL, ANVIL_LINES, forged, temperMult, hammerInBattle, cooled, keptEdge, bellIntent, shellBroke, bellRound, leftBell, building, bellBuilt } from './anvil.js?v=d86445b';
-import { monsterXp } from '../data/bands.js?v=d86445b';
-import { xpToNext } from './level.js?v=d86445b';
-import { addSkillXp } from './skills.js?v=d86445b';
+import { curseOf, curseMult, curseHit, liftCurse, healCut } from './marsh.js?v=333e2f8';
+import { SUNKEN, SUNKEN_LINES, pairComes, holder, giftBoost, useAir } from './sunken.js?v=333e2f8';
+import { COMPANIONS } from '../data/companions.js?v=333e2f8';
+import { drumBuff } from './buffs.js?v=333e2f8';
+import { CLOUD, CLOUD_LINES, windIs, pushedLine } from './cloud.js?v=333e2f8';
+import { POND, READ_LINES, mirrored, isRead, readKey, readStep, readReset } from './pond.js?v=333e2f8';
+import { ANVIL, ANVIL_LINES, forged, temperMult, hammerInBattle, cooled, keptEdge, bellIntent, shellBroke, bellRound, leftBell, building, bellBuilt } from './anvil.js?v=333e2f8';
+import { monsterXp } from '../data/bands.js?v=333e2f8';
+import { xpToNext } from './level.js?v=333e2f8';
+import { addSkillXp } from './skills.js?v=333e2f8';
 export const FIERCE_PER = 0.0005;
 export const fierceOf = (day) => 1 + FIERCE_PER * Math.max(0, (day || 1) - 1);
 
@@ -244,8 +244,11 @@ function hitEnemy(state, events, power = 1, verb = null, opt = {}) {
   if (fx.first && b.turn === 1) attack = Math.round(attack * fx.first);
   let dmg = damage(state, attack, power * (br?.dmg || 1) * (state.flags.knowsBoar && b.mon === 'boar' ? 1.15 : 1), opt.pierce ? 0 : m.defense); // 숲의 사람은 멧돼지 약점을 안다
   dmg = Math.max(1, Math.round(dmg * mainMult(state) * (1 + hv(state, 'drill') * 0.01))); // 주 스탯 보너스 (Z116), 단련 (Z119)
-  const crit = opt.sure ? true : chance(state, Math.max(0, critChance(state.stats.agi, m.agi) + (br?.crit || 0) + (opt.crit || 0) + (a2.crit || 0) + (equipPower(state).crit || 0) + (fx.crit || 0)));
-  if (crit) dmg = Math.round(dmg * 1.5);
+  const sureNow = (b.sure || 0) > 0 || (b.sureTurns || 0) > 0; // 집중·백발백중 (Z126)
+  if ((b.sure || 0) > 0 && !opt.sure) b.sure -= 1;
+  const crit = opt.sure || sureNow ? true : chance(state, Math.max(0, critChance(state.stats.agi, m.agi) + (br?.crit || 0) + (opt.crit || 0) + (a2.crit || 0) + (equipPower(state).crit || 0) + (fx.crit || 0)));
+  if (crit) dmg = Math.round(dmg * (a2.critMult || 1.5)); // 매의 눈: 1.8배 (Z126)
+  if (b.buff?.dmg) dmg = Math.round(dmg * b.buff.dmg); // 피의 광기·최후의 함성 (Z126)
   let em = elementMult(opt.element, m.element);
   if (fx.fire && opt.element === '불') dmg = Math.max(1, Math.round(dmg * fx.fire)); // 불씨지기의 후예 (Z120)
   if (em > 1 && a2.weak) em = a2.weak;
@@ -285,6 +288,7 @@ function hitEnemy(state, events, power = 1, verb = null, opt = {}) {
 
 function hurt(state, events, dmg) {
   state.hp = Math.max(0, state.hp - dmg);
+  if (state.hp <= 0 && (state.battle?.undying || 0) > 0) { state.hp = 1; pushLine(state, events, { k: 'sys', tone: 'warn', text: '쓰러질 몸이 버텼다.' }); } // 최후의 함성 (Z126)
   const armor = state.equip.body;
   if (usable(armor)) wear(state, events, armor, 'body');
 }
@@ -400,6 +404,11 @@ function enemyAct(state, events, defended, guard = null, stance = null) {
     hitEnemy(state, events, 1, '되받아쳤다.', { plus: val(state, 'defense') + skillBonus(state.skills.guard) });
     return;
   }
+  if ((b.vanish || 0) > 0) { b.vanish -= 1; pushLine(state, events, { k: 'room', text: `${move.say} 그늘에 녹은 몸에 닿지 않았다.` }); return; } // 잠복 (Z126)
+  if (b.dodgeUp?.turns > 0) {
+    b.dodgeUp.turns -= 1;
+    if (chance(state, b.dodgeUp.p)) { pushLine(state, events, { k: 'me', text: `${eulReul(move.name)} 바람처럼 비켜섰다.` }); return; } // 바람 걸음 (Z126)
+  }
   const foe = b.weak ? Math.round(m.attack * (1 - b.weak.cut)) : m.attack;
   let dmg = damage(state, foe, move.power, val(state, 'defense'));
   if (chance(state, critChance(m.agi, state.stats.agi))) dmg = Math.round(dmg * 1.5);
@@ -469,6 +478,19 @@ function endRound(state, events) {
   if (state.hp <= 0) return lose(state, events);
   if (!state.battle) return;
   const b = state.battle;
+  if (b.poison > 0) { // 독칼 (Z126)
+    const p = 3 + Math.floor(state.stats.agi / 4);
+    b.poison -= 1; b.hp = Math.max(0, b.hp - p);
+    pushLine(state, events, { k: 'room', text: `${iGa(mdef(b).name)} 독에 시달린다. ${p} 피해.` });
+    if (b.hp <= 0) return win(state, events);
+  }
+  if (b.spirit > 0) { // 정령왕 강림 (Z126)
+    b.spirit -= 1;
+    hitEnemy(state, events, 2, '정령이 함께 쳤다.', { stat: 'wis', pierce: true });
+    if (state.battle !== b) return;
+  }
+  for (const k of ['sureTurns', 'freeMp', 'twin', 'undying']) if (b[k] > 0) b[k] -= 1;
+  if (b.buff && --b.buff.turns <= 0) b.buff = null;
   if (b.burn > 0) {
     const burn = 3 + Math.floor(state.stats.wis / 4);
     b.burn -= 1;
@@ -545,10 +567,12 @@ function win(state, events) {
   const before = state.level;
   pushLine(state, events, { k: 'room', text: `${iGa(m.name)} 쓰러졌다.` });
   const got = [`경험치 ${m.xp}`];
-  for (const d of m.drops) {
-    if (!chance(state, d.p)) continue;
-    addItem(state, d.id, 1);
-    got.push(`${itemDef(d.id).name} 1`);
+  const rolls = 1 + (b.loot || 0); // 약탈·보물 찾기 (Z126)
+  for (let r = 0; r < rolls; r++) for (const d of m.drops) {
+    if (!chance(state, Math.min(1, d.p * (adv(state).dropUp || 1)))) continue; // 보물 냄새 (Z126)
+    const n = state.flags.extraHide && /hide|fur|pelt|leather/.test(d.id) && chance(state, state.flags.extraHide) ? 2 : 1; // 매사냥꾼 (Z120)
+    addItem(state, d.id, n);
+    got.push(`${itemDef(d.id).name} ${n}`);
   }
   if (b.person) got.push(...duelSpoils(state, events, m));
   if (b.bandit) got.push(...banditSpoils(state, events, m));
@@ -643,6 +667,36 @@ function lose(state, events) {
  * @param {'attack'|'defend'|'flee'|'item'} choice
  * @param {number} [arg] 아이템을 쓸 때 가방의 자리
  */
+/** 적의 약점을 가장 크게 찌르는 속성 (원소 폭발, Z126). */
+function bestElement(m) {
+  return ['불', '물', '바람', '빛'].reduce((a, e) => (elementMult(e, m.element) > elementMult(a, m.element) ? e : a), '불');
+}
+/** 나와 동료의 생명력을 최대의 몫만큼 채운다 (Z126). */
+function healAll(state, events, pct) {
+  const max = val(state, 'maxHp');
+  state.hp = Math.min(max, state.hp + Math.round(max * pct));
+  for (const c of state.party || []) if (!c.down) c.hp = Math.min(maxHpOf(c), (c.hp || 0) + Math.round(maxHpOf(c) * pct));
+  pushLine(state, events, { k: 'sys', tone: 'good', text: `일행의 생명력이 ${Math.round(pct * 100)}% 찼다.` });
+}
+/** 2·3·4차 스킬의 새 효과 (Z126). 피해와 회복은 cast가 한다. */
+function special(state, events, b, sk) {
+  if (sk.selfCost) { const cost = Math.round(val(state, 'maxHp') * sk.selfCost); state.hp = Math.max(1, state.hp - cost); pushLine(state, events, { k: 'sys', tone: 'warn', text: `생명력 −${cost}.` }); }
+  if (sk.buff) b.buff = { ...sk.buff };
+  if (sk.sure) b.sure = (b.sure || 0) + sk.sure;
+  if (sk.sureTurns) b.sureTurns = sk.sureTurns;
+  if (sk.dodge) b.dodgeUp = { ...sk.dodge };
+  if (sk.vanish) b.vanish = sk.vanish;
+  if (sk.loot) b.loot = (b.loot || 0) + sk.loot;
+  if (sk.freeMp) b.freeMp = sk.freeMp;
+  if (sk.spirit) b.spirit = sk.spirit;
+  if (sk.twin) b.twin = sk.twin;
+  if (sk.undying) b.undying = sk.undying;
+  if (sk.poison) b.poison = Math.max(b.poison || 0, sk.poison);
+  if (sk.mpBack) { const maxMp = val(state, 'maxMp'); const got = Math.round(maxMp * sk.mpBack); state.mp = Math.min(maxMp, state.mp + got); pushLine(state, events, { k: 'sys', text: `마나 +${got}.` }); }
+  if (sk.partyHeal) { const amt = state.stats.wis * sk.partyHeal; for (const c of state.party || []) if (!c.down) c.hp = Math.min(maxHpOf(c), (c.hp || 0) + amt); if ((state.party || []).length) pushLine(state, events, { k: 'sys', text: `동료들의 생명력 +${amt}.` }); }
+  if (sk.miracle) { state.hp = val(state, 'maxHp'); state.mp = val(state, 'maxMp'); state.status = []; for (const c of state.party || []) if (!c.down) c.hp = maxHpOf(c); pushLine(state, events, { k: 'sys', tone: 'good', text: '모두의 생명력과 마나가 가득 찼다. 걸려 있던 것이 다 씻겼다.' }); }
+}
+
 export function battleAct(state, events, choice, arg) {
   const b = state.battle;
   if (!b) throw new Error('싸우고 있지 않습니다');
@@ -660,6 +714,9 @@ export function battleAct(state, events, choice, arg) {
   if (choice === 'skill') {
     if (!sk) throw new Error('쓸 수 없는 스킬입니다');
     if (!sk.open) throw new Error(`레벨 ${sk.at}에 열리는 스킬입니다`);
+    if (!loadoutOf(state).includes(sk.id)) throw new Error('장착하지 않은 스킬입니다'); // (Z127)
+    if (sk.once && b.used?.[sk.id]) throw new Error('이 싸움에서 이미 썼습니다'); // 궁극 (Z126)
+    if ((b.freeMp || 0) > 0) sk.mp = 0; // 원소 해방 (Z126)
     if (state.mp < sk.mp) throw new Error(`마나가 모자랍니다 (${state.mp} / ${sk.mp})`);
   }
   if (choice === 'item' && !(state.bag[arg] && (itemDef(state.bag[arg].id).eat || itemDef(state.bag[arg].id).throw))) throw new Error('쓸 수 없는 물건입니다');
@@ -702,6 +759,7 @@ export function battleAct(state, events, choice, arg) {
 
   if (sk && sk.flee && !stunned) {
     state.mp -= sk.mp;
+    if (sk.partyPct) healAll(state, events, sk.partyPct); // 바람의 길 (Z126)
     if (b.arena) { pushLine(state, events, { k: 'me', text: `${sk.say} 그 틈에 마당 밖으로 물러났다. 물러난 쪽이 진 것이다.` }); return arenaEnd(state, events, false); }
     pushLine(state, events, { k: 'me', text: `${sk.say} 그 틈에 달아났다.` });
     leftBell(state, b);
@@ -718,13 +776,19 @@ export function battleAct(state, events, choice, arg) {
     if (guard) return; // 막는 스킬은 턴 머리에 이미 썼다
     state.mp -= sk.mp;
     pushLine(state, events, { k: 'me', text: `${sk.name}. ${sk.say}` });
+    if (sk.once) (b.used || (b.used = {}))[sk.id] = true;
+    special(state, events, b, sk);
     const charge = sk.dmg || sk.heal ? b.focus || 0 : 0; // 모은 횟수(둘까지). 피해도 회복도 없는 스킬에는 쓰이지 않고 남는다
     const boost = 1 + charge;
     const plus = charge ? Math.floor(state.stats.wis / 2) + skillBonus(state.skills.focus) : 0;
     if (charge) { b.focus = 0; pushLine(state, events, { k: 'sys', text: `모아 둔 것이 터진다. 위력 ${boost}배.` }); }
     if (sk.dmg) {
-      const power = (sk.first && b.turn === 1 ? sk.first : sk.dmg) * boost;
-      for (let i = 0; i < (sk.hits || 1) && state.battle === b; i++) hitEnemy(state, events, power, '', { stat: sk.stat, pierce: sk.pierce, crit: sk.crit, element: sk.element, plus });
+      const low = sk.execute && b.hp < m.hp * sk.execute.below; // 그림자 처형 (Z126)
+      const power = (low ? sk.execute.dmg : sk.first && b.turn === 1 ? sk.first : sk.dmg) * boost;
+      const elems = sk.elements || [sk.weakElem ? bestElement(m) : sk.element]; // 삼원소 폭풍·원소 폭발 (Z126)
+      const times = (sk.hits || 1) * elems.length * ((b.twin || 0) > 0 ? 2 : 1); // 그림자 분신 (Z126)
+      for (let i = 0; i < times && state.battle === b; i++) hitEnemy(state, events, power, '', { stat: sk.stat, pierce: sk.pierce, crit: sk.crit, element: elems[i % elems.length], plus });
+      if (sk.coin) { const c = Math.max(1, m.level * 2); state.silver += c; pushLine(state, events, { k: 'sys', text: `칼끝에 은화가 걸려 나왔다. 은화 +${c}.` }); } // 황금 칼날
     }
     if (state.battle !== b) return;
     if (sk.heal) {
@@ -739,7 +803,7 @@ export function battleAct(state, events, choice, arg) {
     if (sk.ward) {
       const more = state.job === 'priest' && chance(state, healLuck(state)) ? 1 : 0; // 가호가 한 번 더 막는다 (Z116)
       if (more) pushLine(state, events, { k: 'sys', tone: 'good', text: '가호가 한 겹 더 섰다.' });
-      b.ward = { ...sk.ward, turns: sk.ward.turns + (adv(state).ward || 0) + more };
+      b.ward = { ...sk.ward, cut: Math.min(1, sk.ward.cut + (adv(state).wardCut || 0)), turns: sk.ward.turns + (adv(state).ward || 0) + more };
     }
     if (sk.stun) b.stun = Math.max(b.stun || 0, sk.stun);
     if (sk.weaken) b.weak = { ...sk.weaken };
@@ -749,7 +813,10 @@ export function battleAct(state, events, choice, arg) {
   const mine = () => {
     if (stunned) { pushLine(state, events, { k: 'sys', text: pushed ? CLOUD_LINES.lost : '몸이 굳어 움직일 수 없다.' }); return; }
     if (sk) return cast();
-    if (choice === 'attack') hitEnemy(state, events, 1, building(b) && b.hp > 0 ? ANVIL_LINES.crack : usable(state.equip.weapon) ? '내리쳤다.' : '맨주먹을 휘둘렀다.'); // 모루 위에서는 껍질을 친다 (CM-D1)
+    if (choice === 'attack') {
+      hitEnemy(state, events, 1, building(b) && b.hp > 0 ? ANVIL_LINES.crack : usable(state.equip.weapon) ? '내리쳤다.' : '맨주먹을 휘둘렀다.'); // 모루 위에서는 껍질을 친다 (CM-D1)
+      if ((b.twin || 0) > 0 && state.battle === b) hitEnemy(state, events, 1, '그림자가 같이 쳤다.'); // 그림자 분신 (Z126)
+    }
     else if (choice === 'defend') {
       if (prepared) return; // 턴 머리에 이미 채비했다
       const id = stanceOf(state).id;

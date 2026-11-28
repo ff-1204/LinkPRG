@@ -21,6 +21,9 @@ const fresh = (seed = 'm2', origin = 'smithboy', spent = {}) => createGame({ nam
 const fakeStorage = () => { const m = new Map(); return { getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, v), removeItem: (k) => m.delete(k) }; };
 const types = (events) => events.map((e) => e.type);
 
+/** 모으다 덤비는 것(Z124)을 끈다: 친화 10이면 확률이 0 아래로 내려간다. 이 테스트는 모으기 자체를 본다 */
+const calmGather = (s) => { s.hidden.kind = { value: 10, half: true }; return s; };
+
 test('새 게임은 훈련복과 짚신을 차고 주먹밥을 들고 시작한다', () => {
   const s = fresh();
   assert.equal(s.v, SAVE_VERSION);
@@ -464,7 +467,7 @@ test('신전 고아는 두고 오는 돈이 절반이다 (T2)', () => {
 });
 
 test('모으기: 한 번에 하나, 숙련도가 오르고 허탕도 있다. 여러 번을 한꺼번에 하는 길은 없다', () => {
-  const s = fresh('mine');
+  const s = calmGather(fresh('mine'));
   s.place = 'mine';
   s.bag = [];
   let got = 0;
@@ -472,11 +475,11 @@ test('모으기: 한 번에 하나, 숙련도가 오르고 허탕도 있다. 여
     const before = countOf(s, 'ironore') + countOf(s, 'copperore');
     dispatch(s, { type: 'act', id: 'mine' });
     const after = countOf(s, 'ironore') + countOf(s, 'copperore');
-    assert.ok(after - before === 0 || after - before === 1);
+    assert.ok(after - before >= 0 && after - before <= 2, '한 번 누르면 한 번 모은다. 위험한 들판에서는 둘이 나올 때가 있다 (Z125)');
     got += after - before;
     s.full = 80;
   }
-  assert.ok(got > 60 && got < 95, `얻은 것 ${got}`);
+  assert.ok(got > 60 && got < 120, `얻은 것 ${got}`);
   assert.ok(s.skills.mining.grade >= 1);
   assert.equal(s.counters.act.mine, 100);
   assert.throws(() => dispatch(s, { type: 'act', id: 'fish' }), /여기서는 할 수 없는/);

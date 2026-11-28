@@ -537,10 +537,11 @@ test('M19-6 용병이 하나뿐이거나 쓰러져 있으면 호위받지 못한
   s.battle = null; s.status = []; void before;
   partyRest(s);
   assert.ok(escorts(s) && s.party[0].hp === 1400 && s.party[0].out === undefined);
-  // 다른 지역에서는 캐는 동안 덤비지 않는다
+  // 다른 지역에서는 짝으로 덤비지 않는다. 모으다 덤비는 것(Z124)은 하나씩이다
   const m = rested('else2', { at: 'mossfield' });
   m.marsh.lamp = 60;
-  for (let i = 0; i < 80; i++) { tend(m); m.tick = 0; m.phase = 0; dispatch(m, { type: 'act', id: 'dig' }); assert.equal(m.battle, null); }
+  for (let i = 0; i < 80; i++) { tend(m); m.tick = 0; m.phase = 0; dispatch(m, { type: 'act', id: 'dig' }); m.battle = null; }
+  assert.ok(!String(texts(m)).includes('둘이 이쪽으로 온다'));
 });
 
 // ── M19-7 견습 둘째 자리 (AN-C8, AN-F4, LV-K2) ──

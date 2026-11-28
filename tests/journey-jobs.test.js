@@ -27,7 +27,7 @@ function toLevel5(s) {
   assert.equal(s.level >= 5, true, `레벨 ${s.level}`);
 }
 
-test('도현 1: 레벨 5가 되자 직업 고르기가 열리고, 전사를 고르자 단축 칸에 방패 올리기가 놓인다', () => {
+test('도현 1: 레벨 5가 되자 직업 고르기가 열리고, 전사를 고르자 단축 칸에 강타가 놓인다 (공격 스킬 먼저, Z126)', () => {
   const s = createGame({ name: '도현', origin: 'smithboy', spent: { str: 3, con: 2 }, seed: 'dohyun-1b' });
   assert.ok(!canChooseJob(s));
   toLevel5(s);
@@ -36,16 +36,16 @@ test('도현 1: 레벨 5가 되자 직업 고르기가 열리고, 전사를 고�
   const list = jobChoices(s);
   assert.equal(list.length, 5);
   assert.ok(list.find((j) => j.name === '전사').match, '치기를 가장 많이 했으니 전사가 맞는다');
-  assert.equal(list.find((j) => j.name === '전사').first.name, '방패 올리기');
+  assert.equal(list.find((j) => j.name === '전사').first.name, '강타');
   if (s.choice) dispatch(s, { type: 'choose', id: slotsNow(s).at(-1).action.id });
   dispatch(s, { type: 'career', op: 'choose', id: 'warrior' });
   assert.equal(jobName(s), '전사');
   s.place = 'forest'; s.hp = valueOf(s, 'maxHp');
   s.battle = { mon: 'boar', hp: 60, turn: 1, intent: 'charge', stun: 0, weak: null, burn: 0, ward: null, streak: 0 }; s.status = [];
-  assert.ok(slotsNow(s)[1].label.startsWith('방패 올리기'));
-  const hp = s.hp;
+  assert.ok(slotsNow(s)[1].label.startsWith('강타'));
+  const foeHp = s.battle.hp;
   dispatch(s, slotsNow(s)[1].action);
-  assert.equal(s.hp, hp, '돌진을 방패로 막았다');
+  assert.ok(!s.battle || s.battle.hp < foeHp, '강타로 멧돼지를 쳤다');
 });
 
 test('서진 7: 레벨 5가 되어 직업 고르기를 훑어보고 "아직 고르지 않는다"를 누른다', () => {

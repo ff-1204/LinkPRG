@@ -1,25 +1,58 @@
 // 직업과 히든 직업 (T4~T9, N4-3, N4-4, N5).
 
-import { pushLine, ding } from './log.js?v=d86445b';
-import { JOBS, JOB_ORDER, HIDDEN_JOBS, HIDDEN_JOB_ORDER, JOB_LEVEL, JOB_XP, SKILL_LEVELS, NAMELESS_LEVEL, jobDef, ADVANCED, ADVANCE_LEVEL } from '../data/jobs.js?v=d86445b';
-import { placeById } from '../data/places.js?v=d86445b';
-import { guildPerk } from './guild.js?v=d86445b';
-import { SKILL_NAMES, gradeLabel } from './skills.js?v=d86445b';
-import { itemDef } from '../data/items.js?v=d86445b';
-import { addItem } from './inventory.js?v=d86445b';
-import { eulReul, iGa } from './ko.js?v=d86445b';
-import { xpBoost } from './buffs.js?v=d86445b';
-import { priestOpen, PRIEST_LUCK, bondFx } from './statplan.js?v=d86445b';
-import { PRIEST_LOCK } from '../data/statinfo.js?v=d86445b';
+import { pushLine, ding } from './log.js?v=333e2f8';
+import { JOBS, JOB_ORDER, HIDDEN_JOBS, HIDDEN_JOB_ORDER, JOB_LEVEL, JOB_XP, SKILL_LEVELS, NAMELESS_LEVEL, jobDef, ADVANCED, ADVANCE_LEVEL, TIER3, TIER4, TIER_LEVEL, SKILL_SLOTS } from '../data/jobs.js?v=333e2f8';
+import { placeById } from '../data/places.js?v=333e2f8';
+import { guildPerk } from './guild.js?v=333e2f8';
+import { SKILL_NAMES, gradeLabel } from './skills.js?v=333e2f8';
+import { itemDef } from '../data/items.js?v=333e2f8';
+import { addItem } from './inventory.js?v=333e2f8';
+import { eulReul, iGa } from './ko.js?v=333e2f8';
+import { xpBoost } from './buffs.js?v=333e2f8';
+import { priestOpen, PRIEST_LUCK, bondFx } from './statplan.js?v=333e2f8';
+import { PRIEST_LOCK } from '../data/statinfo.js?v=333e2f8';
+import { originById } from '../data/origins.js?v=333e2f8';
 
 /** 보이는 직업 이름. */
 export function jobName(state) {
+  if (state.job2 && state.job4) return TIER4[state.job2].name; // 3·4차 (Z126)
+  if (state.job2 && state.job3) return TIER3[state.job2].name;
   return ADVANCED[state.job2]?.name || jobDef(state.job)?.name || '무직';
 }
 
 /** 2차 전직의 효과(없으면 빈 것). */
 export function adv(state) {
-  return ADVANCED[state.job2] || {};
+  const a = ADVANCED[state.job2];
+  if (!a) return {};
+  const p = state.job3 ? TIER3[state.job2]?.pas : null; // 3차의 늘 붙는 효과 (Z126)
+  if (!p) return a;
+  const out = { ...a };
+  for (const k of ['hp', 'guard', 'sense', 'wardCut']) if (p[k]) out[k] = (out[k] || 0) + p[k];
+  for (const k of ['rage', 'friend', 'heal', 'first', 'dropUp']) if (p[k]) out[k] = (out[k] || 1) * p[k];
+  if (p.weak) out.weak = (out.weak || 1.5) + p.weak;
+  if (p.critMult) out.critMult = p.critMult;
+  return out;
+}
+
+/** 3·4차 전직 창이 그릴 것 (Z126): 다음 단계, 열리는 레벨, 할 수 있는가. */
+export function promoteView(state) {
+  const tier = state.job4 ? null : state.job3 ? 4 : state.job2 ? 3 : null;
+  if (!tier) return null;
+  const t = (tier === 3 ? TIER3 : TIER4)[state.job2];
+  const why = state.level < TIER_LEVEL[tier] ? `레벨 ${TIER_LEVEL[tier]}부터` : !placeById(state.place).actions.includes('advance') ? '장인 거리에서 한다' : '';
+  return { tier, name: t.name, level: TIER_LEVEL[tier], can: !why, why, skills: t.skills.map((s) => ({ name: s.name, kind: s.kind, text: s.text })), pas: t.pasName ? { name: t.pasName, text: t.pasText } : null };
+}
+
+/** 3·4차 전직 (Z126): 고를 것이 없어 바로 된다. 2차를 한 장인 거리에서. */
+export function promote(state, events) {
+  const v = promoteView(state);
+  if (!v) throw new Error(state.job4 ? '이미 마지막 전직입니다' : '2차 전직부터 해야 합니다');
+  if (!v.can) throw new Error(v.why === '장인 거리에서 한다' ? '전직은 소리재의 장인 거리에서 합니다' : `${v.tier}차 전직은 ${v.why} 할 수 있습니다`);
+  if (v.tier === 3) state.job3 = true; else state.job4 = true;
+  if (v.tier === 3 && TIER3[state.job2].pas?.hp) state.hp += TIER3[state.job2].pas.hp;
+  ding(state, events, { level: 3, kind: 'job', title: `${iGa(`'${v.name}'`)} 되었습니다`, big: v.name, body: `${v.tier}차 전직. ${v.skills.map((s) => s.name).join(', ')}${v.pas ? `, ${v.pas.name}` : ''}.` });
+  state.journal.push({ day: state.day, phase: state.phase, place: state.place, text: `장인 거리에서 ${iGa(v.name)} 되었다.`, note: `${iGa(v.name)} 된 날` });
+  events.push({ type: 'job' });
 }
 
 /** 2차 전직 창이 그릴 것: 내 직업에서 갈라지는 둘. */
@@ -48,8 +81,16 @@ export function skillsNow(state) {
   const def = jobDef(state.job);
   if (!def) return [];
   const fx = bondFx(state) || {}; // 직업의 인연 (Z120)
-  return def.skills.map((sk, i) => {
-    const out = { ...sk, at: SKILL_LEVELS[i], open: state.level >= SKILL_LEVELS[i] || !!fx.open?.includes(sk.id) };
+  // 2차는 공격 스킬이 레벨 20(전직한 때), 직업 스킬이 레벨 30. 3차는 50, 4차는 80 (Z126)
+  const a2 = ADVANCED[state.job2];
+  const more = [
+    ...(a2?.skills || []).map((sk, i) => ({ sk, at: i === 0 ? ADVANCE_LEVEL : 30 })),
+    ...(state.job3 ? TIER3[state.job2].skills.map((sk) => ({ sk, at: TIER_LEVEL[3] })) : []),
+    ...(state.job4 ? TIER4[state.job2].skills.map((sk) => ({ sk, at: TIER_LEVEL[4] })) : []),
+  ];
+  const list = [...def.skills.map((sk, i) => ({ sk, at: SKILL_LEVELS[i] })), ...(state.job === a2?.from ? more : [])];
+  return list.map(({ sk, at }) => {
+    const out = { ...sk, at, open: state.level >= at || !!fx.open?.includes(sk.id) };
     if (fx.mp?.[sk.id]) out.mp = Math.max(1, sk.mp + fx.mp[sk.id]);
     if (fx.skillCrit?.[sk.id]) out.crit = (sk.crit || 0) + fx.skillCrit[sk.id];
     if (fx.weaken?.[sk.id] && sk.weaken) out.weaken = { ...sk.weaken, cut: fx.weaken[sk.id] };
@@ -58,6 +99,45 @@ export function skillsNow(state) {
     if (fx.heal?.[sk.id] && sk.heal) out.heal = sk.heal * fx.heal[sk.id];
     return out;
   });
+}
+
+// ── 스킬 장착 (Z127): 익힌 스킬 가운데 셋만 싸움에 가져간다. 싸우는 동안에는 바꿀 수 없다 ──
+
+/** 장착한 스킬 id들. 없던 저장은 열린 차례대로 앞의 셋. */
+export function loadoutOf(state) {
+  const open = skillsNow(state).filter((x) => x.open).map((x) => x.id);
+  if (!Array.isArray(state.loadout)) return open.slice(0, SKILL_SLOTS);
+  const out = state.loadout.filter((id) => open.includes(id)).slice(0, SKILL_SLOTS);
+  // 막 열려 아직 살피지 않은 스킬은 빈 칸에 들어간 것으로 본다 (다음 한 일에서 적힌다)
+  for (const id of open) if (out.length < SKILL_SLOTS && !out.includes(id) && !(state.skillSeen || []).includes(id)) out.push(id);
+  return out;
+}
+/** 새로 열린 스킬을 살핀다: 빈 칸이 있으면 저절로 장착하고, 없으면 알린다. 한 일마다 부른다. */
+export function syncLoadout(state, events) {
+  const open = skillsNow(state).filter((x) => x.open);
+  if (!open.length) return;
+  if (!Array.isArray(state.loadout)) state.loadout = open.slice(0, SKILL_SLOTS).map((x) => x.id);
+  if (!Array.isArray(state.skillSeen)) state.skillSeen = open.map((x) => x.id);
+  for (const sk of open) {
+    if (state.skillSeen.includes(sk.id)) continue;
+    state.skillSeen.push(sk.id);
+    if (state.loadout.length < SKILL_SLOTS) state.loadout.push(sk.id);
+    else pushLine(state, events, { k: 'sys', tone: 'good', text: `새 스킬 '${sk.name}'이 열렸다. 스킬 창에서 장착할 수 있다.` });
+  }
+}
+/** 장착하거나 뺀다. 싸우는 동안에는 바꿀 수 없다. */
+export function setLoadout(state, events, op, id) {
+  if (state.battle) throw new Error('싸우는 중에는 바꿀 수 없습니다');
+  const sk = skillsNow(state).find((x) => x.id === id && x.open);
+  if (!sk) throw new Error('쓸 수 없는 스킬입니다');
+  const now = loadoutOf(state);
+  if (op === 'add') {
+    if (now.includes(id)) return;
+    if (now.length >= SKILL_SLOTS) throw new Error(`스킬은 ${SKILL_SLOTS}개까지 장착합니다. 하나를 빼야 합니다`);
+    state.loadout = [...now, id];
+  } else if (op === 'remove') state.loadout = now.filter((x) => x !== id);
+  else throw new Error('모르는 장착 행동입니다');
+  events.push({ type: 'job' });
 }
 
 /** 피로 80 이상에서 일하면 숙련도가 1.5배로 오른다 (Z75, 사용자 요청). 싸우는 중은 일이 아니다. */
@@ -94,6 +174,9 @@ export function jobChoices(state) {
       match: mine > 0 && mine >= best,
       gear: itemDef(j.gear).name,
       // 사제는 행운을 찾은 사람만 고른다 (Z116). 못 찾은 사람에게는 행운이라는 말 없이 귀띔만
+      // 내 출신과 맞는 직업 (Z128): 출신의 어울리는 직업. 인연이 있으면 그 글도
+      origin: originById(state.origin)?.job === id,
+      bond: originById(state.origin)?.job === id ? originById(state.origin)?.bond?.text || '' : '',
       lock: id === 'priest' && !priestOpen(state) ? PRIEST_LOCK : '',
       perk: id === 'priest' && priestOpen(state) ? `고르면: 행운 +${PRIEST_LUCK}, 버프 "신의 은총"` : '',
       mains: id === 'priest' ? (priestOpen(state) ? '지혜, 행운' : '지혜') : { warrior: '힘', archer: '민첩', mage: '지혜', rogue: '민첩' }[id],

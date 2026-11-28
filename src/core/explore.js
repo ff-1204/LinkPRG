@@ -1,34 +1,34 @@
 // 탐색과 랜덤 인카운터, 기척 (E1~E4, R2-3).
 // 탐색 한 번마다 전투·발견·사건·만남·희귀 가운데 하나. 싸울지는 되도록 내가 고른다.
 
-import { banditStep, bandOfPlace } from '../data/bands.js?v=d86445b';
-import { next, pick, chance, roll01 } from './rng.js?v=d86445b';
-import { addFame } from './social.js?v=d86445b';
-import { pushLine } from './log.js?v=d86445b';
-import { weighted, startBattle } from './battle.js?v=d86445b';
-import { addItem, countOf, takeById } from './inventory.js?v=d86445b';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=d86445b';
-import { ding } from './log.js?v=d86445b';
-import { monsterDef } from '../data/monsters.js?v=d86445b';
-import { itemDef } from '../data/items.js?v=d86445b';
-import { USERS } from '../data/lines.js?v=d86445b';
-import { loseWater } from './thirst.js?v=d86445b';
-import { BANDIT, BANDIT_FEEL, BANDIT_NAMES, WILDS, INCIDENTS, DANGER, DANGER_UP, OTHER_WEIGHTS, TENSION_STEP, TENSION_MAX, SCENT_TRIES, SCENT_PHASES } from '../data/wild.js?v=d86445b';
-import { placeById } from '../data/places.js?v=d86445b';
-import { iGa, eulReul, eunNeun } from './ko.js?v=d86445b';
-import { hasTitle } from './titles.js?v=d86445b';
-import { worth } from './trade.js?v=d86445b';
-import { branchOf } from './evolve.js?v=d86445b';
-import { answerHidden } from './quests.js?v=d86445b';
-import { jobXp, hiddenJobView, answerHiddenJob } from './jobs.js?v=d86445b';
-import { luckOf, hasGrace, GRACE_AGAIN } from './statplan.js?v=d86445b';
-import { HIDDENS } from '../data/quests.js?v=d86445b';
-import { dungeonChoiceView, dungeonChoose } from './dungeon.js?v=d86445b';
-import { coldStage } from './cold.js?v=d86445b';
-import { endingChoiceView, applyEnding } from './ending.js?v=d86445b';
-import { anvilChoiceView, chooseAnvilEnd } from './anvil.js?v=d86445b';
-import { memoryChoiceView, chooseMemory } from './memories.js?v=d86445b';
-import { chestsLeft, openChest } from './sunken.js?v=d86445b';
+import { banditStep, bandOfPlace } from '../data/bands.js?v=333e2f8';
+import { next, pick, chance, roll01 } from './rng.js?v=333e2f8';
+import { addFame } from './social.js?v=333e2f8';
+import { pushLine } from './log.js?v=333e2f8';
+import { weighted, startBattle } from './battle.js?v=333e2f8';
+import { addItem, countOf, takeById } from './inventory.js?v=333e2f8';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=333e2f8';
+import { ding } from './log.js?v=333e2f8';
+import { monsterDef } from '../data/monsters.js?v=333e2f8';
+import { itemDef } from '../data/items.js?v=333e2f8';
+import { USERS } from '../data/lines.js?v=333e2f8';
+import { loseWater } from './thirst.js?v=333e2f8';
+import { BANDIT, BANDIT_FEEL, BANDIT_NAMES, WILDS, INCIDENTS, DANGER, DANGER_UP, OTHER_WEIGHTS, TENSION_STEP, TENSION_MAX, SCENT_TRIES, SCENT_PHASES } from '../data/wild.js?v=333e2f8';
+import { placeById } from '../data/places.js?v=333e2f8';
+import { iGa, eulReul, eunNeun } from './ko.js?v=333e2f8';
+import { hasTitle } from './titles.js?v=333e2f8';
+import { worth } from './trade.js?v=333e2f8';
+import { branchOf } from './evolve.js?v=333e2f8';
+import { answerHidden } from './quests.js?v=333e2f8';
+import { jobXp, hiddenJobView, answerHiddenJob } from './jobs.js?v=333e2f8';
+import { luckOf, hasGrace, GRACE_AGAIN } from './statplan.js?v=333e2f8';
+import { HIDDENS } from '../data/quests.js?v=333e2f8';
+import { dungeonChoiceView, dungeonChoose } from './dungeon.js?v=333e2f8';
+import { coldStage } from './cold.js?v=333e2f8';
+import { endingChoiceView, applyEnding } from './ending.js?v=333e2f8';
+import { anvilChoiceView, chooseAnvilEnd } from './anvil.js?v=333e2f8';
+import { memoryChoiceView, chooseMemory } from './memories.js?v=333e2f8';
+import { chestsLeft, openChest } from './sunken.js?v=333e2f8';
 
 const WORK = { smith: { name: '대장장이', who: '대장간 주인', skill: 'smithing' }, tailor: { name: '재봉사', who: '재봉사', skill: 'leather' }, chef: { name: '요리사', who: '주방장', skill: 'cooking' } };
 
@@ -286,7 +286,7 @@ export function choiceView(state) {
     const j = hiddenJobView(state, c.id);
     return {
       kind: 'hjob', title: '히든 직업', side: j.name, text: j.text,
-      note: `찾은 까닭: ${j.why}. 얻는 것: ${j.gain}. 잃는 것: ${j.lose}.${j.had ? ` 지금의 직업 ${eunNeun(j.had)} 내려놓는다.` : ''} 거절해도 벌은 없지만 다시 오지 않습니다.`,
+      note: `찾은 까닭: ${j.why}. 얻는 것: ${j.gain}. 잃는 것: ${j.lose}.${j.had ? ` 지금의 직업 ${eunNeun(j.had)} 내려놓는다.` : ''}${state.respec !== 'done' ? ' 받으면 스탯이 초기화된다. 레벨로 받은 점수를 모두 돌려받아 다시 찍는다(전에 찍은 대로 둘 수도 있다).' : ''} 거절해도 벌은 없지만 다시 오지 않습니다.`,
       options: [{ id: 'accept', label: '받는다', go: true }, { id: 'decline', label: '거절한다' }],
     };
   }
@@ -451,6 +451,9 @@ export function choose(state, events, id) {
   if (e.scent) leaveScent(state, c.place, e.scent); // 지나친 짐승을 노리는 것이 온다 (Z64)
 }
 
+/** 위험한 들판일수록 더 잘 모인다 (Z125): 허탕이 줄고, 둘이 나올 확률이 는다. 밤에는 위험도가 한 단계 올라 같이 는다. */
+export const GATHER_RICH = { 안전: { miss: 0, double: 0 }, 낮음: { miss: 0, double: 0 }, 보통: { miss: 0.05, double: 0.05 }, 높음: { miss: 0.10, double: 0.10 } };
+
 /** 모으기 한 번 (채집·채광·낚시). 한 번 누르면 한 번. */
 export function gather(state, events) {
   const g = WILDS[state.place]?.gather;
@@ -464,14 +467,16 @@ export function gather(state, events) {
   const skill = state.skills[g.skill] || (state.skills[g.skill] = emptySkill());
   const br = branchOf(state, g.skill);
   const rod = g.action === 'fish' ? (countOf(state, 'mistrod') ? 0.2 : countOf(state, 'grannyrod') ? 0.1 : 0) : 0;
-  const missChance = clamp(g.miss - skill.grade * 0.01 + (br?.miss || 0) - rod, 0.05, 0.9);
+  const rich = GATHER_RICH[dangerNow(state, state.place)] || GATHER_RICH.낮음;
+  const missChance = clamp(g.miss - skill.grade * 0.01 + (br?.miss || 0) - rod - rich.miss, 0.05, 0.9);
   events.push({ type: 'gather', action: g.action, phase: state.phase });
   if (chance(state, missChance)) {
     pushLine(state, events, { k: 'me', text: `${g.say[i]} ${g.missSay}` });
   } else {
     // cold: 식은 몸(또는 언 몸)일 때만 무는 것 (WM-B3: 얼음 밑 은어)
     const drop = weighted(state, g.drops.filter((d) => !d.cold || coldStage(state) > 0).map((d) => ({ ...d, w: d.w * (br?.weight?.[d.id] ?? 1) })));
-    const n = br?.double && chance(state, br.double) ? 2 : 1;
+    const dbl = (br?.double || 0) + rich.double;
+    const n = dbl > 0 && chance(state, Math.min(0.9, dbl)) ? 2 : 1;
     addItem(state, drop.id, n);
     pushLine(state, events, { k: 'me', text: `${g.say[i]} ${itemDef(drop.id).name} ${n}.` });
   }

@@ -1,10 +1,11 @@
 // 계산된 값과 그 셈 (R2-1, R2-2, G2-2). 누르면 셈이 풀려 보인다.
 
-import { equipPower, usable } from './inventory.js?v=d86445b';
-import { itemDef } from '../data/items.js?v=d86445b';
-import { buffOf, foodBuff, restBuff, graceBuff, murderBuff, drumBuff } from './buffs.js?v=d86445b';
-import { ADVANCED } from '../data/jobs.js?v=d86445b';
-import { coldAttackCut } from './cold.js?v=d86445b';
+import { adv, jobName } from './jobs.js?v=333e2f8';
+import { equipPower, usable } from './inventory.js?v=333e2f8';
+import { itemDef } from '../data/items.js?v=333e2f8';
+import { buffOf, foodBuff, restBuff, graceBuff, murderBuff, drumBuff } from './buffs.js?v=333e2f8';
+import { ADVANCED } from '../data/jobs.js?v=333e2f8';
+import { coldAttackCut } from './cold.js?v=333e2f8';
 
 /** 숙련 보너스: 등급 두 칸마다 1. */
 export function skillBonus(skill) {
@@ -89,7 +90,8 @@ export function derived(state) {
   if (state.flags?.hpPlus) addTo('maxHp', `출신 ${state.flags.hpPlus}`, state.flags.hpPlus);
   if (state.flags?.mpPlus) addTo('maxMp', `출신 ${state.flags.mpPlus}`, state.flags.mpPlus);
   const adv2 = ADVANCED[state.job2];
-  if (adv2?.hp) addTo('maxHp', `${adv2.name} ${adv2.hp}`, adv2.hp);
+  const advHp = state.job2 ? adv(state).hp || 0 : 0; // 3차의 효과도 더한다 (Z126)
+  if (adv2 && advHp) addTo('maxHp', `${jobName(state)} ${advHp}`, advHp);
   // 잘 잔 몸 (Z41): 뜨끈한 아랫목은 생명력과 힘을 조금 북돋는다
   const slept = state.buffs ? restBuff(state) : null;
   // 신의 가호 (Z43): 공격력·방어력 +5%

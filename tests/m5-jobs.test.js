@@ -29,7 +29,7 @@ test('직업 고르기: 다섯이 한눈에 보이고, 내 숙련도와 맞는 �
   assert.deepEqual(list.map((j) => j.name), ['전사', '궁수', '마법사', '사제', '도적']);
   assert.deepEqual(list.filter((j) => j.match).map((j) => j.name), ['전사'], '치기를 가장 많이 한 사람에게는 전사가 맞는다');
   for (const j of list) { assert.ok(j.first.name && j.first.text && j.role && j.next && j.fast.length); }
-  assert.equal(list[0].first.name, '방패 올리기');
+  assert.equal(list[0].first.name, '강타', '첫 스킬은 늘 공격 스킬 (Z126)');
 });
 
 test('직업은 레벨 5에 고른다. 한 번뿐이다. 고르지 않아도 된다 (T4, T8, N4-4)', () => {
@@ -75,8 +75,8 @@ test('직업 스킬은 레벨 5, 10, 15, 20에 하나씩 열리고, 단축 칸�
   dispatch(s, { type: 'career', op: 'choose', id: 'warrior' });
   assert.deepEqual(skillsNow(s).map((x) => x.open), [true, false, false, false]);
   foe(s);
-  assert.equal(slotsNow(s)[1].label, '방패 올리기 (마나 3)');
-  assert.throws(() => dispatch(s, { type: 'battle', choice: 'skill', index: 'cleave' }), /레벨 10/);
+  assert.equal(slotsNow(s)[1].label, '강타 (마나 6)');
+  assert.throws(() => dispatch(s, { type: 'battle', choice: 'skill', index: 'shieldup' }), /레벨 10/);
   assert.throws(() => dispatch(s, { type: 'battle', choice: 'skill', index: 'ember' }), /쓸 수 없는 스킬/);
   lv(s, 10);
   assert.deepEqual(skillsNow(s).map((x) => x.open), [true, true, false, false]);
@@ -87,13 +87,13 @@ test('직업 스킬은 레벨 5, 10, 15, 20에 하나씩 열리고, 단축 칸�
   s.mp = 2;
   assert.ok(slotsNow(s)[1].disabled, '어느 스킬도 쓸 마나가 없으면 꺼진다');
   assert.throws(() => dispatch(s, { type: 'battle', choice: 'skill', index: 'cleave' }), /마나가 모자랍니다/);
-  for (const id of JOB_ORDER) { assert.equal(JOBS[id].skills.length, SKILL_LEVELS.length); assert.equal(ITEMS[JOBS[id].gear].job, id); for (const sk of JOBS[id].skills) assert.ok(sk.name && sk.text && sk.say && sk.mp > 0); }
+  for (const id of JOB_ORDER) { assert.equal(JOBS[id].skills[0].kind, 'atk', '1차의 첫 스킬은 공격 (Z126)'); assert.equal(JOBS[id].skills.length, SKILL_LEVELS.length); assert.equal(ITEMS[JOBS[id].gear].job, id); for (const sk of JOBS[id].skills) assert.ok(sk.name && sk.text && sk.say && sk.mp > 0); }
 });
 
 test('전사의 방패 올리기: 피해를 크게 줄이고, 돌진은 막고 되받아친다. 마나를 쓴다', () => {
   const s = fresh('shield');
   dispatch(s, { type: 'move', to: 'training' });
-  lv(s, 5);
+  lv(s, 10); // 방패 막기(방패 올리기)는 이제 레벨 10에 열린다 (Z126)
   dispatch(s, { type: 'career', op: 'choose', id: 'warrior' });
   foe(s, 'boar', 'charge');
   const hp = s.hp, mp = s.mp;
@@ -103,7 +103,7 @@ test('전사의 방패 올리기: 피해를 크게 줄이고, 돌진은 막고 �
   assert.ok(s.battle.hp < 9999);
   assert.ok(ev.some((e) => e.type === 'line' && /막고 되받아쳤다/.test(e.line.text)));
   // 그냥 치기를 막으면 방어(절반)보다 덜 받는다
-  const taken = (choice) => { let sum = 0; for (let i = 0; i < 200; i++) { const t = fresh('sh' + i); dispatch(t, { type: 'move', to: 'training' }); lv(t, 5); dispatch(t, { type: 'career', op: 'choose', id: 'warrior' }); foe(t, 'boar', 'gore'); const b = t.hp; dispatch(t, choice); sum += b - t.hp; } return sum / 200; };
+  const taken = (choice) => { let sum = 0; for (let i = 0; i < 200; i++) { const t = fresh('sh' + i); dispatch(t, { type: 'move', to: 'training' }); lv(t, 10); dispatch(t, { type: 'career', op: 'choose', id: 'warrior' }); foe(t, 'boar', 'gore'); const b = t.hp; dispatch(t, choice); sum += b - t.hp; } return sum / 200; };
   assert.ok(taken({ type: 'battle', choice: 'skill', index: 'shieldup' }) < taken({ type: 'battle', choice: 'defend' }));
 });
 
@@ -131,7 +131,7 @@ test('다른 직업의 스킬과 장비는 쓰지 못한다 (T6)', () => {
 
 test('사제는 고치고 씻어 낸다. 도적의 연막은 반드시 달아난다', () => {
   const p = fresh('pr');
-  lv(p, 10);
+  lv(p, 15); // 정화(씻어 내기)는 이제 레벨 15 (Z126)
   p.hidden.luck = { value: 1, half: true }; // 사제는 행운을 찾은 사람만 고른다 (Z116)
   dispatch(p, { type: 'career', op: 'choose', id: 'priest' });
   foe(p);
@@ -148,7 +148,7 @@ test('사제는 고치고 씻어 낸다. 도적의 연막은 반드시 달아난
   assert.equal(p.hp, 10 + Math.round(p.stats.wis * 3 * mainMult(p) * (big ? 1.5 : 1)));
   assert.ok(mainMult(p) > 1.1, '사제는 행운 +10만으로도 10% 넘게 세다');
   const r = fresh('rg');
-  lv(r, 10);
+  lv(r, 15); // 연막탄(연막)은 이제 레벨 15 (Z126)
   dispatch(r, { type: 'career', op: 'choose', id: 'rogue' });
   foe(r, 'spider', 'crush');
   const ev = dispatch(r, { type: 'battle', choice: 'skill', index: 'smoke' });
