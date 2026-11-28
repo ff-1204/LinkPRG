@@ -1,48 +1,49 @@
 // 전투 (E5~E9, R2-2). 한 턴에 행동 하나. 적의 다음 행동은 늘 미리 보인다.
 // 방어하면 피해가 절반이고, 돌진류는 막고 되받아친다.
 
-import { bandOfPlace } from '../data/bands.js?v=ac59432';
-import { placeById } from '../data/places.js?v=ac59432';
-import { next, chance } from './rng.js?v=ac59432';
-import { pushLine, ding } from './log.js?v=ac59432';
-import { monsterDef, STATUS } from '../data/monsters.js?v=ac59432';
-import { itemDef, ITEMS, gradeName } from '../data/items.js?v=ac59432';
-import { roll01 } from './rng.js?v=ac59432';
-import { guildPerk } from './guild.js?v=ac59432';
-import { rollOptions, gearName } from './gear.js?v=ac59432';
-import { derived, skillBonus, attackStat } from './derived.js?v=ac59432';
-import { addItem, removeAt, usable, totalWeight, equip, slotFor, equipPower } from './inventory.js?v=ac59432';
-import { grantXp } from './reward.js?v=ac59432';
-import { useSkill, emptySkill, gradeLabel, SKILL_NAMES } from './skills.js?v=ac59432';
-import { fall } from './fall.js?v=ac59432';
-import { iGa, eulReul, ro } from './ko.js?v=ac59432';
-import { branchOf } from './evolve.js?v=ac59432';
-import { skillsNow, jobXp, adv } from './jobs.js?v=ac59432';
-import { guardFor, hitCompanion, companionsAct, afterBattle, roleBonus, cross } from './party.js?v=ac59432';
-import { jobDef } from '../data/jobs.js?v=ac59432';
-import { BEATS, WEAK_MULT, RESIST_MULT } from '../data/dungeon.js?v=ac59432';
-import { HUNGRY, DUEL, DUEL_MOVES, BANDIT, BANDIT_MOVES } from '../data/wild.js?v=ac59432';
-import { addFame } from './social.js?v=ac59432';
-import { giveMurder, MURDER, giveGrace, GRACE } from './buffs.js?v=ac59432';
-import { applyDish } from './cook.js?v=ac59432';
-import { DISHES } from '../data/cooking.js?v=ac59432';
-import { warmUp } from './cold.js?v=ac59432';
-import { loseWater } from './thirst.js?v=ac59432';
-import { wear } from './heat.js?v=ac59432';
-import { normalAt } from '../data/bands.js?v=ac59432';
-import { arenaIntent, neverRests, ARENA_FOE } from '../data/arena.js?v=ac59432';
+import { bandOfPlace } from '../data/bands.js?v=9286de1';
+import { placeById } from '../data/places.js?v=9286de1';
+import { next, chance } from './rng.js?v=9286de1';
+import { pushLine, ding } from './log.js?v=9286de1';
+import { monsterDef, STATUS } from '../data/monsters.js?v=9286de1';
+import { itemDef, ITEMS, gradeName } from '../data/items.js?v=9286de1';
+import { roll01 } from './rng.js?v=9286de1';
+import { guildPerk } from './guild.js?v=9286de1';
+import { rollOptions, gearName } from './gear.js?v=9286de1';
+import { derived, skillBonus, attackStat } from './derived.js?v=9286de1';
+import { addItem, removeAt, usable, totalWeight, equip, slotFor, equipPower } from './inventory.js?v=9286de1';
+import { grantXp } from './reward.js?v=9286de1';
+import { useSkill, emptySkill, gradeLabel, SKILL_NAMES } from './skills.js?v=9286de1';
+import { fall } from './fall.js?v=9286de1';
+import { iGa, eulReul, ro } from './ko.js?v=9286de1';
+import { branchOf } from './evolve.js?v=9286de1';
+import { skillsNow, jobXp, adv } from './jobs.js?v=9286de1';
+import { guardFor, hitCompanion, companionsAct, afterBattle, roleBonus, cross } from './party.js?v=9286de1';
+import { jobDef } from '../data/jobs.js?v=9286de1';
+import { mainMult, healLuck, HEAL_LUCK } from './statplan.js?v=9286de1';
+import { BEATS, WEAK_MULT, RESIST_MULT } from '../data/dungeon.js?v=9286de1';
+import { HUNGRY, DUEL, DUEL_MOVES, BANDIT, BANDIT_MOVES } from '../data/wild.js?v=9286de1';
+import { addFame } from './social.js?v=9286de1';
+import { giveMurder, MURDER, giveGrace, GRACE } from './buffs.js?v=9286de1';
+import { applyDish } from './cook.js?v=9286de1';
+import { DISHES } from '../data/cooking.js?v=9286de1';
+import { warmUp } from './cold.js?v=9286de1';
+import { loseWater } from './thirst.js?v=9286de1';
+import { wear } from './heat.js?v=9286de1';
+import { normalAt } from '../data/bands.js?v=9286de1';
+import { arenaIntent, neverRests, ARENA_FOE } from '../data/arena.js?v=9286de1';
 
 /** 사나움 (Z60): 세계의 날마다 괴물의 생명·공격과 경험치·떨굼 확률이 조금씩 오른다. 끝이 없다. 우두머리·던전도 같다. */
-import { curseOf, curseMult, curseHit, liftCurse, healCut } from './marsh.js?v=ac59432';
-import { SUNKEN, SUNKEN_LINES, pairComes, holder, giftBoost, useAir } from './sunken.js?v=ac59432';
-import { COMPANIONS } from '../data/companions.js?v=ac59432';
-import { drumBuff } from './buffs.js?v=ac59432';
-import { CLOUD, CLOUD_LINES, windIs, pushedLine } from './cloud.js?v=ac59432';
-import { POND, READ_LINES, mirrored, isRead, readKey, readStep, readReset } from './pond.js?v=ac59432';
-import { ANVIL, ANVIL_LINES, forged, temperMult, hammerInBattle, cooled, keptEdge, bellIntent, shellBroke, bellRound, leftBell, building, bellBuilt } from './anvil.js?v=ac59432';
-import { monsterXp } from '../data/bands.js?v=ac59432';
-import { xpToNext } from './level.js?v=ac59432';
-import { addSkillXp } from './skills.js?v=ac59432';
+import { curseOf, curseMult, curseHit, liftCurse, healCut } from './marsh.js?v=9286de1';
+import { SUNKEN, SUNKEN_LINES, pairComes, holder, giftBoost, useAir } from './sunken.js?v=9286de1';
+import { COMPANIONS } from '../data/companions.js?v=9286de1';
+import { drumBuff } from './buffs.js?v=9286de1';
+import { CLOUD, CLOUD_LINES, windIs, pushedLine } from './cloud.js?v=9286de1';
+import { POND, READ_LINES, mirrored, isRead, readKey, readStep, readReset } from './pond.js?v=9286de1';
+import { ANVIL, ANVIL_LINES, forged, temperMult, hammerInBattle, cooled, keptEdge, bellIntent, shellBroke, bellRound, leftBell, building, bellBuilt } from './anvil.js?v=9286de1';
+import { monsterXp } from '../data/bands.js?v=9286de1';
+import { xpToNext } from './level.js?v=9286de1';
+import { addSkillXp } from './skills.js?v=9286de1';
 export const FIERCE_PER = 0.0005;
 export const fierceOf = (day) => 1 + FIERCE_PER * Math.max(0, (day || 1) - 1);
 
@@ -239,6 +240,7 @@ function hitEnemy(state, events, power = 1, verb = null, opt = {}) {
   if (a2.rage && state.hp < val(state, 'maxHp') * 0.5) attack = Math.round(attack * a2.rage);
   if (a2.first && b.turn === 1) attack = Math.round(attack * a2.first);
   let dmg = damage(state, attack, power * (br?.dmg || 1) * (state.flags.knowsBoar && b.mon === 'boar' ? 1.15 : 1), opt.pierce ? 0 : m.defense); // 숲의 사람은 멧돼지 약점을 안다
+  dmg = Math.max(1, Math.round(dmg * mainMult(state))); // 주 스탯 보너스 (Z116)
   const crit = opt.sure ? true : chance(state, Math.max(0, critChance(state.stats.agi, m.agi) + (br?.crit || 0) + (opt.crit || 0) + (a2.crit || 0) + (equipPower(state).crit || 0)));
   if (crit) dmg = Math.round(dmg * 1.5);
   let em = elementMult(opt.element, m.element);
@@ -719,11 +721,17 @@ export function battleAct(state, events, choice, arg) {
     if (sk.heal) {
       const max = val(state, 'maxHp');
       const before = state.hp;
-      state.hp = Math.min(max, state.hp + Math.round(state.stats.wis * sk.heal * boost * (1 + (state.hidden.faith?.value || 0) * 0.02) * (adv(state).heal || 1)));
+      const big = chance(state, healLuck(state)); // 사제의 큰 치유 (Z116): 행운 1마다 3%p
+      if (big) pushLine(state, events, { k: 'sys', tone: 'good', text: '큰 치유. 손끝이 유난히 따뜻하다.' });
+      state.hp = Math.min(max, state.hp + Math.round(state.stats.wis * sk.heal * boost * (1 + (state.hidden.faith?.value || 0) * 0.02) * (adv(state).heal || 1) * mainMult(state) * (big ? HEAL_LUCK.mult : 1)));
       pushLine(state, events, { k: 'sys', text: `생명력 +${state.hp - before}.` });
     }
     if (sk.cleanse && state.status.length) { state.status = []; pushLine(state, events, { k: 'sys', text: '걸려 있던 것이 모두 씻겨 나갔다.' }); }
-    if (sk.ward) b.ward = { ...sk.ward, turns: sk.ward.turns + (adv(state).ward || 0) };
+    if (sk.ward) {
+      const more = state.job === 'priest' && chance(state, healLuck(state)) ? 1 : 0; // 가호가 한 번 더 막는다 (Z116)
+      if (more) pushLine(state, events, { k: 'sys', tone: 'good', text: '가호가 한 겹 더 섰다.' });
+      b.ward = { ...sk.ward, turns: sk.ward.turns + (adv(state).ward || 0) + more };
+    }
     if (sk.stun) b.stun = Math.max(b.stun || 0, sk.stun);
     if (sk.weaken) b.weak = { ...sk.weaken };
     if (sk.burn) b.burn = Math.max(b.burn || 0, sk.burn);

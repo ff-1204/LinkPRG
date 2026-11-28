@@ -1,33 +1,34 @@
 // 탐색과 랜덤 인카운터, 기척 (E1~E4, R2-3).
 // 탐색 한 번마다 전투·발견·사건·만남·희귀 가운데 하나. 싸울지는 되도록 내가 고른다.
 
-import { banditStep, bandOfPlace } from '../data/bands.js?v=ac59432';
-import { next, pick, chance, roll01 } from './rng.js?v=ac59432';
-import { addFame } from './social.js?v=ac59432';
-import { pushLine } from './log.js?v=ac59432';
-import { weighted, startBattle } from './battle.js?v=ac59432';
-import { addItem, countOf, takeById } from './inventory.js?v=ac59432';
-import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=ac59432';
-import { ding } from './log.js?v=ac59432';
-import { monsterDef } from '../data/monsters.js?v=ac59432';
-import { itemDef } from '../data/items.js?v=ac59432';
-import { USERS } from '../data/lines.js?v=ac59432';
-import { loseWater } from './thirst.js?v=ac59432';
-import { BANDIT, BANDIT_FEEL, BANDIT_NAMES, WILDS, INCIDENTS, DANGER, DANGER_UP, OTHER_WEIGHTS, TENSION_STEP, TENSION_MAX, SCENT_TRIES, SCENT_PHASES } from '../data/wild.js?v=ac59432';
-import { placeById } from '../data/places.js?v=ac59432';
-import { iGa, eulReul, eunNeun } from './ko.js?v=ac59432';
-import { hasTitle } from './titles.js?v=ac59432';
-import { worth } from './trade.js?v=ac59432';
-import { branchOf } from './evolve.js?v=ac59432';
-import { answerHidden } from './quests.js?v=ac59432';
-import { jobXp, hiddenJobView, answerHiddenJob } from './jobs.js?v=ac59432';
-import { HIDDENS } from '../data/quests.js?v=ac59432';
-import { dungeonChoiceView, dungeonChoose } from './dungeon.js?v=ac59432';
-import { coldStage } from './cold.js?v=ac59432';
-import { endingChoiceView, applyEnding } from './ending.js?v=ac59432';
-import { anvilChoiceView, chooseAnvilEnd } from './anvil.js?v=ac59432';
-import { memoryChoiceView, chooseMemory } from './memories.js?v=ac59432';
-import { chestsLeft, openChest } from './sunken.js?v=ac59432';
+import { banditStep, bandOfPlace } from '../data/bands.js?v=9286de1';
+import { next, pick, chance, roll01 } from './rng.js?v=9286de1';
+import { addFame } from './social.js?v=9286de1';
+import { pushLine } from './log.js?v=9286de1';
+import { weighted, startBattle } from './battle.js?v=9286de1';
+import { addItem, countOf, takeById } from './inventory.js?v=9286de1';
+import { emptySkill, useSkill, gradeLabel, SKILL_NAMES } from './skills.js?v=9286de1';
+import { ding } from './log.js?v=9286de1';
+import { monsterDef } from '../data/monsters.js?v=9286de1';
+import { itemDef } from '../data/items.js?v=9286de1';
+import { USERS } from '../data/lines.js?v=9286de1';
+import { loseWater } from './thirst.js?v=9286de1';
+import { BANDIT, BANDIT_FEEL, BANDIT_NAMES, WILDS, INCIDENTS, DANGER, DANGER_UP, OTHER_WEIGHTS, TENSION_STEP, TENSION_MAX, SCENT_TRIES, SCENT_PHASES } from '../data/wild.js?v=9286de1';
+import { placeById } from '../data/places.js?v=9286de1';
+import { iGa, eulReul, eunNeun } from './ko.js?v=9286de1';
+import { hasTitle } from './titles.js?v=9286de1';
+import { worth } from './trade.js?v=9286de1';
+import { branchOf } from './evolve.js?v=9286de1';
+import { answerHidden } from './quests.js?v=9286de1';
+import { jobXp, hiddenJobView, answerHiddenJob } from './jobs.js?v=9286de1';
+import { luckOf, hasGrace, GRACE_AGAIN } from './statplan.js?v=9286de1';
+import { HIDDENS } from '../data/quests.js?v=9286de1';
+import { dungeonChoiceView, dungeonChoose } from './dungeon.js?v=9286de1';
+import { coldStage } from './cold.js?v=9286de1';
+import { endingChoiceView, applyEnding } from './ending.js?v=9286de1';
+import { anvilChoiceView, chooseAnvilEnd } from './anvil.js?v=9286de1';
+import { memoryChoiceView, chooseMemory } from './memories.js?v=9286de1';
+import { chestsLeft, openChest } from './sunken.js?v=9286de1';
 
 const WORK = { smith: { name: '대장장이', who: '대장간 주인', skill: 'smithing' }, tailor: { name: '재봉사', who: '재봉사', skill: 'leather' }, chef: { name: '요리사', who: '주방장', skill: 'cooking' } };
 
@@ -67,7 +68,7 @@ function rollOutcome(state) {
   if (chance(state, battleChance(state))) return 'battle';
   const w = { ...OTHER_WEIGHTS };
   if (state.phase === 2) w.rare *= 2; // 밤에는 귀한 것이 더 나온다
-  w.rare += (state.hidden.luck?.value || 0) * 0.2;
+  w.rare += luckOf(state) * 0.2; // 사제는 행운 +10 (Z116)
   return weighted(state, Object.entries(w).map(([id, weight]) => ({ id, w: weight }))).id;
 }
 
@@ -87,7 +88,7 @@ export function explore(state, events) {
 
   if (outcome === 'battle') return meetMonster(state, events, wild);
   if (outcome === 'find') return find(state, events, pick(state, wild.finds));
-  if (outcome === 'rare') { state.counters.rare += 1; return find(state, events, wild.rare, '희귀'); }
+  if (outcome === 'rare') { state.counters.rare += 1; if (hasGrace(state) && chance(state, GRACE_AGAIN)) state.counters.rare += 1; /* 신의 은총 (Z116) */ return find(state, events, wild.rare, '희귀'); }
   if (outcome === 'meet') {
     pushLine(state, events, { k: 'user', who: `만남, 지나가던 유저 '${userName(state)}'`, text: pick(state, wild.meets) });
     return;

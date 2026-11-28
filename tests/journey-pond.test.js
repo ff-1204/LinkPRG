@@ -74,7 +74,7 @@ const hunt = (s, n, at = 'pondside') => {
 
 test('별못: 다릿목에서 내려가, 일행 셋을 갖춰 수를 섞어 싸우고, 달래의 그물을 끝까지 지켜보고, 솔을 호위하고, 마지막 조각을 거둔다 (M21)', () => {
   // 1. 11장을 끝낸 사람이 다릿목 어귀에 서 있다 (레벨·스탯·장비·은화는 손으로 넣었다: 별못의 제 레벨 사람, 별쇠 한 벌)
-  const s = heard('journey-pond', { at: 'bridgegate' });
+  const s = heard('journey-pond-b', { at: 'bridgegate' });
   s.level = 84; s.stats.str += 15; s.stats.con += 12; s.silver = 60000;
   for (const id of ['starmetal_sword', 'starmetal_helm', 'starmetal_armor', 'starmetal_gloves', 'starmetal_boots', 'starmetal_ring', 'starmetal_ring']) wear(s, id); // 반지 둘까지 한 벌을 다 찬다 (M23-1: 별못의 보통 공격이 세져, 반지 없이는 구덩이를 해가 있는 동안에 못 끝낸다)
   for (const [id, n] of [['redpotion', 20], ['dish_starcake', 8], ['starholy', 3], ['riceball', 4]]) s.bag.push({ id, grade: 0, n });

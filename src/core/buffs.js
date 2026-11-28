@@ -1,5 +1,5 @@
 // 지금 붙어 있는 힘: 감상 버프 하나와 음식 버프 하나 (N2-2, N3-5). 때가 지나면 사라진다.
-import { COMPANIONS, DRUM } from '../data/companions.js?v=ac59432';
+import { COMPANIONS, DRUM } from '../data/companions.js?v=9286de1';
 
 /**
  * 북소리 (LV-H4, GD-C2): 북 치는 이가 곁에 서 있는 동안 공격력·방어력이 비율로 오른다. 그날 못 쓰는 이(out)의 북은 울리지 않는다.
@@ -90,6 +90,7 @@ export function buffRows(state) {
   for (const [kind, b] of [['감상', buffOf(state)], ['음식', foodBuff(state)], ['잠', restBuff(state)], ['축복', graceBuff(state)], ['디버프', murderBuff(state)]]) {
     if (b) out.push({ kind, name: b.name, text: b.text, until: b.until });
   }
+  if (state.job === 'priest') out.push({ kind: '은총', name: '신의 은총', text: '사제인 동안. 희귀한 일을 겪을 때 절반의 확률로 한 번 더 겪은 것으로 센다. 행운이 더 빨리 오른다.', until: null }); // (Z116)
   const drum = drumBuff(state);
   if (drum) out.push({ kind: '용병', name: drum.name, text: drum.text, until: null });
   if ((state.tired || 0) >= 80) out.push({ kind: '피로', name: '버티는 손', text: '피로 80 이상에서 일하면 숙련도가 1.5배로 오른다', until: null });

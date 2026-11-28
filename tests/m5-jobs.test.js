@@ -1,4 +1,5 @@
 // M5: 직업, 직업 스킬, 히든 직업, 세력과 성향.
+import { mainMult } from '../src/core/statplan.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -131,6 +132,7 @@ test('다른 직업의 스킬과 장비는 쓰지 못한다 (T6)', () => {
 test('사제는 고치고 씻어 낸다. 도적의 연막은 반드시 달아난다', () => {
   const p = fresh('pr');
   lv(p, 10);
+  p.hidden.luck = { value: 1, half: true }; // 사제는 행운을 찾은 사람만 고른다 (Z116)
   dispatch(p, { type: 'career', op: 'choose', id: 'priest' });
   foe(p);
   p.hp = 10;
@@ -140,8 +142,11 @@ test('사제는 고치고 씻어 낸다. 도적의 연막은 반드시 달아난
   assert.ok(p.hp > 10);
   p.hp = 10;
   p.battle.intent = 'shell';
-  dispatch(p, { type: 'battle', choice: 'skill', index: 'lay' });
-  assert.equal(p.hp, 10 + p.stats.wis * 3);
+  const laid = dispatch(p, { type: 'battle', choice: 'skill', index: 'lay' });
+  // 주 스탯 보너스(지혜와 행운)가 치유에도 붙고, 행운이 받치면 큰 치유가 든다 (Z116)
+  const big = laid.some((e) => e.type === 'line' && /큰 치유/.test(e.line.text));
+  assert.equal(p.hp, 10 + Math.round(p.stats.wis * 3 * mainMult(p) * (big ? 1.5 : 1)));
+  assert.ok(mainMult(p) > 1.1, '사제는 행운 +10만으로도 10% 넘게 세다');
   const r = fresh('rg');
   lv(r, 10);
   dispatch(r, { type: 'career', op: 'choose', id: 'rogue' });

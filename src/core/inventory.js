@@ -1,7 +1,7 @@
 // 가방과 장비 (G1, E14~E18, R2-4). 칸 수 제한은 없고 무게만 센다.
 
-import { ITEMS, itemDef, EQUIP_SLOTS, GRADE_MULT, gradeName } from '../data/items.js?v=ac59432';
-import { jobDef } from '../data/jobs.js?v=ac59432';
+import { ITEMS, itemDef, EQUIP_SLOTS, GRADE_MULT, gradeName } from '../data/items.js?v=9286de1';
+import { jobDef } from '../data/jobs.js?v=9286de1';
 
 /** 물건 하나(또는 한 묶음)를 만든다. 장비는 묶이지 않는다. */
 export function makeItem(id, { grade, maker, n = 1 } = {}) {

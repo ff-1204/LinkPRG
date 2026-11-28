@@ -75,7 +75,7 @@ const huntPair = (s) => {
 test('잠긴 도성: 혼자 내려가 짝을 잡아 보고, 용병 둘과 다시 잡고, 호위받으며 캐고, 메아리를 잠재운다 (M19)', () => {
   // 9장(잊힌 종)을 끝낸 레벨 64의 전사. (안개늪은 journey-marsh가 한다: 여기서는 9장을 끝낸 사람에서 시작한다)
   // 옛 청동 장비(7단계)는 손으로 채웠다: 청동 대장간에서 지은 것으로 친다. 비늘 가죽 장갑과 장화까지 차서 숨이 스물넷이다
-  const s = rested('journey-sunken', { at: 'floatgate' });
+  const s = rested('journey-sunken-b', { at: 'floatgate' });
   s.level = 64; s.stats.str += 14; s.stats.con += 12;
   for (const id of ['oldbronze_sword', 'oldbronze_shield', 'oldbronze_helm', 'oldbronze_armor', 'oldbronze_gloves', 'oldbronze_boots', 'oldbronze_ring']) wear(s, id);
   s.silver = 20000; s.hp = valueOf(s, 'maxHp');

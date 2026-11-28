@@ -73,6 +73,7 @@ export function buildPlayer(band, job, tierGear, level = band.n * 10 - 5) {
   s.stats[main] += Math.round(pts * 0.5);
   s.stats.con += Math.round(pts * 0.4);
   s.unspent = 0;
+  if (job === 'priest') s.hidden.luck = { value: 1, half: true }; // 사제는 행운을 찾은 사람만 고른다 (Z116)
   if (L >= 5) { try { dispatch(s, { type: 'career', op: 'choose', id: job }); } catch { /* 고를 수 없으면 무직으로 싸운다 */ } }
   for (const [slot, id] of Object.entries(tierGear || {})) s.equip[slot] = id ? { id, grade: 0, n: 1, ...(ITEMS[id].dur ? { dur: ITEMS[id].dur, max: ITEMS[id].dur } : {}) } : null;
   s.place = 'forest'; s.silver = 0;

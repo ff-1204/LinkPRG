@@ -1,14 +1,16 @@
 // 직업과 히든 직업 (T4~T9, N4-3, N4-4, N5).
 
-import { pushLine, ding } from './log.js?v=ac59432';
-import { JOBS, JOB_ORDER, HIDDEN_JOBS, HIDDEN_JOB_ORDER, JOB_LEVEL, JOB_XP, SKILL_LEVELS, NAMELESS_LEVEL, jobDef, ADVANCED, ADVANCE_LEVEL } from '../data/jobs.js?v=ac59432';
-import { placeById } from '../data/places.js?v=ac59432';
-import { guildPerk } from './guild.js?v=ac59432';
-import { SKILL_NAMES, gradeLabel } from './skills.js?v=ac59432';
-import { itemDef } from '../data/items.js?v=ac59432';
-import { addItem } from './inventory.js?v=ac59432';
-import { eulReul, iGa } from './ko.js?v=ac59432';
-import { xpBoost } from './buffs.js?v=ac59432';
+import { pushLine, ding } from './log.js?v=9286de1';
+import { JOBS, JOB_ORDER, HIDDEN_JOBS, HIDDEN_JOB_ORDER, JOB_LEVEL, JOB_XP, SKILL_LEVELS, NAMELESS_LEVEL, jobDef, ADVANCED, ADVANCE_LEVEL } from '../data/jobs.js?v=9286de1';
+import { placeById } from '../data/places.js?v=9286de1';
+import { guildPerk } from './guild.js?v=9286de1';
+import { SKILL_NAMES, gradeLabel } from './skills.js?v=9286de1';
+import { itemDef } from '../data/items.js?v=9286de1';
+import { addItem } from './inventory.js?v=9286de1';
+import { eulReul, iGa } from './ko.js?v=9286de1';
+import { xpBoost } from './buffs.js?v=9286de1';
+import { priestOpen, PRIEST_LUCK } from './statplan.js?v=9286de1';
+import { PRIEST_LOCK } from '../data/statinfo.js?v=9286de1';
 
 /** 보이는 직업 이름. */
 export function jobName(state) {
@@ -80,6 +82,10 @@ export function jobChoices(state) {
       fast: j.fast.map((f) => SKILL_NAMES[f] || f), fastNow: j.fast.map((f) => `${SKILL_NAMES[f] || f} ${state.skills[f] ? gradeLabel(state.skills[f].grade) : '안 해 봄'}`),
       match: mine > 0 && mine >= best,
       gear: itemDef(j.gear).name,
+      // 사제는 행운을 찾은 사람만 고른다 (Z116). 못 찾은 사람에게는 행운이라는 말 없이 귀띔만
+      lock: id === 'priest' && !priestOpen(state) ? PRIEST_LOCK : '',
+      perk: id === 'priest' && priestOpen(state) ? `고르면: 행운 +${PRIEST_LUCK}, 버프 "신의 은총"` : '',
+      mains: id === 'priest' ? (priestOpen(state) ? '지혜, 행운' : '지혜') : { warrior: '힘', archer: '민첩', mage: '지혜', rogue: '민첩' }[id],
     };
   });
 }
@@ -93,7 +99,9 @@ export function chooseJob(state, events, id) {
   if (!j) throw new Error('모르는 직업입니다');
   if (state.job) throw new Error('직업은 한 번만 고를 수 있습니다');
   if (state.level < JOB_LEVEL) throw new Error(`직업은 레벨 ${JOB_LEVEL}에 고릅니다`);
+  if (id === 'priest' && !priestOpen(state)) throw new Error('아직 고를 수 없는 직업입니다');
   state.job = id;
+  if (state.respec !== 'done') state.respec = 'open'; // 고른 직업에 맞춰 스탯을 한 번 다시 찍는다 (Z116)
   state.jobAsked = true;
   addItem(state, j.gear, 1);
   ding(state, events, { level: 3, kind: 'job', title: `직업 ${eulReul(`'${j.name}'`)} 얻었습니다`, big: j.name, body: `첫 스킬: ${j.skills[0].name}. ${j.fast.map((f) => SKILL_NAMES[f] || f).join(', ')} 숙련도가 1.5배로 오릅니다. ${itemDef(j.gear).name} 하나를 받았습니다.`, });
@@ -153,6 +161,7 @@ export function answerHiddenJob(state, events, id, accept) {
   const had = state.job ? jobName(state) : '';
   state.hjobs[id] = 'taken';
   state.job = id;
+  if (state.respec !== 'done') state.respec = 'open'; // (Z116)
   state.job2 = null; // 2차 전직은 내려놓은 직업의 것이다. 같이 내려놓는다 (T8)
   for (const [slot, item] of Object.entries(state.equip)) {
     if (!item || !itemDef(item.id).job) continue;

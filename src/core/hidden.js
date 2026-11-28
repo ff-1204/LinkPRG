@@ -98,7 +98,8 @@ export function hiddenSlots(state) {
     const slot = state.hidden[def.id] || { value: 0, half: false };
     const hints = state.hints[def.id] || [];
     if (open && !(slot.value > 0)) return { id: def.id, found: false, half: slot.half, hints, open: true, name: def.name, effect: def.effect, how: def.how, need: def.first, have: Math.min(def.first, def.count(state)) };
-    if (slot.value > 0) return { id: def.id, found: true, name: def.name, value: slot.value, effect: def.effect, how: def.how, hints };
+    // 사제의 행운 +10 (Z116): 찾은 값 위에 더해 보인다
+    if (slot.value > 0) { const plus = def.id === 'luck' && state.job === 'priest' ? 10 : 0; return { id: def.id, found: true, name: def.name, value: slot.value + plus, plus, effect: plus ? `${def.effect} (사제 +${plus})` : def.effect, how: def.how, hints }; }
     return { id: def.id, found: false, half: slot.half, hints };
   });
 }

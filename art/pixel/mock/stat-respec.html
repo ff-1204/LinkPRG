@@ -1,0 +1,228 @@
+<title>스탯 다시 찍기 시안</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap">
+<style>
+  /* 얼개: 위에 눌러 볼 수 있는 "스탯 다시 찍기" 창 하나, 그 아래 스탯 넷의 설명 표, 맨 아래 규칙과 정할 것. 게임이 크림·시나몬·민트·꿀 한 가지 모습이라 시안도 그 한 가지로 둔다. */
+  :root {
+    --cream: #FBF4E6; --card: #FFFDF7; --line: #D9C7A8; --ink: #3A2A1E; --muted: #6B5443; --cinnamon: #8B4A2B; --mint: #D6F2E3; --mint-ink: #0B5A3C; --honey: #FFC531; --desk: #EFE4CF;
+    --serif: "Gowun Batang", "Noto Serif KR", serif; --sans: "Gowun Dodum", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--desk); color: var(--ink); font: 400 16px/1.65 var(--sans); word-break: keep-all; }
+  .page { max-width: 920px; margin: 0 auto; padding-block: 28px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 30px; }
+  h1 { margin: 0; font: 700 clamp(25px, 4vw, 34px)/1.3 var(--serif); text-wrap: balance; }
+  h2 { margin: 0; font: 700 21px/1.35 var(--serif); }
+  p { margin: 0; }
+  .lede { color: var(--muted); max-width: 42em; }
+  section { display: flex; flex-direction: column; gap: 12px; }
+  .note { font-size: 14.5px; color: var(--muted); }
+  :focus-visible { outline: 3px solid var(--cinnamon); outline-offset: 2px; }
+
+  /* 게임 창 */
+  .win { background: var(--card); border: 2px solid var(--ink); border-radius: 10px; overflow: hidden; }
+  .win .bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 16px; background: var(--honey); border-bottom: 2px solid var(--ink); font-weight: 700; }
+  .win .bar small { font-weight: 400; font-size: 13.5px; }
+  .win .body { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+  .tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tab { padding: 7px 13px; border: 1.5px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink); font: 400 15px/1.2 var(--sans); cursor: pointer; }
+  .tab[aria-pressed="true"] { border-color: var(--cinnamon); border-width: 2.5px; font-weight: 700; }
+  .pool { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 16px; padding: 10px 14px; background: var(--mint); color: var(--mint-ink); border-radius: 8px; }
+  .pool b { font: 700 20px/1.2 var(--serif); font-variant-numeric: tabular-nums; }
+  .stat { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 14px; align-items: center; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 8px; }
+  .stat.main { border-color: var(--cinnamon); border-width: 2.5px; }
+  .stat .name { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+  .stat .name b { font: 700 19px/1.3 var(--serif); }
+  .stat .num { font: 700 19px/1.3 var(--serif); font-variant-numeric: tabular-nums; }
+  .stat .sum { font-size: 13.5px; color: var(--muted); }
+  .tagx.mintx { border-color: var(--mint-ink); color: var(--mint-ink); background: var(--mint); }
+  .stat.luck { background: var(--cream); }
+  .tagx { font-size: 12.5px; padding: 1px 8px; border: 1.5px solid var(--cinnamon); border-radius: 999px; color: var(--cinnamon); white-space: nowrap; }
+  .stat .use { grid-column: 1 / -1; font-size: 14.5px; }
+  .stat .job { grid-column: 1 / -1; font-size: 14.5px; color: var(--muted); padding-top: 6px; border-top: 1px dashed var(--line); }
+  .stat .job b { color: var(--ink); }
+  .pm { display: flex; gap: 6px; }
+  .pm button { width: 40px; height: 40px; border: 1.5px solid var(--ink); border-radius: 8px; background: var(--card); color: var(--ink); font: 700 20px/1 var(--sans); cursor: pointer; }
+  .pm button:disabled { opacity: .35; cursor: default; }
+  .acts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .btn { padding: 12px 18px; border: 2px solid var(--ink); border-radius: 8px; background: var(--cinnamon); color: #fff; font: 700 15.5px/1.2 var(--sans); cursor: pointer; }
+  .btn.ghost { background: var(--card); color: var(--ink); }
+  .btn:disabled { opacity: .45; cursor: default; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+  .jobcard { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 8px; }
+  .jobcard.dim { background: var(--cream); color: var(--muted); }
+  .jobcard .name { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+  .jobcard .name b { font: 700 19px/1.3 var(--serif); }
+  .stat .job.bonus b { color: var(--cinnamon); font-size: 16px; }
+  .tablewrap { overflow-x: auto; }
+  table { width: 100%; min-width: 560px; border-collapse: collapse; font-size: 14.5px; background: var(--card); border: 1.5px solid var(--line); }
+  th, td { text-align: left; vertical-align: top; padding: 9px 12px; border-top: 1px solid var(--line); }
+  thead th { border-top: 0; background: var(--cream); font-weight: 700; }
+  tbody th { width: 4.5em; font: 700 16px/1.4 var(--serif); }
+  .rules { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 0; background: var(--card); border: 1.5px solid var(--line); }
+  .rules li { padding: 10px 14px; border-top: 1px solid var(--line); }
+  .rules li:first-child { border-top: 0; }
+  .rules b { display: block; font-family: var(--serif); }
+  .choice { background: var(--cream); border: 1.5px dashed var(--cinnamon); border-radius: 8px; padding: 12px 14px; }
+  .choice b { font-family: var(--serif); }
+</style>
+
+<div class="page">
+  <header>
+    <h1>레벨 5, 직업을 고르면 스탯을 다시 찍는다</h1>
+    <p class="lede" style="margin-top:8px">직업을 모르고 찍은 점수를 직업에 맞게 한 번 고쳐 찍게 합니다. 스탯마다 무엇에 쓰이는지와 이 직업에서 어떻게 쓰이는지를 함께 적습니다. 아래 창은 눌러 볼 수 있습니다. 숫자는 예시입니다.</p>
+  </header>
+
+  <section aria-labelledby="w-h">
+    <h2 id="w-h">창: 스탯 다시 찍기</h2>
+    <p class="note">직업을 고르면 이어서 뜹니다. 직업을 바꿔 가며 설명이 어떻게 달라지는지 보세요(직업 단추는 시안에서만 있습니다).</p>
+    <div class="win">
+      <div class="bar"><span>스탯 다시 찍기</span><small id="jobside">전사 · 레벨 5</small></div>
+      <div class="body">
+        <div class="tabs" role="group" aria-label="직업(시안에서만)" id="jobs"></div>
+        <div class="pool"><span>레벨로 받은 점수를 모두 돌려받았다. 다시 나눈다.</span><span>남은 점수 <b id="left">12</b></span></div>
+        <div id="stats" style="display:flex;flex-direction:column;gap:10px"></div>
+        <p class="note">처음 값(주사위)과 일로 오른 값(추가)은 그대로다. 히든 스탯은 여기서 올릴 수 없다.</p>
+        <div class="acts">
+          <button class="btn" type="button" id="ok" disabled>이대로 정한다</button>
+          <button class="btn ghost" type="button" id="back">전에 찍은 대로 둔다</button>
+        </div>
+        <p class="note" id="msg" role="status"></p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="p-h">
+    <h2 id="p-h">직업 고르기: 사제는 행운이 1 이상일 때만</h2>
+    <p class="note">행운은 히든 스탯이라, 아직 없는 사람에게는 "행운"이라는 말도 숫자도 내보내지 않습니다. 까닭을 귀띔으로만 적습니다.</p>
+    <div class="cards">
+      <div class="win"><div class="bar"><span>행운이 없을 때</span><small>사제 카드</small></div><div class="body">
+        <div class="jobcard dim"><div class="name"><b>사제</b><span class="tagx">아직 고를 수 없다</span></div><span>고치고 지킨다</span><span class="note">종이 아직 이 길을 열어 주지 않았다. 드문 일을 더 겪은 사람에게 열린다고 한다.</span><button class="btn" type="button" disabled>선택</button></div>
+      </div></div>
+      <div class="win"><div class="bar"><span>행운이 1 이상일 때</span><small>사제 카드</small></div><div class="body">
+        <div class="jobcard"><div class="name"><b>사제</b><span class="tagx mintx">행운이 따른다</span></div><span>고치고 지킨다</span><span class="note">주 스탯: 지혜, 행운. 받는 것: 기도 구슬. 레벨 20의 갈림: 치유사 / 수호 사제</span><span><b>고르면:</b> 행운 +10, 버프 "신의 은총"(행운이 더 빨리 오른다)</span><button class="btn" type="button">선택</button></div>
+      </div></div>
+    </div>
+    <ul class="rules">
+      <li><b>고르는 조건</b>히든 스탯 행운이 1 이상. 행운은 희귀한 일을 겪으면 오른다.</li>
+      <li><b>사제를 고르면 받는 것</b>행운 +10. 겪어서 오른 행운 위에 더해지고, 그 뒤로도 겪는 만큼 더 오른다. 행운 10은 희귀한 일이 일어날 확률 +2%p다.</li>
+      <li><b>버프 "신의 은총"</b>사제인 동안 늘 붙고 상태창의 버프 줄에 보인다. 희귀한 일을 겪을 때마다 절반의 확률로 한 번 더 겪은 것으로 센다(숫자는 처음 값). 행운은 겪은 횟수로 오르는 스탯이라 "얻을 확률"을 이렇게 옮겼다.</li>
+      <li><b>다시 태어나면</b>사제로 받은 +10과 은총은 직업과 함께 내려놓는다. 겪어서 오른 행운은 지금 규칙대로 남는다.</li>
+      <li><b>레벨 5에 행운이 없으면</b>다른 직업을 고르거나, 직업 고르기를 "나중에"로 미뤘다가 행운이 생긴 뒤에 고른다. 직업 고르기 창은 상태 탭에서 다시 열 수 있다.</li>
+      <li><b>이미 사제인 캐릭터</b>그대로 사제다. 행운이 없어도 직업을 잃지 않는다.</li>
+      <li><b>동료와 다른 사람들</b>동료 미루 같은 사제에게는 이 조건이 걸리지 않는다.</li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="t-h">
+    <h2 id="t-h">스탯 설명: 무엇에 쓰이고, 어느 직업이 쓰나</h2>
+    <p class="note">같은 글이 레벨업 창과 상태창에도 나옵니다. 숫자는 지금 게임의 규칙에서 가져왔습니다.</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>스탯</th><th>누구에게나</th><th>직업에서</th></tr></thead>
+      <tbody>
+        <tr><th>힘</th><td>기본 공격의 공격력에 그대로 더해진다. 무게 한도 = 30 + 힘 × 2.5. 돌을 들어 올리는 것 같은 힘 판정.</td><td><b>전사의 주 스탯.</b> 내려찍기는 힘으로 1.7배. 직업 무기를 들지 않은 동안은 어느 직업이든 기본 공격이 힘이다.</td></tr>
+        <tr><th>민첩</th><td>회피와 달아나기: 적보다 1 높을 때마다 +3%p. 적보다 같거나 높으면 먼저 움직인다. 급소를 더 잘 맞히고 덜 맞는다. 기척을 먼저 알아챈다.</td><td><b>궁수·도적의 주 스탯.</b> 직업 무기를 들면 기본 공격이 민첩이 되고, 스킬 피해도 모두 민첩으로 센다. 도적의 급소 찌르기는 첫 턴에 2.2배라 먼저 움직여야 한다.</td></tr>
+        <tr><th>체력</th><td>최대 생명력 = 50 + 체력 × 5 + 레벨마다 10. 방어력에 체력의 절반이 더해진다.</td><td>어느 직업이든 버티는 힘. 앞줄에서 맞는 <b>전사</b>, 방어구가 얇은 <b>마법사·사제</b>가 특히 덕을 본다.</td></tr>
+        <tr><th>행운</th><td>히든 스탯. 희귀한 일이 일어날 확률 +0.2%p. 점수로 올릴 수 없고, 희귀한 일을 겪어야 오른다.</td><td><b>사제의 둘째 주 스탯(새 규칙).</b> 손 얹기와 씻어 내기가 행운 1마다 3%p 확률로 1.5배 든다. 가호도 같은 확률로 한 번 더 막는다.</td></tr>
+        <tr><th>지혜</th><td>최대 마나 = 지혜 × 3. 스킬은 모두 마나를 쓴다. 높을수록 상태이상에 덜 걸린다.</td><td><b>마법사의 주 스탯, 사제의 첫째 주 스탯.</b> 직업 무기를 들면 기본 공격이 지혜가 되고, 마법 피해(2~3.5배)와 치유(손 얹기는 지혜 × 3)를 지혜로 센다.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section aria-labelledby="b-h">
+    <h2 id="b-h">주 스탯 보너스: 주 스탯을 올리면 싸움이 눈에 띄게 세진다</h2>
+    <p class="note">지금은 어느 스탯이든 1점이 공격력 1일 뿐이라, 주 스탯에 몰아 찍는 것과 고루 찍는 것의 차이가 무기 공격력에 묻힙니다. 그 위에 직업의 주 스탯에만 붙는 보너스를 더합니다.</p>
+    <ul class="rules">
+      <li><b>규칙</b>직업의 주 스탯 10마다 내가 넣는 피해가 2% 는다. 기본 공격과 스킬 모두에 붙는다. 지금의 "1점 = 공격력 1"은 그대로 두고 그 위에 곱한다.</li>
+      <li><b>직업마다</b>전사는 힘, 궁수와 도적은 민첩, 마법사는 지혜.</li>
+      <li><b>사제는 둘 다</b>지혜 10마다 피해와 치유 +2%, 그리고 행운 1마다 피해와 치유 +1%. 둘은 곱해진다. 사제를 고르면 받는 행운 10이 곧 +10%다.</li>
+      <li><b>직업이 없으면</b>보너스가 없다. 히든 직업은 그 직업이 쓰는 스탯을 따른다.</li>
+      <li><b>보이는 곳</b>상태창의 주 스탯 줄과 이 창에 "주 스탯 보너스 +N%"와 다음 단계까지 남은 점수가 나온다.</li>
+    </ul>
+    <div class="tablewrap"><table>
+      <thead><tr><th>레벨</th><th>주 스탯에 다 찍음</th><th>네 스탯에 고루 찍음</th><th>사제 (지혜에 다 찍음, 행운 15)</th></tr></thead>
+      <tbody>
+        <tr><th>5</th><td>주 스탯 22, 피해 +4%</td><td>주 스탯 13, 피해 +2%</td><td>지혜 +4% × 행운 +15% = 약 +20%</td></tr>
+        <tr><th>20</th><td>주 스탯 67, 피해 +12%</td><td>주 스탯 24, 피해 +4%</td><td>+12% × +15% = 약 +29%</td></tr>
+        <tr><th>50</th><td>주 스탯 157, 피해 +30%</td><td>주 스탯 46, 피해 +8%</td><td>+30% × +15% = 약 +50%</td></tr>
+        <tr><th>100</th><td>주 스탯 307, 피해 +60%</td><td>주 스탯 84, 피해 +16%</td><td>+60% × +15% = 약 +84%</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">표는 처음 값 10에 레벨마다 3점으로 셈한 것입니다. 2%와 1%는 처음 값입니다. 내 쪽만 세지는 변경이라, 만들 때 균형 도구로 지역마다 싸움 길이를 다시 재고 너무 쉬워지면 숫자를 낮춰 여쭙겠습니다. 사제는 치유가 주된 직업이라 피해 쪽 합계가 다른 직업보다 높게 나오는 것은 뜻한 것입니다.</p>
+  </section>
+
+  <section aria-labelledby="r-h">
+    <h2 id="r-h">규칙</h2>
+    <ul class="rules">
+      <li><b>언제</b>직업을 고른 바로 그때 한 번. 직업 고르기를 미뤘다면 나중에 고를 때 뜬다. "전에 찍은 대로 둔다"를 눌러도 그 한 번은 쓴 것이다.</li>
+      <li><b>돌려받는 것</b>레벨이 올라 받은 점수만(레벨 5면 12점). 남겨 둔 점수는 그대로 더해진다.</li>
+      <li><b>그대로인 것</b>태어날 때 주사위로 정해진 처음 값, 일과 쓰러짐으로 오른 "추가" 값, 히든 스탯.</li>
+      <li><b>거저 주지 않는다</b>점수가 늘지 않는다. 받은 만큼만 다시 나눈다.</li>
+      <li><b>사제의 행운</b>사제의 주 스탯은 지혜와 행운 둘이다. 행운은 히든 스탯 그대로다. 이 창에서도 찍지 못하고 행동으로만 오른다. 사제는 행운이 1 이상이어야 고를 수 있으니, 이 창의 사제에게는 늘 행운 줄이 보인다.</li>
+      <li><b>설명</b>창에서 고른 직업의 주 스탯에 테두리와 "주 스탯" 표시가 붙고, 스탯마다 "이 직업에서"가 한 줄 더 나온다. 직업이 없을 때는 "누구에게나"만 나온다.</li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="c-h">
+    <h2 id="c-h">정해 주실 것 둘</h2>
+    <div class="choice"><b>1. 이미 레벨 5를 넘어 직업이 있는 캐릭터</b><p>가) 다음에 열 때 한 번 다시 찍게 한다 <span class="tagx">권함</span> &nbsp; 나) 새로 직업을 고르는 캐릭터부터만.</p><p class="note" style="margin-top:6px">지금 저장에는 어느 스탯에 몇 점을 찍었는지가 적혀 있지 않습니다. 그래서 이미 있는 캐릭터는 "레벨로 받은 점수만큼을 어느 스탯에서든 빼서 옮기는" 방식이 됩니다. 새 캐릭터부터는 찍은 자리를 적어 둬서 처음 값 아래로 내려가지 않습니다.</p></div>
+    <div class="choice"><b>2. 레벨 20의 갈림(기사 / 광전사 같은 윗직업)에서도 한 번 더</b><p>가) 레벨 5 한 번뿐 <span class="tagx">권함</span> &nbsp; 나) 윗직업을 고를 때도 한 번 더.</p></div>
+  </section>
+</div>
+
+<script>
+(function () {
+  var JOBS = { warrior: ['전사', 'str'], archer: ['궁수', 'agi'], mage: ['마법사', 'wis'], priest: ['사제', 'wis', 'luck'], rogue: ['도적', 'agi'] };
+  var STATS = [
+    { k: 'str', n: '힘', base: 9, extra: 2, use: '기본 공격의 공격력, 무게 한도(힘 × 2.5).',
+      job: { warrior: '주 스탯. 기본 공격과 내려찍기(힘 1.7배)가 모두 힘이다.', archer: '활을 들면 공격은 민첩으로 센다. 힘은 짐을 더 지는 데만 쓰인다.', mage: '지팡이를 들면 공격은 지혜로 센다. 힘은 짐을 더 지는 데만 쓰인다.', priest: '염주를 들면 공격은 지혜로 센다. 힘은 짐을 더 지는 데만 쓰인다.', rogue: '칼을 들면 공격은 민첩으로 센다. 힘은 짐을 더 지는 데만 쓰인다.' } },
+    { k: 'agi', n: '민첩', base: 11, extra: 0, use: '회피·달아나기(적보다 1 높을 때마다 +3%p), 선공, 급소, 기척.',
+      job: { warrior: '먼저 움직이고 덜 맞는다. 방패 올리기로 막을 수 있어 급하지는 않다.', archer: '주 스탯. 기본 공격과 스킬 넷이 모두 민첩이다. 겨냥 쏘기의 급소도 민첩이 받친다.', mage: '맞기 전에 먼저 쏘려면 조금 필요하다.', priest: '달아나기와 회피에 쓰인다. 급하지는 않다.', rogue: '주 스탯. 급소 찌르기는 첫 턴에 2.2배라, 적보다 민첩이 높아 먼저 움직여야 산다.' } },
+    { k: 'con', n: '체력', base: 8, extra: 1, use: '최대 생명력(체력 × 5), 방어력(체력의 절반).',
+      job: { warrior: '둘째 스탯. 앞줄에서 맞는 직업이라 생명력과 방어가 곧 싸움 길이다.', archer: '한두 대 버틸 만큼만.', mage: '방어구가 얇다. 한 대에 쓰러지지 않을 만큼은 찍는다.', priest: '오래 버텨야 고칠 수 있다. 지혜 다음으로 좋다.', rogue: '덜 맞는 직업이지만, 맞았을 때 버틸 만큼은 필요하다.' } },
+    { k: 'wis', n: '지혜', base: 7, extra: 0, use: '최대 마나(지혜 × 3), 스킬 위력, 상태이상 내성.',
+      job: { warrior: '스킬 마나(3~8)를 댈 만큼만. 지혜 3이면 마나 9다.', archer: '스킬 마나(3~9)를 댈 만큼만.', mage: '주 스탯. 불씨 2배, 벼락 3.5배가 모두 지혜에 곱해지고, 마나도 지혜에서 나온다.', priest: '주 스탯 하나. 손 얹기는 지혜 × 3만큼 고치고, 꾸짖기는 지혜로 2배다.', rogue: '스킬 마나(3~9)를 댈 만큼만.' } }
+  ];
+  var POOL = 12, job = 'warrior', add = { str: 0, agi: 0, con: 0, wis: 0 };
+  var before = { str: 6, agi: 3, con: 3, wis: 0 };
+  var $ = function (id) { return document.getElementById(id); };
+  function left() { return POOL - add.str - add.agi - add.con - add.wis; }
+  function draw() {
+    $('jobs').innerHTML = ''; Object.keys(JOBS).forEach(function (id) {
+      var b = document.createElement('button'); b.className = 'tab'; b.type = 'button'; b.textContent = JOBS[id][0]; b.setAttribute('aria-pressed', String(id === job));
+      b.onclick = function () { job = id; draw(); }; $('jobs').appendChild(b);
+    });
+    $('jobside').textContent = JOBS[job][0] + ' · 레벨 5';
+    $('left').textContent = left();
+    $('stats').innerHTML = '';
+    STATS.forEach(function (s) {
+      var main = JOBS[job][1] === s.k, total = s.base + s.extra + add[s.k];
+      var d = document.createElement('div'); d.className = 'stat' + (main ? ' main' : '');
+      d.innerHTML = '<div class="name"><b>' + s.n + '</b><span class="num">' + total + '</span>' + (main ? '<span class="tagx">주 스탯</span>' : '') +
+        '<span class="sum">처음 ' + s.base + (add[s.k] ? ' + 찍은 ' + add[s.k] : '') + (s.extra ? ' + 추가 ' + s.extra : '') + '</span></div>' +
+        '<div class="pm"><button type="button" aria-label="' + s.n + ' 내리기"' + (add[s.k] <= 0 ? ' disabled' : '') + '>−</button><button type="button" aria-label="' + s.n + ' 올리기"' + (left() <= 0 ? ' disabled' : '') + '>+</button></div>' +
+        '<div class="use">' + s.use + '</div><div class="job"><b>' + JOBS[job][0] + '에게:</b> ' + s.job[job] + '</div>' +
+        (main ? '<div class="job bonus"><span class="tagx">주 스탯 보너스</span> 넣는 피해' + (job === 'priest' ? '와 치유' : '') + ' <b>+' + (Math.floor(total / 10) * 2) + '%</b> (' + s.n + ' 10마다 +2%). 다음 단계까지 ' + (10 - total % 10) + '점.</div>' : '');
+      var bs = d.querySelectorAll('.pm button');
+      bs[0].onclick = function () { add[s.k] -= 1; draw(); };
+      bs[1].onclick = function () { add[s.k] += 1; draw(); };
+      $('stats').appendChild(d);
+    });
+    if (JOBS[job][2] === 'luck') {
+      var l = document.createElement('div'); l.className = 'stat main luck';
+      l.innerHTML = '<div class="name"><b>행운</b><span class="num">12</span><span class="tagx">주 스탯</span><span class="tagx mintx">히든 스탯</span><span class="sum">겪어서 2 + 사제 10</span></div>' +
+        '<div class="pm"><span class="sum">점수로 못 올린다</span></div>' +
+        '<div class="use">희귀한 일이 일어날 확률 +0.2%p (행운 1마다). 희귀한 일을 겪으면 오른다.</div>' +
+        '<div class="job"><b>사제에게:</b> 주 스탯 둘째. 손 얹기와 씻어 내기가 행운 1마다 3%p 확률로 1.5배 든다(큰 치유). 가호도 같은 확률로 한 번 더 막는다.</div>' +
+        '<div class="job bonus"><span class="tagx">주 스탯 보너스</span> 넣는 피해와 치유 <b>+12%</b> (행운 1마다 +1%). 지혜의 보너스와 곱해진다.</div>' +
+        '<div class="job"><span class="tagx mintx">버프: 신의 은총</span> 사제인 동안 늘 붙는다. 희귀한 일을 겪을 때마다 절반의 확률로 한 번 더 겪은 것으로 센다. 행운이 그만큼 빨리 오른다.</div>';
+      $('stats').appendChild(l);
+    }
+    $('ok').disabled = left() > 0;
+    $('msg').textContent = left() > 0 ? '남은 점수를 다 나눠야 정할 수 있다.' : '';
+  }
+  $('ok').onclick = function () { $('msg').textContent = '정했다. 이 창은 다시 뜨지 않는다. (시안이라 아무 일도 일어나지 않습니다)'; };
+  $('back').onclick = function () { add = { str: before.str, agi: before.agi, con: before.con, wis: before.wis }; draw(); $('msg').textContent = '전에 찍은 대로(힘 6, 민첩 3, 체력 3) 돌려놓았다.'; };
+  draw();
+})();
+</script>

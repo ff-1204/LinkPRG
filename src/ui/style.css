@@ -378,6 +378,17 @@ html.calm .cool i { animation: none !important; }
 .origincard b { font-size: 1.35rem; }
 .origincard.wait { border: 2px dashed var(--line2); color: var(--muted); align-items: center; justify-content: center; }
 .tagx.plain { border-color: var(--line2); color: var(--muted); }
+.tagx.mintx { border-color: var(--mint-ink); color: var(--mint-ink); background: var(--mint); }
+/* 스탯 다시 찍기와 주 스탯 보너스 (Z116) */
+.statline .statsum.main { color: var(--cinnamon); font-weight: 700; }
+.respecpool { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .2rem 1rem; padding: .6rem .8rem; border-radius: 8px; background: var(--mint); color: var(--mint-ink); }
+.respecpool b { font-size: 1.2rem; }
+.respec { display: flex; flex-direction: column; gap: .3rem; padding: .7rem .8rem; border: 1px solid var(--line2); border-radius: 8px; }
+.respec.main { border: 2px solid var(--cinnamon); }
+.respec .rhead { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .6rem; }
+.respec .rhead b { font-size: 1.15rem; }
+.respec .statsum { display: block; font-size: .85rem; color: var(--muted); }
+.respec .statsum.main { color: var(--cinnamon); font-weight: 700; }
 .og0 { border-color: var(--muted) !important; }
 .og1 { border-color: var(--mint-ink) !important; }
 .og1 small, .og1 .tagx:first-child { color: var(--mint-ink); border-color: var(--mint-ink); }

@@ -2,12 +2,12 @@
 // 저주는 죽음의 그림자와 같은 틀이다(겹으로 쌓이고 성수로 걷는다, AN-G1). 안개늪을 떠나도 남고, 칸이 따라간다 (AN-F2).
 // 안개는 들판(이끼 밭, 가라앉는 숲)에서만 듣는다. 등불도 표식도 없이 탐색하면 길을 잃어 반나절이 가고 뜬마을 나루로 돌아온다 (AN-G2).
 
-import { placeById } from '../data/places.js?v=ac59432';
-import { MONSTERS } from '../data/monsters.js?v=ac59432';
-import { pushLine } from './log.js?v=ac59432';
-import { chance } from './rng.js?v=ac59432';
-import { countOf, takeById } from './inventory.js?v=ac59432';
-import { eunNeun } from './ko.js?v=ac59432';
+import { placeById } from '../data/places.js?v=9286de1';
+import { MONSTERS } from '../data/monsters.js?v=9286de1';
+import { pushLine } from './log.js?v=9286de1';
+import { chance } from './rng.js?v=9286de1';
+import { countOf, takeById } from './inventory.js?v=9286de1';
+import { eunNeun } from './ko.js?v=9286de1';
 
 /**
  * AN-B3의 숫자. rate: 맞을 때 한 겹이 앉을 확률. max: 겹의 끝. per: 한 겹마다 받는 피해. deepHeal: 깊은 저주에서 음식·물약이 채우는 몫.

@@ -1,7 +1,7 @@
 // 구글 드라이브의 앱 전용 숨은 폴더(appDataFolder)에 저장 칸을 올리고 받는다 (Z44).
 // fetch와 접근 토큰을 받아 쓰므로 테스트에서는 가짜 fetch를 넣는다. 사용자의 다른 파일은 보지 못한다.
 
-import { fileOf, slotOfFile } from '../core/sync.js?v=ac59432';
+import { fileOf, slotOfFile } from '../core/sync.js?v=9286de1';
 
 const API = 'https://www.googleapis.com/drive/v3/files';
 const UPLOAD = 'https://www.googleapis.com/upload/drive/v3/files';
