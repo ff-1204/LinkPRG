@@ -2,14 +2,14 @@
 // 싸움은 "모험가와 싸우기"(Z72)의 틀 그대로다. 다만 죽지 않고, 살인의 추억도 붙지 않는다.
 // 이기면 명성과 은화와 띠링. 지면 잃는 것은 없고, 풀무 골목에서 풀무질 서른 번을 해야 다시 선다.
 
-import { seedFrom } from './rng.js?v=a5d0e2e';
-import { pushLine, ding } from './log.js?v=a5d0e2e';
-import { startBattle } from './battle.js?v=a5d0e2e';
-import { addFame } from './social.js?v=a5d0e2e';
-import { bandByNo } from '../data/bands.js?v=a5d0e2e';
-import { ARENA_FOES, foeById, habitSay } from '../data/arena.js?v=a5d0e2e';
-import { ashOf, HEAT } from './heat.js?v=a5d0e2e';
-import { eulReul } from './ko.js?v=a5d0e2e';
+import { seedFrom } from './rng.js?v=00237c5';
+import { pushLine, ding } from './log.js?v=00237c5';
+import { startBattle } from './battle.js?v=00237c5';
+import { addFame } from './social.js?v=00237c5';
+import { bandByNo } from '../data/bands.js?v=00237c5';
+import { ARENA_FOES, foeById, habitSay } from '../data/arena.js?v=00237c5';
+import { ashOf, HEAT } from './heat.js?v=00237c5';
+import { eulReul } from './ko.js?v=00237c5';
 
 /** place: 마당. row: 풀무 골목. pumps: 지고 나서 채울 풀무질. wins: 큰 대장간 주인이 나서는 승수. fame: 한 번 이길 때의 명성. base: 상대의 바탕이 되는 괴물(틀만 빌린다). */
 export const ARENA = { place: 'arena', row: 'bellowsrow', pumps: 30, wins: 10, fame: 5, base: 'ashblade', judge: '심판 노을' };

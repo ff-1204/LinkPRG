@@ -1,24 +1,24 @@
 // 저장의 판(버전)과, 옛 저장을 지금 꼴로 올리는 길.
 // 저장 형식을 바꾸면 SAVE_VERSION을 올리고 여기에 한 단계를 더한다.
 
-import { makeItem } from './inventory.js?v=a5d0e2e';
-import { valueOf } from './derived.js?v=a5d0e2e';
-import { worldFields } from './world.js?v=a5d0e2e';
-import { auctionFields } from './auction.js?v=a5d0e2e';
+import { makeItem } from './inventory.js?v=00237c5';
+import { valueOf } from './derived.js?v=00237c5';
+import { worldFields } from './world.js?v=00237c5';
+import { auctionFields } from './auction.js?v=00237c5';
 
-import { endingFields } from './ending.js?v=a5d0e2e';
-import { MAIN } from '../data/quests.js?v=a5d0e2e';
-import { ITEMS } from '../data/items.js?v=a5d0e2e';
-import { ADVANCED } from '../data/jobs.js?v=a5d0e2e';
-import { nativeWork } from './work.js?v=a5d0e2e';
-import { deliverMail } from './mail.js?v=a5d0e2e';
-import { cidFrom } from './rng.js?v=a5d0e2e';
-import { guessLvPts } from './statplan.js?v=a5d0e2e';
-import { syncBondFloor } from './social.js?v=a5d0e2e';
-import { tierOfLv } from '../data/bands.js?v=a5d0e2e';
-import { ashFields } from './heat.js?v=a5d0e2e';
-import { marshFields } from './marsh.js?v=a5d0e2e';
-import { sunkenFields, SUNKEN } from './sunken.js?v=a5d0e2e';
+import { endingFields } from './ending.js?v=00237c5';
+import { MAIN } from '../data/quests.js?v=00237c5';
+import { ITEMS } from '../data/items.js?v=00237c5';
+import { ADVANCED } from '../data/jobs.js?v=00237c5';
+import { nativeWork } from './work.js?v=00237c5';
+import { deliverMail } from './mail.js?v=00237c5';
+import { cidFrom } from './rng.js?v=00237c5';
+import { guessLvPts } from './statplan.js?v=00237c5';
+import { syncBondFloor } from './social.js?v=00237c5';
+import { tierOfLv } from '../data/bands.js?v=00237c5';
+import { ashFields } from './heat.js?v=00237c5';
+import { marshFields } from './marsh.js?v=00237c5';
+import { sunkenFields, SUNKEN } from './sunken.js?v=00237c5';
 const ORIGIN_NATIVE = new Proxy({}, { get: (_, id) => nativeWork(id) });
 
 export { worldFields, auctionFields, endingFields };
