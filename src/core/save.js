@@ -1,20 +1,20 @@
 // 저장 (G4-1, G4-2). 칸 셋, 저절로 저장, 되감는 저장 없음, 파일로 내보내기.
 // 저장소(storage)는 getItem/setItem/removeItem만 있으면 된다. 테스트에서는 가짜를 쓴다.
 
-import { SAVE_VERSION, migrate, cidOfState } from './migrate.js?v=0cf2820';
-import { PHASES, PLACES } from '../data/places.js?v=0cf2820';
-import { ITEMS } from '../data/items.js?v=0cf2820';
-import { MONSTERS } from '../data/monsters.js?v=0cf2820';
-import { originById } from '../data/origins.js?v=0cf2820';
-import { jobDef, HIDDEN_JOBS, ADVANCED } from '../data/jobs.js?v=0cf2820';
-import { RECIPES } from '../data/recipes.js?v=0cf2820';
-import { JOBS, SUBS, HIDDENS } from '../data/quests.js?v=0cf2820';
-import { INCIDENTS } from '../data/wild.js?v=0cf2820';
-import { DUNGEONS } from '../data/dungeon.js?v=0cf2820';
-import { FIRSTS } from '../data/world.js?v=0cf2820';
-import { COMPANIONS } from '../data/companions.js?v=0cf2820';
-import { SUBJECTS } from '../data/works.js?v=0cf2820';
-import { PEOPLE } from '../data/people.js?v=0cf2820';
+import { SAVE_VERSION, migrate, cidOfState } from './migrate.js?v=25a8527';
+import { PHASES, PLACES } from '../data/places.js?v=25a8527';
+import { ITEMS } from '../data/items.js?v=25a8527';
+import { MONSTERS } from '../data/monsters.js?v=25a8527';
+import { originById } from '../data/origins.js?v=25a8527';
+import { jobDef, HIDDEN_JOBS, ADVANCED } from '../data/jobs.js?v=25a8527';
+import { RECIPES } from '../data/recipes.js?v=25a8527';
+import { JOBS, SUBS, HIDDENS } from '../data/quests.js?v=25a8527';
+import { INCIDENTS } from '../data/wild.js?v=25a8527';
+import { DUNGEONS } from '../data/dungeon.js?v=25a8527';
+import { FIRSTS } from '../data/world.js?v=25a8527';
+import { COMPANIONS } from '../data/companions.js?v=25a8527';
+import { SUBJECTS } from '../data/works.js?v=25a8527';
+import { PEOPLE } from '../data/people.js?v=25a8527';
 
 export const SLOT_COUNT = 3;
 const KEY = (slot) => `ttiring.save.${slot}`;
@@ -66,6 +66,19 @@ export function saveTo(storage, slot, state, now = Date.now(), expectRev = null)
   const rev = Math.max(cur, 0) + 1;
   storage.setItem(KEY(slot), JSON.stringify({ v: SAVE_VERSION, rev, savedAt: now, state }));
   return rev;
+}
+
+/**
+ * 그 칸의 저장 횟수를 적어도 atLeast로 올린다 (Z121). 상태는 그대로다.
+ * 두 기기에서 갈렸을 때 "이 기기 것"을 고르면, 드라이브 것보다 큰 번호로 올려야 다른 기기들이 이 기기 것을 받는다.
+ */
+export function bumpRev(storage, slot, atLeast) {
+  checkSlot(slot);
+  const raw = storage.getItem(KEY(slot));
+  if (!raw) return 0;
+  const o = JSON.parse(raw);
+  if (!(o.rev >= atLeast)) { o.rev = atLeast; storage.setItem(KEY(slot), JSON.stringify(o)); }
+  return o.rev;
 }
 
 /** 그 칸의 상태. 비었으면 null. 읽을 수 없으면 까닭을 던진다. */

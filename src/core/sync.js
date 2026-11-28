@@ -20,9 +20,11 @@ function isGone(r, gone) {
  *   same:   같다
  *   none:   둘 다 없다(또는 이 기기의 칸을 읽을 수 없어 건드리지 않는다)
  *   clash:  서로 다른 캐릭터다. 어느 쪽도 건드리지 않고 사용자가 정한다
+ *   split:  같은 캐릭터인데 마지막으로 맞춘 뒤 이 기기와 다른 기기가 둘 다 이어 했다(갈림, Z121). 어느 쪽도 덮지 않고 사용자가 고른다
  *   drop:   드라이브의 것은 이 기기에서 지운 캐릭터다. 먼저 드라이브에서 지운다
  */
-export function syncPlan(local, remote, gone = {}) {
+/** @param base 칸마다 마지막으로 드라이브와 맞춘 저장 횟수 (Z121). 없으면 저장 횟수만으로 견준다 */
+export function syncPlan(local, remote, gone = {}, base = {}) {
   return local.map(({ slot, rev, cid }) => {
     if (rev < 0) return { slot, act: 'none' }; // 읽을 수 없는 칸은 사용자가 정한다
     const drop = isGone(remote[slot], gone[slot]);
@@ -31,6 +33,11 @@ export function syncPlan(local, remote, gone = {}) {
     const out = (act) => (drop ? { slot, act, drop: true } : { slot, act });
     if (rev === 0) return out(r > 0 ? 'offer' : 'none');
     if (there && cid && there.cid && cid !== there.cid) return out('clash');
+    // 갈림 (Z121): 마지막으로 맞춘 뒤 드라이브도 이 기기도 바뀌었다. 저장 횟수가 큰 쪽이 이기면 다른 쪽에서 한 것이 말없이 사라진다
+    const b = base[slot];
+    if (there && Number.isInteger(b) && r !== b && rev !== b) return out(r === rev ? 'same' : 'split');
+    if (there && Number.isInteger(b) && r === b && rev !== b) return out('upload');
+    if (there && Number.isInteger(b) && rev === b && r !== b) return out('take');
     if (rev > r) return out('upload');
     if (r > rev) return out('take');
     return out('same');

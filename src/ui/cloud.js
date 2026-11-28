@@ -4,10 +4,10 @@
 // 로그인 유지 (Z91): 한 번 연결한 기기에서는 토큰이 끝나 가거나 풀렸을 때, 다음에 화면을 누르는 순간
 // (지도 이동, 단추 무엇이든) 구글에 조용히 다시 받아 온다. 브라우저는 누른 순간에만 로그인 창을 허락하기 때문이다.
 
-import { createDrive } from './drive.js?v=0cf2820';
-import { syncPlan } from '../core/sync.js?v=0cf2820';
-import { cidOfState } from '../core/migrate.js?v=0cf2820';
-import { metaOf, exportText, importText, parseSave, clearSlot, SLOT_COUNT } from '../core/save.js?v=0cf2820';
+import { createDrive } from './drive.js?v=25a8527';
+import { syncPlan } from '../core/sync.js?v=25a8527';
+import { cidOfState } from '../core/migrate.js?v=25a8527';
+import { metaOf, exportText, importText, parseSave, clearSlot, bumpRev, SLOT_COUNT } from '../core/save.js?v=25a8527';
 
 export const CLIENT_ID = '782176240387-mi4cvftsmbefiddvd25rul2mvtf09adp.apps.googleusercontent.com';
 const SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
@@ -15,6 +15,7 @@ const GIS = 'https://accounts.google.com/gsi/client';
 const TOKEN_KEY = 'ttiring.cloud.token';
 const WANT_KEY = 'ttiring.cloud'; // 로그인한 적이 있다(토큰은 아니다)
 const LOG_KEY = 'ttiring.cloud.log'; // 이 기기에서 드라이브에 올린 기록. 최근 셋만 둔다 (보기만 한다, Z113)
+const BASE_KEY = 'ttiring.cloud.base'; // 칸마다 마지막으로 드라이브와 맞춘 저장 횟수: { [slot]: rev } (Z121)
 const GONE_KEY = 'ttiring.cloud.gone'; // 이 기기에서 지웠는데 드라이브에서는 아직 못 지운 캐릭터: { [slot]: { cid, rev } } (Z96)
 export const LOG_KEEP = 3;
 export const LOG_GAP = 10 * 60 * 1000; // 같은 칸을 잇달아 올리면 10분 동안은 한 줄로 고친다. 그 뒤의 올리기는 새 줄이다 (Z114)
@@ -45,6 +46,7 @@ export function createCloud({ storage, session, onChange }) {
   let remote = {}; // 드라이브의 칸
   let offers = {}; // 드라이브에만 있는 칸의 요약: { slot: { raw, name, level, when } }
   let clashes = {}; // 드라이브에 다른 캐릭터가 든 칸의 요약: { slot: { name, level, when } } (Z96)
+  let splits = {}; // 같은 캐릭터가 두 기기에서 갈린 칸 (Z121): { slot: { raw, rev, mine: {name,level,day}, theirs: {name,level,day,savedAt} } }
   let listed = false; // 드라이브를 한 번이라도 읽었다
   const took = new Set(); // 드라이브에서 받아 이 기기를 덮은 칸. 그 칸을 하던 화면에 알린다
   let status = token ? 'on' : 'off'; // off, on, busy, expired, error
@@ -111,7 +113,7 @@ export function createCloud({ storage, session, onChange }) {
 
   function signOut() {
     if (token && globalThis.google?.accounts?.oauth2) globalThis.google.accounts.oauth2.revoke(token, () => {});
-    token = null; exp = 0; remote = {}; offers = {}; clashes = {}; listed = false;
+    token = null; exp = 0; remote = {}; offers = {}; clashes = {}; splits = {}; listed = false;
     try { session.removeItem(TOKEN_KEY); storage.removeItem(WANT_KEY); storage.removeItem(LOG_KEY); } catch { /* 없다 */ }
     set('off');
   }
@@ -123,7 +125,7 @@ export function createCloud({ storage, session, onChange }) {
     try {
       remote = await drive.list();
       listed = true;
-      offers = {}; clashes = {};
+      offers = {}; clashes = {}; splits = {};
       const local = [...Array(SLOT_COUNT).keys()].map((slot) => ({ slot, ...metaOf(storage, slot) }));
       // 표가 적히지 않은 옛 파일은 한 번 받아서 누구의 것인지 본다. 다음에 올리면 표가 적힌다
       for (const { slot, rev } of local) {
@@ -132,12 +134,14 @@ export function createCloud({ storage, session, onChange }) {
         try { r.cid = cidOfState(JSON.parse(await drive.download(r.id)).state || {}); } catch (e) { if (e?.status === 401) throw e; /* 읽을 수 없으면 저장 횟수로만 본다 */ }
       }
       const gone = readGone();
-      for (const { slot, act, drop } of syncPlan(local, remote, gone)) {
+      for (const { slot, act, drop } of syncPlan(local, remote, gone, readBase())) {
         // 이 기기에서 지운 캐릭터가 드라이브에 남아 있었다. 이제 지운다
         if (drop) { await drive.remove(remote[slot].id); delete remote[slot]; }
         if (gone[slot]) forgetGone(slot);
         if (act === 'upload') await uploadNow(slot);
-        else if (act === 'take') { importText(storage, slot, await drive.download(remote[slot].id)); took.add(slot); }
+        else if (act === 'take') { importText(storage, slot, await drive.download(remote[slot].id)); took.add(slot); setBase(slot, remote[slot].rev); }
+        else if (act === 'same') setBase(slot, remote[slot].rev);
+        else if (act === 'split') await markSplit(slot);
         else if (act === 'offer' || act === 'clash') {
           const raw = await drive.download(remote[slot].id);
           let sum = null;
@@ -153,17 +157,34 @@ export function createCloud({ storage, session, onChange }) {
   /** 드라이브의 그 칸에 다른 캐릭터가 들었는가 (Z96). 표가 없는 옛 파일은 같은 캐릭터로 본다. */
   const otherThere = (slot, cid) => !!(remote[slot] && cid && remote[slot].cid && remote[slot].cid !== cid);
 
-  /** @param force 드라이브의 다른 캐릭터를 덮는다. 사용자가 그러라고 했을 때만 */
+  /** 갈린 칸을 적어 둔다 (Z121): 드라이브 것을 받아 요약을 만들고, 고를 때까지 올리지 않는다 */
+  async function markSplit(slot) {
+    const raw = await drive.download(remote[slot].id);
+    const sum = (text) => { try { const { state } = parseSave(text); return { name: state.name, level: state.level, day: state.day }; } catch { return { name: '', level: 0, day: 0 }; } };
+    let savedAt = 0; try { savedAt = JSON.parse(raw).savedAt || 0; } catch { /* 없다 */ }
+    splits[slot] = { raw, rev: remote[slot].rev, mine: sum(exportText(storage, slot)), theirs: { ...sum(raw), savedAt } };
+  }
+
+  /** @param force 드라이브의 다른 캐릭터를 덮는다. 사용자가 그러라고 했을 때만. 갈림(Z121)을 고른 뒤에도 쓴다 */
   async function uploadNow(slot, force = false) {
     const { rev, cid } = metaOf(storage, slot);
     if (rev <= 0) return;
+    if (splits[slot] && !force) return; // 갈린 칸은 고를 때까지 올리지 않는다 (Z121)
+    // 올리기 직전에 드라이브를 다시 본다 (Z121): 마지막으로 맞춘 뒤 다른 기기가 올렸으면 덮지 않고 고르게 한다
+    const b = readBase()[slot];
+    if (!force && Number.isInteger(b)) {
+      remote = await drive.list(); listed = true;
+      const r = remote[slot];
+      if (r && (!cid || !r.cid || r.cid === cid) && r.rev !== b && rev !== b) { await markSplit(slot); onChange(); return; }
+    }
     if (otherThere(slot, cid)) { if (!force) return; } // 다른 캐릭터는 묻지 않고 덮지 않는다
     else if (rev <= (remote[slot]?.rev || 0)) return; // 드라이브가 같거나 나중이면 올리지 않는다(되감기 없음)
     const raw = exportText(storage, slot);
     const savedAt = JSON.parse(raw).savedAt || 0;
     const id = await drive.upload(slot, raw, rev, savedAt, remote[slot]?.id || null, cid);
     remote[slot] = { id, rev, savedAt, cid };
-    delete clashes[slot];
+    delete clashes[slot]; delete splits[slot];
+    setBase(slot, rev);
     lastUp = Date.now();
     // 올린 기록 (최근 셋): 언제, 어느 칸, 누구, 며칠째. 맨 위 줄이 같은 칸이고 그 줄을 시작한 지 10분이 안 됐으면 그 줄을 고친다 (Z114)
     try {
@@ -178,6 +199,13 @@ export function createCloud({ storage, session, onChange }) {
 
   function readLog() {
     try { const v = JSON.parse(storage.getItem(LOG_KEY) || '[]'); return Array.isArray(v) ? v : []; } catch { return []; }
+  }
+
+  function readBase() {
+    try { const v = JSON.parse(storage.getItem(BASE_KEY) || '{}'); return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; } catch { return {}; }
+  }
+  function setBase(slot, rev) {
+    try { const b = readBase(); if (rev == null) delete b[slot]; else b[slot] = rev; storage.setItem(BASE_KEY, JSON.stringify(b)); } catch { /* 못 적어도 저장 횟수로 견준다 */ }
   }
 
   function readGone() {
@@ -198,6 +226,19 @@ export function createCloud({ storage, session, onChange }) {
     signIn, signOut, refresh,
     /** 드라이브에 이 칸의 같은 캐릭터가 있다 */
     has: (slot) => !!remote[slot] && !clashes[slot],
+    /** 같은 캐릭터가 두 기기에서 갈렸으면 두 쪽의 요약 (Z121) */
+    splitOf: (slot) => (splits[slot] ? { mine: splits[slot].mine, theirs: splits[slot].theirs } : null),
+    /** 갈린 칸을 고른다 (Z121). theirs: 드라이브 것(다른 기기)을 이 기기로 받는다. mine: 이 기기 것을 드라이브에 올린다 */
+    async resolve(slot, pick) {
+      const sp = splits[slot];
+      if (!sp) return;
+      try {
+        set('busy', pick === 'theirs' ? '받는 중' : '올리는 중');
+        if (pick === 'theirs') { importText(storage, slot, sp.raw); took.add(slot); setBase(slot, sp.rev); delete splits[slot]; }
+        else { bumpRev(storage, slot, Math.max(sp.rev, remote[slot]?.rev || 0) + 1); delete splits[slot]; await uploadNow(slot, true); }
+        set('on');
+      } catch (e) { fail(e); }
+    },
     /** 드라이브의 이 칸에 다른 캐릭터가 있으면 그 요약 (Z96) */
     clashOf: (slot) => clashes[slot] || null,
     /** 드라이브에서 받아 이 칸을 덮었는가. 한 번 물으면 잊는다 */
@@ -209,6 +250,7 @@ export function createCloud({ storage, session, onChange }) {
       if (!o) throw new Error('드라이브에 없습니다');
       importText(storage, slot, o.raw);
       delete offers[slot];
+      if (remote[slot]) setBase(slot, remote[slot].rev);
       onChange();
     },
     /** 저절로 저장한 뒤 부른다. 몇 초 모아서 올린다. */
@@ -232,6 +274,7 @@ export function createCloud({ storage, session, onChange }) {
       const { rev, cid } = metaOf(storage, slot);
       clearSlot(storage, slot);
       took.delete(slot);
+      setBase(slot, null); delete splits[slot];
       if (otherThere(slot, cid)) return;
       const later = () => { if (wanted() && (cid || rev > 0)) writeGone({ ...readGone(), [slot]: { cid, rev } }); };
       if (!token || !listed) return later();

@@ -1,13 +1,13 @@
 // 가게 (SB-D, LV-K1, LV-K6): 저울 마당의 좌판. 내가 만든 물건을 올려 두면, 내가 일하는 동안 손님이 와서 제값에 사 간다.
 // 쉬거나 자는 동안에는 오지 않는다. 띠링은 울리지 않는다. 사기 전에는 어디에도 나오지 않는다 (SB-I3).
 
-import { placeById } from '../data/places.js?v=0cf2820';
-import { itemDef, gradeName } from '../data/items.js?v=0cf2820';
-import { pushLine, ding } from './log.js?v=0cf2820';
-import { worth } from './trade.js?v=0cf2820';
-import { gearName } from './gear.js?v=0cf2820';
-import { fameRank } from './social.js?v=0cf2820';
-import { eulReul } from './ko.js?v=0cf2820';
+import { placeById } from '../data/places.js?v=25a8527';
+import { itemDef, gradeName } from '../data/items.js?v=25a8527';
+import { pushLine, ding } from './log.js?v=25a8527';
+import { worth } from './trade.js?v=25a8527';
+import { gearName } from './gear.js?v=25a8527';
+import { fameRank } from './social.js?v=25a8527';
+import { eulReul } from './ko.js?v=25a8527';
 
 /** price: 좌판 값 (LV-L6). slots: 진열 칸. every/best: 손님 하나에 드는 내 일의 수(처음 → 단골이 늘면). per: 일 한 번을 줄이는 데 드는 단골 수. */
 export const STALL = { price: 3800, slots: 6, every: 20, best: 8, per: 25, town: '저울목', place: 'scaleyard', owner: 'stallowner' };
