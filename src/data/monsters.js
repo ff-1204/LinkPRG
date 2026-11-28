@@ -158,7 +158,7 @@ export function monsterDef(id) {
 }
 
 // 21~100의 보통 몬스터 (LV-C3~C10). 사냥터에 잇기 전이라 아직 만나지 않는다
-import { tierMonsters, tierBosses } from './tiers.js?v=00237c5';
-import { monsterXp } from './bands.js?v=00237c5';
-import { xpToNext } from '../core/level.js?v=00237c5';
+import { tierMonsters, tierBosses } from './tiers.js?v=0a63055';
+import { monsterXp } from './bands.js?v=0a63055';
+import { xpToNext } from '../core/level.js?v=0a63055';
 Object.assign(MONSTERS, tierMonsters((level) => monsterXp(level, xpToNext)), tierBosses((level) => monsterXp(level, xpToNext)));

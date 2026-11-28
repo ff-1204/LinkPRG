@@ -295,6 +295,9 @@ html.calm .cool i { animation: none !important; }
 .dmap i { min-height: 1.9rem; border: 1px dashed var(--line); border-radius: 4px; font-style: normal; font-size: .72rem; display: flex; align-items: center; justify-content: center; color: var(--muted); }
 .dmap i.on { border: 1.5px solid var(--line2); background: var(--paper); color: var(--ink); }
 .dmap i.here { border: 2.5px solid var(--cinnamon); font-weight: 700; }
+.dmap button.go { min-height: 1.9rem; padding: 0; border: 1.5px solid var(--mint-line); border-radius: 4px; background: var(--mint); color: var(--mint-ink); font: inherit; font-size: .72rem; font-weight: 700; cursor: pointer; }
+.dmap button.go:hover:not([disabled]) { background: var(--paper); }
+.dmap button.go[disabled] { opacity: .6; cursor: default; }
 
 /* ── M8: 세계 공지와 랭킹 ── */
 .rank { width: 100%; }
