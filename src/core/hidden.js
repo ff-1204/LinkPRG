@@ -69,6 +69,14 @@ export function valueOf(def, state) {
   return stepped(countOf(def, state), def.first, def.gap[0], def.gap[1]);
 }
 
+/** 다음 값까지 더 쌓아야 하는 횟수 (Z122). */
+export function toNext(def, state) {
+  const count = countOf(def, state);
+  let need = def.first, gap = def.gap[0];
+  while (count >= need) { need += gap; gap += def.gap[1]; }
+  return need - count;
+}
+
 /** 문턱까지 얼마나 왔는지 0~1. 화면에는 숫자로 보이지 않는다. */
 export function progressOf(def, state) {
   return Math.min(1, countOf(def, state) / def.first);

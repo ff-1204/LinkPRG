@@ -52,3 +52,16 @@ test('안목은 파는 값을, 알뜰은 재료 하나를 아낀다', () => {
   for (let i = 0; i < 50; i++) { const n = countOf(s, 'herb'); spare(s, [], 'herb'); if (countOf(s, 'herb') > n) saved += 1; }
   assert.ok(saved > 30, `알뜰 90%면 대부분 아낀다 (${saved}/50)`);
 });
+
+test('기도 중의 행운 (Z122): 행운을 찾은 사람만, 1% 확률로 행운 +1', async () => {
+  const { PRAY_LUCK_RATE } = await import('../src/core/game.js');
+  assert.equal(PRAY_LUCK_RATE, 0.01);
+  const pray = (s, n) => { s.place = 'temple'; for (let i = 0; i < n; i++) { if (s.phase === 2) { s.phase = 0; s.day += 1; } s.tired = 0; s.full = 100; dispatch(s, { type: 'act', id: 'pray' }); } };
+  const none = fresh('pl0');
+  pray(none, 400);
+  assert.equal(none.hidden.luck?.value || 0, 0, '행운을 찾기 전에는 오르지 않는다');
+  const s = fresh('pl1');
+  s.counters.rare = 10; s.hidden.luck = { value: 1, half: true };
+  pray(s, 400);
+  assert.ok(s.hidden.luck.value >= 2, `400번 기도하면 한 번쯤은 오른다 (${s.hidden.luck.value})`);
+});
