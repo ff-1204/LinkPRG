@@ -1,19 +1,19 @@
 // 사람들과의 사이, 명성, 칭호, 대화 판정 (E25~E28, G3-1, T10~T14).
 
-import { tentHere } from '../data/anvil.js?v=9eeacc1';
+import { tentHere } from '../data/anvil.js?v=d86445b';
 
-import { next, pick, roll01 } from './rng.js?v=9eeacc1';
-import { pushLine, ding } from './log.js?v=9eeacc1';
-import { PEOPLE, PEOPLE_ORDER, BONDS, GIFT, TALK_POINT, FAME, TITLES, personById, REGULAR, CALLS } from '../data/people.js?v=9eeacc1';
-import { itemDef } from '../data/items.js?v=9eeacc1';
-import { removeAt } from './inventory.js?v=9eeacc1';
-import { placeById, ACTIONS } from '../data/places.js?v=9eeacc1';
-import { ROLE_BONUS, fullRoles } from '../data/companions.js?v=9eeacc1';
-import { iGa, eulReul, ro, eunNeun } from './ko.js?v=9eeacc1';
-import { TALKS } from '../data/talks.js?v=9eeacc1';
-import { rootOf } from '../data/origins.js?v=9eeacc1';
-import { smithMemory } from './memories.js?v=9eeacc1';
-import { hasTitle } from './titles.js?v=9eeacc1';
+import { next, pick, roll01 } from './rng.js?v=d86445b';
+import { pushLine, ding } from './log.js?v=d86445b';
+import { PEOPLE, PEOPLE_ORDER, BONDS, GIFT, TALK_POINT, FAME, TITLES, personById, REGULAR, CALLS } from '../data/people.js?v=d86445b';
+import { itemDef } from '../data/items.js?v=d86445b';
+import { removeAt } from './inventory.js?v=d86445b';
+import { placeById, ACTIONS } from '../data/places.js?v=d86445b';
+import { ROLE_BONUS, fullRoles } from '../data/companions.js?v=d86445b';
+import { iGa, eulReul, ro, eunNeun } from './ko.js?v=d86445b';
+import { TALKS } from '../data/talks.js?v=d86445b';
+import { rootOf } from '../data/origins.js?v=d86445b';
+import { smithMemory } from './memories.js?v=d86445b';
+import { hasTitle } from './titles.js?v=d86445b';
 
 const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
 

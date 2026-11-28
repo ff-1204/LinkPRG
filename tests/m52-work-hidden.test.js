@@ -65,3 +65,16 @@ test('기도 중의 행운 (Z122): 행운을 찾은 사람만, 1% 확률로 행�
   pray(s, 400);
   assert.ok(s.hidden.luck.value >= 2, `400번 기도하면 한 번쯤은 오른다 (${s.hidden.luck.value})`);
 });
+
+test('여섯 히든이 모두 1 이상이면 행운을 찾기 전이라도 기도 중에 행운이 오른다 (Z123)', async () => {
+  const { PRAY_LUCK_SIX } = await import('../src/core/game.js');
+  const pray = (s, n) => { s.place = 'temple'; for (let i = 0; i < n; i++) { if (s.phase === 2) { s.phase = 0; s.day += 1; } s.tired = 0; s.full = 100; dispatch(s, { type: 'act', id: 'pray' }); } };
+  const five = fresh('six5');
+  for (const id of PRAY_LUCK_SIX.slice(1)) five.counters.act[WORKS[id]] = 100;
+  pray(five, 400);
+  assert.equal(five.hidden.luck?.value || 0, 0, '다섯만으로는 열리지 않는다');
+  const s = fresh('six6');
+  for (const id of PRAY_LUCK_SIX) s.counters.act[WORKS[id]] = 100;
+  pray(s, 400);
+  assert.ok((s.hidden.luck?.value || 0) >= 1, '여섯이면 행운을 찾는다');
+});

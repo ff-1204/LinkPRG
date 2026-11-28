@@ -1,7 +1,7 @@
 // 퀘스트 네 갈래의 글과 꼴 (Q1~Q4, E19~E23, S1). 글은 사용자가 읽고 고치는 자리다.
 // 효과 말: bond [[사람, 점수]] · fame · silver · xp · take/give [[물건, 개수]] · title [id, 까닭] · set(이 퀘스트의 표시) · lean(+의로움/−실리)
 
-import { MAIN13, ANVIL_ENDS, ANVIL_END_ORDER } from './anvil.js?v=9eeacc1';
+import { MAIN13, ANVIL_ENDS, ANVIL_END_ORDER } from './anvil.js?v=d86445b';
 
 // ── 의뢰 (게시판) ─────────────────────────────────────────
 export const JOB_LIMIT = 3;
