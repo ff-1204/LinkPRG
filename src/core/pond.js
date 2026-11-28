@@ -2,7 +2,7 @@
 // 거울: 별못의 싸움에서는 같은 수를 거듭하면 읽힌다(읽힘 0~100). 싸움에 걸리는 것은 battle.js가 여기 숫자를 읽어 넣는다.
 // 지켜보기: 답하는 마당에서 마을 사람의 일을 끝까지 지켜보고 "봤다고 말한다". 일로 치지 않는다.
 
-import { placeById } from '../data/places.js?v=c3aa7be';
+import { placeById } from '../data/places.js?v=c392bbe';
 
 /**
  * BM-A1, BM-B3의 숫자. road: 다릿목에서 내려가는 하루 길에 드는 때.
@@ -31,11 +31,11 @@ export const inPond = (state) => placeById(state.place).band === POND.band;
 export const daonFirst = (state) => (state.ending === 'hidden' ? [['daon', DAON_FIRST_SEEN], ...DAON_FIRST.slice(1)] : DAON_FIRST);
 
 // ── 답하는 마당: 지켜보기 (BM-D) ──
-import { PEOPLE, WATCHED } from '../data/people.js?v=c3aa7be';
-import { WATCH, WORKERS } from '../data/pond.js?v=c3aa7be';
-import { pushLine } from './log.js?v=c3aa7be';
-import { bondBy } from './social.js?v=c3aa7be';
-import { iGa } from './ko.js?v=c3aa7be';
+import { PEOPLE, WATCHED } from '../data/people.js?v=c392bbe';
+import { WATCH, WORKERS } from '../data/pond.js?v=c392bbe';
+import { pushLine } from './log.js?v=c392bbe';
+import { bondBy } from './social.js?v=c392bbe';
+import { iGa } from './ko.js?v=c392bbe';
 
 export { WATCH, WORKERS, WATCHED };
 /** 마당의 자리. */
@@ -104,7 +104,7 @@ export const answeredPeople = (state) => WATCHED.filter((id) => (state.pond?.wat
 export const answeredAll = (state) => WATCHED.every((id) => (state.pond?.watch?.[id]?.done || 0) >= WATCH.each);
 
 // ── 거울: 읽히는 버릇 (BM-B) ──
-import { ro } from './ko.js?v=c3aa7be';
+import { ro } from './ko.js?v=c392bbe';
 
 /** 읽히는 곳에 서 있는가: 못 둘레, 별 떨어진 벌, 그리고 별 떨어진 자리(던전 안에서도 곳은 그 어귀다). */
 export const mirrored = (state) => !!placeById(state.place).mirror;
@@ -157,11 +157,11 @@ export function readView(state) {
 export const sameSub = (state, key) => { const b = state.battle; return b && mirrored(state) && key && b.last === key && (b.same || 0) >= 2 ? `${b.same}번째` : ''; };
 
 // ── 12장 깨진 종의 길과 서브 둘, "봤어" (BM-D5, BM-E) ──
-import { SHARDS, SHARD_LINES, SAW_SAY, SUBS } from '../data/quests.js?v=c3aa7be';
-import { WILDS } from '../data/wild.js?v=c3aa7be';
-import { MONSTERS } from '../data/monsters.js?v=c3aa7be';
-import { countOf, takeById } from './inventory.js?v=c3aa7be';
-import { chance, roll01 } from './rng.js?v=c3aa7be';
+import { SHARDS, SHARD_LINES, SAW_SAY, SUBS } from '../data/quests.js?v=c392bbe';
+import { WILDS } from '../data/wild.js?v=c392bbe';
+import { MONSTERS } from '../data/monsters.js?v=c392bbe';
+import { countOf, takeById } from './inventory.js?v=c392bbe';
+import { chance, roll01 } from './rng.js?v=c392bbe';
 
 export { SHARDS, SHARD_LINES };
 /** 집집에 건 작은 종의 수 (나누는 길). */

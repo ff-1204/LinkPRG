@@ -1,16 +1,16 @@
 // 직업과 히든 직업 (T4~T9, N4-3, N4-4, N5).
 
-import { pushLine, ding } from './log.js?v=c3aa7be';
-import { JOBS, JOB_ORDER, HIDDEN_JOBS, HIDDEN_JOB_ORDER, JOB_LEVEL, JOB_XP, SKILL_LEVELS, NAMELESS_LEVEL, jobDef, ADVANCED, ADVANCE_LEVEL } from '../data/jobs.js?v=c3aa7be';
-import { placeById } from '../data/places.js?v=c3aa7be';
-import { guildPerk } from './guild.js?v=c3aa7be';
-import { SKILL_NAMES, gradeLabel } from './skills.js?v=c3aa7be';
-import { itemDef } from '../data/items.js?v=c3aa7be';
-import { addItem } from './inventory.js?v=c3aa7be';
-import { eulReul, iGa } from './ko.js?v=c3aa7be';
-import { xpBoost } from './buffs.js?v=c3aa7be';
-import { priestOpen, PRIEST_LUCK } from './statplan.js?v=c3aa7be';
-import { PRIEST_LOCK } from '../data/statinfo.js?v=c3aa7be';
+import { pushLine, ding } from './log.js?v=c392bbe';
+import { JOBS, JOB_ORDER, HIDDEN_JOBS, HIDDEN_JOB_ORDER, JOB_LEVEL, JOB_XP, SKILL_LEVELS, NAMELESS_LEVEL, jobDef, ADVANCED, ADVANCE_LEVEL } from '../data/jobs.js?v=c392bbe';
+import { placeById } from '../data/places.js?v=c392bbe';
+import { guildPerk } from './guild.js?v=c392bbe';
+import { SKILL_NAMES, gradeLabel } from './skills.js?v=c392bbe';
+import { itemDef } from '../data/items.js?v=c392bbe';
+import { addItem } from './inventory.js?v=c392bbe';
+import { eulReul, iGa } from './ko.js?v=c392bbe';
+import { xpBoost } from './buffs.js?v=c392bbe';
+import { priestOpen, PRIEST_LUCK } from './statplan.js?v=c392bbe';
+import { PRIEST_LOCK } from '../data/statinfo.js?v=c392bbe';
 
 /** 보이는 직업 이름. */
 export function jobName(state) {

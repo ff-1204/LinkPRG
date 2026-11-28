@@ -106,8 +106,8 @@ export const COMPANIONS = {
 // 때리는 이는 그 구간 기준 사람(스탯 점수의 절반을 주 스탯에, 그 구간 무기)이 한 번에 넣는 피해의 55%를 넣는다. 뒷줄의 활은 그보다 조금 덜(45%), 막는 이는 25%.
 // 막는 이는 내가 맞을 것을 35%의 확률로 통째로 대신 맞는다(평균 35%). 생명력은 그 구간 보통 몬스터의 생명력만큼(때리는 이는 그 70%, 뒷줄은 55%).
 // 삯은 그 구간 하루 벌이의 12%를 십 단위로 맞춘 값이다 (LV-L1, JD-G6: 잠긴 도성 250).
-import { bandByNo, bardRate } from './bands.js?v=c3aa7be';
-import { TENT_PEOPLE, TENT_FEE, tentsHere } from './anvil.js?v=c3aa7be';
+import { bandByNo, bardRate } from './bands.js?v=c392bbe';
+import { TENT_PEOPLE, TENT_FEE, tentsHere } from './anvil.js?v=c392bbe';
 
 export const BAND_MERC = { strike: 0.55, back: 0.45, guard: 0.25, guardRate: 0.35, hp: { striker: 0.7, back: 0.55, guard: 1 }, fee: 0.12 };
 /** 시안이 삯을 따로 적은 구간 (LV-L의 표, BM-H6): 별못 690. 셈으로는 680이 나온다(하루 벌이 5,700이 반올림한 값이라). */
